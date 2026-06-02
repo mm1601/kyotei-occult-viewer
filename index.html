@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>競艇オカルトサイン発掘ツール</title>
+<title>競艇予想ツール（オカルト検証＋本気データ予想）</title>
 <style>
   :root{
     --bg:#f4f6fb; --card:#ffffff; --ink:#1c2230; --muted:#5b6577; --faint:#8a93a6;
@@ -118,6 +118,41 @@
   .term{font-size:13.5px; color:#33405a; margin:6px 0;}
   .term b{color:var(--ink);}
 
+  /* ---- タブ（オカルト / 本気予想） ---- */
+  .tabs{display:flex; gap:6px; margin:2px 0 18px; border-bottom:2px solid var(--line);}
+  .tabbtn{appearance:none; -webkit-appearance:none; border:none; background:none; cursor:pointer;
+    font:inherit; font-weight:800; font-size:15px; color:var(--muted);
+    padding:10px 14px 12px; margin-bottom:-2px; border-bottom:3px solid transparent;}
+  .tabbtn:hover{color:var(--ink);}
+  .tabbtn.active{color:var(--accent); border-bottom-color:var(--accent);}
+  .tabpanel{animation:fadein .18s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(3px);} to{opacity:1; transform:none;}}
+
+  /* ---- 本気予想 ---- */
+  .hk-intro{background:var(--card); border:1px solid var(--line); border-left:6px solid var(--blue);
+    border-radius:14px; padding:16px 18px; margin:0 0 16px; box-shadow:0 1px 3px rgba(20,30,60,.05);}
+  .hk-intro .ttl{font-size:18px; font-weight:800; margin:0 0 4px;}
+  .hk-intro p{margin:6px 0 0; font-size:13.5px; color:#33405a;}
+  .hk-stat{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 2px;}
+  .hk-stat .s{flex:1 1 28%; min-width:118px; background:var(--bg); border:1px solid var(--line);
+    border-radius:10px; padding:8px 11px;}
+  .hk-stat .s .n{font-size:19px; font-weight:800; line-height:1.15;}
+  .hk-stat .s .l{font-size:11.5px; color:var(--muted);}
+  .hk-race{background:var(--card); border:1px solid var(--line); border-left:5px solid var(--blue);
+    border-radius:12px; padding:14px 16px; margin-bottom:13px; box-shadow:0 1px 2px rgba(20,30,60,.04);}
+  .hk-race h3{font-size:16.5px; margin:0 0 4px;}
+  .hk-picks{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0;}
+  .hk-pk{font-size:13px; font-weight:700; font-variant-numeric:tabular-nums;
+    background:var(--bluebg); color:var(--blue); border-radius:8px; padding:3px 9px; white-space:nowrap;}
+  .hk-pk .od{color:var(--muted); font-weight:600; font-size:11px; margin-left:5px;}
+  .hk-pk.win{background:var(--greenbg); color:var(--green); box-shadow:0 0 0 2px var(--green) inset;}
+  .hk-reasons{margin:10px 0 4px; padding-left:18px; font-size:13px; color:#33405a;}
+  .hk-reasons li{margin:5px 0; line-height:1.6;}
+  .hk-result{border-radius:10px; padding:9px 12px; margin:10px 0 2px; font-size:14px; font-weight:800;}
+  .hk-result.hit{background:var(--greenbg); color:var(--green);}
+  .hk-result.miss{background:var(--graybg); color:var(--gray);}
+  .hk-caveat{font-size:12px; color:var(--muted); margin:8px 0 0; line-height:1.6;}
+
   footer{margin-top:34px; color:var(--faint); font-size:12px; text-align:center; line-height:1.6;}
   @media (max-width:520px){
     body{font-size:15px;} h1{font-size:20px;} .wrap{padding:14px 13px 80px;}
@@ -130,8 +165,15 @@
 <body>
 <div class="wrap">
 
-  <h1>競艇オカルトサイン発掘ツール</h1>
-  <p class="tagline">勝率・級別は使いません。“オカルトのサイン”だけを、実際の過去レースで並べて検証します。</p>
+  <h1>競艇予想ツール</h1>
+  <p class="tagline">2つのモード：オカルトのサイン検証と、勝率・級別を使った“本気のデータ予想”。</p>
+
+  <div class="tabs" id="tabs">
+    <button class="tabbtn active" data-tab="occult">🔮 オカルトサイン</button>
+    <button class="tabbtn" data-tab="honki">📊 本気データ予想</button>
+  </div>
+
+  <div class="tabpanel" id="panel-occult">
 
   <div class="hero" id="hero"></div>
 
@@ -189,6 +231,12 @@
       </table>
     </div>
   </details>
+
+  </div><!-- /panel-occult -->
+
+  <div class="tabpanel hidden" id="panel-honki">
+    <div id="honki-root"></div>
+  </div><!-- /panel-honki -->
 
   <footer id="footer"></footer>
 </div>
@@ -588,11 +636,130 @@ Array.prototype.forEach.call(document.querySelectorAll(".more"),function(el){
   render();
 })();
 
+// ======================= 本気データ予想（タブ） =======================
+// PICKS = run_day.py が書いた最新 picks/YYYY-MM-DD.json。
+//   races[]: venue_name/race_no/n_points/picks[]/value_spots[]/reasons[]/
+//            model_hit_prob/model_expected_roi/backtest_reference_roi/result?
+//   graded:        本日ぶんが採点済みなら {date,summary}（各レースに result も差し込み）
+//   recent_result: 直近の採点済み日 {date,summary}（本日未採点でも“結果が出る”証拠を見せる）
+const PICKS = {"date": "2026-06-02", "generated_at": "2026-06-02T15:17:26", "model": "plackett_luce_v1", "model_train_to": "2025-06-30", "ev_min": 1.0, "n_races": 1, "races": [{"venue_code": "24", "venue_name": "大村", "race_no": 12, "entries": [{"boat_no": 1, "racer_name": "原田才一", "grade": "A1", "strength": 1.723, "win_prob": 0.5671}, {"boat_no": 2, "racer_name": "木下雄介", "grade": "A2", "strength": -0.008, "win_prob": 0.1005}, {"boat_no": 3, "racer_name": "飯山晃三", "grade": "B1", "strength": -0.776, "win_prob": 0.0466}, {"boat_no": 4, "racer_name": "永田秀二", "grade": "A2", "strength": -0.124, "win_prob": 0.0894}, {"boat_no": 5, "racer_name": "角山雄哉", "grade": "B1", "strength": -1.448, "win_prob": 0.0238}, {"boat_no": 6, "racer_name": "豊田健士", "grade": "A1", "strength": 0.533, "win_prob": 0.1726}], "picks": [{"combo": "1-6-2", "prob": 0.08729, "odds": 14.3, "ev": 1.248}, {"combo": "1-6-4", "prob": 0.07767, "odds": 14.2, "ev": 1.103}, {"combo": "1-2-6", "prob": 0.06836, "odds": 9.4, "ev": 0.643}, {"combo": "1-4-6", "prob": 0.05886, "odds": 9.7, "ev": 0.571}, {"combo": "6-1-2", "prob": 0.04566, "odds": 53.8, "ev": 2.457}, {"combo": "6-1-4", "prob": 0.04063, "odds": 49.4, "ev": 2.007}, {"combo": "1-6-3", "prob": 0.04049, "odds": 28.6, "ev": 1.158}, {"combo": "1-2-4", "prob": 0.03541, "odds": 12.2, "ev": 0.432}, {"combo": "1-4-2", "prob": 0.03427, "odds": 18.0, "ev": 0.617}, {"combo": "2-1-6", "prob": 0.03289, "odds": 79.5, "ev": 2.615}, {"combo": "4-1-6", "prob": 0.02798, "odds": 61.0, "ev": 1.707}, {"combo": "1-3-6", "prob": 0.02729, "odds": 20.4, "ev": 0.557}], "n_points": 12, "stake_per_point": 100, "model_hit_prob": 0.5768, "model_expected_roi": 1.259, "backtest_reference_roi": 0.75, "value_spots": [{"combo": "6-1-5", "prob": 0.01081, "odds": 499.2, "ev": 5.397}, {"combo": "6-1-3", "prob": 0.02118, "odds": 249.6, "ev": 5.288}, {"combo": "3-1-6", "prob": 0.01239, "odds": 261.5, "ev": 3.24}, {"combo": "6-5-1", "prob": 0.0035, "odds": 915.3, "ev": 3.205}, {"combo": "2-1-6", "prob": 0.03289, "odds": 79.5, "ev": 2.615}, {"combo": "2-6-1", "prob": 0.01504, "odds": 171.6, "ev": 2.581}, {"combo": "6-1-2", "prob": 0.04566, "odds": 53.8, "ev": 2.457}, {"combo": "6-3-1", "prob": 0.00706, "odds": 305.1, "ev": 2.154}, {"combo": "6-1-4", "prob": 0.04063, "odds": 49.4, "ev": 2.007}, {"combo": "5-1-6", "prob": 0.00583, "odds": 343.2, "ev": 2.001}, {"combo": "1-6-5", "prob": 0.02067, "odds": 94.6, "ev": 1.955}, {"combo": "6-2-1", "prob": 0.01635, "odds": 107.6, "ev": 1.759}, {"combo": "4-1-6", "prob": 0.02798, "odds": 61.0, "ev": 1.707}, {"combo": "3-6-1", "prob": 0.00613, "odds": 261.5, "ev": 1.603}, {"combo": "2-1-4", "prob": 0.01704, "odds": 79.5, "ev": 1.355}], "n_value_spots": 15, "value_warning": "推定EVは『最適化の呪い』+人気薄バイアス+控除率で実現が大幅に下振れしやすい。未検証。grade で実ROIを蓄積して判断すること。", "reasons": ["総合強さ1位は1号艇 原田才一(A1) — モデル強さ+1.72、1着確率56.7%。枠補正+1.16に実力が上乗せ。", "根拠の中心は全国勝率(寄与+0.77, z=+1.1, 実値6.71)。次点は6号艇 豊田健士(1着確率17.3%)。", "主推奨12点は1着を1/2/4/6号艇、2着を1/2/3/4/6号艇中心に確率上位で被覆。推定的中率57.7%、買い目平均EV≈1.26。同型のバックテスト実現ROIは≈75%(控除率ぶん不利)で、的中率は無作為・人気を上回る。", "参考: 推定EV最大は6-1-5(オッズ499.2倍×確率1.1%=EV5.40)だが、120組の最大EV選抜は実現が推定を大きく下回る(最適化の呪い)。未検証のため本命被覆を主軸とする。"], "caveat": "本気データ予想(オカルト非依存)。主推奨は実証ROI≈75%(控除率ぶん不利)で利益保証ではない。確率は公開特徴のみで市場も織込済み。"}], "disclaimer": "本気データ予想(オカルト非依存)。Plackett-Luceで着順確率を推定し、公式ライブオッズとのEVで10-15点に厳選。期待値は推定であり利益保証ではない。", "recent_result": {"date": "2026-06-01", "summary": {"n_races_total": 11, "n_races_bet": 11, "n_hit": 4, "hit_rate": 0.3636, "total_cost": 13200, "total_return": 8710, "roi": 0.6598}}};
+
+function hkChip(p, winCombo){
+  const cls = (winCombo && p.combo===winCombo) ? "hk-pk win" : "hk-pk";
+  const od  = (p.odds!=null) ? '<span class="od">'+Number(p.odds).toFixed(1)+'倍</span>' : '';
+  return '<span class="'+cls+'">'+esc(p.combo)+od+'</span>';
+}
+function hkValChip(p){
+  const od = (p.odds!=null) ? Number(p.odds).toFixed(0)+'倍' : '';
+  const ev = (p.ev!=null)   ? ' EV'+Number(p.ev).toFixed(1) : '';
+  return '<span class="hk-pk" style="background:var(--amberbg);color:var(--amber)">'+
+         esc(p.combo)+'<span class="od">'+esc(od+ev)+'</span></span>';
+}
+function pctR(x){return (x==null||isNaN(x))?"—":Math.round(x*100)+"%";}
+
+function renderHonki(){
+  const root=document.getElementById("honki-root");
+  if(!root) return;
+  if(!PICKS || !Array.isArray(PICKS.races) || !PICKS.races.length){
+    root.innerHTML='<div class="hk-intro"><div class="ttl">本日の買い目はまだありません</div>'+
+      '<p>端末で <code>predict/run_day.py predict --date YYYY-MM-DD</code> を実行すると、'+
+      'ここに三連単10〜15点・根拠・（採点後は）結果が表示されます。</p></div>';
+    return;
+  }
+  const graded = PICKS.graded || null;          // 本日ぶん（採点済み）
+  const recent = PICKS.recent_result || null;   // 直近の採点済み日
+  let html="";
+
+  // イントロ＋日次サマリ
+  html+='<div class="hk-intro">'+
+    '<div class="ttl">📊 本気データ予想 — '+esc(PICKS.date||"")+'</div>'+
+    '<p>'+esc(PICKS.disclaimer||"")+'</p>';
+  const sumSrc = graded || recent;
+  if(sumSrc && sumSrc.summary && sumSrc.summary.n_races_bet!=null){
+    const s=sumSrc.summary, isToday=!!graded;
+    const roiColor = (s.roi>=1)?'var(--green)':'var(--red)';
+    html+='<div class="hk-stat">'+
+      '<div class="s"><div class="n">'+s.n_hit+' / '+s.n_races_bet+'</div><div class="l">的中レース</div></div>'+
+      '<div class="s"><div class="n">'+pctR(s.hit_rate)+'</div><div class="l">的中率</div></div>'+
+      '<div class="s"><div class="n" style="color:'+roiColor+'">'+pctR(s.roi)+'</div><div class="l">実現ROI（'+fmtInt(s.total_return)+'円/'+fmtInt(s.total_cost)+'円）</div></div>'+
+      '</div>'+
+      '<p class="hk-caveat">'+(isToday
+        ? '⚠ 上は'+esc(PICKS.date)+'の<b>確定結果</b>。'
+        : '✓ 下の買い目は'+esc(PICKS.date)+'の予想。上は<b>直近の確定結果（'+esc(sumSrc.date)+'）</b>＝結果検証が機能している証拠です。')+
+      '三連単は控除率約25%。長期の実現ROIは<b>75%が天井圏</b>で、黒字継続は前提にしないこと。</p>';
+  }
+  html+='</div>';
+
+  // レースごと
+  PICKS.races.forEach(function(r){
+    const win = (r.result && r.result.actual) ? r.result.actual : null;
+    html+='<div class="hk-race">';
+    html+='<h3>'+esc(r.venue_name||"")+esc(r.race_no)+'R '+
+      '<span style="color:var(--muted);font-weight:600;font-size:13px">主'+esc(r.n_points)+'点</span></h3>';
+    html+='<div class="hk-picks">'+(r.picks||[]).map(function(p){return hkChip(p,win);}).join("")+'</div>';
+
+    html+='<div class="hk-stat">'+
+      '<div class="s"><div class="n">'+pctR(r.model_hit_prob)+'</div><div class="l">推定的中率（主'+esc(r.n_points)+'点）</div></div>'+
+      '<div class="s"><div class="n">'+pctR(r.model_expected_roi)+'</div><div class="l">買い目平均EV（推定）</div></div>'+
+      '<div class="s"><div class="n">'+pctR(r.backtest_reference_roi)+'</div><div class="l">同型バックテスト実ROI</div></div>'+
+      '</div>';
+
+    if(r.result){
+      const cls=r.result.hit?"hit":"miss";
+      const msg=r.result.hit
+        ? '的中 ✓ 結果 '+esc(r.result.actual)+'（払戻 '+fmtInt(r.result.payout)+'円 / 投資 '+fmtInt(r.result.cost)+'円）'
+        : '不的中 ― 結果 '+esc(r.result.actual)+'（参考払戻 '+fmtInt(r.result.payout)+'円）';
+      html+='<div class="hk-result '+cls+'">'+msg+'</div>';
+    }
+
+    if(Array.isArray(r.reasons) && r.reasons.length){
+      html+='<ul class="hk-reasons">'+r.reasons.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul>';
+    }
+
+    if(Array.isArray(r.value_spots) && r.value_spots.length){
+      const gid="hkvs-"+esc(r.venue_code)+"-"+esc(r.race_no);
+      html+='<span class="more" data-t="'+gid+'">＋ 妙味候補（高EVだが未検証）'+r.value_spots.length+'件をみる</span>'+
+        '<div id="'+gid+'" class="hidden">'+
+        '<p class="hk-caveat" style="margin-top:8px">'+esc(r.value_warning||"")+'</p>'+
+        '<div class="hk-picks">'+r.value_spots.map(hkValChip).join("")+'</div></div>';
+    }
+    if(r.caveat) html+='<p class="hk-caveat">'+esc(r.caveat)+'</p>';
+    html+='</div>';
+  });
+  root.innerHTML=html;
+
+  // 妙味候補トグル（このノードは全体配線の後に生成されるので個別配線）
+  Array.prototype.forEach.call(root.querySelectorAll(".more"),function(el){
+    el.addEventListener("click",function(){
+      const t=document.getElementById(el.getAttribute("data-t"));
+      if(t.classList.contains("hidden")){t.classList.remove("hidden"); el.textContent="− 閉じる";}
+      else{t.classList.add("hidden"); el.textContent="＋ 妙味候補（高EVだが未検証）"+t.querySelectorAll(".hk-pk").length+"件をみる";}
+    });
+  });
+}
+renderHonki();
+
+// ---------- タブ切替 ----------
+(function(){
+  const btns=document.querySelectorAll(".tabbtn");
+  const panels={occult:document.getElementById("panel-occult"),
+                honki:document.getElementById("panel-honki")};
+  Array.prototype.forEach.call(btns,function(b){
+    b.addEventListener("click",function(){
+      const tab=b.getAttribute("data-tab");
+      Array.prototype.forEach.call(btns,function(x){x.classList.toggle("active",x===b);});
+      for(const k in panels){ if(panels[k]) panels[k].classList.toggle("hidden", k!==tab); }
+      window.scrollTo(0,0);
+    });
+  });
+})();
+
 // ---------- Footer ----------
 document.getElementById("footer").innerHTML=
   "生成: "+esc(REGISTRY.generated_at||"—")+" / 対象 "+fmtInt(DATA.n_races)+" レース"+
   (DATA.is_partial?"（収集途中）":"")+"<br>"+
-  "表示はオカルト系サインのみ（勝率・級別は除外）。並べているのは実際の過去レースで、将来の的中・収益を保証するものではありません。確定サインのみ実用候補。";
+  "🔮オカルトタブ＝オカルト系サインのみ（勝率・級別は除外）。📊本気タブ＝勝率・級別ほか公開データの確率予想。"+
+  "いずれも実際の過去レース・実払戻に基づきますが、将来の的中・収益を保証するものではありません。";
 </script>
 </body>
 </html>
