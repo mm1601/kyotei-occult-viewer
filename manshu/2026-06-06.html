@@ -216,13 +216,14 @@ footer{color:#8a93a6;font-size:11.5px;text-align:center;margin-top:20px}
   <table><tbody><tr class=""><td>2025-01-11</td><td>浜名湖4R</td><td class="c">2-3-4</td><td class="p">290円</td><td><span class="no">—</span></td></tr><tr class=""><td>2026-02-02</td><td>浜名湖3R</td><td class="c">2-3-4</td><td class="p">300円</td><td><span class="no">—</span></td></tr><tr class=""><td>2026-04-13</td><td>浜名湖6R</td><td class="c">1-3-5</td><td class="p">310円</td><td><span class="no">—</span></td></tr><tr class=""><td>2026-01-15</td><td>浜名湖7R</td><td class="c">1-3-4</td><td class="p">410円</td><td><span class="no">—</span></td></tr><tr class=""><td>2025-11-27</td><td>浜名湖7R</td><td class="c">1-5-2</td><td class="p">420円</td><td><span class="no">—</span></td></tr></tbody></table>
 </div></td></tr></tbody></table></div>
 <div class="card xpost"><h2>📋 X（旧Twitter）投稿用テキスト</h2><p class="lead">下の枠をコピーして、そのままXに貼り付けて投稿できます（手動投稿用）。スマホでも📋ボタンでコピーできます。</p><h3>🌊 朝のランキング投稿</h3><textarea class="xta" id="xrank" readonly rows="11">🌊本日の万舟予報 6/6
-荒れ警戒レースTOP5（%=万舟率の目安）
+荒れ警戒レースTOP6（%=万舟率の目安）
 
 ①蒲郡4R 28%
 ②江戸川3R 28%
 ③常滑2R 27%
 ④大村2R 27%
 ⑤桐生4R 27%
+⑥常滑3R 27%
 
 過去データで荒れやすい条件を抽出🚤
 ※あくまで荒れ&quot;予報&quot;。的中/利益は保証しません
@@ -232,7 +233,7 @@ footer{color:#8a93a6;font-size:11.5px;text-align:center;margin-top:20px}
 <script>
 "use strict";
 var RDATE="2026-06-06", MAN=10000;
-var XPICKS=[{"key": "7-4", "nm": "蒲郡", "r": 4}, {"key": "3-3", "nm": "江戸川", "r": 3}, {"key": "8-2", "nm": "常滑", "r": 2}, {"key": "24-2", "nm": "大村", "r": 2}, {"key": "1-4", "nm": "桐生", "r": 4}, {"key": "8-3", "nm": "常滑", "r": 3}, {"key": "10-7", "nm": "三国", "r": 7}, {"key": "1-1", "nm": "桐生", "r": 1}, {"key": "1-10", "nm": "桐生", "r": 10}, {"key": "10-6", "nm": "三国", "r": 6}, {"key": "1-2", "nm": "桐生", "r": 2}, {"key": "1-9", "nm": "桐生", "r": 9}, {"key": "3-6", "nm": "江戸川", "r": 6}, {"key": "6-5", "nm": "浜名湖", "r": 5}], XDATE="6/6";
+var XPICKS=[{"key": "7-4", "nm": "蒲郡", "r": 4}, {"key": "3-3", "nm": "江戸川", "r": 3}, {"key": "8-2", "nm": "常滑", "r": 2}, {"key": "24-2", "nm": "大村", "r": 2}, {"key": "1-4", "nm": "桐生", "r": 4}, {"key": "8-3", "nm": "常滑", "r": 3}], XDATE="6/6";
 function setStatus(t){var e=document.getElementById('rstat'); if(e) e.textContent=t;}
 function wlen(s){var n=0; Array.from(s||'').forEach(function(ch){n+=ch.codePointAt(0)>0x1100?2:1;}); return n;}
 function showLen(id){var t=document.getElementById(id),e=document.getElementById(id+'-len'); if(!t||!e) return; var n=wlen(t.value); e.textContent=n+'/280'; e.className='xlen'+(n>280?' over':'');}
@@ -252,7 +253,7 @@ function buildXResult(map){
     if(ta) ta.style.display='none'; if(bt) bt.style.display='none'; return; }
   var lines=['🏁'+XDATE+' 万舟予報の結果','万舟◎ '+man.length+'/'+total+'件',''];
   if(man.length){ man.sort(function(a,b){return b.t.payout-a.t.payout;});
-    man.slice(0,5).forEach(function(m){lines.push('🎯'+m.p.nm+m.p.r+'R '+m.t.combination+' '+m.t.payout.toLocaleString()+'円');});
+    man.slice(0,6).forEach(function(m){lines.push('🎯'+m.p.nm+m.p.r+'R '+m.t.combination+' '+m.t.payout.toLocaleString()+'円');});
   } else { lines.push('本日は万舟◎なし（堅め決着でした）'); }
   lines.push('','※荒れ予報の答え合わせ','#競艇 #ボートレース #万舟');
   if(ta){ ta.value=lines.join('\n'); ta.style.display='block'; }
