@@ -1,0 +1,71 @@
+<!doctype html><html lang=ja><head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>📋 投稿センター｜AI万舟率ランキング</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--bd:#334155;--tx:#e2e8f0;--mut:#94a3b8;--ac:#60a5fa;--gold:#fbbf24}
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif;background:var(--bg);color:var(--tx);max-width:680px;margin:0 auto;padding:12px}
+h1{font-size:18px;margin:4px 0} h2{font-size:14px;color:var(--mut);margin:20px 0 8px;border-bottom:1px solid var(--bd);padding-bottom:5px}
+a{color:var(--ac)} .nav{font-size:13px;font-weight:700;margin-bottom:8px}
+.meta{font-size:12px;color:var(--mut);line-height:1.6}
+.status{display:inline-block;padding:3px 9px;border-radius:6px;font-size:12px;font-weight:700;margin-top:4px}
+.s-wait{background:#3a2d12;color:var(--gold)} .s-done{background:#14321f;color:#34d399}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:12px;margin:11px 0}
+.hd{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:7px}
+.badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px}
+.b-x{background:#1d3a5f;color:#93c5fd} .b-note{background:#14321f;color:#86efac} .b-paid{background:#3a2d12;color:var(--gold)}
+.title{font-size:13px;font-weight:700;flex:1;min-width:60%}
+.cnt{font-size:11px;color:var(--mut)} .cnt.over{color:#f87171;font-weight:700}
+pre{white-space:pre-wrap;word-break:break-word;background:#0b1220;border:1px solid var(--bd);border-radius:8px;padding:10px;font-size:13px;line-height:1.65;margin:0;font-family:inherit;max-height:280px;overflow:auto}
+button.copy{background:#16a34a;color:#fff;border:0;border-radius:8px;padding:9px 14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:9px;width:100%}
+button.copy:active{background:#15803d}
+.hint{font-size:11px;color:var(--mut);margin-top:6px;line-height:1.5}
+.empty{color:var(--mut);font-size:13px;padding:20px;text-align:center}
+.reload{background:#334155;color:#e2e8f0;border:0;border-radius:7px;padding:5px 11px;font-size:12px;cursor:pointer;float:right}
+</style></head><body>
+<button class="reload" onclick="load()">🔄 更新</button>
+<h1>📋 投稿センター</h1>
+<p class="nav">🚤 <a href="manshu.html">万舟率ランキング</a>　/　⚡ <a href="manshu_chokuzen.html">直前 万舟予報</a>　/　📈 <a href="forward_track.html">戦績</a></p>
+<div id="meta" class="meta">読み込み中…</div>
+<div id="forecast"></div>
+<div id="result"></div>
+<p class="hint" style="margin-top:20px">※各ボタンで全文コピー → X/note に貼って投稿。Xの①②は連投（①を投稿→その返信に②）。
+有料note本編は note で有料設定にして販売。<br>※娯楽用・利益保証なし・生活費は賭けない。</p>
+<script>
+let POSTS=[];
+function wlen(s){let n=0;for(const c of s)n+=(c.codePointAt(0)>0x7f?2:1);return n;} // X相当の重み(全角=2)
+function badge(ch){if(ch==='X')return '<span class="badge b-x">X</span>';
+  if(ch==='note有料')return '<span class="badge b-paid">note 有料</span>';return '<span class="badge b-note">note</span>';}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function card(p){
+  const isX=p.ch==='X'; const wl=wlen(p.text);
+  const cnt=isX?`<span class="cnt ${wl>280?'over':''}">${wl}/280字</span>`:'';
+  return `<div class="card"><div class="hd">${badge(p.ch)}<span class="title">${esc(p.title)}</span>${cnt}</div>`
+    +`<pre id="t_${p.id}">${esc(p.text)}</pre>`
+    +`<button class="copy" onclick="copy('${p.id}',this)">📋 この文をコピー</button></div>`;
+}
+async function copy(id,btn){
+  const p=POSTS.find(x=>x.id===id); if(!p)return;
+  try{await navigator.clipboard.writeText(p.text);}
+  catch(e){const ta=document.createElement('textarea');ta.value=p.text;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');}catch(_){}ta.remove();}
+  const o=btn.textContent;btn.textContent='✓ コピーしました！';btn.style.background='#0891b2';
+  setTimeout(()=>{btn.textContent=o;btn.style.background='';},1500);
+}
+async function load(){
+  let d;
+  try{d=await (await fetch('manshu_posts.json?t='+Date.now())).json();}
+  catch(e){document.getElementById('meta').innerHTML='<span class="empty">本日の投稿データがまだありません（朝の万舟率ランキング生成後に出ます）。</span>';return;}
+  POSTS=d.posts||[];
+  const st=d.all_done?`<span class="status s-done">🏁 全${d.n}R確定・結果も投稿OK</span>`
+                     :`<span class="status s-wait">⏳ 結果 ${d.done}/${d.n}R確定（残りは結果待ち表示）</span>`;
+  document.getElementById('meta').innerHTML=
+    `<b style="color:var(--tx);font-size:14px">${d.date} のランキング</b>（更新 ${d.updated||'--:--'}）<br>`
+    +`box的中 ${d.hit}／確定${d.done}・万舟◎${d.man}件<br>${st}`;
+  const fc=POSTS.filter(p=>p.phase==='forecast'), rs=POSTS.filter(p=>p.phase==='result');
+  document.getElementById('forecast').innerHTML='<h2>☀️ 朝の予報（10-6位X／5-3位note／1-2位 有料note）</h2>'+fc.map(card).join('');
+  document.getElementById('result').innerHTML='<h2>🏁 結果・答え合わせ（10-6位X／5-1位note・全レース確定後）</h2>'+rs.map(card).join('');
+}
+load();
+</script>
+</body></html>
