@@ -22,11 +22,19 @@ button.copy:active{background:#15803d}
 .hint{font-size:11px;color:var(--mut);margin-top:6px;line-height:1.5}
 .empty{color:var(--mut);font-size:13px;padding:20px;text-align:center}
 .reload{background:#334155;color:#e2e8f0;border:0;border-radius:7px;padding:5px 11px;font-size:12px;cursor:pointer;float:right}
+table.t10{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0}
+.t10 th{color:var(--mut);font-weight:700;text-align:left;padding:5px 6px;border-bottom:1px solid var(--bd)}
+.t10 td{padding:6px;border-bottom:1px solid #182234;vertical-align:top}
+.t10 .rk{white-space:nowrap;font-weight:700}
+.t10 .rt{color:var(--gold);font-weight:800;white-space:nowrap;text-align:right}
+.t10 .dl{color:var(--mut);font-size:11px;margin-left:5px}
+.t10 .rs{color:var(--mut);font-size:11px} .t10 .lk{color:var(--gold);font-weight:700}
 </style></head><body>
 <button class="reload" onclick="load()">🔄 更新</button>
 <h1>📋 投稿センター</h1>
 <p class="nav">🚤 <a href="manshu.html">万舟率ランキング</a>　/　⚡ <a href="manshu_chokuzen.html">直前 万舟予報</a>　/　📈 <a href="forward_track.html">戦績</a></p>
 <div id="meta" class="meta">読み込み中…</div>
+<div id="top10"></div>
 <div id="forecast"></div>
 <div id="result"></div>
 <p class="hint" style="margin-top:20px">※各ボタンで全文コピー → X/note に貼って投稿。Xの①②は連投（①を投稿→その返信に②）。
@@ -37,6 +45,20 @@ function wlen(s){let n=0;for(const c of s)n+=(c.codePointAt(0)>0x7f?2:1);return 
 function badge(ch){if(ch==='X')return '<span class="badge b-x">X</span>';
   if(ch==='note有料')return '<span class="badge b-paid">note 有料</span>';return '<span class="badge b-note">note</span>';}
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function medal(r){return r===1?'🥇':r===2?'🥈':r===3?'🥉':'';}
+function renderTop10(t10){
+  if(!t10||!t10.length)return '';
+  const rows=t10.map(r=>{
+    const paid=r.rank<=2;  // 1・2位は有料note対象=公開ページでは場・Rを伏せる
+    const race=paid?'<span class="lk">🔒 有料note（場・R非公開）</span>'
+                   :`<b>${esc(r.venue)}${r.race_no}R</b><span class="dl">${esc(r.deadline||'')}</span>`;
+    return `<tr><td class="rk">${medal(r.rank)}${r.rank}位</td><td>${race}</td>`
+      +`<td class="rt">${r.manshu}%</td><td class="rs">${esc((r.reasons||[]).join('・'))}</td></tr>`;
+  }).join('');
+  return '<h2>📊 万舟率ランキング TOP10（表示専用・全体平均16.6%）</h2>'
+    +`<table class="t10"><thead><tr><th>順位</th><th>レース</th><th>万舟率</th><th>荒れ理由</th></tr></thead><tbody>${rows}</tbody></table>`
+    +'<p class="hint">※「荒れやすさ」の予報（投稿には使わない確認用）。1・2位は有料note対象のため場・Rは伏せています。</p>';
+}
 function card(p){
   const isX=p.ch==='X'; const wl=wlen(p.text);
   const cnt=isX?`<span class="cnt ${wl>280?'over':''}">${wl}/280字</span>`:'';
@@ -62,9 +84,10 @@ async function load(){
   document.getElementById('meta').innerHTML=
     `<b style="color:var(--tx);font-size:14px">${d.date} のランキング</b>（更新 ${d.updated||'--:--'}）<br>`
     +`box的中 ${d.hit}／確定${d.done}・万舟◎${d.man}件<br>${st}`;
+  document.getElementById('top10').innerHTML=renderTop10(d.top10);
   const fc=POSTS.filter(p=>p.phase==='forecast'), rs=POSTS.filter(p=>p.phase==='result');
-  document.getElementById('forecast').innerHTML='<h2>☀️ 朝の予報（10-6位X／5-3位note／1-2位 有料note）</h2>'+fc.map(card).join('');
-  document.getElementById('result').innerHTML='<h2>🏁 結果・答え合わせ（10-6位X／5-1位note・全レース確定後）</h2>'+rs.map(card).join('');
+  document.getElementById('forecast').innerHTML='<h2>☀️ 朝の予報（5-3位X／5-3位note／1-2位 有料note）</h2>'+fc.map(card).join('');
+  document.getElementById('result').innerHTML='<h2>🏁 結果・答え合わせ（5-3位X／5-1位note・全レース確定後）</h2>'+rs.map(card).join('');
 }
 load();
 </script>
