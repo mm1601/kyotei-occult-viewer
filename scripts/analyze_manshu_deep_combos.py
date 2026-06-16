@@ -293,7 +293,7 @@ def search_combos(
             if n < min_count:
                 continue
             valid_n = (mask & valid_mask).bit_count()
-            if valid_n < max(1, min_valid // 2):
+            if valid_n < min_valid:
                 continue
             if not keep_duplicate_matches:
                 if mask in seen_masks:
