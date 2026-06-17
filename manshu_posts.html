@@ -29,7 +29,7 @@ button.copy:active{background:#15803d}
 <div id="meta" class="meta">読み込み中…</div>
 <div id="forecast"></div>
 <div id="result"></div>
-<p class="hint" style="margin-top:20px">※各ボタンで全文コピー → X/note に貼って投稿。Xはトップ5の短文、noteはトップ10の長文です。<br>※娯楽・研究用。舟券購入推奨や利益保証ではありません。</p>
+<p class="hint" style="margin-top:20px">※各ボタンで全文コピーできます。Xはトップ5の短文、noteはトップ10の観察メモです。<br>※買い目・購入推奨・回収率・利益保証は投稿文に入れません。</p>
 <script>
 let POSTS=[];
 const MAN=10000;
@@ -90,7 +90,7 @@ function resultText(r,map){
   const res=rateResult(r,map);
   if(!res.combination)return '結果待ち';
   if(res.payout==null)return res.combination+' 配当待ち';
-  return res.combination+' '+yen(res.payout)+(res.manshu?' 万舟◎':' 堅め');
+  return res.combination+' '+yen(res.payout)+(res.manshu?' 万舟決着':' 1万円未満');
 }
 function buildPosts(role,map){
   const top=(role.races||[]).slice().sort((a,b)=>(b.scores?.manshu_probability_proxy||0)-(a.scores?.manshu_probability_proxy||0)).slice(0,10);
@@ -98,18 +98,17 @@ function buildPosts(role,map){
   top.forEach(r=>{const res=rateResult(r,map),ev=evalBuy(r,map); if(res.combination&&res.payout!=null){done++; if(res.manshu)manshu++;} if(ev.done){hit+=ev.hit?1:0; cost+=ev.points*100; ret+=ev.ret||0;}});
   const roi=cost?Math.round(ret/cost*100):null;
   const md=role.date.slice(5).replace('-','/');
-  const x=[md+' 万舟率TOP5結果'];
-  top.slice(0,5).forEach((r,i)=>{const res=rateResult(r,map),ev=evalBuy(r,map),rate=Math.round((r.scores?.manshu_probability_proxy||0)*100);
-    const pay=res.payout==null?(res.combination?'配当待ち':'結果待ち'):(Number(res.payout).toLocaleString()+'円'+(res.manshu?'万':''));
-    x.push(`${i+1}${label(r)}${rate}% ${pay} ${ev.hit==null?'待':ev.hit?'◎':'×'}${ev.roi==null?'—':Math.round(ev.roi)+'%'}`);
+  const x=[md+' 万舟率TOP5 観察メモ'];
+  top.slice(0,5).forEach((r,i)=>{const res=rateResult(r,map),rate=Math.round((r.scores?.manshu_probability_proxy||0)*100);
+    const result=res.payout==null?(res.combination?`結果 ${res.combination} 配当待ち`:'結果待ち'):`結果 ${res.combination} ${Number(res.payout).toLocaleString()}円${res.manshu?' 万舟':''}`;
+    x.push(`${i+1}. ${label(r)} 万舟率${rate}% / ${result}`);
   });
-  x.push('買い方1=9点検証/予報・利益保証なし');
-  const note=['# '+md+' 万舟率TOP10 結果・答え合わせ','','万舟率が高い順のTOP10です。買い方1は9点を100円ずつ買った場合の検証用計算で、回収率は単発換算です。予想・購入推奨・利益保証ではありません。','','## 集計',`- 確定: ${done}/${top.length}R`,`- 万舟発生: ${manshu}件`,`- 買い方1的中: ${hit}件`,`- 確定分ROI: ${roi==null?'—':roi+'%'}（返戻 ${yen(ret)} / 想定購入 ${yen(cost)}）`,'','## TOP10'];
-  top.forEach((r,i)=>{const ev=evalBuy(r,map),s=r.strategy&&r.strategy.buy_style_1||{};
-    note.push('',`### ${i+1}位 ${label(r)}（${r.deadline||'締切未取得'}）`,`- 万舟率: ${pct(r.scores&&r.scores.manshu_probability_proxy)}`,`- 結果: ${resultText(r,map)}`,`- 買い方1: ${ev.hit==null?'結果待ち':ev.hit?'的中':'不的中'} / 回収率 ${ev.roi==null?'—':Math.round(ev.roi)+'%'} / 返戻 ${yen(ev.ret)}`);
-    if(s.venue_label)note.push('- 場相性: '+s.venue_label+'。'+(s.venue_reason||''));
+  x.push('荒れやすさの研究用メモ。買い目・購入推奨・利益保証なし。');
+  const note=['# '+md+' 万舟率TOP10 観察メモ・答え合わせ','','過去データから作った「荒れやすさ」のランキングです。買い目、購入推奨、利益保証ではありません。','','## 集計',`- 確定: ${done}/${top.length}R`,`- 万舟決着: ${manshu}件`,`- 対象: 万舟率TOP10の答え合わせ`,'','## TOP10'];
+  top.forEach((r,i)=>{
+    note.push('',`### ${i+1}位 ${label(r)}（${r.deadline||'締切未取得'}）`,`- 万舟率: ${pct(r.scores&&r.scores.manshu_probability_proxy)}`,`- 結果: ${resultText(r,map)}`);
   });
-  note.push('','※万舟率は荒れやすさの目安であり、利益化できるかは別問題です。','※娯楽・研究用。舟券購入を推奨するものではありません。');
+  note.push('','## 注意','- 万舟率は荒れやすさの目安で、的中や利益を示す数字ではありません。','- 結果・払戻は答え合わせ用で、購入判断を促すものではありません。','- 娯楽・研究用です。舟券購入を推奨しません。');
   POSTS=[{id:'x_top5',phase:'forecast',ch:'X',title:'X投稿用 万舟率TOP5',text:x.join('\n')},{id:'note_top10',phase:'forecast',ch:'note',title:'note投稿用 万舟率TOP10',text:note.join('\n')}];
   return {top,done,manshu,hit,roi,ret,cost};
 }
@@ -122,7 +121,7 @@ async function load(){
   catch(e){document.getElementById('meta').innerHTML='<span class="empty">本日の万舟率トップ10データがまだありません。</span>';return;}
   const map=await resultMap(role.date);
   const s=buildPosts(role,map);
-  document.getElementById('meta').innerHTML=`<b style="color:var(--tx);font-size:14px">${role.date} の万舟率TOP10</b><br>確定 ${s.done}/${s.top.length}R・万舟発生 ${s.manshu}件・買い方1的中 ${s.hit}件・ROI ${s.roi==null?'—':s.roi+'%'}<br><span class="status s-done">同じランキングJSONから生成</span>`;
+  document.getElementById('meta').innerHTML=`<b style="color:var(--tx);font-size:14px">${role.date} の万舟率TOP10</b><br>確定 ${s.done}/${s.top.length}R・万舟決着 ${s.manshu}件<br><span class="status s-done">同じランキングJSONから安全文面を生成</span>`;
   document.getElementById('forecast').innerHTML='<h2>✍️ 投稿文（Xトップ5／noteトップ10）</h2>'+POSTS.map(card).join('');
   document.getElementById('result').innerHTML='';
 }

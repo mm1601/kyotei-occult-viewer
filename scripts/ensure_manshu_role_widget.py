@@ -57,13 +57,13 @@ RATE_CARD = """<div class="card rank" id="rate-card">
 </div>
 <div class="card xpost post-card" id="top5-x-card">
   <h2>✍️ X投稿用｜万舟率トップ5</h2>
-  <p class="lead">トップ5の結果・的中・回収率を短文で投稿できます。</p>
+  <p class="lead">トップ5の観察メモを短文で投稿できます。買い目や回収率は載せません。</p>
   <textarea class="xta" id="top5-x-post" rows="8" readonly>読み込み中…</textarea>
   <button class="xcopy" onclick="copyX('top5-x-post',this)">📋 X文をコピー</button><span id="top5-x-post-len" class="xlen"></span>
 </div>
 <div class="card notepost post-card" id="top10-note-card">
   <h2>📝 note投稿用｜万舟率トップ10</h2>
-  <p class="lead">トップ10の結果・根拠・回収率をそのままnoteへ貼れる形式です。</p>
+  <p class="lead">トップ10の観察メモと答え合わせをnoteへ貼れる形式です。買い目や回収率は載せません。</p>
   <textarea class="xta" id="top10-note-post" rows="18" readonly>読み込み中…</textarea>
   <button class="xcopy" onclick="copyX('top10-note-post',this)">📋 note文をコピー</button>
 </div>"""
@@ -101,7 +101,7 @@ function roleResultHtml(r){
   if(!combo) return '結果: <span class="muted">未確定</span>';
   if(payout==null) return '結果: 3連単 <b>'+esc(combo)+'</b> <span class="muted">配当待ち</span>';
   var man=payout>=MAN;
-  return '結果: 3連単 <b>'+esc(combo)+'</b> '+Number(payout).toLocaleString()+'円 '+(man?'<span class="man">◎万舟</span>':'<span class="muted">— 堅め</span>');
+  return '結果: 3連単 <b>'+esc(combo)+'</b> '+Number(payout).toLocaleString()+'円 '+(man?'<span class="man">万舟決着</span>':'<span class="muted">1万円未満</span>');
 }
 function pctText(v){return v==null?'—':(Number(v)*100).toFixed(1)+'%';}
 function pctPoint(v){return v==null?'—':(Number(v)*100).toFixed(1)+'%';}
@@ -165,7 +165,7 @@ function resultCellText(r){
   var res=rateResult(r);
   if(!res.combination) return '結果待ち';
   if(res.payout==null) return res.combination+' 配当待ち';
-  return res.combination+' '+yenText(res.payout)+' '+(res.manshu?'◎万舟':'堅め');
+  return res.combination+' '+yenText(res.payout)+' '+(res.manshu?'万舟決着':'1万円未満');
 }
 function compactRaceLabel(r){return esc(r.venue_name||'')+esc(r.race_no)+'R';}
 function updateRateResults(){
@@ -182,7 +182,7 @@ function renderRateTop10(data){
   body.innerHTML=top.map(function(r,i){
     var res=rateResult(r),ev=strategyEval(r),rate=pctPoint(r.scores&&r.scores.manshu_probability_proxy);
     var resultHtml=!res.combination?'<span class="muted">結果待ち</span>':
-      esc(res.combination)+'<br><span class="'+(res.manshu?'man':'muted')+'">'+(res.payout==null?'配当待ち':yenText(res.payout)+(res.manshu?' ◎万舟':' — 堅め'))+'</span>';
+      esc(res.combination)+'<br><span class="'+(res.manshu?'man':'muted')+'">'+(res.payout==null?'配当待ち':yenText(res.payout)+(res.manshu?' 万舟決着':' 1万円未満'))+'</span>';
     var hitHtml=ev.hit==null?'<span class="muted">'+esc(ev.label)+'</span>':
       '<span class="'+(ev.hit?'man':'miss')+'">'+esc(ev.label)+'</span><br><span class="muted">'+ev.points+'点</span>';
     var roiHtml=ev.roi==null?'<span class="muted">—</span>':'<span class="roi">'+Math.round(ev.roi)+'%</span><br><span class="muted">返 '+yenText(ev.returnYen)+'</span>';
@@ -197,38 +197,37 @@ function renderRateTop10(data){
     '</tr>';
   }).join('');
   if(summaryEl){
-    summaryEl.innerHTML='トップ10確定 '+summary.done+'/'+top.length+'R / 万舟発生 '+summary.manshu+'件 / 買い方1的中 '+summary.hit+'件 / 確定分ROI <b>'+(summary.roi==null?'—':Math.round(summary.roi)+'%')+'</b>（返戻 '+yenText(summary.ret)+' / 想定購入 '+yenText(summary.cost)+'）';
+    summaryEl.innerHTML='トップ10確定 '+summary.done+'/'+top.length+'R / 万舟決着 '+summary.manshu+'件 / 検証用9点 '+summary.hit+'件 / 単発回収率 <b>'+(summary.roi==null?'—':Math.round(summary.roi)+'%')+'</b>（返戻 '+yenText(summary.ret)+' / 想定購入 '+yenText(summary.cost)+'）';
   }
   buildTopPosts(top,summary);
 }
 function buildTopPosts(top,summary){
   var x=document.getElementById('top5-x-post'),note=document.getElementById('top10-note-post');
   if(x){
-    var xlines=[(RDATE.slice(5).replace('-','/')+' 万舟率TOP5結果')];
+    var xlines=[(RDATE.slice(5).replace('-','/')+' 万舟率TOP5 観察メモ')];
     top.slice(0,5).forEach(function(r,i){
-      var res=rateResult(r),ev=strategyEval(r),rate=Math.round((r.scores&&r.scores.manshu_probability_proxy||0)*100);
-      var pay=res.payout==null?(res.combination?'配当待ち':'結果待ち'):(Number(res.payout).toLocaleString()+'円'+(res.manshu?'万':''));
-      var roi=ev.roi==null?'—':Math.round(ev.roi)+'%';
-      xlines.push((i+1)+compactRaceLabel(r).replace(/<[^>]*>/g,'')+rate+'% '+pay+' '+ev.short+roi);
+      var res=rateResult(r),rate=Math.round((r.scores&&r.scores.manshu_probability_proxy||0)*100);
+      var result=res.payout==null?(res.combination?'結果 '+res.combination+' 配当待ち':'結果待ち'):('結果 '+res.combination+' '+Number(res.payout).toLocaleString()+'円'+(res.manshu?' 万舟':''));
+      xlines.push((i+1)+'. '+compactRaceLabel(r).replace(/<[^>]*>/g,'')+' 万舟率'+rate+'% / '+result);
     });
-    xlines.push('買い方1=9点検証/予報・利益保証なし');
+    xlines.push('荒れやすさの研究用メモ。買い目・購入推奨・利益保証なし。');
     x.value=xlines.join('\\\\n');
     showLen('top5-x-post');
   }
   if(note){
-    var L=['# '+RDATE.slice(5).replace('-','/')+' 万舟率TOP10 結果・答え合わせ','','万舟率が高い順のTOP10です。買い方1は9点を100円ずつ買った場合の検証用計算で、回収率は単発換算です。予想・購入推奨・利益保証ではありません。','','## 集計','- 確定: '+summary.done+'/'+top.length+'R','- 万舟発生: '+summary.manshu+'件','- 買い方1的中: '+summary.hit+'件','- 確定分ROI: '+(summary.roi==null?'—':Math.round(summary.roi)+'%')+'（返戻 '+yenText(summary.ret)+' / 想定購入 '+yenText(summary.cost)+'）','','## TOP10'];
+    var L=['# '+RDATE.slice(5).replace('-','/')+' 万舟率TOP10 観察メモ・答え合わせ','','過去データから作った「荒れやすさ」のランキングです。買い目、購入推奨、利益保証ではありません。','','## 集計','- 確定: '+summary.done+'/'+top.length+'R','- 万舟決着: '+summary.manshu+'件','- 対象: 万舟率TOP10の答え合わせ','','## TOP10'];
     top.forEach(function(r,i){
-      var res=rateResult(r),ev=strategyEval(r),rate=pctPoint(r.scores&&r.scores.manshu_probability_proxy),s=r.strategy&&r.strategy.buy_style_1||{};
+      var res=rateResult(r),rate=pctPoint(r.scores&&r.scores.manshu_probability_proxy);
       L.push('');
       L.push('### '+(i+1)+'位 '+(r.venue_name||'')+r.race_no+'R（'+(r.deadline||'締切未取得')+'）');
       L.push('- 万舟率: '+rate);
       L.push('- 結果: '+resultCellText(r));
-      L.push('- 買い方1: '+ev.label+' / 回収率 '+(ev.roi==null?'—':Math.round(ev.roi)+'%')+' / 返戻 '+yenText(ev.returnYen));
-      if(s.venue_label) L.push('- 場相性: '+s.venue_label+'。'+(s.venue_reason||''));
     });
     L.push('');
-    L.push('※万舟率は荒れやすさの目安であり、利益化できるかは別問題です。');
-    L.push('※娯楽・研究用。舟券購入を推奨するものではありません。');
+    L.push('## 注意');
+    L.push('- 万舟率は荒れやすさの目安で、的中や利益を示す数字ではありません。');
+    L.push('- 結果・払戻は答え合わせ用で、購入判断を促すものではありません。');
+    L.push('- 娯楽・研究用です。舟券購入を推奨しません。');
     note.value=L.join('\\\\n');
   }
 }
@@ -482,6 +481,15 @@ def patch_html(path: Path) -> bool:
         if count != 1:
             raise RuntimeError(f"{path}: RDATE marker not found")
 
+    text = text.replace(
+        "トップ5の結果・的中・回収率を短文で投稿できます。",
+        "トップ5の観察メモを短文で投稿できます。買い目や回収率は載せません。",
+    )
+    text = text.replace(
+        "トップ10の結果・根拠・回収率をそのままnoteへ貼れる形式です。",
+        "トップ10の観察メモと答え合わせをnoteへ貼れる形式です。買い目や回収率は載せません。",
+    )
+
     if "function roleDataUrl()" not in text:
         marker = "function acc(tr){"
         if marker not in text:
@@ -498,6 +506,9 @@ def patch_html(path: Path) -> bool:
         or "ticketsHtml" in text
         or "role-tickets" in text
         or "検証用フォーメーション" in text
+        or "買い方1=9点検証" in text
+        or "確定分ROI" in text
+        or "回収率をそのままnote" in text
         or "L.push('- 買い目:" in text
     ):
         text, count = re.subn(
