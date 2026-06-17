@@ -36,13 +36,14 @@ p.dist{font-size:12.5px;color:#33405a;background:#f7f9fc;border:1px solid #e3e8f
 .role-strategy b{color:#111827}.role-strategy .good{color:#047857;font-weight:900}.role-strategy .hold{color:#b45309;font-weight:900}.role-strategy .avoid{color:#b91c1c;font-weight:900}.role-strategy .outside_rule{color:#64748b;font-weight:900}
 .role-tickets{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:#475569;word-break:break-word}
 .rate-scroll{overflow-x:auto;margin-top:8px}
-.rate-table{min-width:720px}
+.rate-table{min-width:980px}
 .rate-table th,.rate-table td{vertical-align:top}
 .rate-table .race{font-weight:800;color:#33405a;white-space:nowrap}
 .rate-table .rate{font-weight:900;color:#7c3aed;white-space:nowrap}
 .rate-table .result{white-space:nowrap}
 .rate-table .roi{font-weight:900;color:#047857;white-space:nowrap}
 .rate-table .miss{color:#64748b;font-weight:800}
+.rate-tickets{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;line-height:1.55;color:#475569;min-width:220px;max-width:320px;word-break:break-word}
 .rate-summary{font-size:12.5px;color:#33405a;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;margin:8px 0 0}
 .post-card textarea{min-height:150px}
 tr.rrow{cursor:pointer} tr.rrow:active{background:#f3effe} .caret{color:#7c3aed;font-size:11px}
@@ -94,7 +95,7 @@ footer{color:#8a93a6;font-size:11.5px;text-align:center;margin-top:20px}
   <div class="bar"><button id="rbtn" onclick="loadResults()">🔄 結果を更新</button><span id="rstat" class="rstat"></span></div>
   <div class="rate-scroll">
     <table class="rate-table">
-      <thead><tr><th>順位</th><th>場R</th><th>万舟率</th><th>結果</th><th>買い方1</th><th>単発ROI</th></tr></thead>
+      <thead><tr><th>順位</th><th>場R</th><th>万舟率</th><th>結果</th><th>買い方1</th><th>買い目（買い方1）</th><th>単発ROI</th></tr></thead>
       <tbody id="rate-list"></tbody>
     </table>
   </div>
@@ -412,6 +413,8 @@ function renderRateTop10(data){
   status.textContent='万舟率が高い順にトップ10を表示中。結果・的中・回収率は確定分から順次反映します。';
   body.innerHTML=top.map(function(r,i){
     var res=rateResult(r),ev=strategyEval(r),rate=pctPoint(r.scores&&r.scores.manshu_probability_proxy);
+    var s=r.strategy&&r.strategy.buy_style_1||{},tickets=s.formation&&s.formation.tickets||[];
+    var ticketsHtml=tickets.length?esc(tickets.slice(0,9).join(' / ')):'<span class="muted">未生成</span>';
     var resultHtml=!res.combination?'<span class="muted">結果待ち</span>':
       esc(res.combination)+'<br><span class="'+(res.manshu?'man':'muted')+'">'+(res.payout==null?'配当待ち':yenText(res.payout)+(res.manshu?' ◎万舟':' — 堅め'))+'</span>';
     var hitHtml=ev.hit==null?'<span class="muted">'+esc(ev.label)+'</span>':
@@ -423,6 +426,7 @@ function renderRateTop10(data){
       '<td class="rate">'+rate+'</td>'+
       '<td class="result">'+resultHtml+'</td>'+
       '<td>'+hitHtml+'</td>'+
+      '<td class="rate-tickets">'+ticketsHtml+'</td>'+
       '<td>'+roiHtml+'</td>'+
     '</tr>';
   }).join('');
@@ -448,13 +452,12 @@ function buildTopPosts(top,summary){
   if(note){
     var L=['# '+RDATE.slice(5).replace('-','/')+' 万舟率TOP10 結果・答え合わせ','','万舟率が高い順のTOP10です。買い方1は9点を100円ずつ買った場合の検証用計算で、回収率は単発換算です。予想・購入推奨・利益保証ではありません。','','## 集計','- 確定: '+summary.done+'/'+top.length+'R','- 万舟発生: '+summary.manshu+'件','- 買い方1的中: '+summary.hit+'件','- 確定分ROI: '+(summary.roi==null?'—':Math.round(summary.roi)+'%')+'（返戻 '+yenText(summary.ret)+' / 想定購入 '+yenText(summary.cost)+'）','','## TOP10'];
     top.forEach(function(r,i){
-      var res=rateResult(r),ev=strategyEval(r),rate=pctPoint(r.scores&&r.scores.manshu_probability_proxy),s=r.strategy&&r.strategy.buy_style_1||{},tickets=s.formation&&s.formation.tickets||[];
+      var res=rateResult(r),ev=strategyEval(r),rate=pctPoint(r.scores&&r.scores.manshu_probability_proxy),s=r.strategy&&r.strategy.buy_style_1||{};
       L.push('');
       L.push('### '+(i+1)+'位 '+(r.venue_name||'')+r.race_no+'R（'+(r.deadline||'締切未取得')+'）');
       L.push('- 万舟率: '+rate);
       L.push('- 結果: '+resultCellText(r));
       L.push('- 買い方1: '+ev.label+' / 回収率 '+(ev.roi==null?'—':Math.round(ev.roi)+'%')+' / 返戻 '+yenText(ev.returnYen));
-      if(tickets.length) L.push('- 買い目: '+tickets.slice(0,9).join(' / '));
       if(s.venue_label) L.push('- 場相性: '+s.venue_label+'。'+(s.venue_reason||''));
     });
     L.push('');
