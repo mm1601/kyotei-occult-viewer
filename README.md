@@ -157,3 +157,58 @@ python3 scripts/validate_manshu_model.py --dataset data/analysis/race_dataset.cs
 - 直前版モデルは展示・気象・オッズなど締切前情報まで使える。
 - 結果、払戻金、人気、着順、決まり手は予測特徴量に入れない。
 - レポートは娯楽・研究・検証用であり、舟券購入を推奨しません。
+
+## 万舟ロール分析（レース荒れ度 + 頭/軸/消し）
+
+既存の `manshu.html` や公開HTMLは変更せず、20,947レースの分析データから、荒れやすいレースのランキングと6艇の役割分類を検証できます。
+
+設計メモ:
+
+- `docs/manshu-role-analysis-plan.md`
+- `reports/boat_role_validation.md`
+- `reports/formation_backtest.md`
+- `reports/final_recommendations.md`
+
+艇別役割データセット作成:
+
+```bash
+python3 scripts/build_boat_role_dataset.py --race-dataset data/analysis/race_dataset.csv
+```
+
+艇別役割検証:
+
+```bash
+python3 scripts/analyze_boat_roles.py --dataset data/analysis/boat_role_dataset.csv
+```
+
+固定フォーメーションA-Dの参考バックテスト:
+
+```bash
+python3 scripts/backtest_role_formations.py --dataset data/analysis/boat_role_dataset.csv
+```
+
+GitHub Pages連携前のJSONプロトタイプ生成:
+
+```bash
+python3 scripts/generate_manshu_role_ranking.py --date 2026-06-16 --mode preview --output data/output/manshu_role_ranking_20260616.json
+```
+
+主な出力:
+
+- `data/analysis/boat_role_dataset.csv`
+- `data/analysis/boat_role_dataset.parquet`
+- `data/analysis/boat_role_feature_dictionary.md`
+- `data/output/manshu_role_ranking_20260616.json`
+- `reports/boat_role_validation_summary.csv`
+- `reports/boat_role_validation_segments.csv`
+- `reports/formation_backtest_summary.csv`
+- `reports/formation_backtest_time_split.csv`
+- `reports/role_feature_importance.csv`
+
+ロール分析上の注意:
+
+- 朝版と直前版を分ける。
+- 結果、着順、払戻、人気は候補生成に使わず、検証ラベルとしてのみ扱う。
+- A-Dフォーメーションは検証用であり、購入推奨ではありません。
+- ROI風の数字は固定点数・100円均等仮定の参考値であり、結論には使いません。
+- 最終判断は、結果前にJSONを保存して結果後に照合する前向きOOSで行います。
