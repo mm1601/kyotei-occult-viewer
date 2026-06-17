@@ -1,0 +1,40 @@
+name: Ensure manshu role widget
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "manshu.html"
+      - "manshu/*.html"
+      - "scripts/ensure_manshu_role_widget.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ensure-manshu-role-widget
+  cancel-in-progress: false
+
+jobs:
+  ensure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure role widget
+        run: python scripts/ensure_manshu_role_widget.py
+
+      - name: Commit repaired HTML
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manshu.html manshu/*.html
+          if git diff --cached --quiet; then
+            echo "Role widget already present."
+            exit 0
+          fi
+          git commit -m "Restore manshu role widget"
+          git push

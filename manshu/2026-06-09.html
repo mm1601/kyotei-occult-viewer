@@ -19,6 +19,19 @@ p.dist{font-size:12.5px;color:#33405a;background:#f7f9fc;border:1px solid #e3e8f
 .card.top{border-left-color:#16a34a} .card.top h2{color:#15803d}
 .card.score{border-left-color:#2563eb} .card.score h2{color:#1d4ed8}
 .card.rank{border-left-color:#7c3aed} .card.rank h2{color:#6d28d9}
+.card.role{border-left-color:#0d9488} .card.role h2{color:#0f766e}
+.rolelist{display:grid;gap:10px;margin-top:8px}
+.roleitem{border:1px solid #dbeafe;background:#f8fbff;border-radius:9px;padding:10px}
+.roletop{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;font-size:13px;color:#33405a}
+.rolemetric{font-size:12px;font-weight:800;color:#0f766e;background:#ccfbf1;border:1px solid #99f6e4;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.rolegrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.rolebox{background:#fff;border:1px solid #eef1f5;border-radius:8px;padding:6px 8px;font-size:12.5px;line-height:1.45}
+.rolebox b{color:#33405a}.rolebox .tag{display:block;color:#0f766e;font-weight:800;font-size:11.5px;margin-bottom:2px}
+.rolebox.toss .tag{color:#b45309}.rolebox.toss{background:#fff7ed;border-color:#fed7aa}
+.rolebox.head .tag{color:#b91c1c}.rolebox.head{background:#fff7ed;border-color:#fecaca}
+.rolebox.axis .tag{color:#1d4ed8}.rolebox.axis{background:#eff6ff;border-color:#bfdbfe}
+.rolefoot{font-size:11.5px;color:#64748b;margin-top:7px}
+.role-result{font-weight:800;color:#33405a}
 tr.rrow{cursor:pointer} tr.rrow:active{background:#f3effe} .caret{color:#7c3aed;font-size:11px}
 tr.accrow>td{padding:6px 4px;background:#faf8ff} tr.accrow .card{margin:0}
 h3.sub{cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none;-webkit-user-select:none}
@@ -55,6 +68,12 @@ footer{color:#8a93a6;font-size:11.5px;text-align:center;margin-top:20px}
 万舟率が上がる条件でも、どの買い目で利益化できるかは別問題です。<b>生活費は賭けず、当てる楽しみとして小さく。</b></p>
 <p class="sub">📅 <a href="manshu_days.html" style="color:#2563eb;font-weight:700">日付を選んで過去の結果を見る</a>　／　📚 <a href="manshu_research.html" style="color:#2563eb;font-weight:700">万舟研究ノート</a></p>
 <div class="bar"><button id="rbtn" onclick="loadResults()">🔄 結果を更新</button><span id="rstat" class="rstat">最新の結果を読み込み中…</span></div>
+<div class="card role" id="role-card">
+  <h2>🧪 ロール分析（試験表示）</h2>
+  <p class="lead" id="role-status">頭2艇・軸2艇・消し候補を読み込み中…</p>
+  <div class="rolelist" id="role-list"></div>
+  <p class="muted">過去20,947Rで検証した補助表示です。買い目確定や利益保証ではありません。直前版は展示・気象込みのため、朝の判断とは分けて見てください。</p>
+</div>
 <div class="card rank"><h2>📊 本日の万舟率ランキング（高い順）</h2><p class="lead"><b>万舟率の高い順</b>。万舟率＝条件該当レースはその条件の過去実績、他は万舟スコア(モデル推定)。「その日の最有力を数本だけ」狙う用途で最も的中が鋭い順（OOS検証：各日トップ3で実測26%）。🎯=最有力(≥22%)。ベース16.6%。<b>全144Rの平均万舟率 約16%</b>、各行「平均±◯pt」はその差。右の<b>1号艇信頼度★</b>は参考情報＝★★★は市場が信頼する1号艇（飛べば高配当の本物）、☆は人気薄（飛んでも配当は安め）。<b>各行タップで根拠が開きます（▶）。</b></p><table><thead><tr><th>場R</th><th>万舟率</th><th>本命飛び率</th><th>結果(3連単)</th><th>配当</th></tr></thead><tbody><tr class="rrow" data-vr="01-4" data-kind="score" onclick="acc(this)"><td>🎯 桐生4R <span class="rt" data-rt="01-4">🕐--:--</span> <span class="caret">▶</span><br><span class="head2">🎯頭2艇 4号艇16% ／ 6号艇14%</span><br><span class="trust q0">1号艇信頼度 ☆・人気薄=飛んでも安い</span></td><td class="p"><b>33%</b><br><span class="muted">平均+18pt</span><br><span class="muted">条件（参考ス26）</span></td><td class="p">43%</td><td class="c" data-f="scombo">1-3-6</td><td class="p" data-f="spay">2,720円</td></tr><tr class="accrow" id="acc-01-4" style="display:none"><td colspan="5">
 <div class="card elite">
   <h2>🎯 ⚠ 桐生4R <span class="rt" data-rt="01-4">🕐--:--</span>　万舟率 ≈ 33%　<span class="cond">条件該当／参考スコア26%</span></h2>
@@ -263,6 +282,7 @@ footer{color:#8a93a6;font-size:11.5px;text-align:center;margin-top:20px}
 <script>
 "use strict";
 var RDATE="2026-06-09", MAN=10000;
+var ROLE_RESULT_MAP={};
 var XPICKS=[{"key": "1-4", "nm": "桐生", "r": 4}, {"key": "1-2", "nm": "桐生", "r": 2}, {"key": "6-5", "nm": "浜名湖", "r": 5}, {"key": "1-9", "nm": "桐生", "r": 9}, {"key": "6-10", "nm": "浜名湖", "r": 10}], XDATE="6/9";
 var NOTEPICKS=[{"key": "1-4", "nm": "桐生", "r": 4, "rate": 33, "dev": 18, "elite": true, "why": "荒れ条件「4R × 本命イン1着率50-60% × 当地イン実績薄 × 1号艇人気薄(勝率<4.5)」に該当。この条件は過去（検証期）87レース中、万舟が29回＝33%（通常16.6%の約2.0倍）出ている。だから荒れやすい。"}, {"key": "1-2", "nm": "桐生", "r": 2, "rate": 32, "dev": 17, "elite": true, "why": "荒れ条件「2R × 当地イン実績薄 × 1号艇広島 × 外枠そこそこ(3連対45-60%)」に該当。この条件は過去（検証期）127レース中、万舟が41回＝32%（通常16.6%の約1.9倍）出ている。だから荒れやすい。"}, {"key": "6-5", "nm": "浜名湖", "r": 5, "rate": 29, "dev": 13, "elite": true, "why": "会場が浜名湖（万舟率18%＝荒れやすい場）；本命(1号艇)がB1級（格下＝飛びやすい）；本命のイン1着率が24%と低い（飛びやすい）；外枠にA1が1人（本命を負かす力あり） → これらの総合で万舟スコア29%（ベース16.6%の1.8倍）。"}, {"key": "1-9", "nm": "桐生", "r": 9, "rate": 25, "dev": 9, "elite": true, "why": "会場が桐生（万舟率19%＝荒れやすい場）；本命(1号艇)がB1級（格下＝飛びやすい）；外枠にA1が2人（本命を負かす力あり） → これらの総合で万舟スコア25%（ベース16.6%の1.5倍）。"}, {"key": "6-10", "nm": "浜名湖", "r": 10, "rate": 23, "dev": 8, "elite": true, "why": "会場が浜名湖（万舟率18%＝荒れやすい場）；本命(1号艇)がB1級（格下＝飛びやすい）；本命のイン1着率が43%と低い（飛びやすい）；外枠にA1が2人（本命を負かす力あり） → これらの総合で万舟スコア23%（ベース16.6%の1.4倍）。"}, {"key": "9-4", "nm": "津", "r": 4, "rate": 22, "dev": 6, "elite": true, "why": "本命(1号艇)がB1級（格下＝飛びやすい）；本命のイン1着率が32%と低い（飛びやすい）；出走にB級3人（実力が割れて混戦）；外枠にA1が1人（本命を負かす力あり）；4R（序盤は静まらず荒れやすい傾向） → これらの総合で万舟スコア22%（ベース16.6%の1.3倍）。"}, {"key": "17-2", "nm": "宮島", "r": 2, "rate": 22, "dev": 6, "elite": true, "why": "2R（序盤は静まらず荒れやすい傾向） → これらの総合で万舟スコア22%（ベース16.6%の1.3倍）。"}, {"key": "24-1", "nm": "大村", "r": 1, "rate": 21, "dev": 6, "elite": false, "why": "本命(1号艇)がB1級（格下＝飛びやすい）；本命のイン1着率が44%と低い（飛びやすい）；出走にB級6人（実力が割れて混戦）；1R（序盤は静まらず荒れやすい傾向） → これらの総合で万舟スコア21%（ベース16.6%の1.3倍）。"}], NAVG="16";
 function setStatus(t){var e=document.getElementById('rstat'); if(e) e.textContent=t;}
@@ -356,6 +376,82 @@ function fillScore(tr,tri,m,known){
   if(p){ p.className='p'; p.textContent = known ? (tri.payout.toLocaleString()+'円') : '配当待ち'; }
   if(m) tr.classList.add('hit'); else tr.classList.remove('hit');
 }
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function roleDataUrl(){
+  var prefix=location.pathname.indexOf('/manshu/')>=0?'../':'';
+  return prefix+'data/output/manshu_role_ranking_'+RDATE.replace(/-/g,'')+'.json';
+}
+function boatLine(r,lane,role){
+  var b=(r.boats||[]).find(function(x){return Number(x.lane)===Number(lane);})||{};
+  var reason=b.role_reason?'<br><span class="muted">'+esc(b.role_reason).replace(/\|/g,' / ')+'</span>':'';
+  return '<b>'+lane+'号艇</b>'+(b.name?' '+esc(b.name):'')+(b.class?' <span class="muted">'+esc(b.class)+'</span>':'')+reason;
+}
+function roleBox(r,title,role,lanes){
+  var body=(lanes||[]).map(function(lane){return boatLine(r,lane,role);}).join('<br>');
+  if(!body) body='<span class="muted">未判定</span>';
+  return '<div class="rolebox '+role+'"><span class="tag">'+title+'</span>'+body+'</div>';
+}
+function roleResultKey(r){return parseInt(r.jcd,10)+'-'+parseInt(r.race_no,10);}
+function roleResultHtml(r){
+  var live=ROLE_RESULT_MAP[roleResultKey(r)],res=r.result||{},combo=null,payout=null;
+  if(live){combo=live.combination; payout=live.payout;}
+  else {combo=res.trifecta; payout=res.payout_yen;}
+  if(!combo) return '結果: <span class="muted">未確定</span>';
+  if(payout==null) return '結果: 3連単 <b>'+esc(combo)+'</b> <span class="muted">配当待ち</span>';
+  var man=payout>=MAN;
+  return '結果: 3連単 <b>'+esc(combo)+'</b> '+Number(payout).toLocaleString()+'円 '+(man?'<span class="man">◎万舟</span>':'<span class="muted">— 堅め</span>');
+}
+function updateRoleResults(){
+  document.querySelectorAll('[data-role-result]').forEach(function(el){
+    var raw=el.getAttribute('data-role-json');
+    if(!raw) return;
+    try{el.innerHTML=roleResultHtml(JSON.parse(raw));}catch(e){}
+  });
+}
+function renderRoleRanking(data){
+  var status=document.getElementById('role-status'),list=document.getElementById('role-list');
+  if(!status||!list) return;
+  if(!data||!Array.isArray(data.races)||!data.races.length){
+    status.textContent='ロール分析データが空です。';
+    return;
+  }
+  if(data.date&&data.date!==RDATE){
+    status.textContent='ロール分析データの日付が違うため表示を止めています（'+data.date+'）。';
+    return;
+  }
+  var modeLabel=data.mode==='morning'?'朝版':'直前版';
+  status.textContent=modeLabel+'ロール候補を表示中。頭2・軸2・消し1・残り相手1の重複なし分類です。';
+  list.innerHTML=data.races.slice(0,5).map(function(r,i){
+    var roles=r.role_summary||{}, scores=r.scores||{}, forms=r.formations||{};
+    var score=scores.manshu_score==null?'—':Math.round(scores.manshu_score);
+    var manshu=scores.manshu_probability_proxy==null?'—':(scores.manshu_probability_proxy*100).toFixed(1)+'%';
+    var target=scores.target_arare_probability_proxy==null?'—':Math.round(scores.target_arare_probability_proxy*100)+'%';
+    var skip=r.skip_recommendation&&r.skip_recommendation.skip;
+    var formText=['A','B','C','D'].map(function(k){return k+':'+(forms[k]&&forms[k].points!=null?forms[k].points:'—')+'点';}).join(' / ');
+    return '<div class="roleitem">'+
+      '<div class="roletop"><div><b>'+(i+1)+'位 '+esc(r.venue_name)+esc(r.race_no)+'R</b> <span class="muted">'+esc(r.deadline||'')+'</span></div><span class="rolemetric">推定万舟率 '+manshu+' / 荒れ度 '+score+' / 中荒れ '+target+'</span></div>'+
+      '<div class="rolegrid">'+
+        roleBox(r,'頭候補2艇','head',roles.head)+
+        roleBox(r,'軸候補2艇','axis',roles.axis)+
+        roleBox(r,'消し候補','toss',roles.toss)+
+        roleBox(r,'残り相手','opponent',roles.opponent)+
+      '</div>'+
+      '<div class="rolefoot role-result" data-role-result="'+esc(roleResultKey(r))+'" data-role-json="'+esc(JSON.stringify({jcd:r.jcd,race_no:r.race_no,result:r.result||{}}))+'">'+roleResultHtml(r)+'</div>'+
+      '<div class="rolefoot">'+(skip?'見送り候補: '+esc((r.skip_recommendation.reasons||[]).join(' / ')):'見送り判定なし')+'　検証用フォーメーション '+formText+'</div>'+
+    '</div>';
+  }).join('');
+}
+async function loadRoleRanking(){
+  var status=document.getElementById('role-status');
+  if(!status) return;
+  try{
+    var r=await fetch(roleDataUrl(),{cache:'no-store'});
+    if(!r.ok) throw 0;
+    renderRoleRanking(await r.json());
+  }catch(e){
+    status.textContent='本日のロール分析JSONはまだ未生成です。生成されると、頭2艇・軸2艇・消し候補がここに表示されます。';
+  }
+}
 function acc(tr){
   var e=document.getElementById('acc-'+tr.dataset.vr);
   if(!e) return;
@@ -380,6 +476,8 @@ async function loadResults(){
     var t=trifectaOf(r);   // 配当が空でも着順から組番を復元(payout=null)
     if(t) map[r.race_stadium_number+'-'+r.race_number]=t;
   });
+  ROLE_RESULT_MAP=map;
+  updateRoleResults();
   var done=0,man=0,total=0,pend=0;
   document.querySelectorAll('[data-vr]').forEach(function(el){
     var kind=el.dataset.kind;
@@ -434,6 +532,6 @@ function checkStale(){
     if(b){b.style.display='block'; b.innerHTML='⚠ これは <b>'+RDATE+'</b> の予報です。本日（'+t+'）分はまだ準備中（PCが起動すると自動で最新に切り替わります）。';}
   }
 }
-document.addEventListener('DOMContentLoaded',function(){checkStale(); showLen('xrank'); loadTimes(); loadResults(); setInterval(loadResults,60000);});
+document.addEventListener('DOMContentLoaded',function(){checkStale(); showLen('xrank'); loadRoleRanking(); loadTimes(); loadResults(); setInterval(loadResults,60000);});
 </script>
 </body></html>
