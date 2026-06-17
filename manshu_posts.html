@@ -105,9 +105,8 @@ function buildPosts(role,map){
   });
   x.push('買い方1=9点検証/予報・利益保証なし');
   const note=['# '+md+' 万舟率TOP10 結果・答え合わせ','','万舟率が高い順のTOP10です。買い方1は9点を100円ずつ買った場合の検証用計算で、回収率は単発換算です。予想・購入推奨・利益保証ではありません。','','## 集計',`- 確定: ${done}/${top.length}R`,`- 万舟発生: ${manshu}件`,`- 買い方1的中: ${hit}件`,`- 確定分ROI: ${roi==null?'—':roi+'%'}（返戻 ${yen(ret)} / 想定購入 ${yen(cost)}）`,'','## TOP10'];
-  top.forEach((r,i)=>{const ev=evalBuy(r,map),s=r.strategy&&r.strategy.buy_style_1||{},tickets=s.formation&&s.formation.tickets||[];
+  top.forEach((r,i)=>{const ev=evalBuy(r,map),s=r.strategy&&r.strategy.buy_style_1||{};
     note.push('',`### ${i+1}位 ${label(r)}（${r.deadline||'締切未取得'}）`,`- 万舟率: ${pct(r.scores&&r.scores.manshu_probability_proxy)}`,`- 結果: ${resultText(r,map)}`,`- 買い方1: ${ev.hit==null?'結果待ち':ev.hit?'的中':'不的中'} / 回収率 ${ev.roi==null?'—':Math.round(ev.roi)+'%'} / 返戻 ${yen(ev.ret)}`);
-    if(tickets.length)note.push('- 買い目: '+tickets.slice(0,9).join(' / '));
     if(s.venue_label)note.push('- 場相性: '+s.venue_label+'。'+(s.venue_reason||''));
   });
   note.push('','※万舟率は荒れやすさの目安であり、利益化できるかは別問題です。','※娯楽・研究用。舟券購入を推奨するものではありません。');
