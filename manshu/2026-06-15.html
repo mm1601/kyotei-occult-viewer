@@ -30,6 +30,16 @@ p.dist{font-size:12.5px;color:#33405a;background:#f7f9fc;border:1px solid #e3e8f
 .rate-table .roi{font-weight:900;color:#047857;white-space:nowrap}
 .rate-table .miss{color:#64748b;font-weight:800}
 .rate-summary{font-size:12.5px;color:#33405a;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;margin:8px 0 0}
+.pickrow td{padding:0 0 8px;background:#faf8ff;border-bottom:1px solid #e9d5ff}
+.pickpanel{border:1px solid #ddd6fe;background:#fff;border-radius:8px;margin:6px 4px 0;padding:9px 10px}
+.pickgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pickbox{border:1px solid #eef1f5;background:#fff;border-radius:8px;padding:7px 8px;font-size:12.5px;line-height:1.45}
+.pickbox b{color:#33405a}.picktag{display:block;font-weight:900;font-size:11.5px;margin-bottom:4px}
+.pickbox.head{background:#fff7ed;border-color:#fed7aa}.pickbox.head .picktag{color:#b91c1c}
+.pickbox.axis{background:#eff6ff;border-color:#bfdbfe}.pickbox.axis .picktag{color:#1d4ed8}
+.pickbox.toss{background:#f8fafc;border-color:#cbd5e1}.pickbox.toss .picktag{color:#475569}
+.pickhint{font-size:11.5px;color:#64748b;margin-top:7px}
+@media(max-width:640px){.pickgrid{grid-template-columns:1fr}}
 .post-card textarea{min-height:150px}
 tr.rrow{cursor:pointer} tr.rrow:active{background:#f3effe} .caret{color:#7c3aed;font-size:11px}
 tr.accrow>td{padding:6px 4px;background:#faf8ff} tr.accrow .card{margin:0}
@@ -360,6 +370,37 @@ function resultCellText(r){
   return res.combination+' '+yenText(res.payout)+' '+(res.manshu?'万舟決着':'1万円未満');
 }
 function compactRaceLabel(r){return esc(r.venue_name||'')+esc(r.race_no)+'R';}
+function roleBoat(r,lane){
+  return (r.boats||[]).find(function(b){return Number(b.lane)===Number(lane);})||{lane:lane};
+}
+function pickLine(r,lane){
+  var b=roleBoat(r,lane),name=b.name?' '+esc(b.name):'', cls=b.class?' <span class="muted">'+esc(b.class)+'</span>':'';
+  var score=b.role_score==null?'':' <span class="muted">score '+Math.round(Number(b.role_score))+'</span>';
+  var reason=b.role_reason?'<br><span class="muted">'+esc(b.role_reason).replace(/\|/g,' / ')+'</span>':'';
+  return '<div><b>'+esc(lane)+'号艇</b>'+name+cls+score+reason+'</div>';
+}
+function pickBox(r,key,label){
+  var lanes=(r.role_summary&&r.role_summary[key])||[];
+  var body=lanes.length?lanes.map(function(lane){return pickLine(r,lane);}).join(''):'<span class="muted">未判定</span>';
+  return '<div class="pickbox '+key+'"><span class="picktag">'+label+'</span>'+body+'</div>';
+}
+function pickDetailsHtml(r){
+  return '<div class="pickpanel">'+
+    '<div class="pickgrid">'+
+      pickBox(r,'head','頭候補')+
+      pickBox(r,'axis','軸候補')+
+      pickBox(r,'toss','消し候補')+
+    '</div>'+
+    '<div class="pickhint">行をもう一度押すと閉じます。役割表示は過去データから作った補助情報で、買い目・購入推奨ではありません。</div>'+
+  '</div>';
+}
+function toggleRatePick(key){
+  var row=document.getElementById('pick-'+key);
+  if(!row) return;
+  var open=row.style.display==='none';
+  row.style.display=open?'':'none';
+  document.querySelectorAll('[data-rate-caret="'+key+'"]').forEach(function(el){el.textContent=open?'▼':'▶';});
+}
 function updateRateResults(){
   if(!ROLE_RANKING_DATA) return;
   renderRateTop10(ROLE_RANKING_DATA);
@@ -378,14 +419,15 @@ function renderRateTop10(data){
     var hitHtml=ev.hit==null?'<span class="muted">'+esc(ev.label)+'</span>':
       '<span class="'+(ev.hit?'man':'miss')+'">'+esc(ev.label)+'</span><br><span class="muted">'+ev.points+'点</span>';
     var roiHtml=ev.roi==null?'<span class="muted">—</span>':'<span class="roi">'+Math.round(ev.roi)+'%</span><br><span class="muted">返 '+yenText(ev.returnYen)+'</span>';
-    return '<tr data-rate-row="'+esc(roleResultKey(r))+'">'+
+    var key=esc(roleResultKey(r));
+    return '<tr class="rrow" data-rate-row="'+key+'" onclick="toggleRatePick(\''+key+'\')">'+
       '<td class="rkn">'+(i+1)+'</td>'+
-      '<td><span class="race">'+compactRaceLabel(r)+'</span><br><span class="muted">'+esc(r.deadline||'')+'</span></td>'+
+      '<td><span class="race">'+compactRaceLabel(r)+' <span class="caret" data-rate-caret="'+key+'">▶</span></span><br><span class="muted">'+esc(r.deadline||'')+'</span></td>'+
       '<td class="rate">'+rate+'</td>'+
       '<td class="result">'+resultHtml+'</td>'+
       '<td>'+hitHtml+'</td>'+
       '<td>'+roiHtml+'</td>'+
-    '</tr>';
+    '</tr><tr class="pickrow" id="pick-'+key+'" style="display:none"><td colspan="6">'+pickDetailsHtml(r)+'</td></tr>';
   }).join('');
   if(summaryEl){
     summaryEl.innerHTML='トップ10確定 '+summary.done+'/'+top.length+'R / 万舟決着 '+summary.manshu+'件 / 検証用9点 '+summary.hit+'件 / 単発回収率 <b>'+(summary.roi==null?'—':Math.round(summary.roi)+'%')+'</b>（返戻 '+yenText(summary.ret)+' / 想定購入 '+yenText(summary.cost)+'）';
