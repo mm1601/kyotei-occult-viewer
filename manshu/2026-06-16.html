@@ -36,7 +36,6 @@ p.dist{font-size:12.5px;color:#33405a;background:#f7f9fc;border:1px solid #e3e8f
 .role-result{font-weight:800;color:#33405a}
 .role-strategy{margin-top:7px;border:1px solid #e5e7eb;background:#fafafa;border-radius:8px;padding:7px 8px;font-size:12px;line-height:1.5;color:#374151}
 .role-strategy b{color:#111827}.role-strategy .good{color:#047857;font-weight:900}.role-strategy .hold{color:#b45309;font-weight:900}.role-strategy .avoid{color:#b91c1c;font-weight:900}.role-strategy .outside_rule{color:#64748b;font-weight:900}
-.role-tickets{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:#475569;word-break:break-word}
 .rate-scroll{overflow-x:auto;margin-top:8px}
 .rate-table{min-width:980px}
 .rate-table th,.rate-table td{vertical-align:top}
@@ -322,6 +321,7 @@ function sub(h){   // カード内サブ見出しの開閉(直後の.subbodyを�
 var ROLE_RANKING_DATA=null;
 var ROLE_RANKING_DATA=null;
 var ROLE_RANKING_DATA=null;
+var ROLE_RANKING_DATA=null;
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function roleDataUrl(){
   var prefix=location.pathname.indexOf('/manshu/')>=0?'../':'';
@@ -480,7 +480,6 @@ function roleStrategyHtml(r){
   var s=r.strategy&&r.strategy.buy_style_1;
   if(!s) return '';
   var hist=s.historical&&s.historical.good_venues||{}, overall=s.historical&&s.historical.overall||{};
-  var form=s.formation||{}, tickets=(form.tickets||[]).slice(0,9).join(' / ');
   var cls=s.status||'outside_rule';
   var condition=s.condition_matched?'条件一致':'条件外';
   var result=s.result_check||{};
@@ -489,7 +488,6 @@ function roleStrategyHtml(r){
     '<b>買い方1（検証用9点）</b>: <span class="'+cls+'">'+esc(s.status_label||condition)+'</span> / 場相性 <span class="'+(s.venue_tier||'neutral')+'">'+esc(s.venue_label||'—')+'</span>'+hitText+
     '<br><span class="muted">条件: 1号艇弱め・外枠最強が上・勝率差1.5以内・非進入固定・外枠展示上位</span>'+
     '<br><span class="muted">過去全体 '+esc(overall.races||'—')+'R ROI '+pctText(overall.return_rate)+' / 相性良場 '+esc(hist.races||'—')+'R ROI '+pctText(hist.return_rate)+'（後半 '+pctText(hist.validation_return_rate)+'）</span>'+
-    (tickets?'<br><span class="role-tickets">'+esc(tickets)+'</span>':'')+
     '<br><span class="muted">'+esc(s.venue_reason||'')+'</span>'+
   '</div>';
 }
@@ -527,12 +525,11 @@ function renderRoleRanking(data){
     if(!seen[r.race_id]){seen[r.race_id]=1; display.push(r);}
   });
   list.innerHTML=display.slice(0,8).map(function(r,i){
-    var roles=r.role_summary||{}, scores=r.scores||{}, forms=r.formations||{};
+    var roles=r.role_summary||{}, scores=r.scores||{};
     var score=scores.manshu_score==null?'—':Math.round(scores.manshu_score);
     var manshu=scores.manshu_probability_proxy==null?'—':(scores.manshu_probability_proxy*100).toFixed(1)+'%';
     var target=scores.target_arare_probability_proxy==null?'—':Math.round(scores.target_arare_probability_proxy*100)+'%';
     var skip=r.skip_recommendation&&r.skip_recommendation.skip;
-    var formText=['A','B','C','D'].map(function(k){return k+':'+(forms[k]&&forms[k].points!=null?forms[k].points:'—')+'点';}).join(' / ');
     return '<div class="roleitem">'+
       '<div class="roletop"><div><b>'+(i+1)+'位 '+esc(r.venue_name)+esc(r.race_no)+'R</b> <span class="muted">'+esc(r.deadline||'')+'</span></div><span class="rolemetric">推定万舟率 '+manshu+' / 荒れ度 '+score+' / 中荒れ '+target+'</span></div>'+
       '<div class="rolegrid">'+
@@ -543,7 +540,7 @@ function renderRoleRanking(data){
       '</div>'+
       '<div class="rolefoot role-result" data-role-result="'+esc(roleResultKey(r))+'" data-role-json="'+esc(JSON.stringify({jcd:r.jcd,race_no:r.race_no,result:r.result||{}}))+'">'+roleResultHtml(r)+'</div>'+
       roleStrategyHtml(r)+
-      '<div class="rolefoot">'+(skip?'見送り候補: '+esc((r.skip_recommendation.reasons||[]).join(' / ')):'見送り判定なし')+'　検証用フォーメーション '+formText+'</div>'+
+      '<div class="rolefoot">'+(skip?'見送り候補: '+esc((r.skip_recommendation.reasons||[]).join(' / ')):'見送り判定なし')+'</div>'+
     '</div>';
   }).join('');
 }
