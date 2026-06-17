@@ -21,22 +21,6 @@ p.dist{font-size:12.5px;color:#33405a;background:#f7f9fc;border:1px solid #e3e8f
 .card.top{border-left-color:#16a34a} .card.top h2{color:#15803d}
 .card.score{border-left-color:#2563eb} .card.score h2{color:#1d4ed8}
 .card.rank{border-left-color:#7c3aed} .card.rank h2{color:#6d28d9}
-.card.role{border-left-color:#0d9488} .card.role h2{color:#0f766e}
-.rolelist{display:grid;gap:10px;margin-top:8px}
-.roleitem{border:1px solid #dbeafe;background:#f8fbff;border-radius:9px;padding:10px}
-.roletop{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;font-size:13px;color:#33405a}
-.rolemetric{font-size:12px;font-weight:800;color:#0f766e;background:#ccfbf1;border:1px solid #99f6e4;border-radius:999px;padding:2px 8px;white-space:nowrap}
-.rolegrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
-.rolebox{background:#fff;border:1px solid #eef1f5;border-radius:8px;padding:6px 8px;font-size:12.5px;line-height:1.45}
-.rolebox b{color:#33405a}.rolebox .tag{display:block;color:#0f766e;font-weight:800;font-size:11.5px;margin-bottom:2px}
-.rolebox.toss .tag{color:#b45309}.rolebox.toss{background:#fff7ed;border-color:#fed7aa}
-.rolebox.head .tag{color:#b91c1c}.rolebox.head{background:#fff7ed;border-color:#fecaca}
-.rolebox.axis .tag{color:#1d4ed8}.rolebox.axis{background:#eff6ff;border-color:#bfdbfe}
-.rolefoot{font-size:11.5px;color:#64748b;margin-top:7px}
-.role-result{font-weight:800;color:#33405a}
-.role-strategy{margin-top:7px;border:1px solid #e5e7eb;background:#fafafa;border-radius:8px;padding:7px 8px;font-size:12px;line-height:1.5;color:#374151}
-.role-strategy b{color:#111827}.role-strategy .good{color:#047857;font-weight:900}.role-strategy .hold{color:#b45309;font-weight:900}.role-strategy .avoid{color:#b91c1c;font-weight:900}.role-strategy .outside_rule{color:#64748b;font-weight:900}
-.role-tickets{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:#475569;word-break:break-word}
 tr.rrow{cursor:pointer} tr.rrow:active{background:#f3effe} .caret{color:#7c3aed;font-size:11px}
 tr.accrow>td{padding:6px 4px;background:#faf8ff} tr.accrow .card{margin:0}
 h3.sub{cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none;-webkit-user-select:none}
@@ -80,101 +64,12 @@ footer{color:#8a93a6;font-size:11.5px;text-align:center;margin-top:20px}
 買い目（2-6ボックス）の正直な回収率は<b>朝・直前とも約65%</b>（控除率の壁の下＝中長期は負け・娯楽用）。直前版で上がるのは万舟率ではなく<b>1号艇が飛ぶか・軸・消しの精度</b>。<b>各レース30〜40分前に展示が出てから、直前版を見るのがおすすめです。</b>
 </div>
 <p class="sub">📅 <a href="manshu_days.html" style="color:#2563eb;font-weight:700">日付を選んで過去の結果を見る</a>　／　📚 <a href="manshu_research.html" style="color:#2563eb;font-weight:700">万舟研究ノート</a></p>
-<div class="bar"><button id="rbtn" onclick="loadResults()">🔄 結果を更新</button><span id="rstat" class="rstat">最新の結果を読み込み中…</span></div>
-<div class="card role" id="role-card">
-  <h2>🧪 ロール分析（試験表示）</h2>
-  <p class="lead" id="role-status">頭2艇・軸2艇・消し候補を読み込み中…</p>
-  <div class="rolelist" id="role-list"></div>
-  <p class="muted">過去20,947Rで検証した補助表示です。買い目確定や利益保証ではありません。直前版は展示・気象込みのため、朝の判断とは分けて見てください。</p>
-</div>
-<div class="card rank"><h2>📊 本日の万舟率ランキング TOP10（高い順）</h2><p class="lead"><b>男子戦のみ対象</b>（女子戦は荒れにくいため除外）。<b>万舟率の高い順</b>。万舟率＝AIの万舟(高配当)スコア(モデル推定)。「その日の最有力を数本だけ」狙う用途で最も的中が鋭い順（OOS検証：各日トップ3で実測26%）。🎯=最有力(≥22%)。ベース16.6%。<b>全134Rの平均万舟率 約18%</b>、各行「平均±◯pt」はその差。<b>各行タップで根拠が開きます（▶）。</b><br><span style="color:#059669;font-weight:700">💡過小評価</span>＝最も人気がなさそうな艇(オッズ最高の代理)が、検証済の構造条件(混戦で実力横一線／平和島・戸田の悪枠の実力者)に該当＝過小評価。<b>その艇の3着内率は32.9%(普段17.7%の約1.9倍・OOS実証)</b>。用途は3着・ヒモ(1着率は元々1%台)。特大配当(≥5万)の9割は外枠絡みなので、この艇が来れば高配当の芽。<br><span style="color:#dc2626;font-weight:700">⚠️本命危険</span>＝強い1号艇(勝率6.5+A1)でも周りも同格に強い団子で<b>飛び率35%</b>(通常28%)／<span style="color:#2563eb;font-weight:700">🔒本命堅い</span>＝弱い1号艇でもA1不在で相対上位+良モーターで<b>1着率52%</b>(通常38%)。肩書きでなく“その番組での相対力”で見た説明(モデル順位は不変・2025再現)。</p><table><thead><tr><th>順位</th><th>場R</th><th>万舟率</th><th>本命飛び率</th><th>結果(3連単)</th><th>配当</th></tr></thead><tbody><tr class="rrow" data-vr="01-2" data-kind="score" onclick="acc(this)"><td class="rkn"><b>🥇1</b></td><td>🎯 桐生2R <span class="rt" data-rt="01-2">🕐--:--</span> <span class="caret">▶</span><br><span class="head2">🎯頭3艇 4号艇20% ／ 3号艇20% ／ 2号艇18%</span><br><span style="color:#059669;font-weight:700">💡過小評価：最低人気5号艇に妙味（実力も人気も横一線(勝率差1.24)）→3着・ヒモ</span></td><td class="p"><b>30%</b><br><span class="muted">平均+12pt</span><br><span class="muted">条件（参考ス30）</span></td><td class="p">72%</td><td class="c no" data-f="scombo">結果待ち</td><td class="p no" data-f="spay">—</td></tr><tr class="accrow" id="acc-01-2" style="display:none"><td colspan="6">
-<div class="card elite">
-  <h2>🎯 ⚠ 桐生2R <span class="rt" data-rt="01-2">🕐--:--</span>　万舟率 <b>30%</b>（AI総合スコア＝この欄の数字）　<span class="cond">参考：該当した荒れ条件の過去実績 ≈ 38%（条件1つだけの確率）</span></h2>
-  <div class="head"><b>🎯 頭3艇（1号艇以外で1着を狙う3艇）</b><ol class="headol"><li><b>4号艇</b><span class="muted">（まくり）</span> … 1着確率 <b>20%</b></li><li><b>3号艇</b> 廣瀬真也<span class="muted">（まくり/差し）</span> … 1着確率 <b>20%</b></li><li><b>2号艇</b><span class="muted">（差し）</span> … 1着確率 <b>18%</b></li></ol><span class="muted">この3艇を頭に、あなたの軸を2-3着へ。検証では荒れ的中時にこの3艇で約86%の1着を捕捉(OOS・頭2艇は約70%)。確率は1着になるモデル推定。</span></div>
-  <p class="res " data-vr="01-2" data-kind="card">本日結果: <span class="muted">取得中…（レース確定後に自動表示）</span></p>
-  <h3 class="sub reason open" onclick="sub(this)"><span class="scaret">▼</span>📌 根拠：なぜこのレースが荒れそうか</h3>
-  <div class="subbody open"><p class="why"><b>条件</b>：本命イン1着率&lt;40% × 当地イン1着率&lt;40% × 実力差ふつう × 本命が枠1で勝ててない(&lt;40%)<br>→ この条件は検証期97Rで万舟 <b>37</b>回（<b>38%</b>＝通常16.6%の<b>約2.3倍</b>）。だから荒れそう。</p></div>
-  <h3 class="sub" onclick="sub(this)"><span class="scaret">▶</span>🚣 選手の当地×号艇成績＆参考買い目</h3><div class="subbody"><table><thead><tr><th>艇(級/選手)</th><th>当地この枠<br>1着率</th><th>当地この枠<br>3着内率</th><th>走数</th></tr></thead><tbody><tr><td>1 <span class="muted">B1 崎利仁</span></td><td class="p">38%<br><span class="muted">全国比+11</span></td><td class="p">62%<br><span class="muted">+2</span></td><td class="p"><span class="muted">n24</span></td></tr><tr><td>2 <span class="muted">B1</span></td><td class="p">6%</td><td class="p">51%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>3 <span class="muted">A2 廣瀬真也</span></td><td class="p">25%<br><span class="muted">全国比+12</span></td><td class="p">58%<br><span class="muted">+5</span></td><td class="p"><span class="muted">n12</span></td></tr><tr><td>4 <span class="muted">A2</span></td><td class="p">16%</td><td class="p">51%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>5 <span class="muted">B1 土屋太朗</span></td><td class="p">0%<br><span class="muted">全国比-2</span></td><td class="p">48%<br><span class="muted">+11</span></td><td class="p"><span class="muted">n21</span></td></tr><tr><td>6 <span class="muted">A1 清水愛海</span></td><td class="p">14%<br><span class="muted">全国比+11</span></td><td class="p">57%<br><span class="muted">+18</span></td><td class="p"><span class="muted">n7</span></td></tr></tbody></table><p>🎯 <b>参考買い目</b>（上の頭3艇と一致）<br>1着：<b>4号艇・3号艇・2号艇</b>（モデルが選ぶ1着候補＝頭3艇／1号艇以外）<br>2-3着：<b>あなたの軸</b>（ご自身のロジックで）<br>＝ 1着[頭3艇] → 相手[軸] の3連単（流し）</p><p class="muted">頭3艇は荒れ的中時に約86%で1着を捕捉(OOS検証・頭2艇は約70%)。軸はあなたの判断、当地で金に絡む外枠💰は軸の候補に。利益保証なし。表の「全国比」は当地その枠が全国平均よりどれだけ上下するか（🔥当地飛び＝荒れ予兆／⚓鉄板／💰金絡み）。</p></div>
-</div></td></tr><tr class="rrow" data-vr="01-4" data-kind="score" onclick="acc(this)"><td class="rkn"><b>🥈2</b></td><td>🎯 桐生4R <span class="rt" data-rt="01-4">🕐--:--</span> <span class="caret">▶</span><br><span class="head2">🎯頭3艇 3号艇21% ／ 2号艇17% ／ 6号艇13%</span><br><span style="color:#059669;font-weight:700">💡過小評価：最低人気6号艇に妙味（実力も人気も横一線(勝率差0.00)）→3着・ヒモ</span></td><td class="p"><b>26%</b><br><span class="muted">平均+8pt</span><br><span class="muted">スコア</span></td><td class="p">65%</td><td class="c no" data-f="scombo">結果待ち</td><td class="p no" data-f="spay">—</td></tr><tr class="accrow" id="acc-01-4" style="display:none"><td colspan="6">
-<div class="card elite">
-  <h2>🎯 ⚠ 桐生4R <span class="rt" data-rt="01-4">🕐--:--</span>　万舟率 <b>26%</b>（AI総合スコア）　<span class="cond">特定の荒れ条件には非該当</span></h2>
-  <div class="head"><b>🎯 頭3艇（1号艇以外で1着を狙う3艇）</b><ol class="headol"><li><b>3号艇</b> 小林文彦<span class="muted">（まくり/差し）</span> … 1着確率 <b>21%</b></li><li><b>2号艇</b> 栗原直也<span class="muted">（差し）</span> … 1着確率 <b>17%</b></li><li><b>6号艇</b><span class="muted">（大外一発）</span> … 1着確率 <b>13%</b></li></ol><span class="muted">この3艇を頭に、あなたの軸を2-3着へ。検証では荒れ的中時にこの3艇で約86%の1着を捕捉(OOS・頭2艇は約70%)。確率は1着になるモデル推定。</span></div>
-  <p class="res " data-vr="01-4" data-kind="card">本日結果: <span class="muted">取得中…（レース確定後に自動表示）</span></p>
-  <h3 class="sub reason open" onclick="sub(this)"><span class="scaret">▼</span>📌 根拠：なぜこのレースが荒れそうか</h3>
-  <div class="subbody open"><p class="why">・会場が<b>桐生</b>（万舟率19%＝荒れやすい場）<br>・本命(1号艇)が<b>B1級</b>（格下＝飛びやすい）<br>・本命のイン1着率が<b>35%</b>と低い（飛びやすい）<br>・出走に<b>B級3人</b>（実力が割れて混戦）<br>・外枠に<b>A1が2人</b>（本命を負かす力あり）<br>・<b>4R</b>（序盤は静まらず荒れやすい傾向）<br>→ これらの総合で<b>万舟スコア26%</b>（ベース16.6%の<b>1.6倍</b>）。だから荒れそう。</p></div>
-  <h3 class="sub" onclick="sub(this)"><span class="scaret">▶</span>🚣 選手の当地×号艇成績＆参考買い目</h3><div class="subbody"><table><thead><tr><th>艇(級/選手)</th><th>当地この枠<br>1着率</th><th>当地この枠<br>3着内率</th><th>走数</th></tr></thead><tbody><tr><td>1 <span class="muted">B1 大澤真菜</span></td><td class="p">33%<br><span class="muted">全国比+9</span></td><td class="p">50%<br><span class="muted">-9</span></td><td class="p"><span class="muted">n6</span></td></tr><tr><td>2 <span class="muted">A2 栗原直也</span></td><td class="p">0%<br><span class="muted">全国比-10</span></td><td class="p">67%<br><span class="muted">+17</span></td><td class="p"><span class="muted">n9</span></td></tr><tr><td>3 <span class="muted">B1 小林文彦</span></td><td class="p">17%<br><span class="muted">全国比+5</span></td><td class="p">83%<br><span class="muted">+20</span></td><td class="p"><span class="muted">n6</span></td></tr><tr><td>4 <span class="muted">B2 石原凪紗</span></td><td class="p">0%<br><span class="muted">全国比-3</span></td><td class="p">17%<br><span class="muted">+3</span></td><td class="p"><span class="muted">n6</span></td></tr><tr><td>5 <span class="muted">A1 松尾拓</span></td><td class="p">27%<br><span class="muted">全国比+15</span></td><td class="p">36%<br><span class="muted">-17</span></td><td class="p"><span class="muted">n11</span></td></tr><tr><td>6 <span class="muted">A1</span></td><td class="p">1%</td><td class="p">39%</td><td class="p"><span class="muted">当地薄</span></td></tr></tbody></table><p>🎯 <b>参考買い目</b>（上の頭3艇と一致）<br>1着：<b>3号艇・2号艇・6号艇</b>（モデルが選ぶ1着候補＝頭3艇／1号艇以外）<br>2-3着：<b>あなたの軸</b>（ご自身のロジックで）<br>＝ 1着[頭3艇] → 相手[軸] の3連単（流し）</p><p class="muted">頭3艇は荒れ的中時に約86%で1着を捕捉(OOS検証・頭2艇は約70%)。軸はあなたの判断、当地で金に絡む外枠💰は軸の候補に。利益保証なし。表の「全国比」は当地その枠が全国平均よりどれだけ上下するか（🔥当地飛び＝荒れ予兆／⚓鉄板／💰金絡み）。</p></div>
-</div></td></tr><tr class="rrow" data-vr="01-3" data-kind="score" onclick="acc(this)"><td class="rkn"><b>🥉3</b></td><td>🎯 桐生3R <span class="rt" data-rt="01-3">🕐--:--</span> <span class="caret">▶</span><br><span class="head2">🎯頭3艇 3号艇22% ／ 5号艇16% ／ 2号艇14%</span></td><td class="p"><b>26%</b><br><span class="muted">平均+8pt</span><br><span class="muted">スコア</span></td><td class="p">77%</td><td class="c no" data-f="scombo">結果待ち</td><td class="p no" data-f="spay">—</td></tr><tr class="accrow" id="acc-01-3" style="display:none"><td colspan="6">
-<div class="card elite">
-  <h2>🎯 ⚠ 桐生3R <span class="rt" data-rt="01-3">🕐--:--</span>　万舟率 <b>26%</b>（AI総合スコア）　<span class="cond">特定の荒れ条件には非該当</span></h2>
-  <div class="head"><b>🎯 頭3艇（1号艇以外で1着を狙う3艇）</b><ol class="headol"><li><b>3号艇</b><span class="muted">（まくり/差し）</span> … 1着確率 <b>22%</b></li><li><b>5号艇</b> 尾上雅也<span class="muted">（まくり）</span> … 1着確率 <b>16%</b></li><li><b>2号艇</b><span class="muted">（差し）</span> … 1着確率 <b>14%</b></li></ol><span class="muted">この3艇を頭に、あなたの軸を2-3着へ。検証では荒れ的中時にこの3艇で約86%の1着を捕捉(OOS・頭2艇は約70%)。確率は1着になるモデル推定。</span></div>
-  <p class="res " data-vr="01-3" data-kind="card">本日結果: <span class="muted">取得中…（レース確定後に自動表示）</span></p>
-  <h3 class="sub reason open" onclick="sub(this)"><span class="scaret">▼</span>📌 根拠：なぜこのレースが荒れそうか</h3>
-  <div class="subbody open"><p class="why">・会場が<b>桐生</b>（万舟率19%＝荒れやすい場）<br>・本命(1号艇)が<b>B1級</b>（格下＝飛びやすい）<br>・本命のイン1着率が<b>23%</b>と低い（飛びやすい）<br>・出走に<b>B級3人</b>（実力が割れて混戦）<br>・外枠に<b>A1が1人</b>（本命を負かす力あり）<br>・<b>3R</b>（序盤は静まらず荒れやすい傾向）<br>→ これらの総合で<b>万舟スコア26%</b>（ベース16.6%の<b>1.5倍</b>）。だから荒れそう。</p></div>
-  <h3 class="sub" onclick="sub(this)"><span class="scaret">▶</span>🚣 選手の当地×号艇成績＆参考買い目</h3><div class="subbody"><table><thead><tr><th>艇(級/選手)</th><th>当地この枠<br>1着率</th><th>当地この枠<br>3着内率</th><th>走数</th></tr></thead><tbody><tr><td>1 <span class="muted">B1</span></td><td class="p">40%</td><td class="p">56%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>2 <span class="muted">B1</span></td><td class="p">6%</td><td class="p">54%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>3 <span class="muted">A2</span></td><td class="p">6%</td><td class="p">64%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>4 <span class="muted">A2</span></td><td class="p">14%</td><td class="p">46%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>5 <span class="muted">A1 尾上雅也</span></td><td class="p">11%<br><span class="muted">全国比+1</span></td><td class="p">44%<br><span class="muted">-9</span></td><td class="p"><span class="muted">n9</span></td></tr><tr><td>6 <span class="muted">B1</span></td><td class="p">12%</td><td class="p">25%</td><td class="p"><span class="muted">当地薄</span></td></tr></tbody></table><p>🎯 <b>参考買い目</b>（上の頭3艇と一致）<br>1着：<b>3号艇・5号艇・2号艇</b>（モデルが選ぶ1着候補＝頭3艇／1号艇以外）<br>2-3着：<b>あなたの軸</b>（ご自身のロジックで）<br>＝ 1着[頭3艇] → 相手[軸] の3連単（流し）</p><p class="muted">頭3艇は荒れ的中時に約86%で1着を捕捉(OOS検証・頭2艇は約70%)。軸はあなたの判断、当地で金に絡む外枠💰は軸の候補に。利益保証なし。表の「全国比」は当地その枠が全国平均よりどれだけ上下するか（🔥当地飛び＝荒れ予兆／⚓鉄板／💰金絡み）。</p></div>
-</div></td></tr><tr class="rrow" data-vr="17-8" data-kind="score" onclick="acc(this)"><td class="rkn"><b>4</b></td><td>🎯 宮島8R <span class="rt" data-rt="17-8">🕐--:--</span> <span class="caret">▶</span><br><span class="head2">🎯頭3艇 4号艇21% ／ 2号艇17% ／ 3号艇17%</span><br><span style="color:#059669;font-weight:700">💡過小評価：最低人気6号艇に妙味（実力も人気も横一線(勝率差0.25)）→3着・ヒモ</span></td><td class="p"><b>25%</b><br><span class="muted">平均+7pt</span><br><span class="muted">スコア</span></td><td class="p">94%</td><td class="c no" data-f="scombo">結果待ち</td><td class="p no" data-f="spay">—</td></tr><tr class="accrow" id="acc-17-8" style="display:none"><td colspan="6">
-<div class="card elite">
-  <h2>🎯 ⚠ 宮島8R <span class="rt" data-rt="17-8">🕐--:--</span>　万舟率 <b>25%</b>（AI総合スコア）　<span class="cond">特定の荒れ条件には非該当</span></h2>
-  <div class="head"><b>🎯 頭3艇（1号艇以外で1着を狙う3艇）</b><ol class="headol"><li><b>4号艇</b> 木山和幸<span class="muted">（まくり）</span> … 1着確率 <b>21%</b></li><li><b>2号艇</b><span class="muted">（差し）</span> … 1着確率 <b>17%</b></li><li><b>3号艇</b><span class="muted">（まくり/差し）</span> … 1着確率 <b>17%</b></li></ol><span class="muted">この3艇を頭に、あなたの軸を2-3着へ。検証では荒れ的中時にこの3艇で約86%の1着を捕捉(OOS・頭2艇は約70%)。確率は1着になるモデル推定。</span></div>
-  <p class="res " data-vr="17-8" data-kind="card">本日結果: <span class="muted">取得中…（レース確定後に自動表示）</span></p>
-  <h3 class="sub reason open" onclick="sub(this)"><span class="scaret">▼</span>📌 根拠：なぜこのレースが荒れそうか</h3>
-  <div class="subbody open"><p class="why">・本命(1号艇)が<b>B1級</b>（格下＝飛びやすい）<br>・本命のイン1着率が<b>6%</b>と低い（飛びやすい）<br>・出走に<b>B級4人</b>（実力が割れて混戦）<br>→ これらの総合で<b>万舟スコア25%</b>（ベース16.6%の<b>1.5倍</b>）。だから荒れそう。</p></div>
-  <h3 class="sub" onclick="sub(this)"><span class="scaret">▶</span>🚣 選手の当地×号艇成績＆参考買い目</h3><div class="subbody"><table><thead><tr><th>艇(級/選手)</th><th>当地この枠<br>1着率</th><th>当地この枠<br>3着内率</th><th>走数</th></tr></thead><tbody><tr><td>1 <span class="muted">B1</span></td><td class="p">13%</td><td class="p">47%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>2 <span class="muted">B1</span></td><td class="p">3%</td><td class="p">64%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>3 <span class="muted">B1</span></td><td class="p">14%</td><td class="p">44%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>4 <span class="muted">A2 木山和幸</span></td><td class="p">8%<br><span class="muted">全国比+2</span></td><td class="p">56%<br><span class="muted">+9</span></td><td class="p"><span class="muted">n25</span></td></tr><tr><td>5 <span class="muted">B1</span></td><td class="p">5%</td><td class="p">32%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>6 <span class="muted">A2</span></td><td class="p">1%</td><td class="p">17%</td><td class="p"><span class="muted">当地薄</span></td></tr></tbody></table><p>🎯 <b>参考買い目</b>（上の頭3艇と一致）<br>1着：<b>4号艇・2号艇・3号艇</b>（モデルが選ぶ1着候補＝頭3艇／1号艇以外）<br>2-3着：<b>あなたの軸</b>（ご自身のロジックで）<br>＝ 1着[頭3艇] → 相手[軸] の3連単（流し）</p><p class="muted">頭3艇は荒れ的中時に約86%で1着を捕捉(OOS検証・頭2艇は約70%)。軸はあなたの判断、当地で金に絡む外枠💰は軸の候補に。利益保証なし。表の「全国比」は当地その枠が全国平均よりどれだけ上下するか（🔥当地飛び＝荒れ予兆／⚓鉄板／💰金絡み）。</p></div>
-</div></td></tr><tr class="rrow" data-vr="01-9" data-kind="score" onclick="acc(this)"><td class="rkn"><b>5</b></td><td>🎯 桐生9R <span class="rt" data-rt="01-9">🕐--:--</span> <span class="caret">▶</span><br><span class="head2">🎯頭3艇 2号艇23% ／ 3号艇20% ／ 4号艇9%</span><br><span style="color:#059669;font-weight:700">💡過小評価：最低人気6号艇に妙味（実力も人気も横一線(勝率差0.08)）→3着・ヒモ</span></td><td class="p"><b>24%</b><br><span class="muted">平均+7pt</span><br><span class="muted">条件（参考ス24）</span></td><td class="p">67%</td><td class="c no" data-f="scombo">結果待ち</td><td class="p no" data-f="spay">—</td></tr><tr class="accrow" id="acc-01-9" style="display:none"><td colspan="6">
-<div class="card elite">
-  <h2>🎯 ⚠ 桐生9R <span class="rt" data-rt="01-9">🕐--:--</span>　万舟率 <b>24%</b>（AI総合スコア＝この欄の数字）　<span class="cond">参考：該当した荒れ条件の過去実績 ≈ 34%（条件1つだけの確率）</span></h2>
-  <div class="head"><b>🎯 頭3艇（1号艇以外で1着を狙う3艇）</b><ol class="headol"><li><b>2号艇</b><span class="muted">（差し）</span> … 1着確率 <b>23%</b></li><li><b>3号艇</b> 松尾拓<span class="muted">（まくり/差し）</span> … 1着確率 <b>20%</b></li><li><b>4号艇</b><span class="muted">（まくり）</span> … 1着確率 <b>9%</b></li></ol><span class="muted">この3艇を頭に、あなたの軸を2-3着へ。検証では荒れ的中時にこの3艇で約86%の1着を捕捉(OOS・頭2艇は約70%)。確率は1着になるモデル推定。</span></div>
-  <p class="res " data-vr="01-9" data-kind="card">本日結果: <span class="muted">取得中…（レース確定後に自動表示）</span></p>
-  <h3 class="sub reason open" onclick="sub(this)"><span class="scaret">▼</span>📌 根拠：なぜこのレースが荒れそうか</h3>
-  <div class="subbody open"><p class="why"><b>条件</b>：01場 × 1号艇中位(勝率4.5-5.5) × 1号艇と相手が拮抗 × 6艇横一線(実力拮抗)<br>→ この条件は検証期80Rで万舟 <b>27</b>回（<b>34%</b>＝通常16.6%の<b>約2.0倍</b>）。だから荒れそう。</p></div>
-  <h3 class="sub" onclick="sub(this)"><span class="scaret">▶</span>🚣 選手の当地×号艇成績＆参考買い目</h3><div class="subbody"><table><thead><tr><th>艇(級/選手)</th><th>当地この枠<br>1着率</th><th>当地この枠<br>3着内率</th><th>走数</th></tr></thead><tbody><tr><td>1 <span class="muted">B1</span></td><td class="p">29%</td><td class="p">68%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>2 <span class="muted">A1</span></td><td class="p">21%</td><td class="p">57%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>3 <span class="muted">A1 松尾拓</span></td><td class="p">14%<br><span class="muted">全国比-9</span></td><td class="p">71%<br><span class="muted">+6</span></td><td class="p"><span class="muted">n14</span></td></tr><tr><td>4 <span class="muted">B1</span></td><td class="p">24%</td><td class="p">58%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>5 <span class="muted">A2 小坂宗司</span></td><td class="p">0%<br><span class="muted">全国比-2</span></td><td class="p">43%<br><span class="muted">+2</span></td><td class="p"><span class="muted">n7</span></td></tr><tr><td>6 <span class="muted">A1</span></td><td class="p">5%</td><td class="p">39%</td><td class="p"><span class="muted">当地薄</span></td></tr></tbody></table><p>🎯 <b>参考買い目</b>（上の頭3艇と一致）<br>1着：<b>2号艇・3号艇・4号艇</b>（モデルが選ぶ1着候補＝頭3艇／1号艇以外）<br>2-3着：<b>あなたの軸</b>（ご自身のロジックで）<br>＝ 1着[頭3艇] → 相手[軸] の3連単（流し）</p><p class="muted">頭3艇は荒れ的中時に約86%で1着を捕捉(OOS検証・頭2艇は約70%)。軸はあなたの判断、当地で金に絡む外枠💰は軸の候補に。利益保証なし。表の「全国比」は当地その枠が全国平均よりどれだけ上下するか（🔥当地飛び＝荒れ予兆／⚓鉄板／💰金絡み）。</p></div>
-</div></td></tr><tr class="rrow" data-vr="09-2" data-kind="score" onclick="acc(this)"><td class="rkn"><b>6</b></td><td>🎯 津2R <span class="rt" data-rt="09-2">🕐--:--</span> <span class="caret">▶</span><br><span class="head2">🎯頭3艇 2号艇27% ／ 3号艇10% ／ 5号艇8%</span></td><td class="p"><b>24%</b><br><span class="muted">平均+7pt</span><br><span class="muted">スコア</span></td><td class="p">70%</td><td class="c no" data-f="scombo">結果待ち</td><td class="p no" data-f="spay">—</td></tr><tr class="accrow" id="acc-09-2" style="display:none"><td colspan="6">
-<div class="card elite">
-  <h2>🎯 ⚠ 津2R <span class="rt" data-rt="09-2">🕐--:--</span>　万舟率 <b>24%</b>（AI総合スコア）　<span class="cond">特定の荒れ条件には非該当</span></h2>
-  <div class="head"><b>🎯 頭3艇（1号艇以外で1着を狙う3艇）</b><ol class="headol"><li><b>2号艇</b> 柴田直哉<span class="muted">（差し）</span> … 1着確率 <b>27%</b></li><li><b>3号艇</b><span class="muted">（まくり/差し）</span> … 1着確率 <b>10%</b></li><li><b>5号艇</b><span class="muted">（まくり）</span> … 1着確率 <b>8%</b></li></ol><span class="muted">この3艇を頭に、あなたの軸を2-3着へ。検証では荒れ的中時にこの3艇で約86%の1着を捕捉(OOS・頭2艇は約70%)。確率は1着になるモデル推定。</span></div>
-  <p class="res " data-vr="09-2" data-kind="card">本日結果: <span class="muted">取得中…（レース確定後に自動表示）</span></p>
-  <h3 class="sub reason open" onclick="sub(this)"><span class="scaret">▼</span>📌 根拠：なぜこのレースが荒れそうか</h3>
-  <div class="subbody open"><p class="why">・本命(1号艇)が<b>B1級</b>（格下＝飛びやすい）<br>・本命のイン1着率が<b>30%</b>と低い（飛びやすい）<br>・出走に<b>B級6人</b>（実力が割れて混戦）<br>・<b>2R</b>（序盤は静まらず荒れやすい傾向）<br>→ これらの総合で<b>万舟スコア24%</b>（ベース16.6%の<b>1.5倍</b>）。だから荒れそう。</p></div>
-  <h3 class="sub" onclick="sub(this)"><span class="scaret">▶</span>🚣 選手の当地×号艇成績＆参考買い目</h3><div class="subbody"><table><thead><tr><th>艇(級/選手)</th><th>当地この枠<br>1着率</th><th>当地この枠<br>3着内率</th><th>走数</th></tr></thead><tbody><tr><td>1 <span class="muted">B1</span></td><td class="p">44%</td><td class="p">76%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>2 <span class="muted">B1 柴田直哉</span></td><td class="p">14%<br><span class="muted">全国比+3</span></td><td class="p">71%<br><span class="muted">+14</span></td><td class="p"><span class="muted">n7</span></td></tr><tr><td>3 <span class="muted">B1</span></td><td class="p">3%</td><td class="p">29%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>4 <span class="muted">B1</span></td><td class="p">2%</td><td class="p">32%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>5 <span class="muted">B1</span></td><td class="p">7%</td><td class="p">31%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>6 <span class="muted">B1</span></td><td class="p">0%</td><td class="p">16%</td><td class="p"><span class="muted">当地薄</span></td></tr></tbody></table><p>🎯 <b>参考買い目</b>（上の頭3艇と一致）<br>1着：<b>2号艇・3号艇・5号艇</b>（モデルが選ぶ1着候補＝頭3艇／1号艇以外）<br>2-3着：<b>あなたの軸</b>（ご自身のロジックで）<br>＝ 1着[頭3艇] → 相手[軸] の3連単（流し）</p><p class="muted">頭3艇は荒れ的中時に約86%で1着を捕捉(OOS検証・頭2艇は約70%)。軸はあなたの判断、当地で金に絡む外枠💰は軸の候補に。利益保証なし。表の「全国比」は当地その枠が全国平均よりどれだけ上下するか（🔥当地飛び＝荒れ予兆／⚓鉄板／💰金絡み）。</p></div>
-</div></td></tr><tr class="rrow" data-vr="21-6" data-kind="score" onclick="acc(this)"><td class="rkn"><b>7</b></td><td>🎯 芦屋6R <span class="rt" data-rt="21-6">🕐--:--</span> <span class="caret">▶</span><br><span class="head2">🎯頭3艇 3号艇22% ／ 6号艇17% ／ 4号艇14%</span></td><td class="p"><b>24%</b><br><span class="muted">平均+6pt</span><br><span class="muted">スコア</span></td><td class="p">77%</td><td class="c" data-f="scombo">3-4-1</td><td class="p" data-f="spay">6,570円</td></tr><tr class="accrow" id="acc-21-6" style="display:none"><td colspan="6">
-<div class="card elite">
-  <h2>🎯 ⚠ 芦屋6R <span class="rt" data-rt="21-6">🕐--:--</span>　万舟率 <b>24%</b>（AI総合スコア）　<span class="cond">特定の荒れ条件には非該当</span></h2>
-  <div class="head"><b>🎯 頭3艇（1号艇以外で1着を狙う3艇）</b><ol class="headol"><li><b>3号艇</b><span class="muted">（まくり/差し）</span> … 1着確率 <b>22%</b></li><li><b>6号艇</b><span class="muted">（大外一発）</span> … 1着確率 <b>17%</b></li><li><b>4号艇</b><span class="muted">（まくり）</span> … 1着確率 <b>14%</b></li></ol><span class="muted">この3艇を頭に、あなたの軸を2-3着へ。検証では荒れ的中時にこの3艇で約86%の1着を捕捉(OOS・頭2艇は約70%)。確率は1着になるモデル推定。</span></div>
-  <p class="res miss" data-vr="21-6" data-kind="card">本日結果: 3連単 <b>3-4-1</b> 6,570円 — 堅め</p>
-  <h3 class="sub reason open" onclick="sub(this)"><span class="scaret">▼</span>📌 根拠：なぜこのレースが荒れそうか</h3>
-  <div class="subbody open"><p class="why">・会場が<b>芦屋</b>（万舟率18%＝荒れやすい場）<br>・本命(1号艇)が<b>B1級</b>（格下＝飛びやすい）<br>・本命のイン1着率が<b>23%</b>と低い（飛びやすい）<br>・出走に<b>B級4人</b>（実力が割れて混戦）<br>・外枠に<b>A1が2人</b>（本命を負かす力あり）<br>→ これらの総合で<b>万舟スコア24%</b>（ベース16.6%の<b>1.4倍</b>）。だから荒れそう。</p></div>
-  <h3 class="sub" onclick="sub(this)"><span class="scaret">▶</span>🚣 選手の当地×号艇成績＆参考買い目</h3><div class="subbody"><table><thead><tr><th>艇(級/選手)</th><th>当地この枠<br>1着率</th><th>当地この枠<br>3着内率</th><th>走数</th></tr></thead><tbody><tr><td>1 <span class="muted">B1</span></td><td class="p">18%</td><td class="p">65%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>2 <span class="muted">B1 占部一真</span></td><td class="p">0%<br><span class="muted">全国比-10</span></td><td class="p">50%<br><span class="muted">+9</span></td><td class="p"><span class="muted">n8</span></td></tr><tr><td>3 <span class="muted">A1</span></td><td class="p">6%</td><td class="p">69%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>4 <span class="muted">B1</span></td><td class="p">6%</td><td class="p">40%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>5 <span class="muted">B1 永田義紘</span></td><td class="p">0%<br><span class="muted">全国比-1</span></td><td class="p">25%<br><span class="muted">+1</span></td><td class="p"><span class="muted">n8</span></td></tr><tr><td>6 <span class="muted">A1</span></td><td class="p">4%</td><td class="p">30%</td><td class="p"><span class="muted">当地薄</span></td></tr></tbody></table><p>🎯 <b>参考買い目</b>（上の頭3艇と一致）<br>1着：<b>3号艇・6号艇・4号艇</b>（モデルが選ぶ1着候補＝頭3艇／1号艇以外）<br>2-3着：<b>あなたの軸</b>（ご自身のロジックで）<br>＝ 1着[頭3艇] → 相手[軸] の3連単（流し）</p><p class="muted">頭3艇は荒れ的中時に約86%で1着を捕捉(OOS検証・頭2艇は約70%)。軸はあなたの判断、当地で金に絡む外枠💰は軸の候補に。利益保証なし。表の「全国比」は当地その枠が全国平均よりどれだけ上下するか（🔥当地飛び＝荒れ予兆／⚓鉄板／💰金絡み）。</p></div>
-</div></td></tr><tr class="rrow" data-vr="21-8" data-kind="score" onclick="acc(this)"><td class="rkn"><b>8</b></td><td>🎯 芦屋8R <span class="rt" data-rt="21-8">🕐--:--</span> <span class="caret">▶</span><br><span class="head2">🎯頭3艇 2号艇33% ／ 5号艇10% ／ 3号艇10%</span></td><td class="p"><b>24%</b><br><span class="muted">平均+6pt</span><br><span class="muted">スコア</span></td><td class="p">60%</td><td class="c" data-f="scombo">2-3-1</td><td class="p" data-f="spay">2,540円</td></tr><tr class="accrow" id="acc-21-8" style="display:none"><td colspan="6">
-<div class="card elite">
-  <h2>🎯 ⚠ 芦屋8R <span class="rt" data-rt="21-8">🕐--:--</span>　万舟率 <b>24%</b>（AI総合スコア）　<span class="cond">特定の荒れ条件には非該当</span></h2>
-  <div class="head"><b>🎯 頭3艇（1号艇以外で1着を狙う3艇）</b><ol class="headol"><li><b>2号艇</b><span class="muted">（差し）</span> … 1着確率 <b>33%</b></li><li><b>5号艇</b><span class="muted">（まくり）</span> … 1着確率 <b>10%</b></li><li><b>3号艇</b><span class="muted">（まくり/差し）</span> … 1着確率 <b>10%</b></li></ol><span class="muted">この3艇を頭に、あなたの軸を2-3着へ。検証では荒れ的中時にこの3艇で約86%の1着を捕捉(OOS・頭2艇は約70%)。確率は1着になるモデル推定。</span></div>
-  <p class="res miss" data-vr="21-8" data-kind="card">本日結果: 3連単 <b>2-3-1</b> 2,540円 — 堅め</p>
-  <h3 class="sub reason open" onclick="sub(this)"><span class="scaret">▼</span>📌 根拠：なぜこのレースが荒れそうか</h3>
-  <div class="subbody open"><p class="why">・会場が<b>芦屋</b>（万舟率18%＝荒れやすい場）<br>・本命(1号艇)が<b>B1級</b>（格下＝飛びやすい）<br>・本命のイン1着率が<b>40%</b>と低い（飛びやすい）<br>・出走に<b>B級4人</b>（実力が割れて混戦）<br>・外枠に<b>A1が1人</b>（本命を負かす力あり）<br>→ これらの総合で<b>万舟スコア24%</b>（ベース16.6%の<b>1.4倍</b>）。だから荒れそう。</p></div>
-  <h3 class="sub" onclick="sub(this)"><span class="scaret">▶</span>🚣 選手の当地×号艇成績＆参考買い目</h3><div class="subbody"><table><thead><tr><th>艇(級/選手)</th><th>当地この枠<br>1着率</th><th>当地この枠<br>3着内率</th><th>走数</th></tr></thead><tbody><tr><td>1 <span class="muted">B1</span></td><td class="p">50%</td><td class="p">71%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>2 <span class="muted">A1</span></td><td class="p">11%</td><td class="p">39%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>3 <span class="muted">B1</span></td><td class="p">4%</td><td class="p">64%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>4 <span class="muted">B1 中島友和</span></td><td class="p">0%<br><span class="muted">全国比-8</span></td><td class="p">56%<br><span class="muted">+7</span></td><td class="p"><span class="muted">n9</span></td></tr><tr><td>5 <span class="muted">B1</span></td><td class="p">6%</td><td class="p">38%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>6 <span class="muted">A2 石川吉鎬</span></td><td class="p">0%<br><span class="muted">全国比+0</span></td><td class="p">29%<br><span class="muted">+0</span></td><td class="p"><span class="muted">n7</span></td></tr></tbody></table><p>🎯 <b>参考買い目</b>（上の頭3艇と一致）<br>1着：<b>2号艇・5号艇・3号艇</b>（モデルが選ぶ1着候補＝頭3艇／1号艇以外）<br>2-3着：<b>あなたの軸</b>（ご自身のロジックで）<br>＝ 1着[頭3艇] → 相手[軸] の3連単（流し）</p><p class="muted">頭3艇は荒れ的中時に約86%で1着を捕捉(OOS検証・頭2艇は約70%)。軸はあなたの判断、当地で金に絡む外枠💰は軸の候補に。利益保証なし。表の「全国比」は当地その枠が全国平均よりどれだけ上下するか（🔥当地飛び＝荒れ予兆／⚓鉄板／💰金絡み）。</p></div>
-</div></td></tr><tr class="rrow" data-vr="01-12" data-kind="score" onclick="acc(this)"><td class="rkn"><b>9</b></td><td>🎯 桐生12R <span class="rt" data-rt="01-12">🕐--:--</span> <span class="caret">▶</span><br><span class="head2">🎯頭3艇 3号艇10% ／ 2号艇8% ／ 4号艇7%</span></td><td class="p"><b>24%</b><br><span class="muted">平均+6pt</span><br><span class="muted">条件（参考ス24）</span></td><td class="p">—</td><td class="c no" data-f="scombo">結果待ち</td><td class="p no" data-f="spay">—</td></tr><tr class="accrow" id="acc-01-12" style="display:none"><td colspan="6">
-<div class="card elite">
-  <h2>🎯 ⚠ 桐生12R <span class="rt" data-rt="01-12">🕐--:--</span>　万舟率 <b>24%</b>（AI総合スコア＝この欄の数字）　<span class="cond">参考：該当した荒れ条件の過去実績 ≈ 34%（条件1つだけの確率）</span></h2>
-  <div class="head"><b>🎯 頭3艇（1号艇以外で1着を狙う3艇）</b><ol class="headol"><li><b>3号艇</b> 中里優子<span class="muted">（まくり/差し）</span> … 1着確率 <b>10%</b></li><li><b>2号艇</b><span class="muted">（差し）</span> … 1着確率 <b>8%</b></li><li><b>4号艇</b> 菊地敬介<span class="muted">（まくり）</span> … 1着確率 <b>7%</b></li></ol><span class="muted">この3艇を頭に、あなたの軸を2-3着へ。検証では荒れ的中時にこの3艇で約86%の1着を捕捉(OOS・頭2艇は約70%)。確率は1着になるモデル推定。</span></div>
-  <p class="res " data-vr="01-12" data-kind="card">本日結果: <span class="muted">取得中…（レース確定後に自動表示）</span></p>
-  <h3 class="sub reason open" onclick="sub(this)"><span class="scaret">▼</span>📌 根拠：なぜこのレースが荒れそうか</h3>
-  <div class="subbody open"><p class="why"><b>条件</b>：01場 × 1号艇中位(勝率4.5-5.5) × 1号艇と相手が拮抗 × 6艇横一線(実力拮抗)<br>→ この条件は検証期80Rで万舟 <b>27</b>回（<b>34%</b>＝通常16.6%の<b>約2.0倍</b>）。だから荒れそう。</p></div>
-  <h3 class="sub" onclick="sub(this)"><span class="scaret">▶</span>🚣 選手の当地×号艇成績＆参考買い目</h3><div class="subbody"><table><thead><tr><th>艇(級/選手)</th><th>当地この枠<br>1着率</th><th>当地この枠<br>3着内率</th><th>走数</th></tr></thead><tbody><tr><td>1 <span class="muted">B2</span></td><td class="p">36%</td><td class="p">62%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>2 <span class="muted">B1</span></td><td class="p">6%</td><td class="p">55%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>3 <span class="muted">B1 中里優子</span></td><td class="p">0%<br><span class="muted">全国比-8</span></td><td class="p">33%<br><span class="muted">-18</span></td><td class="p"><span class="muted">n9</span></td></tr><tr><td>4 <span class="muted">B1 菊地敬介</span></td><td class="p">8%<br><span class="muted">全国比-7</span></td><td class="p">33%<br><span class="muted">-12</span></td><td class="p"><span class="muted">n12</span></td></tr><tr><td>5 <span class="muted">A2 栗原直也</span></td><td class="p">0%<br><span class="muted">全国比-2</span></td><td class="p">43%<br><span class="muted">+11</span></td><td class="p"><span class="muted">n7</span></td></tr><tr><td>6 <span class="muted">B1</span></td><td class="p">2%</td><td class="p">12%</td><td class="p"><span class="muted">当地薄</span></td></tr></tbody></table><p>🎯 <b>参考買い目</b>（上の頭3艇と一致）<br>1着：<b>3号艇・2号艇・4号艇</b>（モデルが選ぶ1着候補＝頭3艇／1号艇以外）<br>2-3着：<b>あなたの軸</b>（ご自身のロジックで）<br>＝ 1着[頭3艇] → 相手[軸] の3連単（流し）</p><p class="muted">頭3艇は荒れ的中時に約86%で1着を捕捉(OOS検証・頭2艇は約70%)。軸はあなたの判断、当地で金に絡む外枠💰は軸の候補に。利益保証なし。表の「全国比」は当地その枠が全国平均よりどれだけ上下するか（🔥当地飛び＝荒れ予兆／⚓鉄板／💰金絡み）。</p></div>
-</div></td></tr><tr class="rrow" data-vr="01-1" data-kind="score" onclick="acc(this)"><td class="rkn"><b>10</b></td><td>🎯 桐生1R <span class="rt" data-rt="01-1">🕐--:--</span> <span class="caret">▶</span><br><span class="head2">🎯頭3艇 2号艇26% ／ 5号艇10% ／ 3号艇8%</span><br><span style="color:#059669;font-weight:700">💡過小評価：最低人気6号艇に妙味（実力も人気も横一線(勝率差0.63)）→3着・ヒモ</span></td><td class="p"><b>24%</b><br><span class="muted">平均+6pt</span><br><span class="muted">スコア</span></td><td class="p">65%</td><td class="c no" data-f="scombo">結果待ち</td><td class="p no" data-f="spay">—</td></tr><tr class="accrow" id="acc-01-1" style="display:none"><td colspan="6">
-<div class="card elite">
-  <h2>🎯 ⚠ 桐生1R <span class="rt" data-rt="01-1">🕐--:--</span>　万舟率 <b>24%</b>（AI総合スコア）　<span class="cond">特定の荒れ条件には非該当</span></h2>
-  <div class="head"><b>🎯 頭3艇（1号艇以外で1着を狙う3艇）</b><ol class="headol"><li><b>2号艇</b><span class="muted">（差し）</span> … 1着確率 <b>26%</b></li><li><b>5号艇</b><span class="muted">（まくり）</span> … 1着確率 <b>10%</b></li><li><b>3号艇</b><span class="muted">（まくり/差し）</span> … 1着確率 <b>8%</b></li></ol><span class="muted">この3艇を頭に、あなたの軸を2-3着へ。検証では荒れ的中時にこの3艇で約86%の1着を捕捉(OOS・頭2艇は約70%)。確率は1着になるモデル推定。</span></div>
-  <p class="res " data-vr="01-1" data-kind="card">本日結果: <span class="muted">取得中…（レース確定後に自動表示）</span></p>
-  <h3 class="sub reason open" onclick="sub(this)"><span class="scaret">▼</span>📌 根拠：なぜこのレースが荒れそうか</h3>
-  <div class="subbody open"><p class="why">・会場が<b>桐生</b>（万舟率19%＝荒れやすい場）<br>・本命(1号艇)が<b>B1級</b>（格下＝飛びやすい）<br>・本命のイン1着率が<b>35%</b>と低い（飛びやすい）<br>・出走に<b>B級4人</b>（実力が割れて混戦）<br>・<b>1R</b>（序盤は静まらず荒れやすい傾向）<br>→ これらの総合で<b>万舟スコア24%</b>（ベース16.6%の<b>1.4倍</b>）。だから荒れそう。</p></div>
-  <h3 class="sub" onclick="sub(this)"><span class="scaret">▶</span>🚣 選手の当地×号艇成績＆参考買い目</h3><div class="subbody"><table><thead><tr><th>艇(級/選手)</th><th>当地この枠<br>1着率</th><th>当地この枠<br>3着内率</th><th>走数</th></tr></thead><tbody><tr><td>1 <span class="muted">B1</span></td><td class="p">46%</td><td class="p">67%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>2 <span class="muted">A2</span></td><td class="p">19%</td><td class="p">65%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>3 <span class="muted">B1</span></td><td class="p">18%</td><td class="p">50%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>4 <span class="muted">B1</span></td><td class="p">4%</td><td class="p">31%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>5 <span class="muted">A2</span></td><td class="p">0%</td><td class="p">28%</td><td class="p"><span class="muted">当地薄</span></td></tr><tr><td>6 <span class="muted">B1</span></td><td class="p">2%</td><td class="p">50%</td><td class="p"><span class="muted">当地薄</span></td></tr></tbody></table><p>🎯 <b>参考買い目</b>（上の頭3艇と一致）<br>1着：<b>2号艇・5号艇・3号艇</b>（モデルが選ぶ1着候補＝頭3艇／1号艇以外）<br>2-3着：<b>あなたの軸</b>（ご自身のロジックで）<br>＝ 1着[頭3艇] → 相手[軸] の3連単（流し）</p><p class="muted">頭3艇は荒れ的中時に約86%で1着を捕捉(OOS検証・頭2艇は約70%)。軸はあなたの判断、当地で金に絡む外枠💰は軸の候補に。利益保証なし。表の「全国比」は当地その枠が全国平均よりどれだけ上下するか（🔥当地飛び＝荒れ予兆／⚓鉄板／💰金絡み）。</p></div>
-</div></td></tr></tbody></table></div>
 <details class="card"><summary class="csum">📋 条件の成績（全公開）<span class="muted">　タップで開く ▶</span></summary><p class="lead">このツールの心臓＝「万舟が出やすい条件」。過去データから発掘し、<b>学習(2023-24)で発見 → 検証(2025年〜・学習に未使用)で再現</b>したものだけ採用しています。各条件の実績を全部公開：<b>検証列が学習列とベース(16.6%)を両方上回る＝偶然でなく本物</b>の証拠。盛っていれば検証列が即崩れる＝一目で見抜けます。🔥=本日のレースが該当。</p><table><thead><tr><th>条件</th><th>検証期 万舟率<br>(2025〜・未使用)</th><th>学習期<br>(〜2024)</th><th>ベース比<br>z=信頼</th></tr></thead><tbody><tr><td>本命イン1着率&lt;40% × 当地イン1着率&lt;40% × 実力差ふつう × 外枠A1×0</td><td class="p"><b>41%</b><br><span class="muted">85回中</span></td><td class="p">24%</td><td class="p">2.5倍<br><span class="muted">z6</span></td></tr><tr><td>04場 × 当地イン実績薄 × 1号艇東京 × 6艇横一線(実力拮抗)</td><td class="p"><b>40%</b><br><span class="muted">85回中</span></td><td class="p">24%</td><td class="p">2.4倍<br><span class="muted">z6</span></td></tr><tr class=hit><td>本命イン1着率&lt;40% × 当地イン1着率&lt;40% × 実力差ふつう × 本命が枠1で勝ててない(&lt;40%) 🔥本日該当</td><td class="p"><b>38%</b><br><span class="muted">97回中</span></td><td class="p">24%</td><td class="p">2.3倍<br><span class="muted">z6</span></td></tr><tr class=hit><td>本命イン1着率&lt;40% × 当地イン1着率&lt;40% × 1号艇と相手が拮抗 × 実力差ふつう 🔥本日該当</td><td class="p"><b>38%</b><br><span class="muted">113回中</span></td><td class="p">29%</td><td class="p">2.3倍<br><span class="muted">z6</span></td></tr><tr class=hit><td>1号艇B1 × 本命イン1着率&lt;40% × 当地イン1着率&lt;40% × 実力差ふつう 🔥本日該当</td><td class="p"><b>38%</b><br><span class="muted">122回中</span></td><td class="p">26%</td><td class="p">2.3倍<br><span class="muted">z6</span></td></tr><tr class=hit><td>本命イン1着率&lt;40% × 当地イン1着率&lt;40% × 実力差ふつう 🔥本日該当</td><td class="p"><b>36%</b><br><span class="muted">136回中</span></td><td class="p">25%</td><td class="p">2.2倍<br><span class="muted">z6</span></td></tr><tr><td>04場 × 1号艇東京 × 6艇横一線(実力拮抗)</td><td class="p"><b>36%</b><br><span class="muted">128回中</span></td><td class="p">24%</td><td class="p">2.2倍<br><span class="muted">z6</span></td></tr><tr class=hit><td>A1×1 × 1号艇福岡 × 6艇横一線(実力拮抗) × 外枠A1×1 🔥本日該当</td><td class="p"><b>36%</b><br><span class="muted">103回中</span></td><td class="p">25%</td><td class="p">2.2倍<br><span class="muted">z5</span></td></tr><tr><td>A1×1 × 1号艇愛知 × 1号艇と相手が拮抗 × 6艇横一線(実力拮抗)</td><td class="p"><b>35%</b><br><span class="muted">99回中</span></td><td class="p">23%</td><td class="p">2.1倍<br><span class="muted">z5</span></td></tr><tr><td>1号艇B1 × 1号艇兵庫 × 6艇横一線(実力拮抗)</td><td class="p"><b>34%</b><br><span class="muted">73回中</span></td><td class="p">25%</td><td class="p">2.1倍<br><span class="muted">z4</span></td></tr><tr class=hit><td>当地イン1着率&lt;40% × 1号艇と相手が拮抗 × 実力差ふつう × 本命が枠1で勝ててない(&lt;40%) 🔥本日該当</td><td class="p"><b>34%</b><br><span class="muted">126回中</span></td><td class="p">28%</td><td class="p">2.1倍<br><span class="muted">z5</span></td></tr><tr><td>16場 × 1号艇と相手が拮抗 × 6艇横一線(実力拮抗) × 外枠に枠超えの実力(3連対60%+)</td><td class="p"><b>34%</b><br><span class="muted">115回中</span></td><td class="p">24%</td><td class="p">2.0倍<br><span class="muted">z5</span></td></tr></tbody></table><p class="muted">※検証期＝学習に一切使っていない未来データ。ここで再現していることが唯一の誠実さの担保。回収率・利益とは別物（万舟率＝荒れやすさ）。</p></details>
 
 <footer>万舟アラート築成レポート / 条件は2023-24学習→2025以降の検証期で再現確認済み(z≥3)。事例は実データの3連単・配当。結果はスマホのブラウザが自動取得(BoatraceOpenAPI)。</footer>
 <script>
 "use strict";
 var RDATE="2026-06-17", MAN=10000;
-var ROLE_RESULT_MAP={};
 var XPICKS=[{"key": "1-2", "nm": "桐生", "r": 2}, {"key": "1-4", "nm": "桐生", "r": 4}, {"key": "1-3", "nm": "桐生", "r": 3}, {"key": "17-8", "nm": "宮島", "r": 8}, {"key": "1-9", "nm": "桐生", "r": 9}], XDATE="6/17";
 var NOTEPICKS=[{"key": "1-2", "nm": "桐生", "r": 2, "rate": 30, "dev": 12, "elite": true, "why": "荒れ条件「本命イン1着率<40% × 当地イン1着率<40% × 実力差ふつう × 本命が枠1で勝ててない(<40%)」に該当。この条件は過去（検証期）97レース中、万舟が37回＝38%（通常16.6%の約2.3倍）出ている。だから荒れやすい。"}, {"key": "1-4", "nm": "桐生", "r": 4, "rate": 26, "dev": 8, "elite": true, "why": "会場が桐生（万舟率19%＝荒れやすい場）；本命(1号艇)がB1級（格下＝飛びやすい）；本命のイン1着率が35%と低い（飛びやすい）；出走にB級3人（実力が割れて混戦）；外枠にA1が2人（本命を負かす力あり）；4R（序盤は静まらず荒れやすい傾向） → これらの総合で万舟スコア26%（ベース16.6%の1.6倍）。"}, {"key": "1-3", "nm": "桐生", "r": 3, "rate": 26, "dev": 8, "elite": true, "why": "会場が桐生（万舟率19%＝荒れやすい場）；本命(1号艇)がB1級（格下＝飛びやすい）；本命のイン1着率が23%と低い（飛びやすい）；出走にB級3人（実力が割れて混戦）；外枠にA1が1人（本命を負かす力あり）；3R（序盤は静まらず荒れやすい傾向） → これらの総合で万舟スコア26%（ベース16.6%の1.5倍）。"}, {"key": "17-8", "nm": "宮島", "r": 8, "rate": 25, "dev": 7, "elite": true, "why": "本命(1号艇)がB1級（格下＝飛びやすい）；本命のイン1着率が6%と低い（飛びやすい）；出走にB級4人（実力が割れて混戦） → これらの総合で万舟スコア25%（ベース16.6%の1.5倍）。"}, {"key": "1-9", "nm": "桐生", "r": 9, "rate": 24, "dev": 7, "elite": true, "why": "荒れ条件「01場 × 1号艇中位(勝率4.5-5.5) × 1号艇と相手が拮抗 × 6艇横一線(実力拮抗)」に該当。この条件は過去（検証期）80レース中、万舟が27回＝34%（通常16.6%の約2.0倍）出ている。だから荒れやすい。"}], NAVG="18";
 function setStatus(t){var e=document.getElementById('rstat'); if(e) e.textContent=t;}
@@ -268,112 +163,6 @@ function fillScore(tr,tri,m,known){
   if(p){ p.className='p'; p.textContent = known ? (tri.payout.toLocaleString()+'円') : '配当待ち'; }
   if(m) tr.classList.add('hit'); else tr.classList.remove('hit');
 }
-function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-function roleDataUrl(){
-  var prefix=location.pathname.indexOf('/manshu/')>=0?'../':'';
-  return prefix+'data/output/manshu_role_ranking_'+RDATE.replace(/-/g,'')+'.json';
-}
-function boatLine(r,lane,role){
-  var b=(r.boats||[]).find(function(x){return Number(x.lane)===Number(lane);})||{};
-  var reason=b.role_reason?'<br><span class="muted">'+esc(b.role_reason).replace(/\|/g,' / ')+'</span>':'';
-  return '<b>'+lane+'号艇</b>'+(b.name?' '+esc(b.name):'')+(b.class?' <span class="muted">'+esc(b.class)+'</span>':'')+reason;
-}
-function roleBox(r,title,role,lanes){
-  var body=(lanes||[]).map(function(lane){return boatLine(r,lane,role);}).join('<br>');
-  if(!body) body='<span class="muted">未判定</span>';
-  return '<div class="rolebox '+role+'"><span class="tag">'+title+'</span>'+body+'</div>';
-}
-function roleResultKey(r){return parseInt(r.jcd,10)+'-'+parseInt(r.race_no,10);}
-function roleResultHtml(r){
-  var live=ROLE_RESULT_MAP[roleResultKey(r)],res=r.result||{},combo=null,payout=null;
-  if(live){combo=live.combination; payout=live.payout;}
-  else {combo=res.trifecta; payout=res.payout_yen;}
-  if(!combo) return '結果: <span class="muted">未確定</span>';
-  if(payout==null) return '結果: 3連単 <b>'+esc(combo)+'</b> <span class="muted">配当待ち</span>';
-  var man=payout>=MAN;
-  return '結果: 3連単 <b>'+esc(combo)+'</b> '+Number(payout).toLocaleString()+'円 '+(man?'<span class="man">◎万舟</span>':'<span class="muted">— 堅め</span>');
-}
-function pctText(v){return v==null?'—':(Number(v)*100).toFixed(1)+'%';}
-function roleStrategyHtml(r){
-  var s=r.strategy&&r.strategy.buy_style_1;
-  if(!s) return '';
-  var hist=s.historical&&s.historical.good_venues||{}, overall=s.historical&&s.historical.overall||{};
-  var form=s.formation||{}, tickets=(form.tickets||[]).slice(0,9).join(' / ');
-  var cls=s.status||'outside_rule';
-  var condition=s.condition_matched?'条件一致':'条件外';
-  var result=s.result_check||{};
-  var hitText=result.hit==null?'':(' / 照合 '+(result.hit?'的中':'不的中'));
-  return '<div class="role-strategy">'+
-    '<b>買い方1（検証用9点）</b>: <span class="'+cls+'">'+esc(s.status_label||condition)+'</span> / 場相性 <span class="'+(s.venue_tier||'neutral')+'">'+esc(s.venue_label||'—')+'</span>'+hitText+
-    '<br><span class="muted">条件: 1号艇弱め・外枠最強が上・勝率差1.5以内・非進入固定・外枠展示上位</span>'+
-    '<br><span class="muted">過去全体 '+esc(overall.races||'—')+'R ROI '+pctText(overall.return_rate)+' / 相性良場 '+esc(hist.races||'—')+'R ROI '+pctText(hist.return_rate)+'（後半 '+pctText(hist.validation_return_rate)+'）</span>'+
-    (tickets?'<br><span class="role-tickets">'+esc(tickets)+'</span>':'')+
-    '<br><span class="muted">'+esc(s.venue_reason||'')+'</span>'+
-  '</div>';
-}
-function updateRoleResults(){
-  document.querySelectorAll('[data-role-result]').forEach(function(el){
-    var raw=el.getAttribute('data-role-json');
-    if(!raw) return;
-    try{el.innerHTML=roleResultHtml(JSON.parse(raw));}catch(e){}
-  });
-}
-function renderRoleRanking(data){
-  var status=document.getElementById('role-status'),list=document.getElementById('role-list');
-  if(!status||!list) return;
-  if(!data||!Array.isArray(data.races)||!data.races.length){
-    status.textContent='ロール分析データが空です。';
-    return;
-  }
-  if(data.date&&data.date!==RDATE){
-    status.textContent='ロール分析データの日付が違うため表示を止めています（'+data.date+'）。';
-    return;
-  }
-  var modeLabel=data.mode==='morning'?'朝版':'直前版';
-  var strategyMatches=data.races.filter(function(r){var s=r.strategy&&r.strategy.buy_style_1; return s&&s.condition_matched;});
-  var goodMatches=strategyMatches.filter(function(r){return (r.strategy.buy_style_1.venue_tier)==='good';});
-  status.textContent=modeLabel+'ロール候補を表示中。買い方1条件一致 '+strategyMatches.length+'件 / 相性良 '+goodMatches.length+'件。条件一致がある場合は優先表示します。';
-  var seen={}, display=[];
-  strategyMatches.sort(function(a,b){
-    var order={good:3,hold:2,neutral:1,avoid:0};
-    var av=order[(a.strategy.buy_style_1.venue_tier)||'neutral']||0;
-    var bv=order[(b.strategy.buy_style_1.venue_tier)||'neutral']||0;
-    return bv-av;
-  }).concat(data.races).forEach(function(r){
-    if(!seen[r.race_id]){seen[r.race_id]=1; display.push(r);}
-  });
-  list.innerHTML=display.slice(0,8).map(function(r,i){
-    var roles=r.role_summary||{}, scores=r.scores||{}, forms=r.formations||{};
-    var score=scores.manshu_score==null?'—':Math.round(scores.manshu_score);
-    var manshu=scores.manshu_probability_proxy==null?'—':(scores.manshu_probability_proxy*100).toFixed(1)+'%';
-    var target=scores.target_arare_probability_proxy==null?'—':Math.round(scores.target_arare_probability_proxy*100)+'%';
-    var skip=r.skip_recommendation&&r.skip_recommendation.skip;
-    var formText=['A','B','C','D'].map(function(k){return k+':'+(forms[k]&&forms[k].points!=null?forms[k].points:'—')+'点';}).join(' / ');
-    return '<div class="roleitem">'+
-      '<div class="roletop"><div><b>'+(i+1)+'位 '+esc(r.venue_name)+esc(r.race_no)+'R</b> <span class="muted">'+esc(r.deadline||'')+'</span></div><span class="rolemetric">推定万舟率 '+manshu+' / 荒れ度 '+score+' / 中荒れ '+target+'</span></div>'+
-      '<div class="rolegrid">'+
-        roleBox(r,'頭候補2艇','head',roles.head)+
-        roleBox(r,'軸候補2艇','axis',roles.axis)+
-        roleBox(r,'消し候補','toss',roles.toss)+
-        roleBox(r,'残り相手','opponent',roles.opponent)+
-      '</div>'+
-      '<div class="rolefoot role-result" data-role-result="'+esc(roleResultKey(r))+'" data-role-json="'+esc(JSON.stringify({jcd:r.jcd,race_no:r.race_no,result:r.result||{}}))+'">'+roleResultHtml(r)+'</div>'+
-      roleStrategyHtml(r)+
-      '<div class="rolefoot">'+(skip?'見送り候補: '+esc((r.skip_recommendation.reasons||[]).join(' / ')):'見送り判定なし')+'　検証用フォーメーション '+formText+'</div>'+
-    '</div>';
-  }).join('');
-}
-async function loadRoleRanking(){
-  var status=document.getElementById('role-status');
-  if(!status) return;
-  try{
-    var r=await fetch(roleDataUrl(),{cache:'no-store'});
-    if(!r.ok) throw 0;
-    renderRoleRanking(await r.json());
-  }catch(e){
-    status.textContent='本日のロール分析JSONはまだ未生成です。生成されると、頭2艇・軸2艇・消し候補がここに表示されます。';
-  }
-}
 function acc(tr){
   var e=document.getElementById('acc-'+tr.dataset.vr);
   if(!e) return;
@@ -398,8 +187,6 @@ async function loadResults(){
     var t=trifectaOf(r);   // 配当が空でも着順から組番を復元(payout=null)
     if(t) map[r.race_stadium_number+'-'+r.race_number]=t;
   });
-  ROLE_RESULT_MAP=map;
-  updateRoleResults();
   var done=0,man=0,total=0,pend=0;
   document.querySelectorAll('[data-vr]').forEach(function(el){
     var kind=el.dataset.kind;
@@ -454,6 +241,6 @@ function checkStale(){
     if(b){b.style.display='block'; b.innerHTML='⚠ これは <b>'+RDATE+'</b> の予報です。本日（'+t+'）分はまだ準備中（PCが起動すると自動で最新に切り替わります）。';}
   }
 }
-document.addEventListener('DOMContentLoaded',function(){checkStale(); showLen('xrank'); loadRoleRanking(); loadTimes(); loadResults(); setInterval(loadResults,60000);});
+document.addEventListener('DOMContentLoaded',function(){checkStale(); showLen('xrank');});
 </script>
 </body></html>
