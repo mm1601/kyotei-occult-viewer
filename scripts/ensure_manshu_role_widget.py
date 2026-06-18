@@ -155,6 +155,31 @@ def polish_public_copy(text: str) -> str:
     return text
 
 
+def ensure_boaters_widget(text: str, path: Path) -> str:
+    if 'var RDATE="' not in text:
+        return text
+    prefix = "../" if path.parent.name == "manshu" else ""
+    tag = f'<script src="{prefix}scripts/boaters_manshu_widget.js?v=codex3"></script>'
+    text = re.sub(
+        r'\n?<script src="(?:\.\./)?scripts/boaters_manshu_widget\.js(?:\?[^"]*)?"></script>\n?',
+        "\n",
+        text,
+    )
+    if "</body>" in text:
+        text = text.replace("</body>", tag + "\n</body>", 1)
+    else:
+        text = text.rstrip() + "\n" + tag + "\n"
+
+    m = re.fullmatch(r"(\d{4}-\d{2}-\d{2})\.html", path.name)
+    if path.parent.name == "manshu" and m:
+        text = re.sub(
+            r'href="(?:\.\./)?manshu_posts\.html(?:\?date=\d{4}-\d{2}-\d{2})?"',
+            f'href="../manshu_posts.html?date={m.group(1)}"',
+            text,
+        )
+    return text
+
+
 RATE_CARD = """<div class="card rank" id="rate-card">
   <h2>📊 万舟率トップ10（結果つき）</h2>
   <p class="lead" id="rate-status">本日の万舟率トップ10を読み込み中…</p>
@@ -793,6 +818,7 @@ def patch_html(path: Path) -> bool:
         text = text.replace("loadRoleRanking();", "loadRoleRanking(); loadResults();", 1)
 
     text = polish_public_copy(text)
+    text = ensure_boaters_widget(text, path)
 
     if text != original:
         path.write_text(text, encoding="utf-8")
