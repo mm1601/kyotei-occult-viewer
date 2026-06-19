@@ -1,10 +1,14 @@
 <!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>万舟 日別結果</title><style>
-body{font-family:-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:#f4f6fb;color:#1c2230;max-width:820px;margin:0 auto;padding:16px;line-height:1.6}
+body{font-family:-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:#f4f6fb;color:#1c2230;max-width:920px;margin:0 auto;padding:16px;line-height:1.6}
 h1{font-size:21px} .nav a{color:#2563eb;font-weight:700}
 .bar{background:#fff;border:1px solid #e3e8f0;border-radius:10px;padding:12px 14px;margin:10px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 select{font:inherit;padding:6px 10px;border:1px solid #c7dafc;border-radius:8px}
 .sum{font-size:13.5px;color:#33405a}
+.codex{background:#fff;border:1px solid #e3e8f0;border-left:6px solid #dc2626;border-radius:10px;padding:13px 15px;margin:12px 0 16px}
+.codex h2{font-size:17px;margin:0 0 6px;color:#991b1b}.codex .lead{font-size:13px;color:#475569;margin:0 0 9px}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}.chip{background:#fff7ed;border:1px solid #fed7aa;border-radius:999px;color:#9a3412;font-size:12px;font-weight:800;padding:5px 9px}
+.codex table{margin-top:8px}.rate{font-weight:900;color:#dc2626}.hit{color:#dc2626;font-weight:900}.wait{color:#0369a1;font-weight:800}.links a{color:#2563eb;font-weight:800;text-decoration:none;margin-right:12px}
 table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid #e3e8f0;border-radius:8px;overflow:hidden}
 th,td{padding:6px 9px;border-bottom:1px solid #eef1f5;text-align:left;white-space:nowrap}
 th{background:#f7f9fc;color:#5b6577;cursor:pointer} td.p{text-align:right;font-variant-numeric:tabular-nums}
@@ -16,6 +20,11 @@ td.c{font-weight:700;letter-spacing:.03em} tr.man{background:#fff7ed} .mk{color:
 万舟率=荒れやすさで、買い目推奨ではありません。</p>
 <p class="nav">▶ <a href="manshu.html">本日の万舟アラート</a> ／ <a href="manshu_research.html">研究ノート</a></p>
 <div class="bar"><label>日付：<select id="dsel"></select></label><span class="sum" id="sum"></span></div>
+<section class="codex" id="codex-card">
+  <h2>Codex BOATERS展示ロジックで予想した場合</h2>
+  <p class="lead">選んだ日付で、このロジックの万舟率ランキングTOP10がどう決着したかを表示します。</p>
+  <div id="codex-body">読み込み中…</div>
+</section>
 <table><thead><tr><th data-k="s">場R / スコア順</th><th>3連単</th><th data-k="p">配当</th><th>結果</th><th>該当条件</th></tr></thead>
 <tbody id="tb"></tbody></table>
 <script>
@@ -24,6 +33,49 @@ const DATA = {"2026-05-04": [{"vr": "浜名湖2R", "v": "06", "r": 2, "c": "4-5-
 const DATES = ["2026-06-18", "2026-06-17", "2026-06-15", "2026-06-14", "2026-06-13", "2026-06-12", "2026-06-11", "2026-06-10", "2026-06-09", "2026-06-08", "2026-06-07", "2026-06-06", "2026-06-05", "2026-06-04", "2026-06-03", "2026-06-02", "2026-06-01", "2026-05-31", "2026-05-30", "2026-05-29", "2026-05-28", "2026-05-27", "2026-05-26", "2026-05-25", "2026-05-24", "2026-05-23", "2026-05-22", "2026-05-21", "2026-05-20", "2026-05-19", "2026-05-18", "2026-05-17", "2026-05-16", "2026-05-15", "2026-05-14", "2026-05-13", "2026-05-12", "2026-05-11", "2026-05-10", "2026-05-09", "2026-05-08", "2026-05-07", "2026-05-06", "2026-05-05", "2026-05-04"];
 const sel = document.getElementById("dsel");
 DATES.forEach(d=>{const o=document.createElement("option");o.value=d;o.textContent=d;sel.appendChild(o);});
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function ymd(d){return d.replace(/-/g,'');}
+function fmtPct(v){return v==null?'--':Number(v).toFixed(2).replace(/\.00$/,'')+'%';}
+function fmtYen(v){return v==null?'結果待ち':Number(v).toLocaleString('ja-JP')+'円';}
+function resultText(r){
+  const res=r.result||{};
+  if(!res.trifecta) return '<span class="wait">結果待ち</span>';
+  const cls=res.manshu?'hit':'no';
+  return esc(res.trifecta)+'<br><span class="'+cls+'">'+esc(fmtYen(res.payout_yen))+(res.manshu?' 万舟':'')+'</span>';
+}
+function codexSummary(data){
+  const s=data.summary||{}, settled=s.settled_top_n||0, hits=s.manshu_hits_top_n||0, rate=s.actual_manshu_rate_top_n_pct;
+  return '<div class="chips">'+
+    '<span class="chip">TOP'+esc(s.displayed_top_n||0)+'</span>'+
+    '<span class="chip">確定 '+esc(settled)+'/'+esc(s.displayed_top_n||0)+'R</span>'+
+    '<span class="chip">万舟 '+esc(hits)+'件</span>'+
+    '<span class="chip">実測 '+esc(fmtPct(rate))+'</span>'+
+    '</div>';
+}
+function codexRows(data){
+  return '<table><thead><tr><th>順位</th><th>予想レース</th><th>万舟率</th><th>結果</th><th>根拠</th></tr></thead><tbody>'+
+    (data.races||[]).slice(0,10).map(r=>
+      '<tr><td class="p">'+esc(r.rank)+'</td>'+
+      '<td><b>'+esc(r.place_name||'')+esc(r.round)+'R</b><br><span class="muted">'+esc(r.deadline_time?String(r.deadline_time).slice(11,16):'--:--')+'締切 / '+esc(r.status||'')+'</span></td>'+
+      '<td class="p rate">'+esc(fmtPct(r.manshu_rate_pct))+'</td>'+
+      '<td class="c">'+resultText(r)+'</td>'+
+      '<td class="k">'+esc(r.condition||'')+'</td></tr>'
+    ).join('')+'</tbody></table>';
+}
+async function renderCodex(d){
+  const box=document.getElementById('codex-body');
+  box.innerHTML='読み込み中…';
+  try{
+    const r=await fetch('data/output/boaters_manshu_ranking_'+ymd(d)+'.json?_='+Date.now(),{cache:'no-store'});
+    if(!r.ok) throw new Error('missing');
+    const data=await r.json();
+    box.innerHTML=codexSummary(data)+
+      '<p class="links"><a href="manshu_posts.html?date='+encodeURIComponent(d)+'">投稿センターで文章を見る</a><a href="manshu/'+encodeURIComponent(d)+'.html">その日のページを見る</a></p>'+
+      codexRows(data);
+  }catch(e){
+    box.innerHTML='<p class="muted">この日付のCodex BOATERSロジック予想JSONはまだ未生成です。生成済みの日付では、ここにTOP10と結果が表示されます。</p>';
+  }
+}
 function render(d){
   const rows = (DATA[d]||[]);
   const man = rows.filter(r=>r.m).length;
@@ -36,6 +88,6 @@ function render(d){
     `<td>${r.m?'<span class="mk">◎万舟</span>':'<span class="no">—</span>'}</td>`+
     `<td class="k">${r.k||''}</td></tr>`).join("");
 }
-sel.addEventListener("change",()=>render(sel.value));
-render(DATES[0]);
+sel.addEventListener("change",()=>{render(sel.value); renderCodex(sel.value);});
+render(DATES[0]); renderCodex(DATES[0]);
 </script></body></html>
