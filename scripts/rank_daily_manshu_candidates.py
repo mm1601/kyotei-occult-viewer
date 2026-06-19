@@ -252,6 +252,12 @@ def daily_features(today_db, target_date):
             MAX(CASE WHEN boat_number = 4 THEN tenji_rank END) AS b4_tenji_rank,
             MAX(CASE WHEN boat_number = 5 THEN tenji_rank END) AS b5_tenji_rank,
             MAX(CASE WHEN boat_number = 6 THEN tenji_rank END) AS b6_tenji_rank,
+            MAX(CASE WHEN boat_number = 1 THEN CASE WHEN tenji_time_rank = 1 AND isshu_rank = 1 THEN 1 ELSE 0 END END) AS b1_double_time,
+            MAX(CASE WHEN boat_number = 2 THEN CASE WHEN tenji_time_rank = 1 AND isshu_rank = 1 THEN 1 ELSE 0 END END) AS b2_double_time,
+            MAX(CASE WHEN boat_number = 3 THEN CASE WHEN tenji_time_rank = 1 AND isshu_rank = 1 THEN 1 ELSE 0 END END) AS b3_double_time,
+            MAX(CASE WHEN boat_number = 4 THEN CASE WHEN tenji_time_rank = 1 AND isshu_rank = 1 THEN 1 ELSE 0 END END) AS b4_double_time,
+            MAX(CASE WHEN boat_number = 5 THEN CASE WHEN tenji_time_rank = 1 AND isshu_rank = 1 THEN 1 ELSE 0 END END) AS b5_double_time,
+            MAX(CASE WHEN boat_number = 6 THEN CASE WHEN tenji_time_rank = 1 AND isshu_rank = 1 THEN 1 ELSE 0 END END) AS b6_double_time,
             MAX(CASE WHEN ai_plus_order = 6 THEN boat_number END) AS ai_rank6_boat,
             MAX(CASE WHEN ai_plus_order = 6 THEN avg_isshu_diff END) AS ai_rank6_avg_isshu_diff,
             MAX(CASE WHEN ai_plus_order = 6 THEN tenji_time_rank END) AS ai_rank6_tenji_time_rank,
@@ -302,6 +308,15 @@ def daily_features(today_db, target_date):
                          OR (isshu_time IS NOT NULL AND isshu_rank <= 2)
                          OR (tenji_rank IS NOT NULL AND tenji_rank <= 2)
                        ) THEN 1 ELSE 0 END) AS outer46_low_aiplus_exhibit_top2_count,
+            SUM(CASE WHEN boat_number IN (2, 3, 4)
+                       AND tenji_time_rank = 1
+                       AND isshu_rank = 1 THEN 1 ELSE 0 END) AS mid234_double_time_count,
+            SUM(CASE WHEN boat_number IN (4, 5, 6)
+                       AND tenji_time_rank = 1
+                       AND isshu_rank = 1 THEN 1 ELSE 0 END) AS outer46_double_time_count,
+            SUM(CASE WHEN boat_number IN (5, 6)
+                       AND tenji_time_rank = 1
+                       AND isshu_rank = 1 THEN 1 ELSE 0 END) AS outer56_double_time_count,
 
             SUM(CASE WHEN tenji_time IS NOT NULL THEN 1 ELSE 0 END) AS tenji_boats,
             SUM(CASE WHEN isshu_time IS NOT NULL THEN 1 ELSE 0 END) AS isshu_boats
@@ -428,6 +443,69 @@ def composite_edge_signals(race):
     rank5_tenji = num(race.get("ai_rank5_tenji_rank"))
     if rank5_tenji is None:
         rank5_tenji = num(race.get("ai_rank5_tenji_time_rank"))
+    double_time_boats = [boat for boat in range(1, 7) if int(race.get(f"b{boat}_double_time") or 0) == 1]
+
+    if 1 in double_time_boats:
+        add_edge(
+            signals,
+            "codex_double_time_1_hold",
+            "1号艇ダブルタイム: 展示1位+1周1位でイン堅さ上昇",
+            14.30,
+            -3.2,
+            "b1_hold_down",
+            {
+                "boat": 1,
+                "win_rate_pct": 67.12,
+                "top3_rate_pct": 88.26,
+                "win_uplift_pp": 14.44,
+                "top3_uplift_pp": 8.33,
+            },
+        )
+
+    for boat, manshu_rate, win_rate, top3_rate, win_uplift, top3_uplift, bonus in [
+        (2, 16.08, 27.90, 73.39, 14.97, 17.10, 2.8),
+        (3, 15.77, 26.31, 73.32, 14.25, 19.80, 2.8),
+        (4, 16.15, 23.34, 66.82, 13.78, 21.31, 2.6),
+    ]:
+        if boat in double_time_boats:
+            add_edge(
+                signals,
+                f"codex_double_time_{boat}_head",
+                f"{boat}号艇ダブルタイム: 頭候補上昇",
+                manshu_rate,
+                bonus,
+                "head_up",
+                {
+                    "boat": boat,
+                    "manshu_rate_pct": manshu_rate,
+                    "win_rate_pct": win_rate,
+                    "top3_rate_pct": top3_rate,
+                    "win_uplift_pp": win_uplift,
+                    "top3_uplift_pp": top3_uplift,
+                },
+            )
+
+    for boat, manshu_rate, win_rate, top3_rate, win_uplift, top3_uplift, bonus in [
+        (5, 18.76, 14.26, 56.51, 8.84, 22.01, 2.7),
+        (6, 20.42, 8.56, 45.94, 5.62, 20.04, 2.3),
+    ]:
+        if boat in double_time_boats:
+            add_edge(
+                signals,
+                f"codex_double_time_{boat}_top3",
+                f"{boat}号艇ダブルタイム: 3着内候補上昇・消し回避",
+                manshu_rate,
+                bonus,
+                "outer_top3_up",
+                {
+                    "boat": boat,
+                    "manshu_rate_pct": manshu_rate,
+                    "win_rate_pct": win_rate,
+                    "top3_rate_pct": top3_rate,
+                    "win_uplift_pp": win_uplift,
+                    "top3_uplift_pp": top3_uplift,
+                },
+            )
 
     if (
         b1_loss is not None
@@ -776,6 +854,11 @@ def row_summary(race, matches, status, edge_signals=None):
         "ai_rank5_boat": race.get("ai_rank5_boat"),
         "ai_rank5_avg_isshu_diff": race.get("ai_rank5_avg_isshu_diff"),
         "ai_rank5_tenji_rank": race.get("ai_rank5_tenji_rank"),
+        "double_time_boats": ",".join(str(boat) for boat in range(1, 7) if int(race.get(f"b{boat}_double_time") or 0) == 1),
+        "boat1_double_time": int(race.get("b1_double_time") or 0),
+        "mid234_double_time_count": int(race.get("mid234_double_time_count") or 0),
+        "outer46_double_time_count": int(race.get("outer46_double_time_count") or 0),
+        "outer56_double_time_count": int(race.get("outer56_double_time_count") or 0),
         "wind_speed": race.get("wind_speed"),
         "wave_height": race.get("wave_height"),
         "tenji_boats": int(race.get("tenji_boats") or 0),
@@ -826,7 +909,7 @@ def make_report(path, date_text, actual_rows, watch_rows, top_n):
 </head>
 <body>
   <h1>{date_text} 万舟率ランキング</h1>
-  <div class="meta">27%以上ロジック + Codex複合補正 / 確定ランキングは展示・1周が出ているレースのみ / 展示待ちは非展示条件だけ一致</div>
+  <div class="meta">27%以上ロジック + Codex複合補正 + ダブルタイム補正 / 確定ランキングは展示・1周が出ているレースのみ / 展示待ちは非展示条件だけ一致</div>
   <h2>確定ランキング TOP{top_n}</h2>
   <table>
     <thead><tr><th>#</th><th>状態</th><th>場</th><th>R</th><th>締切</th><th>補正後</th><th>元率</th><th>補正pt</th><th>直近率</th><th>一致数</th><th>代表条件</th><th>1号艇AI</th><th>1展示</th><th>5/6最速展示</th></tr></thead>
@@ -880,7 +963,7 @@ def main():
         "date": args.date,
         "threshold_pct": args.threshold,
         "logic_label": "Codex BOATERS展示込み 万舟率ロジック + 複合補正",
-        "logic_summary": "既存の27%以上ロジックに、1号艇平均との差/展示弱化、5・6号艇の平均との差上振れ、AI+最下位の穴/消し判定、場×艇番平均との差エッジを加点・減点したランキング。",
+        "logic_summary": "既存の27%以上ロジックに、1号艇平均との差/展示弱化、5・6号艇の平均との差上振れ、AI+最下位の穴/消し判定、場×艇番平均との差エッジ、展示タイム+1周タイム1位のダブルタイム補正を加点・減点したランキング。",
         "races": int(len(df)),
         "races_with_full_tenji": int((df["tenji_boats"] >= 6).sum()),
         "races_with_full_isshu": int((df["isshu_boats"] >= 6).sum()),

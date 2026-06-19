@@ -714,16 +714,28 @@ def boat_score_live(row, mode):
     tenji = row.get("tenji_rank") or row.get("tenji_time_rank") or 6
     isshu = row.get("isshu_rank") or 6
     st_rank = row.get("st_rank_general") or 6
+    double_time = bool(row.get("double_time"))
+    double_bonus = 0
+    if double_time:
+        boat = row.get("boat_number")
+        if boat == 1:
+            double_bonus = 8
+        elif boat in {2, 3, 4}:
+            double_bonus = 12
+        elif boat == 5:
+            double_bonus = 10
+        elif boat == 6:
+            double_bonus = 8
     if mode == "ai_pred":
-        return ai_pred
+        return ai_pred + (double_bonus * 0.25)
     if mode == "ai_plus":
-        return ai_plus
+        return ai_plus + double_bonus
     if mode == "exhibit":
-        return avgdiff * 55 + (7 - tenji) * 6 + (7 - isshu) * 4 + ai_pred * 0.25
+        return avgdiff * 55 + (7 - tenji) * 6 + (7 - isshu) * 4 + ai_pred * 0.25 + double_bonus
     if mode == "st_exhibit":
-        return (7 - st_rank) * 8 + avgdiff * 40 + (7 - tenji) * 5 + ai_pred * 0.2
+        return (7 - st_rank) * 8 + avgdiff * 40 + (7 - tenji) * 5 + ai_pred * 0.2 + double_bonus
     if mode == "worst_ai_plus":
-        return -(ai_plus * 0.45 + ai_pred * 0.35 + avgdiff * 40 + (7 - tenji) * 4)
+        return -(ai_plus * 0.45 + ai_pred * 0.35 + avgdiff * 40 + (7 - tenji) * 4 + double_bonus)
     return 0
 
 
@@ -853,20 +865,33 @@ def enrich_rows(by_boat, morning_metrics):
     for row in rows:
         row["tenji_rank"] = row["tenji_time_rank"]
         row["isshu_rank"] = row["isshu_time_rank"]
+        row["double_time"] = row["tenji_rank"] == 1 and row["isshu_rank"] == 1
         row["exhibit_rank"] = min(row["tenji_time_rank"], row["isshu_time_rank"])
         row["outer_good"] = int(row["boat_number"] in {5, 6} and row["exhibit_rank"] <= 2)
         st_rank = row["st_rank_general"] if row["st_rank_general"] is not None else 4
+        double_score = 0
+        if row["double_time"]:
+            if row["boat_number"] == 1:
+                double_score = 0.30
+            elif row["boat_number"] in {2, 3, 4}:
+                double_score = 0.90
+            elif row["boat_number"] == 5:
+                double_score = 0.80
+            elif row["boat_number"] == 6:
+                double_score = 0.65
         row["comp_score"] = (
             row["ai_prediction_pct_rank"] * 0.34
             + row["ai_plus_rank"] * 0.30
             + row["general_3ren_pct_rank"] * 0.12
             + row["exhibit_rank"] * 0.18
             + st_rank * 0.06
+            - double_score
         )
         row["value_score"] = (
             row["comp_score"]
             - (0.45 if row["boat_number"] in {4, 5, 6} else 0)
             - (0.70 if row["outer_good"] else 0)
+            - (0.30 if row["double_time"] and row["boat_number"] in {5, 6} else 0)
         )
     return rows
 
@@ -889,6 +914,7 @@ def race_metrics(rows):
     b1_isshu = b1.get("isshu_time")
     rank6 = next((row for row in rows if row.get("ai_plus_rank") == 6), {})
     rank5 = next((row for row in rows if row.get("ai_plus_rank") == 5), {})
+    double_time_boats = [row["boat_number"] for row in rows if row.get("double_time")]
     return {
         "boat1_ai_prediction_pct": b1.get("ai_prediction_pct"),
         "boat1_ai_plus": b1.get("ai_plus"),
@@ -911,6 +937,11 @@ def race_metrics(rows):
         "ai_rank5_boat": rank5.get("boat_number"),
         "ai_rank5_avg_isshu_diff": rank5.get("avg_isshu_diff"),
         "ai_rank5_tenji_rank": rank5.get("tenji_rank"),
+        "double_time_boats": double_time_boats,
+        "boat1_double_time": bool(b1.get("double_time")),
+        "mid234_double_time_count": sum(1 for row in rows if row["boat_number"] in {2, 3, 4} and row.get("double_time")),
+        "outer46_double_time_count": sum(1 for row in outer46 if row.get("double_time")),
+        "outer56_double_time_count": sum(1 for row in outer if row.get("double_time")),
         "outer56_tenji_advantage": (
             b1_tenji - outer56_best_tenji
             if b1_tenji is not None and outer56_best_tenji is not None
@@ -1135,6 +1166,13 @@ def fmt_role(value):
     return "-" if value is None else str(value)
 
 
+def fmt_double_time(metrics):
+    boats = metrics.get("double_time_boats") or []
+    if not boats:
+        return ""
+    return f", DT{fmt_list(boats)}"
+
+
 def fetch_live_race(race, refresh=True):
     place = race.get("place_name")
     slug = race.get("slug") or PLACE_SLUGS.get(place)
@@ -1167,6 +1205,7 @@ def make_message(race, alert_type, metrics, checks, strategies):
         f"1展示{fmt_time(metrics.get('boat1_tenji_time'))}"
         f"({metrics.get('boat1_tenji_time_rank')}位), "
         f"5/6平均との差{fmt_time(metrics.get('outer56_best_avg_isshu_diff'))}"
+        f"{fmt_double_time(metrics)}"
     )
     if alert_type == "buy_ok" and strategies:
         s = strategies[0]

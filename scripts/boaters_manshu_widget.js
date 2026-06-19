@@ -111,6 +111,10 @@
     var status = r.status || (metrics.tenji_boats >= 6 || metrics.isshu_boats >= 6 ? "確定" : "展示待ち");
     var statusClass = status === "展示待ち" ? " wait" : "";
     var edgeText = "";
+    var doubleText = "";
+    if (metrics.double_time_boats) {
+      doubleText = " / DT " + esc(String(metrics.double_time_boats));
+    }
     if (r.composite_edge_bonus_pct) {
       var edges = (r.composite_edges || [])
         .filter(function (edge) { return Number(edge.bonus_pct || 0) > 0; })
@@ -123,7 +127,7 @@
       "<tr>",
       "<td><span class=\"bm-rate\">" + esc(fmtPct(r.manshu_rate_pct)) + "</span><br><span class=\"bm-mini\">直近 " + esc(fmtPct(r.recent_rate_pct)) + "</span>" + edgeText + "</td>",
       "<td><span class=\"bm-race\">" + esc(r.rank) + ". " + esc(r.place_name) + esc(r.round) + "R</span><br><span class=\"bm-mini\">" + esc(deadline) + "締切 / ロジック" + esc(r.matched_logic_count) + "件</span><br><span class=\"bm-status" + statusClass + "\">" + esc(status) + "</span></td>",
-      "<td class=\"bm-cond\">" + esc(r.condition) + "<br><span class=\"bm-mini\">1号艇 AI予測 " + esc(fmtPct(metrics.boat1_ai_prediction_pct)) + " / AI+一般3連対 " + esc(fmtPct(metrics.boat1_ai_plus)) + " / 平均差 " + esc(fmtSec(metrics.boat1_avg_isshu_diff)) + " / 展示 " + esc(fmtSec(metrics.boat1_tenji_time)) + " / 1周 " + esc(fmtSec(metrics.boat1_isshu_time)) + " / 5・6号艇平均との差 " + esc(fmtSec(metrics.outer56_best_avg_isshu_diff)) + "</span></td>",
+      "<td class=\"bm-cond\">" + esc(r.condition) + "<br><span class=\"bm-mini\">1号艇 AI予測 " + esc(fmtPct(metrics.boat1_ai_prediction_pct)) + " / AI+一般3連対 " + esc(fmtPct(metrics.boat1_ai_plus)) + " / 平均差 " + esc(fmtSec(metrics.boat1_avg_isshu_diff)) + " / 展示 " + esc(fmtSec(metrics.boat1_tenji_time)) + " / 1周 " + esc(fmtSec(metrics.boat1_isshu_time)) + " / 5・6号艇平均との差 " + esc(fmtSec(metrics.outer56_best_avg_isshu_diff)) + doubleText + "</span></td>",
       "<td><b>" + esc(result.trifecta || "--") + "</b><br><span class=\"" + (manshu ? "bm-hit" : "bm-miss") + "\">" + esc(fmtYen(result.payout_yen)) + (manshu ? " 万舟" : "") + "</span></td>",
       "</tr>"
     ].join("");
