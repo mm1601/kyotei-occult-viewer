@@ -96,6 +96,7 @@
       ".boaters-manshu .bm-status.wait{background:#e0f2fe;color:#0369a1}",
       ".boaters-manshu .bm-cond{color:#374151;font-size:13px;line-height:1.45;max-width:680px}",
       ".boaters-manshu .bm-mini{color:#64748b;font-size:12px;line-height:1.55}",
+      ".boaters-manshu .bm-subhead{font-size:15px;font-weight:900;color:#334155;margin:18px 0 4px}",
       ".boaters-manshu .bm-hit{color:#dc2626;font-weight:800}",
       ".boaters-manshu .bm-miss{color:#475569;font-weight:700}",
       "@media(max-width:720px){.boaters-manshu .bm-table,.boaters-manshu .bm-table thead,.boaters-manshu .bm-table tbody,.boaters-manshu .bm-table tr,.boaters-manshu .bm-table th,.boaters-manshu .bm-table td{display:block}.boaters-manshu .bm-table thead{display:none}.boaters-manshu .bm-table tr{border-top:1px solid #e5e7eb;padding:10px 0}.boaters-manshu .bm-table td{border:0;padding:4px 0}.boaters-manshu .bm-rate{font-size:18px}}"
@@ -154,14 +155,23 @@
     if (!oldRank) oldRank = document.querySelector("footer");
     if (!oldRank) return;
     var summary = data.summary || {};
+    var strictRows = data.strict_races || [];
+    var strictHtml = strictRows.length ? [
+      "<div class=\"bm-subhead\">Codex厳選ランキング TOP" + esc(strictRows.length) + "</div>",
+      "<p class=\"lead\">過去検証で万舟率" + esc(fmtPct(data.threshold_pct)) + "以上だった条件に一致したレースです。会場別の強い型をそのまま残しています。</p>",
+      "<table class=\"bm-table\"><thead><tr><th>万舟率</th><th>レース</th><th>該当ロジック・展示根拠</th><th>結果</th></tr></thead><tbody>",
+      strictRows.slice(0, 10).map(raceRow).join(""),
+      "</tbody></table>"
+    ].join("") : "";
     var section = document.createElement("section");
     section.id = "boaters-manshu-card";
     section.className = "card boaters-manshu";
     section.innerHTML = [
-      "<h2>Codex BOATERS展示ロジック 万舟率ランキング TOP10</h2>",
-      "<p class=\"lead\"><b>" + esc(data.logic_label || "BOATERS展示込みロジック") + "</b>で算出。AI+一般3連対、1号艇の逃げ/飛び傾向、差され・まくられ率、展示タイム・1周タイム、展示+1周平均との差、AI+最下位の穴/消し判定を使い、過去検証で万舟率" + esc(fmtPct(data.threshold_pct)) + "以上だった条件とCodex複合補正を表示しています。</p>",
+      "<h2>Codex全場ランキング TOP10</h2>",
+      "<p class=\"lead\"><b>" + esc(data.logic_label || "Codex全場ランキング") + "</b>で算出。会場指定だけで偏らないよう、1号艇弱化、外枠上振れ、展示タイム・1周タイム、展示+1周平均との差、AI+最下位の穴/消し判定、スリット隊形、女子戦攻略ファクターを総合評価しています。全場を見渡すため、同一会場は最大2Rまで表示します。</p>",
       "<div class=\"bm-summary\">",
-      "<span class=\"bm-chip hot\">TOP" + esc(summary.displayed_top_n || 0) + " 実測 " + esc(fmtPct(summary.actual_manshu_rate_top_n_pct)) + "</span>",
+      "<span class=\"bm-chip hot\">全場TOP" + esc(summary.displayed_top_n || 0) + "</span>",
+      "<span class=\"bm-chip\">厳選TOP" + esc(summary.strict_displayed_top_n || 0) + "</span>",
       "<span class=\"bm-chip\">万舟 " + esc(summary.manshu_hits_top_n || 0) + "/" + esc(summary.settled_top_n || 0) + "本</span>",
       "<span class=\"bm-chip\">展示6艇取得 " + esc(summary.races_with_full_tenji || 0) + "R</span>",
       "<span class=\"bm-chip\">1周6艇取得 " + esc(summary.races_with_full_isshu || 0) + "R</span>",
@@ -169,6 +179,7 @@
       "<table class=\"bm-table\"><thead><tr><th>万舟率</th><th>レース</th><th>該当ロジック・展示根拠</th><th>結果</th></tr></thead><tbody>",
       (data.races || []).slice(0, 10).map(raceRow).join(""),
       "</tbody></table>",
+      strictHtml,
       "<p class=\"muted\">※これは万舟が出やすい条件のランキングです。買い目や利益を保証するものではありません。</p>"
     ].join("");
     if (oldRank.classList && oldRank.classList.contains("rank")) {

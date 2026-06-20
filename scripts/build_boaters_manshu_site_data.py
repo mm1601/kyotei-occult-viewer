@@ -293,6 +293,7 @@ def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[
         "deadline_time": row.get("deadline_time"),
         "race_kind": row.get("race_kind"),
         "series_title": row.get("series_title"),
+        "ranking_type": row.get("ranking_type"),
         "manshu_rate_pct": as_num(rate),
         "base_manshu_rate_pct": as_num(row.get("base_manshu_rate_pct")),
         "composite_edge_base_rate_pct": as_num(row.get("composite_edge_base_rate_pct")),
@@ -308,15 +309,24 @@ def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[
 
 def build_payload(source: dict, top_n: int, results_map: dict[tuple[int, int], dict] | None = None) -> dict:
     date_text = source["date"]
-    rows = []
-    if isinstance(source.get("races"), list):
+    strict_source_rows = []
+    if isinstance(source.get("all_venue_rank_top"), list):
+        rows = list(source.get("all_venue_rank_top") or [])
+        strict_source_rows = list(source.get("strict_rank_top") or [])
+        if not strict_source_rows:
+            strict_source_rows = list(source.get("actual_rank_top") or []) + list(source.get("watch_rank_top") or [])
+    elif isinstance(source.get("races"), list):
         rows = list(source.get("races") or [])
     else:
         rows = list(source.get("actual_rank_top") or []) + list(source.get("watch_rank_top") or [])
     rows = unique_rows(rows, top_n)
+    strict_rows = unique_rows(strict_source_rows, top_n) if strict_source_rows else []
     races = [normalize_row(row, idx + 1, date_text, results_map) for idx, row in enumerate(rows)]
+    strict_races = [normalize_row(row, idx + 1, date_text, results_map) for idx, row in enumerate(strict_rows)]
     settled = [race for race in races if race["result"].get("payout_yen") is not None]
     manshu_hits = [race for race in settled if race["result"].get("manshu")]
+    strict_settled = [race for race in strict_races if race["result"].get("payout_yen") is not None]
+    strict_manshu_hits = [race for race in strict_settled if race["result"].get("manshu")]
     all_races = as_int(source.get("_all_races_count"))
     if all_races is None:
         all_races = len(source.get("races") or []) if isinstance(source.get("races"), list) else as_int(source.get("races")) or 0
@@ -339,11 +349,16 @@ def build_payload(source: dict, top_n: int, results_map: dict[tuple[int, int], d
             "races_with_full_tenji": as_int(with_tenji) or 0,
             "races_with_full_isshu": as_int(with_isshu) or 0,
             "displayed_top_n": len(races),
+            "strict_displayed_top_n": len(strict_races),
             "settled_top_n": len(settled),
             "manshu_hits_top_n": len(manshu_hits),
             "actual_manshu_rate_top_n_pct": round(len(manshu_hits) / len(settled) * 100, 2) if settled else None,
+            "strict_settled_top_n": len(strict_settled),
+            "strict_manshu_hits_top_n": len(strict_manshu_hits),
+            "strict_actual_manshu_rate_top_n_pct": round(len(strict_manshu_hits) / len(strict_settled) * 100, 2) if strict_settled else None,
         },
         "races": races,
+        "strict_races": strict_races,
     }
 
 
@@ -361,7 +376,8 @@ def main() -> int:
     csv_rows = load_csv_rows(args.source_csv)
     if csv_rows:
         source["_all_races_count"] = source.get("races")
-        source["races"] = csv_rows
+        if not isinstance(source.get("all_venue_rank_top"), list):
+            source["races"] = csv_rows
     payload = build_payload(source, args.top_n, load_results_map(args.results_json))
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")

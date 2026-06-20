@@ -1610,6 +1610,13 @@ def composite_adjustment(signals):
     return round(max(-3.0, min(5.0, bonus)), 2)
 
 
+def all_venue_adjustment(signals):
+    positive = [signal["bonus_pct"] for signal in signals if signal["bonus_pct"] > 0]
+    negative = [signal["bonus_pct"] for signal in signals if signal["bonus_pct"] < 0]
+    bonus = min(13.0, sum(positive[:7])) + sum(negative)
+    return round(max(-5.0, min(14.0, bonus)), 2)
+
+
 def composite_base_rate(signals):
     rates = [signal["historical_rate_pct"] for signal in signals if signal.get("historical_rate_pct") is not None]
     return max(rates) if rates else None
@@ -1640,6 +1647,95 @@ def is_non_exhibit_signal_atom(atom_id):
 
 def split_atoms(combo_id):
     return [part.strip() for part in str(combo_id).split("&") if part.strip()]
+
+
+def all_venue_edge_signals(race):
+    signals = list(composite_edge_signals(race))
+    b1_loss = num(race.get("b1_loss_pct"))
+    b1_nige = num(race.get("b1_nige_pct"))
+    b1_st_rank = num(race.get("b1_st_rank_general"))
+    b1_ai_pred = num(race.get("b1_ai_prediction_pct"))
+    b1_ai_order = num(race.get("b1_ai_plus_order"))
+    outer_ai_pred = num(race.get("outer56_best_ai_prediction_pct"))
+    outer_ai_plus = num(race.get("outer56_best_ai_plus"))
+    outer_avg = num(race.get("outer56_best_avg_isshu_diff"))
+    outer_exhibit_top2 = num(race.get("outer56_exhibit_top2_count")) or 0
+    rank6_boat = int_num(race.get("ai_rank6_boat"))
+    rank6_avg = num(race.get("ai_rank6_avg_isshu_diff"))
+    round_no = int_num(race.get("round_no"))
+    wind_wave = (num(race.get("wind_speed")) or 0) >= 5 or (num(race.get("wave_height")) or 0) >= 5
+
+    if b1_loss is not None and b1_loss >= 60:
+        add_edge(signals, "codex_allvenue_b1_loss60", "全場: 1号艇差され+まくられ率60%以上", None, 2.8, "b1_fly_up", {"b1_loss_pct": b1_loss})
+    elif b1_loss is not None and b1_loss >= 45:
+        add_edge(signals, "codex_allvenue_b1_loss45", "全場: 1号艇差され+まくられ率45%以上", None, 1.9, "b1_fly_up", {"b1_loss_pct": b1_loss})
+
+    if b1_nige is not None and b1_nige < 25:
+        add_edge(signals, "codex_allvenue_b1_nige25", "全場: 1号艇逃げ率25%未満", None, 2.5, "b1_fly_up", {"b1_nige_pct": b1_nige})
+    elif b1_nige is not None and b1_nige < 40:
+        add_edge(signals, "codex_allvenue_b1_nige40", "全場: 1号艇逃げ率40%未満", None, 1.6, "b1_fly_up", {"b1_nige_pct": b1_nige})
+
+    if b1_st_rank is not None and b1_st_rank >= 5:
+        add_edge(signals, "codex_allvenue_b1_st5", "全場: 1号艇平均ST順位5位以下", None, 1.4, "b1_fly_up", {"b1_st_rank_general": b1_st_rank})
+    elif b1_st_rank is not None and b1_st_rank >= 4:
+        add_edge(signals, "codex_allvenue_b1_st4", "全場: 1号艇平均ST順位4位以下", None, 0.9, "b1_fly_up", {"b1_st_rank_general": b1_st_rank})
+
+    if b1_ai_pred is not None and b1_ai_pred < 25:
+        add_edge(signals, "codex_allvenue_b1_aipred25", "全場: 1号艇AI予測25%未満", None, 1.5, "b1_fly_up", {"b1_ai_prediction_pct": b1_ai_pred})
+    elif b1_ai_pred is not None and b1_ai_pred < 35:
+        add_edge(signals, "codex_allvenue_b1_aipred35", "全場: 1号艇AI予測35%未満", None, 0.9, "b1_fly_up", {"b1_ai_prediction_pct": b1_ai_pred})
+
+    if b1_ai_order is not None and b1_ai_order >= 5:
+        add_edge(signals, "codex_allvenue_b1_aiplus5", "全場: 1号艇AI+順位5位以下", None, 1.5, "b1_fly_up", {"b1_ai_plus_order": b1_ai_order})
+    elif b1_ai_order is not None and b1_ai_order >= 4:
+        add_edge(signals, "codex_allvenue_b1_aiplus4", "全場: 1号艇AI+順位4位以下", None, 1.0, "b1_fly_up", {"b1_ai_plus_order": b1_ai_order})
+
+    if outer_ai_pred is not None and outer_ai_pred >= 12:
+        add_edge(signals, "codex_allvenue_outer56_aipred12", "全場: 5/6号艇AI予測最大12%以上", None, 1.4, "outer_top3_up", {"outer56_ai_prediction_pct": outer_ai_pred})
+    elif outer_ai_pred is not None and outer_ai_pred >= 10:
+        add_edge(signals, "codex_allvenue_outer56_aipred10", "全場: 5/6号艇AI予測最大10%以上", None, 1.0, "outer_top3_up", {"outer56_ai_prediction_pct": outer_ai_pred})
+
+    if outer_ai_plus is not None and outer_ai_plus >= 110:
+        add_edge(signals, "codex_allvenue_outer56_aiplus110", "全場: 5/6号艇AI+最大110以上", None, 1.2, "outer_top3_up", {"outer56_ai_plus": outer_ai_plus})
+    elif outer_ai_plus is not None and outer_ai_plus >= 100:
+        add_edge(signals, "codex_allvenue_outer56_aiplus100", "全場: 5/6号艇AI+最大100以上", None, 0.8, "outer_top3_up", {"outer56_ai_plus": outer_ai_plus})
+
+    if outer_avg is not None and outer_avg >= 0.14:
+        add_edge(signals, "codex_allvenue_outer56_avg014", "全場: 5/6号艇 展示+一周平均との差+0.14以上", None, 1.5, "outer_top3_up", {"outer56_avg_isshu_diff": outer_avg})
+    elif outer_avg is not None and outer_avg >= 0.10:
+        add_edge(signals, "codex_allvenue_outer56_avg010", "全場: 5/6号艇 展示+一周平均との差+0.10以上", None, 1.0, "outer_top3_up", {"outer56_avg_isshu_diff": outer_avg})
+
+    if outer_exhibit_top2 >= 1:
+        add_edge(signals, "codex_allvenue_outer56_exhibit_top2", "全場: 5/6号艇に展示/1周2位以内", None, 1.0, "outer_top3_up", {"outer56_exhibit_top2_count": outer_exhibit_top2})
+    if rank6_boat in {3, 4, 5, 6} and rank6_avg is not None and rank6_avg >= 0.10:
+        add_edge(signals, "codex_allvenue_rank6_avg010", "全場: AI+最下位が3〜6号艇で平均との差+0.10以上", None, 1.2, "rank6_ana", {"rank6_boat": rank6_boat})
+    if wind_wave:
+        add_edge(signals, "codex_allvenue_wind_wave", "全場: 風または波5以上", None, 0.8, "weather_up")
+    if round_no <= 6 and any(signal["role"] in {"b1_fly_up", "outer_top3_up", "head_up"} for signal in signals):
+        add_edge(signals, "codex_allvenue_early", "全場: 前半1〜6Rで荒れ材料あり", None, 0.4, "context_up")
+
+    signals.sort(key=lambda item: (item["bonus_pct"], item.get("historical_rate_pct") or 0), reverse=True)
+    return signals
+
+
+def take_diverse_rows(rows, top_n, max_per_place=2):
+    picked = []
+    counts = {}
+    for row in rows:
+        place = row.get("place_name")
+        if counts.get(place, 0) >= max_per_place:
+            continue
+        picked.append(row)
+        counts[place] = counts.get(place, 0) + 1
+        if len(picked) >= top_n:
+            return picked
+    for row in rows:
+        if row in picked:
+            continue
+        picked.append(row)
+        if len(picked) >= top_n:
+            break
+    return picked
 
 
 def build_rankings(df, logic_rows, masks, threshold=27.0):
@@ -1674,33 +1770,57 @@ def build_rankings(df, logic_rows, masks, threshold=27.0):
             for idx in np.flatnonzero(non_exhibit_mask):
                 watch_by_race[df.iloc[idx]["race_id"]].append(logic)
 
+    all_venue_rows = []
     actual_rows = []
     watch_rows = []
     for _, race in df.iterrows():
         actual = actual_by_race.get(race["race_id"], [])
         watch = watch_by_race.get(race["race_id"], [])
         edge_signals = composite_edge_signals(race)
+        all_venue_signals = all_venue_edge_signals(race)
+        all_venue_rows.append(
+            row_summary(
+                race,
+                [],
+                status="全場スコア",
+                edge_signals=all_venue_signals,
+                base_rate_override=16.82,
+                adjustment_func=all_venue_adjustment,
+                condition_override="Codex全場ランキング: 会場指定なしで1号艇弱化・外枠上振れ・スリット隊形・展示/1周・女子戦ファクターを総合評価",
+                ranking_type="all_venue",
+            )
+        )
         if actual:
-            actual_rows.append(row_summary(race, actual, status="確定", edge_signals=edge_signals))
+            actual_rows.append(row_summary(race, actual, status="確定", edge_signals=edge_signals, ranking_type="strict"))
         elif edge_signals:
-            edge_row = row_summary(race, [], status="複合補正", edge_signals=edge_signals)
+            edge_row = row_summary(race, [], status="複合補正", edge_signals=edge_signals, ranking_type="strict")
             has_positive_edge = any(signal["bonus_pct"] > 0 for signal in edge_signals)
             if has_positive_edge and edge_row["best_manshu_rate_pct"] >= threshold:
                 actual_rows.append(edge_row)
         if watch:
-            watch_rows.append(row_summary(race, watch, status="展示待ち", edge_signals=[]))
+            watch_rows.append(row_summary(race, watch, status="展示待ち", edge_signals=[], ranking_type="strict"))
 
     key = lambda row: (
         row["best_manshu_rate_pct"],
         row["best_recent_rate_pct"] if row["best_recent_rate_pct"] is not None else -1,
         row["matched_logic_count"],
     )
+    all_venue_rows.sort(key=key, reverse=True)
     actual_rows.sort(key=key, reverse=True)
     watch_rows.sort(key=key, reverse=True)
-    return actual_rows, watch_rows, sorted(unknown_atoms)
+    return all_venue_rows, actual_rows, watch_rows, sorted(unknown_atoms)
 
 
-def row_summary(race, matches, status, edge_signals=None):
+def row_summary(
+    race,
+    matches,
+    status,
+    edge_signals=None,
+    base_rate_override=None,
+    adjustment_func=composite_adjustment,
+    condition_override=None,
+    ranking_type=None,
+):
     edge_signals = edge_signals or []
     summer_factor = summer_b1_isshu_factor(
         race.get("date"),
@@ -1719,10 +1839,12 @@ def row_summary(race, matches, status, edge_signals=None):
     best = matches[0] if matches else None
     edge_base = composite_base_rate(edge_signals)
     logic_rate = float(best["manshu_rate_pct"]) if best else None
-    base_rate = max([rate for rate in [logic_rate, edge_base] if rate is not None], default=0.0)
-    edge_bonus = composite_adjustment(edge_signals)
+    base_rate = max([rate for rate in [logic_rate, edge_base, base_rate_override] if rate is not None], default=0.0)
+    edge_bonus = adjustment_func(edge_signals)
     adjusted_rate = max(0.0, min(40.0, base_rate + edge_bonus))
-    if best:
+    if condition_override:
+        condition = condition_override
+    elif best:
         condition = best["condition"]
     else:
         condition = "Codex複合補正"
@@ -1739,8 +1861,9 @@ def row_summary(race, matches, status, edge_signals=None):
         "race_kind": race.get("race_kind"),
         "series_title": race.get("series_title"),
         "is_joshi": int(is_joshi_race(race)),
+        "ranking_type": ranking_type,
         "best_manshu_rate_pct": round(adjusted_rate, 2),
-        "base_manshu_rate_pct": None if logic_rate is None else round(logic_rate, 2),
+        "base_manshu_rate_pct": None if logic_rate is None and base_rate_override is None else round(float(logic_rate if logic_rate is not None else base_rate_override), 2),
         "composite_edge_base_rate_pct": None if edge_base is None else round(float(edge_base), 2),
         "composite_edge_bonus_pct": edge_bonus,
         "composite_edges": edge_signals,
@@ -1808,7 +1931,7 @@ def row_summary(race, matches, status, edge_signals=None):
     }
 
 
-def make_report(path, date_text, actual_rows, watch_rows, top_n):
+def make_report(path, date_text, all_venue_rows, strict_rows, watch_rows, top_n):
     def table(rows):
         trs = []
         for i, row in enumerate(rows[:top_n], 1):
@@ -1851,11 +1974,16 @@ def make_report(path, date_text, actual_rows, watch_rows, top_n):
 </head>
 <body>
   <h1>{date_text} 万舟率ランキング</h1>
-  <div class="meta">27%以上ロジック + 展示+一周平均との差補正 + Codex複合補正 + ダブルタイム補正 + 夏場1周平均との差補正 + スーパースリットアラート / 確定ランキングは展示・1周が出ているレースのみ / 展示待ちは非展示条件だけ一致</div>
-  <h2>確定ランキング TOP{top_n}</h2>
+  <div class="meta">上段は会場指定なしのCodex全場ランキング、下段は過去検証27%以上の厳選ランキング。全場ランキングは同一会場最大2Rまで表示。</div>
+  <h2>全場ランキング TOP{top_n}</h2>
   <table>
     <thead><tr><th>#</th><th>状態</th><th>場</th><th>R</th><th>締切</th><th>補正後</th><th>元率</th><th>補正pt</th><th>直近率</th><th>一致数</th><th>代表条件</th><th>1号艇AI</th><th>1展示</th><th>5/6最速展示</th></tr></thead>
-    <tbody>{table(actual_rows)}</tbody>
+    <tbody>{table(all_venue_rows)}</tbody>
+  </table>
+  <h2>厳選ランキング TOP{top_n}</h2>
+  <table>
+    <thead><tr><th>#</th><th>状態</th><th>場</th><th>R</th><th>締切</th><th>補正後</th><th>元率</th><th>補正pt</th><th>直近率</th><th>一致数</th><th>代表条件</th><th>1号艇AI</th><th>1展示</th><th>5/6最速展示</th></tr></thead>
+    <tbody>{table(strict_rows)}</tbody>
   </table>
   <h2>展示待ち候補 TOP{top_n}</h2>
   <table>
@@ -1887,7 +2015,7 @@ def main():
     logic_df = pd.read_csv(args.logic_csv)
     logic_df = logic_df[logic_df["manshu_rate_pct"] >= args.threshold].copy()
     masks = atom_masks(df, top6, top10)
-    actual_rows, watch_rows, unknown_atoms = build_rankings(
+    all_venue_rows, actual_rows, watch_rows, unknown_atoms = build_rankings(
         df,
         logic_df.to_dict("records"),
         masks,
@@ -1899,16 +2027,20 @@ def main():
     json_path = Path(args.json_out) if args.json_out else OUT_DIR / f"{base_name}.json"
     html_path = Path(args.html_out) if args.html_out else REPORT_DIR / f"{base_name}.html"
 
-    combined = actual_rows + watch_rows
+    all_venue_top = take_diverse_rows(all_venue_rows, args.top_n, max_per_place=2)
+    strict_rows = actual_rows + watch_rows
+    combined = all_venue_top + strict_rows
     write_csv(csv_path, combined)
     payload = {
         "date": args.date,
         "threshold_pct": args.threshold,
-        "logic_label": "Codex BOATERS展示込み 万舟率ロジック + 複合補正",
-        "logic_summary": "既存の27%以上ロジックに、1号艇の展示+一周平均との差デバフ/バフ、5・6号艇の展示+一周平均との差上振れ、AI+最下位の穴/消し判定、場×艇番の展示+一周平均との差エッジ、展示タイム+1周タイム1位のダブルタイム補正、夏場1周補正、スーパースリットアラート、平均STタイム/順位で近似したスリット隊形モデル、女子戦攻略ファクターを加点・減点したランキング。",
+        "logic_label": "Codex全場ランキング + 厳選ランキング",
+        "logic_summary": "メインは会場指定なしで、1号艇弱化、外枠上振れ、AI+下位の穴、展示タイム+1周タイム、夏場1周補正、スーパースリットアラート、平均STタイム/順位で近似したスリット隊形、女子戦攻略ファクターを総合評価した全場ランキング。同一会場だけに偏らないよう全場ランキングは1会場最大2Rまで表示。下段に過去検証27%以上条件へ一致した厳選ランキングも残す。",
         "races": int(len(df)),
         "races_with_full_tenji": int((df["tenji_boats"] >= 6).sum()),
         "races_with_full_isshu": int((df["isshu_boats"] >= 6).sum()),
+        "all_venue_rank_top": all_venue_top,
+        "strict_rank_top": strict_rows[: args.top_n],
         "actual_rank_top": actual_rows[: args.top_n],
         "watch_rank_top": watch_rows[: args.top_n],
         "unknown_atoms": unknown_atoms,
@@ -1920,7 +2052,7 @@ def main():
     }
     safe_payload = json_safe(payload)
     json_path.write_text(json.dumps(safe_payload, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
-    make_report(html_path, args.date, actual_rows, watch_rows, args.top_n)
+    make_report(html_path, args.date, all_venue_top, strict_rows[: args.top_n], watch_rows, args.top_n)
     print(json.dumps(safe_payload, ensure_ascii=False, indent=2, allow_nan=False))
 
 

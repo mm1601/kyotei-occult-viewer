@@ -159,7 +159,7 @@ def ensure_boaters_widget(text: str, path: Path) -> str:
     if 'var RDATE="' not in text:
         return text
     prefix = "../" if path.parent.name == "manshu" else ""
-    tag = f'<script src="{prefix}scripts/boaters_manshu_widget.js?v=codex5"></script>'
+    tag = f'<script src="{prefix}scripts/boaters_manshu_widget.js?v=codex6"></script>'
     text = re.sub(
         r'\n?<script src="(?:\.\./)?scripts/boaters_manshu_widget\.js(?:\?[^"]*)?"></script>\n?',
         "\n",
@@ -196,7 +196,7 @@ def codex_only_html(path: Path, date_text: str) -> str:
     posts = f"{prefix}manshu_posts.html?date={date_text}"
     days = f"{prefix}manshu_days.html"
     research = f"{prefix}manshu_research.html"
-    widget = f"{prefix}scripts/boaters_manshu_widget.js?v=codex5"
+    widget = f"{prefix}scripts/boaters_manshu_widget.js?v=codex6"
     return f"""<!doctype html>
 <html lang="ja">
 <head>
