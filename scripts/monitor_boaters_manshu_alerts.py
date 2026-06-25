@@ -764,6 +764,168 @@ def rank_values(rows, key, ascending=True):
         row[f"{key}_rank"] = rank_by_val.get(row.get(key), 9)
 
 
+def bounded(value, low, high):
+    return max(low, min(high, value))
+
+
+def pct_to_logit(value, default=16.67):
+    p = bounded((value if value is not None else default) / 100.0, 0.01, 0.99)
+    return math.log(p / (1.0 - p))
+
+
+def sigmoid_pct(score):
+    return 100.0 / (1.0 + math.exp(-bounded(score, -12, 12)))
+
+
+def normalize_total(values, total, low, high):
+    if not values:
+        return []
+    positive = [max(0.01, value) for value in values]
+    scale = total / sum(positive)
+    rates = [bounded(value * scale, low, high) for value in positive]
+    for _ in range(8):
+        diff = total - sum(rates)
+        if abs(diff) < 0.01:
+            break
+        if diff > 0:
+            free = [idx for idx, value in enumerate(rates) if value < high - 0.01]
+        else:
+            free = [idx for idx, value in enumerate(rates) if value > low + 0.01]
+        if not free:
+            break
+        step = diff / len(free)
+        for idx in free:
+            rates[idx] = bounded(rates[idx] + step, low, high)
+    return [round(value, 2) for value in rates]
+
+
+def composite_rate_reasons(row, by_boat):
+    boat = row["boat_number"]
+    reasons = []
+    ai_plus_rank = row.get("ai_plus_rank")
+    if ai_plus_rank and ai_plus_rank <= 2:
+        reasons.append(f"AI+{int(ai_plus_rank)}位で基本力が高い")
+    elif ai_plus_rank and ai_plus_rank >= 5:
+        reasons.append(f"AI+{int(ai_plus_rank)}位で基本力は低め")
+    if row.get("double_time"):
+        reasons.append("展示タイムと1周タイムが両方1位")
+    elif row.get("exhibit_rank", 9) <= 2:
+        reasons.append("展示か1周が2位以内")
+    avg_diff = row.get("avg_isshu_diff")
+    if avg_diff is not None:
+        if avg_diff >= 0.10:
+            reasons.append(f"展示+1周が平均より{avg_diff:.2f}秒速い")
+        elif avg_diff <= -0.10:
+            reasons.append(f"展示+1周が平均より{abs(avg_diff):.2f}秒遅い")
+    if row.get("super_slit_alert"):
+        reasons.append("左の艇より展示0.10秒速くST順位も上")
+    right = by_boat.get(boat + 1)
+    if right and right.get("super_slit_alert"):
+        reasons.append(f"{boat + 1}号艇のスーパースリットで圧を受ける")
+    if row.get("summer_b1_isshu_factor") == "fast_hold":
+        reasons.append("夏場の1周タイムが平均より速くイン残り寄り")
+    elif row.get("summer_b1_isshu_factor") == "slow_fly":
+        reasons.append("夏場の1周タイムが平均より遅くイン飛び寄り")
+    if row.get("matchup_label") in {"1号艇キラー", "相性バフ", "相性軸バフ", "相性デバフ"}:
+        reasons.append(str(row.get("matchup_label")))
+    if row.get("low_outer_revive"):
+        reasons.append("低評価外枠だが展示で復活")
+    if row.get("longshot_head_candidate"):
+        reasons.append("穴頭候補に一致")
+    return reasons[:4]
+
+
+def compute_composite_boat_rates(rows):
+    by_boat = {row["boat_number"]: row for row in rows}
+    win_scores = []
+    top3_scores = []
+    for row in rows:
+        boat = row["boat_number"]
+        ai_pred = row.get("ai_prediction_pct")
+        ai_top3 = row.get("ai_3ren_pct")
+        general = row.get("general_3ren_pct")
+        ai_plus_rank = row.get("ai_plus_rank") or 4
+        exhibit_rank = row.get("exhibit_rank") or 4
+        st_rank = row.get("st_rank_general") if row.get("st_rank_general") is not None else 4
+        avg_diff = bounded(row.get("avg_isshu_diff") or 0.0, -0.35, 0.35)
+
+        win_score = math.log(max(ai_pred if ai_pred is not None else 16.67, 0.1))
+        win_score += (3.5 - ai_plus_rank) * 0.08
+        win_score += (3.5 - exhibit_rank) * 0.07
+        win_score += (3.5 - st_rank) * 0.035
+        win_score += avg_diff * 1.10
+        if row.get("double_time"):
+            win_score += 0.16 if boat == 1 else 0.25
+        if row.get("super_slit_alert"):
+            win_score += 0.22 if boat in {2, 3} else 0.30
+        right = by_boat.get(boat + 1)
+        if right and right.get("super_slit_alert"):
+            win_score -= 0.22 if boat == 1 else 0.12
+        if row.get("low_outer_revive"):
+            win_score += 0.15
+        if row.get("longshot_head_candidate"):
+            win_score += 0.10
+        if row.get("summer_b1_isshu_factor") == "fast_hold":
+            win_score += 0.18
+        elif row.get("summer_b1_isshu_factor") == "slow_fly":
+            win_score -= 0.22
+        if row.get("matchup_label") == "1号艇キラー":
+            win_score += 0.22
+        elif row.get("matchup_label") == "相性バフ":
+            win_score += 0.18
+        elif row.get("matchup_label") == "相性軸バフ":
+            win_score += 0.12
+        elif row.get("matchup_label") == "相性デバフ":
+            win_score -= 0.18
+        if boat == 1 and row.get("_morning_metrics", {}).get("matchup_lane1_bad_flag"):
+            win_score -= 0.14
+        win_scores.append(win_score)
+
+        if ai_top3 is not None and general is not None:
+            base_top3 = ai_top3 * 0.62 + general * 0.38
+        elif ai_top3 is not None:
+            base_top3 = ai_top3
+        elif general is not None:
+            base_top3 = general
+        else:
+            base_top3 = 50.0
+        top3_score = pct_to_logit(base_top3, default=50.0)
+        top3_score += (3.5 - ai_plus_rank) * 0.12
+        top3_score += (3.5 - exhibit_rank) * 0.07
+        top3_score += (3.5 - st_rank) * 0.04
+        top3_score += avg_diff * 1.20
+        if row.get("double_time"):
+            top3_score += 0.14 if boat == 1 else 0.22
+        if row.get("super_slit_alert"):
+            top3_score += 0.20 if boat in {2, 3} else 0.26
+        if right and right.get("super_slit_alert"):
+            top3_score -= 0.16 if boat == 1 else 0.08
+        if row.get("low_outer_revive"):
+            top3_score += 0.16
+        if row.get("summer_b1_isshu_factor") == "fast_hold":
+            top3_score += 0.14
+        elif row.get("summer_b1_isshu_factor") == "slow_fly":
+            top3_score -= 0.18
+        if row.get("matchup_label") == "1号艇キラー":
+            top3_score += 0.14
+        elif row.get("matchup_label") == "相性バフ":
+            top3_score += 0.12
+        elif row.get("matchup_label") == "相性軸バフ":
+            top3_score += 0.10
+        elif row.get("matchup_label") == "相性デバフ":
+            top3_score -= 0.16
+        top3_scores.append(sigmoid_pct(top3_score))
+
+    max_score = max(win_scores) if win_scores else 0
+    win_weights = [math.exp(score - max_score) for score in win_scores]
+    win_rates = normalize_total(win_weights, 100.0, 1.0, 70.0)
+    top3_rates = normalize_total(top3_scores, 300.0, 5.0, 92.0)
+    for idx, row in enumerate(rows):
+        row["composite_win_pct"] = win_rates[idx]
+        row["composite_top3_pct"] = top3_rates[idx]
+        row["composite_rate_reasons"] = composite_rate_reasons(row, by_boat)
+
+
 def sorted_boats(rows, keys):
     def sort_key(row):
         out = []
@@ -1544,6 +1706,7 @@ def race_metrics(rows, date_text=None):
     summer_factor = summer_b1_isshu_factor(date_text, b1.get("isshu_avg_diff"), isshu_boats)
     slit_metrics = slit_rank_metrics(rows)
     _, selection_roles = super_arunashi3(rows)
+    compute_composite_boat_rates(rows)
     boats = []
     for row in sorted(rows, key=lambda item: item["boat_number"]):
         boats.append(
@@ -1552,14 +1715,22 @@ def race_metrics(rows, date_text=None):
                 "win_pct": row.get("ai_prediction_pct"),
                 "top3_pct": row.get("ai_3ren_pct"),
                 "general_top3_pct": row.get("general_3ren_pct"),
+                "composite_win_pct": row.get("composite_win_pct"),
+                "composite_top3_pct": row.get("composite_top3_pct"),
+                "composite_rate_reasons": row.get("composite_rate_reasons") or [],
                 "ai_plus": row.get("ai_plus"),
                 "ai_prediction_rank": row.get("ai_prediction_pct_rank"),
                 "top3_rank": row.get("ai_3ren_pct_rank"),
                 "ai_plus_rank": row.get("ai_plus_rank"),
+                "st_rank_general": row.get("st_rank_general"),
                 "tenji_time": row.get("tenji_time"),
+                "tenji_rank": row.get("tenji_rank"),
                 "isshu_time": row.get("isshu_time"),
+                "isshu_rank": row.get("isshu_rank"),
                 "avg_isshu_diff": row.get("avg_isshu_diff"),
                 "super_slit_alert": bool(row.get("super_slit_alert")),
+                "super_slit_tenji_adv": row.get("super_slit_tenji_adv"),
+                "super_slit_st_rank_adv": row.get("super_slit_st_rank_adv"),
                 "double_time": bool(row.get("double_time")),
             }
         )

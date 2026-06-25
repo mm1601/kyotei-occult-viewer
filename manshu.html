@@ -445,6 +445,9 @@
             win_pct:m["boat"+boat+"_ai_prediction_pct"],
             top3_pct:m["boat"+boat+"_ai_3ren_pct"],
             general_top3_pct:m["boat"+boat+"_general_3ren_pct"],
+            composite_win_pct:m["boat"+boat+"_composite_win_pct"],
+            composite_top3_pct:m["boat"+boat+"_composite_top3_pct"],
+            composite_rate_reasons:[],
             ai_plus:m["boat"+boat+"_ai_plus"],
             ai_plus_rank:m["boat"+boat+"_ai_plus_order"]
           });
@@ -456,13 +459,17 @@
       var rows=boatRows(r);
       return [
         "<table class=\"boat-table\"><thead><tr>",
-        "<th>艇</th><th>1着率</th><th>3着内率</th><th>一般3着内</th><th>AI+順位</th>",
+        "<th>艇</th><th>複合1着率</th><th>複合3着内率</th><th>根拠</th>",
         "</tr></thead><tbody>",
         rows.map(function(b){
-          return "<tr><td>"+esc(b.boat_number)+"号艇</td><td>"+esc(pctShort(b.win_pct))+"</td><td>"+esc(pctShort(b.top3_pct))+"</td><td>"+esc(pctShort(b.general_top3_pct))+"</td><td>"+esc(b.ai_plus_rank?b.ai_plus_rank+"位":"--")+"</td></tr>";
+          var win=b.composite_win_pct!=null?b.composite_win_pct:b.win_pct;
+          var top3=b.composite_top3_pct!=null?b.composite_top3_pct:b.top3_pct;
+          var reasons=(b.composite_rate_reasons||[]).slice(0,3).join(" / ");
+          var raw="元AI1着 "+pctShort(b.win_pct)+"・元AI3連対 "+pctShort(b.top3_pct)+"・一般3連対 "+pctShort(b.general_top3_pct)+"・AI+順位 "+(b.ai_plus_rank?b.ai_plus_rank+"位":"--");
+          return "<tr><td>"+esc(b.boat_number)+"号艇</td><td><b>"+esc(pctShort(win))+"</b><div class=\"mini\">"+esc(raw)+"</div></td><td><b>"+esc(pctShort(top3))+"</b></td><td><span class=\"mini\">"+esc(reasons||"補正材料なし")+"</span></td></tr>";
         }).join(""),
         "</tbody></table>",
-        "<p class=\"mini\">1着率はBOATERSのAI予測%、3着内率はAI3連対率です。軸順位は AI3連対率+一般3連対率 で見ています。</p>"
+        "<p class=\"mini\">複合率は、BOATERS AI、AI3連対率、一般3連対率、AI+順位、展示/1周、平均との差、平均ST順位、ダブルタイム、スーパースリット、夏場1周、相性、低評価外枠復活を混ぜた推定値です。1着率は6艇合計100%、3着内率は6艇合計300%になるように調整しています。</p>"
       ].join("");
     }
     function selectionOf(r){
