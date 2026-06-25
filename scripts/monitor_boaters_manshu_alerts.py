@@ -351,12 +351,48 @@ def public_ranking_path(date_text):
     return PUBLIC_OUT / f"boaters_manshu_ranking_{date_text.replace('-', '')}.json"
 
 
+def public_codex_ranking_path(date_text):
+    return PUBLIC_OUT / f"boaters_manshu_ranking_codex_{date_text.replace('-', '')}.json"
+
+
+def morning_ranking_path(date_text):
+    return PUBLIC_OUT / f"boaters_manshu_morning_ranking_{date_text.replace('-', '')}.json"
+
+
+def live_ranking_path(date_text):
+    return PUBLIC_OUT / f"boaters_manshu_live_ranking_{date_text.replace('-', '')}.json"
+
+
 def state_path(date_text):
     return PUBLIC_OUT / f"boaters_manshu_alert_state_{date_text.replace('-', '')}.json"
 
 
 def alerts_path(date_text):
     return PUBLIC_OUT / f"boaters_manshu_alerts_{date_text.replace('-', '')}.json"
+
+
+def ranking_rows(payload, top_n):
+    rows = payload.get("strict_races") or payload.get("races") or []
+    return list(rows)[:top_n]
+
+
+def snapshot_morning_ranking(date_text, source_path):
+    """Freeze the first available morning order for monitoring comparisons."""
+    target = morning_ranking_path(date_text)
+    if target.exists() or source_path is None or not source_path.exists():
+        return target if target.exists() else source_path
+    payload = load_json(source_path, {})
+    if isinstance(payload, dict):
+        payload["snapshot_type"] = "morning_fixed"
+        payload["snapshot_created_at"] = datetime.now(JST).isoformat(timespec="seconds")
+        payload["snapshot_source"] = str(source_path)
+        save_json(target, payload)
+        return target
+    return source_path
+
+
+def has_full_exhibition(metrics):
+    return int(as_num(metrics.get("tenji_boats")) or 0) >= 6 and int(as_num(metrics.get("isshu_boats")) or 0) >= 6
 
 
 def db_race_count(db_path):
@@ -403,11 +439,11 @@ def ensure_morning_ranking(
 ):
     public_json = public_ranking_path(date_text)
     if public_json.exists() and not rebuild:
-        return public_json
+        return snapshot_morning_ranking(date_text, public_json)
     if not rebuild:
         fetched = fetch_public_ranking(date_text, ranking_url_base)
         if fetched is not None:
-            return fetched
+            return snapshot_morning_ranking(date_text, fetched)
     if no_build:
         return None
 
@@ -482,7 +518,78 @@ def ensure_morning_ranking(
         ],
         ROOT,
     )
-    return public_json
+    return snapshot_morning_ranking(date_text, public_json)
+
+
+def build_live_ranking(date_text, top_n=10, threshold=27.0):
+    """Build a refreshed exhibition-aware ranking without replacing morning order."""
+    db_path = WORK_OUT / f"boaters_today_{date_text}.sqlite"
+    run_cmd(
+        [
+            sys.executable,
+            str(BUILD_DB_SCRIPT),
+            "--mode",
+            "full-daily",
+            "--start-date",
+            date_text,
+            "--end-date",
+            date_text,
+            "--db",
+            str(db_path),
+            "--sleep",
+            "0.08",
+            "--workers",
+            "3",
+            "--refresh",
+        ],
+        BUILD_DB_SCRIPT.parent,
+    )
+    if db_race_count(db_path) == 0:
+        raise RuntimeError(f"BOATERS live DB has no races: {db_path}")
+
+    rank_json = WORK_OUT / f"manshu_daily_rank_live_{date_text}.json"
+    rank_csv = WORK_OUT / f"manshu_daily_rank_live_{date_text}.csv"
+    rank_html = WORK_OUT / "boaters_report" / f"manshu_daily_rank_live_{date_text}.html"
+    out_json = live_ranking_path(date_text)
+    run_cmd(
+        [
+            sys.executable,
+            str(RANK_SCRIPT),
+            "--date",
+            date_text,
+            "--today-db",
+            str(db_path),
+            "--history-db",
+            str(HISTORY_DB if HISTORY_DB.exists() else PUBLIC_OUT / "boaters_all_races.sqlite"),
+            "--threshold",
+            str(threshold),
+            "--top-n",
+            str(top_n),
+            "--json-out",
+            str(rank_json),
+            "--csv-out",
+            str(rank_csv),
+            "--html-out",
+            str(rank_html),
+        ],
+        RANK_SCRIPT.parent,
+    )
+    run_cmd(
+        [
+            sys.executable,
+            str(SITE_DATA_SCRIPT),
+            "--source-json",
+            str(rank_json),
+            "--source-csv",
+            str(rank_csv),
+            "--out",
+            str(out_json),
+            "--top-n",
+            str(top_n),
+        ],
+        ROOT,
+    )
+    return out_json
 
 
 def load_json(path, default):
@@ -497,6 +604,43 @@ def load_json(path, default):
 def save_json(path, payload):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def merge_live_metrics_into_public_ranking(date_text, updates, now):
+    if not updates:
+        return False
+    changed_any = False
+    for path in (public_ranking_path(date_text), public_codex_ranking_path(date_text)):
+        changed_any = merge_live_metrics_into_ranking_path(path, updates, now) or changed_any
+    return changed_any
+
+
+def merge_live_metrics_into_ranking_path(path, updates, now):
+    payload = load_json(path, {})
+    if not isinstance(payload, dict):
+        return False
+    changed = False
+    for group_name in ("races", "strict_races"):
+        for race in payload.get(group_name) or []:
+            race_id = race.get("race_id")
+            update = updates.get(race_id)
+            if not update:
+                continue
+            metrics = race.setdefault("metrics", {})
+            before = json.dumps(metrics, sort_keys=True, ensure_ascii=False)
+            metrics.update(update.get("metrics") or {})
+            if has_full_exhibition(metrics) and "展示待ち" in str(race.get("status") or ""):
+                race["status"] = str(race.get("status")).replace("・展示待ち", "").replace("展示待ち", "展示込み")
+            race["last_minute_checked_at"] = update.get("checked_at")
+            race["last_minute_alert_type"] = update.get("alert_type")
+            race["last_minute_checks"] = update.get("checks") or []
+            race["last_minute_strategy_ids"] = update.get("strategy_ids") or []
+            after = json.dumps(metrics, sort_keys=True, ensure_ascii=False)
+            changed = changed or before != after
+    if changed:
+        payload["last_minute_updated_at"] = now.isoformat(timespec="seconds")
+        save_json(path, payload)
+    return changed
 
 
 def load_push_config():
@@ -564,7 +708,14 @@ def push_notifications(payload, state, now):
         key = f"alert:{alert.get('race_id')}:{alert.get('alert_type')}"
         if pushed.get(key):
             continue
-        title = "BOATERS買い候補" if alert.get("alert_type") == "buy_ok" else "BOATERS万舟率上昇"
+        if alert.get("alert_type") == "late_riser_buy_ok":
+            title = "BOATERS急浮上買い候補"
+        elif alert.get("alert_type") == "late_riser":
+            title = "BOATERS急浮上"
+        elif alert.get("alert_type") == "buy_ok":
+            title = "BOATERS買い候補"
+        else:
+            title = "BOATERS万舟率上昇"
         result = send_ntfy(config, title, alert.get("message") or "", tags="moneybag,boat")
         results.append({"key": key, **result})
         if result.get("ok"):
@@ -1789,6 +1940,10 @@ def make_message(race, alert_type, metrics, checks, strategies):
         f"{race.get('place_name')}{race.get('round')}R "
         f"万舟率{fmt_pct(race.get('manshu_rate_pct'))}"
     )
+    if race.get("morning_rank"):
+        base += f" / 朝{race.get('morning_rank')}位"
+    if race.get("live_rank"):
+        base += f" / 直前{race.get('live_rank')}位"
     deadline = parse_dt(race.get("deadline_time"))
     deadline_text = deadline.strftime("%H:%M") if deadline else "--:--"
     metric_text = (
@@ -1808,16 +1963,23 @@ def make_message(race, alert_type, metrics, checks, strategies):
         f"{fmt_slit_shape(metrics)}"
         f"{fmt_matchup(metrics)}"
     )
-    if alert_type == "buy_ok" and strategies:
+    if alert_type in {"buy_ok", "late_riser_buy_ok"} and strategies:
         s = strategies[0]
         support_text = f" / 相手: {fmt_list(s.get('supports'))}" if s.get("supports") else ""
+        title = "【急浮上 買い候補】" if alert_type == "late_riser_buy_ok" else "【買い候補】"
         return (
-            f"【買い候補】{base}\n"
+            f"{title}{base}\n"
             f"{metric_text}\n"
             f"直前条件: {' / '.join(checks)}\n"
             f"買い方: {s['label']} / {s['points']}点 / {s['odds_filter']}\n"
             f"頭候補: {fmt_list(s['heads'])} / 軸: {fmt_list(s['axes'])}{support_text} / 消し: {fmt_role(s['keshi'])}\n"
             f"買い目: {' '.join(s['tickets'])}"
+        )
+    if alert_type == "late_riser":
+        return (
+            f"【急浮上】{base}\n"
+            f"{metric_text}\n"
+            f"直前条件: {' / '.join(checks)}"
         )
     return (
         f"【万舟率上昇候補】{base}\n"
@@ -1829,6 +1991,7 @@ def make_message(race, alert_type, metrics, checks, strategies):
 def monitor(args):
     date_text = args.date or today_jst()
     now = parse_dt(args.now) if args.now else datetime.now(JST)
+    public_updates = {}
     ranking_path = ensure_morning_ranking(
         date_text,
         top_n=args.top_n,
@@ -1861,17 +2024,19 @@ def monitor(args):
         save_json(state_path(date_text), state)
         return payload
     ranking = load_json(ranking_path, {})
-    races = (ranking.get("races") or [])[: args.top_n]
+    races = ranking_rows(ranking, args.top_n)
+    morning_ids = {race.get("race_id") for race in races}
     state = load_json(state_path(date_text), {"sent": {}})
     sent = state.setdefault("sent", {})
 
     inspected = []
     alerts = []
-    for race in races:
+
+    def inspect_window(race, source_type):
         deadline = parse_dt(race.get("deadline_time"))
         if deadline is None:
-            inspected.append({"race_id": race.get("race_id"), "status": "skip_no_deadline"})
-            continue
+            inspected.append({"race_id": race.get("race_id"), "source": source_type, "status": "skip_no_deadline"})
+            return None
         minutes_to_deadline = (deadline - now).total_seconds() / 60
         if minutes_to_deadline > args.lookahead_minutes or minutes_to_deadline < -args.grace_minutes:
             inspected.append(
@@ -1879,53 +2044,86 @@ def monitor(args):
                     "race_id": race.get("race_id"),
                     "place_name": race.get("place_name"),
                     "round": race.get("round"),
+                    "source": source_type,
                     "status": "outside_window",
                     "minutes_to_deadline": round(minutes_to_deadline, 1),
                 }
             )
-            continue
+            return None
         if args.offline:
             inspected.append(
                 {
                     "race_id": race.get("race_id"),
                     "place_name": race.get("place_name"),
                     "round": race.get("round"),
+                    "source": source_type,
                     "status": "offline_window_match",
                     "minutes_to_deadline": round(minutes_to_deadline, 1),
                 }
             )
-            continue
+            return None
+        return minutes_to_deadline
 
+    def inspect_race(race, source_type, morning_rank=None, live_rank=None):
+        minutes_to_deadline = inspect_window(race, source_type)
+        if minutes_to_deadline is None:
+            return
         try:
             by_boat = fetch_live_race(race, refresh=not args.no_refresh)
             rows = enrich_rows(by_boat, race.get("metrics") or {}, date_text=race.get("date"))
             metrics = race_metrics(rows, date_text=race.get("date"))
             confirmed, checks = condition_confirmed(race.get("condition"), metrics)
             strategies = roi_strategies(race, metrics, rows)
-            alert_type = "buy_ok" if strategies else "rate_up" if confirmed else None
+            if source_type == "morning_top":
+                alert_type = "buy_ok" if strategies else None
+            elif strategies:
+                alert_type = "late_riser_buy_ok"
+            elif confirmed or ((race.get("manshu_rate_pct") or 0) >= args.riser_threshold and has_full_exhibition(metrics)):
+                alert_type = "late_riser"
+            else:
+                alert_type = None
+
+            strategy_ids = [s["strategy_id"] for s in strategies]
+            public_updates[race.get("race_id")] = {
+                "metrics": metrics,
+                "checked_at": now.isoformat(timespec="seconds"),
+                "alert_type": alert_type,
+                "checks": checks,
+                "strategy_ids": strategy_ids,
+            }
             inspected.append(
                 {
                     "race_id": race.get("race_id"),
                     "place_name": race.get("place_name"),
                     "round": race.get("round"),
+                    "source": source_type,
                     "status": "checked",
                     "minutes_to_deadline": round(minutes_to_deadline, 1),
                     "condition_confirmed": confirmed,
                     "checks": checks,
-                    "strategies": [s["strategy_id"] for s in strategies],
+                    "strategies": strategy_ids,
                     "metrics": metrics,
+                    "morning_rank": morning_rank,
+                    "live_rank": live_rank,
                 }
             )
             if alert_type is None:
-                continue
+                return
             key = f"{race.get('race_id')}:{alert_type}:{','.join(s['strategy_id'] for s in strategies)}"
             if sent.get(key):
-                continue
+                return
+            message_race = dict(race)
+            if morning_rank:
+                message_race["morning_rank"] = morning_rank
+            if live_rank:
+                message_race["live_rank"] = live_rank
             alert = {
                 "alert_type": alert_type,
                 "race_id": race.get("race_id"),
                 "date": race.get("date"),
                 "rank": race.get("rank"),
+                "morning_rank": morning_rank,
+                "live_rank": live_rank,
                 "place_name": race.get("place_name"),
                 "round": race.get("round"),
                 "deadline_time": race.get("deadline_time"),
@@ -1935,7 +2133,7 @@ def monitor(args):
                 "checks": checks,
                 "metrics": metrics,
                 "strategies": strategies,
-                "message": make_message(race, alert_type, metrics, checks, strategies),
+                "message": make_message(message_race, alert_type, metrics, checks, strategies),
             }
             alerts.append(alert)
             sent[key] = now.isoformat(timespec="seconds")
@@ -1945,18 +2143,50 @@ def monitor(args):
                     "race_id": race.get("race_id"),
                     "place_name": race.get("place_name"),
                     "round": race.get("round"),
+                    "source": source_type,
                     "status": "fetch_failed",
                     "minutes_to_deadline": round(minutes_to_deadline, 1),
                     "error": str(exc),
                 }
             )
 
+    for rank, race in enumerate(races, start=1):
+        inspect_race(race, "morning_top", morning_rank=rank)
+
+    live_path = None
+    if args.scan_risers and not args.offline:
+        try:
+            live_path = build_live_ranking(date_text, top_n=args.riser_top_n, threshold=args.threshold)
+            live_ranking = load_json(live_path, {})
+            for live_rank, race in enumerate(ranking_rows(live_ranking, args.riser_top_n), start=1):
+                if race.get("race_id") in morning_ids:
+                    continue
+                if (race.get("manshu_rate_pct") or 0) < args.riser_threshold:
+                    continue
+                inspect_race(race, "late_riser", live_rank=live_rank)
+        except Exception as exc:
+            inspected.append(
+                {
+                    "status": "live_ranking_failed",
+                    "source": "late_riser",
+                    "error": str(exc),
+                }
+            )
+
+    public_metrics_updated = False
+    if not args.no_public_metrics_update:
+        public_metrics_updated = merge_live_metrics_into_public_ranking(date_text, public_updates, now)
+
     payload = {
         "version": "boaters-manshu-alerts-v1",
         "date": date_text,
         "generated_at": now.isoformat(timespec="seconds"),
         "ranking_path": str(ranking_path),
+        "public_ranking_path": str(public_ranking_path(date_text)),
+        "live_ranking_path": str(live_path) if live_path else None,
+        "public_metrics_updated": public_metrics_updated,
         "top_n": args.top_n,
+        "riser_top_n": args.riser_top_n,
         "lookahead_minutes": args.lookahead_minutes,
         "alerts": alerts,
         "inspected": inspected,
@@ -1977,6 +2207,9 @@ def main():
     parser.add_argument("--threshold", type=float, default=27.0)
     parser.add_argument("--lookahead-minutes", type=float, default=20.0)
     parser.add_argument("--grace-minutes", type=float, default=2.0)
+    parser.add_argument("--scan-risers", action="store_true", help="Build a separate live ranking and notify races rising from outside the morning TOP list.")
+    parser.add_argument("--riser-top-n", type=int, default=10, help="Live ranking depth used for late-riser detection.")
+    parser.add_argument("--riser-threshold", type=float, default=27.0, help="Minimum live manshu rate for late-riser alerts.")
     parser.add_argument("--rebuild-morning", action="store_true")
     parser.add_argument(
         "--no-build-morning",
@@ -1991,6 +2224,7 @@ def main():
     parser.add_argument("--no-refresh", action="store_true", help="Use cached BOATERS pages when available.")
     parser.add_argument("--offline", action="store_true", help="Do not fetch BOATERS pages; only test scheduling windows.")
     parser.add_argument("--no-push", action="store_true", help="Disable smartphone push notifications.")
+    parser.add_argument("--no-public-metrics-update", action="store_true", help="Do not merge fetched exhibition metrics back into the public morning-order ranking JSON.")
     args = parser.parse_args()
     payload = monitor(args)
     print(json.dumps(payload, ensure_ascii=False, indent=2))
