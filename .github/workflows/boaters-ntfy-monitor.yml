@@ -44,6 +44,24 @@ jobs:
             --lookahead-minutes 20 \
             --rebuild-morning
 
+      - name: Refresh static results and history
+        run: |
+          KEY="${{ steps.jst.outputs.key }}"
+          YEAR="${KEY:0:4}"
+          RESULTS="/tmp/boatrace_results_${KEY}.json"
+          curl -fsSL --max-time 30 "https://boatraceopenapi.github.io/results/v2/${YEAR}/${KEY}.json" -o "$RESULTS" || true
+          if [ -s "$RESULTS" ] && [ -e "data/output/boaters_manshu_ranking_${KEY}.json" ]; then
+            python scripts/build_boaters_manshu_site_data.py \
+              --source-json "data/output/boaters_manshu_ranking_${KEY}.json" \
+              --out "data/output/boaters_manshu_ranking_${KEY}.json" \
+              --top-n 10 \
+              --results-json "$RESULTS"
+          fi
+          python scripts/build_boaters_manshu_history_index.py \
+            --start-date 2026-05-01 \
+            --end-date "${{ steps.jst.outputs.date }}" \
+            --top-n 10
+
       - name: Persist generated monitor data
         run: |
           git config user.name "github-actions[bot]"
@@ -53,6 +71,7 @@ jobs:
             "data/output/boaters_manshu_ranking_${{ steps.jst.outputs.key }}.json" \
             "data/output/boaters_manshu_alerts_${{ steps.jst.outputs.key }}.json" \
             "data/output/boaters_manshu_alert_state_${{ steps.jst.outputs.key }}.json" \
+            "data/output/boaters_manshu_history_index.json" \
             "data/output/manshu_daily_rank_${{ steps.jst.outputs.date }}.json" \
             "data/output/manshu_daily_rank_${{ steps.jst.outputs.date }}.csv"; do
             if [ -e "$path" ]; then

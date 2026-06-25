@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Codex万舟率 過去検証</title>
+  <title>Codex厳選ランキング 過去検証</title>
   <style>
     body{font-family:-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:#f5f7fb;color:#172033;max-width:1100px;margin:0 auto;padding:16px;line-height:1.6}
     h1{font-size:22px;margin:0 0 8px}
@@ -48,8 +48,8 @@
   </style>
 </head>
 <body>
-  <h1>Codex万舟率 過去検証</h1>
-  <p class="muted">今のCodex全場ランキングを過去日付に当てた結果です。万舟率は荒れやすさの評価で、買い目や利益を保証するものではありません。</p>
+  <h1>Codex厳選ランキング 過去検証</h1>
+  <p class="muted">今のCodex厳選ランキングを過去日付に当てた結果です。今日分は取得できている結果までを反映します。</p>
   <div class="nav">
     <a href="manshu.html">本日のランキング</a>
     <a href="manshu_codex.html">Codex版</a>
@@ -68,21 +68,21 @@
   </section>
 
   <section class="card">
-    <h2 id="dayTitle">日別TOP10</h2>
+    <h2 id="dayTitle">日別・厳選TOP10結果</h2>
     <div class="summary" id="daySummary"></div>
     <div class="grid">
-      <div>
-        <h2>Codex全場ランキング</h2>
-        <table>
-          <thead><tr><th>#</th><th>レース</th><th>万舟率</th><th>結果</th><th>根拠</th></tr></thead>
-          <tbody id="raceBody"></tbody>
-        </table>
-      </div>
       <div>
         <h2>Codex厳選ランキング</h2>
         <table>
           <thead><tr><th>#</th><th>レース</th><th>万舟率</th><th>結果</th><th>根拠</th></tr></thead>
           <tbody id="strictBody"></tbody>
+        </table>
+      </div>
+      <div>
+        <h2>参考：全場ランキング</h2>
+        <table>
+          <thead><tr><th>#</th><th>レース</th><th>万舟率</th><th>結果</th><th>根拠</th></tr></thead>
+          <tbody id="raceBody"></tbody>
         </table>
       </div>
     </div>
@@ -91,7 +91,7 @@
   <section class="card">
     <h2>日別成績一覧</h2>
     <table class="days">
-      <thead><tr><th>日付</th><th>全場TOP10</th><th>TOP5</th><th>TOP3</th><th>TOP1</th><th>最高配当</th></tr></thead>
+      <thead><tr><th>日付</th><th>厳選TOP10</th><th>TOP5</th><th>TOP3</th><th>TOP1</th><th>全場TOP10</th><th>最高配当</th></tr></thead>
       <tbody id="daysBody"></tbody>
     </table>
   </section>
@@ -106,7 +106,7 @@ const fmtPct = v => v == null ? "--" : Number(v).toFixed(2).replace(/\.00$/,"") 
 const fmtYen = v => v == null ? "--" : Number(v).toLocaleString("ja-JP") + "円";
 function dataUrl(item){
   const path = item.codex_path || item.path || ("data/output/boaters_manshu_ranking_codex_" + ymd(item.date) + ".json");
-  return path + "?v=codex-history-2";
+  return path + "?v=codex-history-3";
 }
 function statLine(s){
   if(!s) return "--";
@@ -120,24 +120,26 @@ function renderSummary(){
   const agg = STATE.index.aggregate || {};
   $("periodText").textContent = `${STATE.index.start_date}〜${STATE.index.end_date} / ${STATE.index.logic_label || ""}`;
   $("summary").innerHTML = [
-    metric("全場TOP10", agg.all_venue && agg.all_venue.top10),
-    metric("全場TOP5", agg.all_venue && agg.all_venue.top5),
-    metric("全場TOP3", agg.all_venue && agg.all_venue.top3),
-    metric("全場TOP1", agg.all_venue && agg.all_venue.top1),
-    metric("厳選TOP10", agg.strict && agg.strict.top10)
+    metric("厳選TOP10", agg.strict && agg.strict.top10),
+    metric("厳選TOP5", agg.strict && agg.strict.top5),
+    metric("厳選TOP3", agg.strict && agg.strict.top3),
+    metric("厳選TOP1", agg.strict && agg.strict.top1),
+    metric("参考 全場TOP10", agg.all_venue && agg.all_venue.top10)
   ].join("");
 }
 function renderDays(){
   const rows = (STATE.index.dates || []).slice().reverse();
   $("daysBody").innerHTML = rows.map(item => {
-    const all = item.all_venue || {}, top10 = all.top10 || {}, top5 = all.top5 || {}, top3 = all.top3 || {}, top1 = all.top1 || {};
+    const strict = item.strict || {}, all = item.all_venue || {};
+    const top10 = strict.top10 || {}, top5 = strict.top5 || {}, top3 = strict.top3 || {}, top1 = strict.top1 || {}, allTop10 = all.top10 || {};
     const active = item.date === STATE.selected ? " class=\"active\"" : "";
     return `<tr data-date="${esc(item.date)}"${active}>`+
-      `<td><b>${esc(item.date)}</b></td>`+
+      `<td><b>${esc(item.date)}</b>${strict.fallback_from_all_venue ? '<br><span class="mini">厳選代替</span>' : ''}</td>`+
       `<td class="num">${esc(statLine(top10))}</td>`+
       `<td class="num">${esc(statLine(top5))}</td>`+
       `<td class="num">${esc(statLine(top3))}</td>`+
       `<td class="num">${esc(statLine(top1))}</td>`+
+      `<td class="num">${esc(statLine(allTop10))}</td>`+
       `<td class="num">${esc(fmtYen(top10.max_payout_yen))}</td>`+
       `</tr>`;
   }).join("");
@@ -170,18 +172,26 @@ function dayStats(rows, n){
   const hits = settled.filter(r => (r.result || {}).payout_yen >= 10000);
   return { manshu_hits:hits.length, settled:settled.length, manshu_rate_pct:settled.length ? hits.length / settled.length * 100 : null };
 }
+function strictRows(data){
+  if((data.strict_races || []).length) return data.strict_races || [];
+  const races = data.races || [];
+  const okStatuses = new Set(["展示待ち","確定","厳選統合","厳選統合・展示待ち"]);
+  const statusOnly = races.length && races.every(r => okStatuses.has(String(r.status || "").trim()));
+  const typeStrict = races.length && races.every(r => String(r.ranking_type || "").trim() === "strict");
+  return (statusOnly || typeStrict) ? races : [];
+}
 function renderDaily(data){
-  $("dayTitle").textContent = `${data.date} の予想結果`;
-  const races = data.races || [], strict = data.strict_races || [];
+  $("dayTitle").textContent = `${data.date} の厳選ランキング結果`;
+  const races = data.races || [], strict = strictRows(data);
   $("daySummary").innerHTML = [
-    metric("全場TOP10", dayStats(races, 10)),
-    metric("全場TOP5", dayStats(races, 5)),
-    metric("全場TOP3", dayStats(races, 3)),
-    metric("全場TOP1", dayStats(races, 1)),
-    metric("厳選TOP10", dayStats(strict, 10))
+    metric("厳選TOP10", dayStats(strict, 10)),
+    metric("厳選TOP5", dayStats(strict, 5)),
+    metric("厳選TOP3", dayStats(strict, 3)),
+    metric("厳選TOP1", dayStats(strict, 1)),
+    metric("参考 全場TOP10", dayStats(races, 10))
   ].join("");
+  $("strictBody").innerHTML = strict.slice(0, 10).map(raceRow).join("") || `<tr><td colspan="5">厳選データなし</td></tr>`;
   $("raceBody").innerHTML = races.slice(0, 10).map(raceRow).join("") || `<tr><td colspan="5">データなし</td></tr>`;
-  $("strictBody").innerHTML = strict.slice(0, 10).map(raceRow).join("") || `<tr><td colspan="5">データなし</td></tr>`;
 }
 async function chooseDate(date){
   STATE.selected = date;
@@ -197,7 +207,7 @@ async function chooseDate(date){
   renderDaily(STATE.daily[date]);
 }
 async function init(){
-  const res = await fetch("data/output/boaters_manshu_history_index.json?v=codex-history-2", {cache:"no-store"});
+  const res = await fetch("data/output/boaters_manshu_history_index.json?v=codex-history-3", {cache:"no-store"});
   if(!res.ok) throw new Error("history index not found");
   STATE.index = await res.json();
   const dates = (STATE.index.dates || []).map(x => x.date).sort();
@@ -205,7 +215,7 @@ async function init(){
   $("dateSelect").addEventListener("change", e => chooseDate(e.target.value));
   $("latestBtn").addEventListener("click", () => chooseDate(dates[dates.length - 1]));
   renderSummary();
-  const latestReady = (STATE.index.dates || []).slice().reverse().find(x => (((x.all_venue || {}).top10 || {}).selected || 0) > 0);
+  const latestReady = (STATE.index.dates || []).slice().reverse().find(x => (((x.strict || {}).top10 || {}).selected || 0) > 0);
   await chooseDate((latestReady && latestReady.date) || dates[dates.length - 1]);
 }
 init().catch(err => {

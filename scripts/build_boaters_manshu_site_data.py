@@ -364,6 +364,7 @@ def build_payload(source: dict, top_n: int, results_map: dict[tuple[int, int], d
             strict_source_rows = list(source.get("actual_rank_top") or []) + list(source.get("watch_rank_top") or [])
     elif isinstance(source.get("races"), list):
         rows = list(source.get("races") or [])
+        strict_source_rows = list(source.get("strict_races") or [])
     else:
         rows = list(source.get("actual_rank_top") or []) + list(source.get("watch_rank_top") or [])
     rows = unique_rows(rows, top_n)
@@ -376,9 +377,17 @@ def build_payload(source: dict, top_n: int, results_map: dict[tuple[int, int], d
     strict_manshu_hits = [race for race in strict_settled if race["result"].get("manshu")]
     all_races = as_int(source.get("_all_races_count"))
     if all_races is None:
+        source_summary = source.get("summary") or {}
+        all_races = as_int(source_summary.get("all_races"))
+    if all_races is None:
         all_races = len(source.get("races") or []) if isinstance(source.get("races"), list) else as_int(source.get("races")) or 0
+    source_summary = source.get("summary") or {}
     with_tenji = source.get("races_with_full_tenji")
+    if with_tenji is None:
+        with_tenji = source_summary.get("races_with_full_tenji")
     with_isshu = source.get("races_with_full_isshu")
+    if with_isshu is None:
+        with_isshu = source_summary.get("races_with_full_isshu")
     return {
         "version": "boaters-manshu-logic-v2",
         "date": date_text,
