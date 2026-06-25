@@ -1,111 +1,96 @@
-<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
-<title>投稿センター｜Codex万舟率</title>
-<style>
-body{font-family:-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:#f4f6fb;color:#1c2230;max-width:760px;margin:0 auto;padding:16px;line-height:1.7}
-h1{font-size:20px;margin:0 0 4px}
-.sub{color:#5b6577;font-size:13px;margin:0 0 14px}
-.nav{font-size:13px;font-weight:700;margin:0 0 16px}
-.nav a{color:#2563eb;text-decoration:none}
-.card{background:#fff;border:1px solid #e3e8f0;border-left:6px solid #16a34a;border-radius:12px;padding:14px 16px;margin:0 0 16px}
-.card h2{font-size:16px;margin:0 0 8px;color:#15803d}
-.card.xpost{border-left-color:#0ea5e9}.card.xpost h2{color:#0369a1}
-.card.result{border-left-color:#dc2626}.card.result h2{color:#b91c1c}
-.card.note{border-left-color:#10b981}.card.note h2{color:#047857}
-textarea{width:100%;box-sizing:border-box;font:13.5px/1.6 -apple-system,"Hiragino Kaku Gothic ProN",Meiryo,monospace;border:1px solid #cbd5e1;border-radius:8px;padding:10px 11px;background:#f8fafc;color:#0f172a;resize:vertical;white-space:pre-wrap;word-break:break-word}
-button{font:inherit;font-weight:700;background:#16a34a;color:#fff;border:0;border-radius:8px;padding:9px 18px;cursor:pointer;margin:8px 0 0}
-button:active{opacity:.7}
-.len{font-size:12px;color:#64748b;margin-left:8px}.len.over{color:#dc2626;font-weight:800}
-.upd{font-size:12px;color:#8a93a6;margin-top:6px}
-.summary{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 0}
-.chip{background:#f8fafc;border:1px solid #e2e8f0;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;color:#334155}
-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
-th,td{padding:7px 8px;border-bottom:1px solid #eef1f5;text-align:left;vertical-align:top}
-th{background:#f7f9fc;color:#5b6577}.p{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}.man{color:#dc2626;font-weight:900}.muted{color:#64748b}
-footer{color:#8a93a6;font-size:11.5px;text-align:center;margin-top:20px}
-</style></head><body>
-<h1>📋 投稿センター</h1>
-<p class="sub">Codex BOATERS展示ロジックの万舟率ランキングから、X投稿用と投稿用の文章を自動作成します。結果は確定分から自動で入ります。</p>
-<p class="nav">🌊 <a href="manshu.html">朝の万舟率ランキングに戻る</a></p>
-<div id="posts">読み込み中…</div>
-<footer>※荒れやすさの研究用メモです。的中・利益保証なし</footer>
-<script>
-"use strict";
-var MAN=10000, STATE={date:"",data:null,resultMap:{}};
-function qs(k){return new URLSearchParams(location.search).get(k);}
-function ymd(d){return d.replace(/-/g,"");}
-function pageDateFromJson(d){return d&&d.date?d.date:new Date().toLocaleDateString("sv-SE",{timeZone:"Asia/Tokyo"});}
-function dataUrl(date){return "data/output/boaters_manshu_ranking_"+ymd(date)+".json";}
-function resultUrl(date){return "https://boatraceopenapi.github.io/results/v2/"+date.slice(0,4)+"/"+ymd(date)+".json";}
-function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
-function fmtPct(v){return v==null?"--":Number(v).toFixed(2).replace(/\.00$/,"")+"%";}
-function fmtYen(v){return v==null?"結果待ち":Number(v).toLocaleString("ja-JP")+"円";}
-function md(date){return date.slice(5).replace("-","/");}
-function raceKey(r){if(r.place_id&&r.round)return Number(r.place_id)+"-"+Number(r.round);var id=String(r.race_id||""),m=id.match(/^\d{4}-\d{2}-\d{2}(\d{2})(\d{2})/);return m?Number(m[1])+"-"+Number(m[2]):"";}
-function label(r){return (r.place_name||"")+r.round+"R";}
-function deadline(r){return r.deadline_time?String(r.deadline_time).slice(11,16):"--:--";}
-function trifectaOf(r){var t=(r.payouts&&r.payouts.trifecta&&r.payouts.trifecta[0])||null;if(t&&t.payout!=null)return{combination:t.combination,payout_yen:t.payout};var pl={};(r.boats||[]).forEach(function(b){if(b.racer_place_number)pl[b.racer_place_number]=b.racer_boat_number;});return pl[1]&&pl[2]&&pl[3]?{combination:pl[1]+"-"+pl[2]+"-"+pl[3],payout_yen:null}:null;}
-function resultOf(r){var live=STATE.resultMap[raceKey(r)],base=r.result||{},combo=live&&live.combination?live.combination:base.trifecta,payout=live&&live.payout_yen!=null?live.payout_yen:base.payout_yen;return{combination:combo||"",payout_yen:payout==null?null:Number(payout),manshu:payout!=null&&Number(payout)>=MAN};}
-function countWidth(s){var n=0;Array.from(s||"").forEach(function(ch){n+=ch.codePointAt(0)>0x1100?2:1;});return n;}
-function setLen(id){var ta=document.getElementById(id),e=document.getElementById(id+"-len");if(!ta||!e)return;var n=countWidth(ta.value);e.textContent=n+"/280";e.className="len"+(n>280?" over":"");}
-function copyText(btn,id){var ta=document.getElementById(id);if(!ta)return;ta.select();ta.setSelectionRange(0,99999);var done=function(){var o=btn.textContent;btn.textContent="✅ コピーしました";setTimeout(function(){btn.textContent=o;},1500);};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value).then(done,function(){document.execCommand("copy");done();});}else{document.execCommand("copy");done();}}
-function xRank(top){
-  var titleTop="TOP"+top.length;
-  var lines=["🌊"+md(STATE.date)+" 朝の万舟率ランキング "+titleTop,"Codex BOATERS展示ロジック",""];
-  top.forEach(function(r,i){lines.push((i+1)+"位 "+label(r)+" "+fmtPct(r.manshu_rate_pct)+"（"+deadline(r)+"）");});
-  lines.push("","結果は確定後に別投稿で答え合わせします。","#ボートレース #競艇 #万舟");
-  return lines.join("\n");
-}
-function xResult(top){
-  var titleTop="TOP"+top.length;
-  var done=0,man=0,lines=["🏁"+md(STATE.date)+" 万舟率ランキング結果 "+titleTop,""];
-  top.forEach(function(r,i){var res=resultOf(r),body;if(res.combination&&res.payout_yen!=null){done++;if(res.manshu)man++;body=res.combination+" "+fmtYen(res.payout_yen)+(res.manshu?" 万舟":" 1万円未満");}else if(res.combination){body=res.combination+" 配当待ち";}else{body="結果待ち";}lines.push((i+1)+"位 "+label(r)+" "+fmtPct(r.manshu_rate_pct)+" → "+body);});
-  lines.splice(1,0,"確定 "+done+"/"+top.length+"R / 万舟 "+man+"件");
-  lines.push("","#ボートレース #競艇 #万舟");
-  return lines.join("\n");
-}
-function postRank(top){
-  var titleTop="TOP"+top.length;
-  var lines=["# "+md(STATE.date)+" 朝の万舟率ランキング "+titleTop,"","Codex BOATERS展示ロジックで、万舟が出やすい条件に一致したレースを高い順に並べた記録です。結果は別投稿で答え合わせします。","","## "+titleTop];
-  top.forEach(function(r,i){lines.push("", "### "+(i+1)+"位 "+label(r)+"（"+deadline(r)+"締切）", "- 万舟率: "+fmtPct(r.manshu_rate_pct), "- 状態: "+(r.status||"未確定"), "- 条件: "+(r.condition||""));});
-  lines.push("", "※荒れやすさの研究用メモです。買い目・購入推奨・利益保証はありません。");
-  return lines.join("\n");
-}
-function postResult(top){
-  var titleTop="TOP"+top.length;
-  var done=0,man=0,lines=["# "+md(STATE.date)+" 万舟率ランキング結果 "+titleTop,"","## 結果一覧"];
-  top.forEach(function(r,i){var res=resultOf(r),body;if(res.combination&&res.payout_yen!=null){done++;if(res.manshu)man++;body="3連単 "+res.combination+" "+fmtYen(res.payout_yen)+"（"+(res.manshu?"万舟":"1万円未満")+"）";}else if(res.combination){body="3連単 "+res.combination+" 配当待ち";}else{body="結果待ち";}lines.push("", "### "+(i+1)+"位 "+label(r)+"（万舟率 "+fmtPct(r.manshu_rate_pct)+"）", "- 結果: "+body, "- 条件: "+(r.condition||""));});
-  lines.splice(2,0,"- 確定: "+done+"/"+top.length+"R","- 万舟決着: "+man+"件","");
-  lines.push("", "※結果・払戻は記録用です。購入判断を促すものではありません。");
-  return lines.join("\n");
-}
-function resultTable(top){
-  return '<div class="card result"><h2>結果一覧</h2><div class="summary"><span class="chip">TOP'+top.length+'</span><span class="chip">確定 '+top.filter(function(r){var res=resultOf(r);return res.combination&&res.payout_yen!=null;}).length+'/'+top.length+'R</span><span class="chip">万舟 '+top.filter(function(r){return resultOf(r).manshu;}).length+'件</span></div><table><thead><tr><th>順位</th><th>場R</th><th>万舟率</th><th>結果</th><th>配当</th></tr></thead><tbody>'+top.map(function(r,i){var res=resultOf(r);return '<tr><td class="p">'+(i+1)+'</td><td>'+esc(label(r))+'<br><span class="muted">'+esc(deadline(r))+'締切</span></td><td class="p">'+esc(fmtPct(r.manshu_rate_pct))+'</td><td>'+esc(res.combination||"結果待ち")+'</td><td class="p '+(res.manshu?'man':'')+'">'+esc(fmtYen(res.payout_yen))+(res.manshu?' 万舟':'')+'</td></tr>';}).join("")+'</tbody></table></div>';
-}
-function card(cls,title,id,text,rows){
-  return '<div class="card '+cls+'"><h2>'+esc(title)+'</h2><textarea id="'+id+'" readonly rows="'+rows+'">'+esc(text)+'</textarea><div><button onclick="copyText(this,\''+id+'\')">📋 コピー</button><span class="len" id="'+id+'-len"></span></div></div>';
-}
-function render(){
-  var box=document.getElementById("posts"),top=(STATE.data.races||[]).slice(0,10);
-  if(!top.length){box.innerHTML='<p class="sub">Codexランキングデータが空です。</p>';return;}
-  var xr=xRank(top),xs=xResult(top),nr=postRank(top),ns=postResult(top);
-  box.innerHTML='<div class="card"><h2>読み込み元</h2><p class="sub">日付: '+esc(STATE.date)+' / '+esc(STATE.data.logic_label||"Codex BOATERS展示ロジック")+'</p></div>'
-    +card("xpost","X投稿用｜朝のランキングTOP"+top.length,"x-rank",xr,Math.max(8,xr.split("\n").length+1))
-    +card("xpost","X投稿用｜結果TOP"+top.length,"x-result",xs,Math.max(8,xs.split("\n").length+1))
-    +card("note","投稿用文章｜朝のランキング","post-rank",nr,18)
-    +card("note","投稿用文章｜結果","post-result",ns,18)
-    +resultTable(top)
-    +'<p class="upd">更新: '+new Date().toLocaleString("ja-JP")+'</p>';
-  ["x-rank","x-result"].forEach(setLen);
-}
-async function loadResults(){try{var r=await fetch(resultUrl(STATE.date),{cache:"no-store"});if(!r.ok)return;var d=await r.json();STATE.resultMap={};(d.results||[]).forEach(function(row){var tri=trifectaOf(row);if(tri)STATE.resultMap[Number(row.race_stadium_number)+"-"+Number(row.race_number)]=tri;});render();}catch(e){}}
-async function init(){
-  var date=qs("date");
-  if(!date){try{var p=await fetch("manshu_posts.json?_="+Date.now(),{cache:"no-store"});if(p.ok)date=pageDateFromJson(await p.json());}catch(e){}}
-  if(!date)date=new Date().toLocaleDateString("sv-SE",{timeZone:"Asia/Tokyo"});
-  STATE.date=date;
-  try{var r=await fetch(dataUrl(date)+"?_="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error("missing");STATE.data=await r.json();render();loadResults();}catch(e){document.getElementById("posts").innerHTML='<p class="sub">CodexランキングJSONが見つかりません: '+esc(dataUrl(date))+'</p>';}}
-init();
-</script></body></html>
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>投稿センター｜Codex万舟率</title>
+  <style>
+    :root{--bg:#f5f7fb;--ink:#172033;--muted:#667085;--line:#dbe3ef;--panel:#fff;--blue:#1f5fbf;--green:#138a5b;--red:#c92335}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;line-height:1.6}
+    .shell{max-width:1080px;margin:0 auto;padding:18px 14px 32px}
+    .header{background:#0f172a;color:#fff;border-radius:8px;padding:18px;margin-bottom:12px}
+    .eyebrow{margin:0 0 4px;color:#86efac;font-size:12px;font-weight:900;letter-spacing:.08em}
+    h1{margin:0;font-size:25px;line-height:1.25}
+    .header p{margin:8px 0 0;color:#d1d5db;font-size:13px}
+    .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+    .bar a,.bar button{appearance:none;border:1px solid var(--line);background:#fff;color:#1d4ed8;border-radius:8px;padding:9px 12px;font:inherit;font-size:13px;font-weight:800;text-decoration:none;cursor:pointer}
+    .bar input{border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:inherit;background:#fff}
+    .status{background:#fff;border:1px solid var(--line);border-left:6px solid var(--green);border-radius:8px;padding:12px 14px;margin-bottom:12px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px}
+    .panel h2{margin:0 0 8px;font-size:17px}
+    .x h2{color:#0369a1}.note h2{color:#047857}.result h2{color:#b91c1c}
+    .lead{margin:0 0 8px;color:var(--muted);font-size:13px}
+    textarea{width:100%;min-height:190px;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;color:#0f172a;padding:10px 11px;font:13.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;resize:vertical;white-space:pre-wrap;word-break:break-word}
+    .copy{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+    .copy button{appearance:none;border:0;background:#111827;color:#fff;border-radius:8px;padding:8px 14px;font:inherit;font-size:13px;font-weight:900;cursor:pointer}
+    .len{font-size:12px;color:var(--muted)}.len.over{color:var(--red);font-weight:900}
+    table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+    th,td{border-top:1px solid #edf1f7;padding:8px;text-align:left;vertical-align:top}
+    th{background:#f8fafc;color:#475467;font-size:12px}
+    .rate{font-weight:900;color:var(--red);white-space:nowrap}.manshu{color:var(--red);font-weight:900}.muted{color:var(--muted);font-size:12px}
+    footer{color:#8a93a6;font-size:11.5px;text-align:center;margin-top:22px}
+    @media(max-width:820px){.shell{padding:12px 10px 28px}.grid{grid-template-columns:1fr}h1{font-size:22px}table,thead,tbody,tr,th,td{display:block}thead{display:none}tr{border-top:1px solid #edf1f7;padding:8px 0}td{border:0;padding:3px 0}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="header">
+      <p class="eyebrow">CODEX POST CENTER</p>
+      <h1 id="page-title">投稿センター</h1>
+      <p>通常ページと同じCodex統合ランキングJSONから、X用・投稿用・結果用の文章を作成します。</p>
+    </header>
+    <div class="bar">
+      <a id="rank-link" href="manshu.html">ランキングへ戻る</a>
+      <input id="date-input" type="date">
+      <button id="load-btn" type="button">日付を読み込み</button>
+    </div>
+    <section class="status" id="status">Codexランキングを読み込み中…</section>
+    <main id="app"></main>
+    <footer>研究・記録用。的中や利益を保証するものではありません。</footer>
+  </div>
+  <script>
+    "use strict";
+    var MAN=10000, STATE={date:"",data:null,resultMap:{}};
+    function q(name){return new URLSearchParams(location.search).get(name);}
+    function todayJst(){return new Date().toLocaleDateString("sv-SE",{timeZone:"Asia/Tokyo"});}
+    function ymd(d){return d.replace(/-/g,"");}
+    function md(d){return d.slice(5).replace("-","/");}
+    function dataUrls(date){
+      var key=ymd(date), stamp=Date.now();
+      return [
+        "data/output/boaters_manshu_ranking_codex_"+key+".json?v=codex10&_="+stamp,
+        "data/output/boaters_manshu_ranking_"+key+".json?v=codex10&_="+stamp
+      ];
+    }
+    function resultUrl(date){return "https://boatraceopenapi.github.io/results/v2/"+date.slice(0,4)+"/"+ymd(date)+".json";}
+    function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+    function pct(v){return v==null?"--":Number(v).toFixed(2).replace(/\.00$/,"")+"%";}
+    function yen(v){return v==null?"結果待ち":Number(v).toLocaleString("ja-JP")+"円";}
+    function deadline(r){return r.deadline_time?String(r.deadline_time).slice(11,16):"--:--";}
+    function label(r){return (r.place_name||"")+r.round+"R";}
+    function raceKey(r){if(r.place_id&&r.round)return Number(r.place_id)+"-"+Number(r.round);var m=String(r.race_id||"").match(/^\d{4}-\d{2}-\d{2}(\d{2})(\d{2})/);return m?Number(m[1])+"-"+Number(m[2]):"";}
+    function width(s){var n=0;Array.from(s||"").forEach(function(ch){n+=ch.codePointAt(0)>0x1100?2:1;});return n;}
+    function trifectaOf(row){var t=(row.payouts&&row.payouts.trifecta&&row.payouts.trifecta[0])||null;if(t&&t.payout!=null)return{combination:t.combination,payout_yen:t.payout};var pl={};(row.boats||[]).forEach(function(b){if(b.racer_place_number)pl[b.racer_place_number]=b.racer_boat_number;});return pl[1]&&pl[2]&&pl[3]?{combination:pl[1]+"-"+pl[2]+"-"+pl[3],payout_yen:null}:null;}
+    function resultOf(r){var live=STATE.resultMap[raceKey(r)],base=r.result||{},combo=live&&live.combination?live.combination:base.trifecta,payout=live&&live.payout_yen!=null?live.payout_yen:base.payout_yen;return{combination:combo||"",payout_yen:payout==null?null:Number(payout),manshu:payout!=null&&Number(payout)>=MAN};}
+    function setLen(id){var ta=document.getElementById(id),el=document.getElementById(id+"-len");if(!ta||!el)return;var n=width(ta.value);el.textContent=n+"/280";el.className="len"+(n>280?" over":"");}
+    function copyText(btn,id){var ta=document.getElementById(id);if(!ta)return;var done=function(){var old=btn.textContent;btn.textContent="コピー済み";setTimeout(function(){btn.textContent=old;},1400);};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value).then(done,function(){ta.select();document.execCommand("copy");done();});}else{ta.select();document.execCommand("copy");done();}}
+    function topRows(){return (STATE.data.strict_races||STATE.data.races||[]).slice(0,10);}
+    function xMorning(rows){var lines=[md(STATE.date)+" Codex万舟率ランキングTOP"+rows.length,"全ファクター統合ロジック","",""];rows.forEach(function(r,i){lines.push((i+1)+"位 "+label(r)+" "+pct(r.manshu_rate_pct)+"（"+deadline(r)+"締切）");});lines.push("","結果は確定後に答え合わせ。","#ボートレース #競艇 #万舟");return lines.join("\n");}
+    function xResult(rows){var done=0,hit=0,lines=[md(STATE.date)+" Codex万舟率ランキング結果TOP"+rows.length,""];rows.forEach(function(r,i){var res=resultOf(r),body;if(res.combination&&res.payout_yen!=null){done++;if(res.manshu)hit++;body=res.combination+" "+yen(res.payout_yen)+(res.manshu?" 万舟":" 1万円未満");}else if(res.combination){body=res.combination+" 配当待ち";}else{body="結果待ち";}lines.push((i+1)+"位 "+label(r)+" "+pct(r.manshu_rate_pct)+" → "+body);});lines.splice(1,0,"確定 "+done+"/"+rows.length+"R / 万舟 "+hit+"件");lines.push("","#ボートレース #競艇 #万舟");return lines.join("\n");}
+    function noteMorning(rows){var lines=["# "+md(STATE.date)+" Codex万舟率ランキングTOP"+rows.length,"","通常ページと同じCodex統合ランキングから作成。BOATERS AI/オッズ、展示+1周、スリット隊形、天候、対戦相性などを混ぜた厳選順です。","","## ランキング"];rows.forEach(function(r,i){lines.push("","### "+(i+1)+"位 "+label(r)+"（"+deadline(r)+"締切）","- 万舟率: "+pct(r.manshu_rate_pct),"- 状態: "+(r.status||"厳選統合"),"- 主な根拠: "+(r.condition||""));});lines.push("","※研究用の記録です。的中や利益を保証しません。");return lines.join("\n");}
+    function noteResult(rows){var done=0,hit=0,lines=["# "+md(STATE.date)+" Codex万舟率ランキング結果TOP"+rows.length,"","## 結果"];rows.forEach(function(r,i){var res=resultOf(r),body;if(res.combination&&res.payout_yen!=null){done++;if(res.manshu)hit++;body="3連単 "+res.combination+" "+yen(res.payout_yen)+"（"+(res.manshu?"万舟":"1万円未満")+"）";}else if(res.combination){body="3連単 "+res.combination+" 配当待ち";}else{body="結果待ち";}lines.push("","### "+(i+1)+"位 "+label(r)+"（万舟率 "+pct(r.manshu_rate_pct)+"）","- 結果: "+body,"- 根拠: "+(r.condition||""));});lines.splice(2,0,"- 確定: "+done+"/"+rows.length+"R","- 万舟: "+hit+"件","");lines.push("","※答え合わせ用の記録です。購入判断を促すものではありません。");return lines.join("\n");}
+    function textPanel(cls,title,id,text,rows){return '<section class="panel '+cls+'"><h2>'+esc(title)+'</h2><textarea id="'+id+'" readonly rows="'+rows+'">'+esc(text)+'</textarea><div class="copy"><button type="button" onclick="copyText(this,\''+id+'\')">コピー</button><span id="'+id+'-len" class="len"></span></div></section>';}
+    function resultTable(rows){return '<section class="panel result"><h2>結果一覧</h2><table><thead><tr><th>#</th><th>レース</th><th>万舟率</th><th>結果</th><th>配当</th></tr></thead><tbody>'+rows.map(function(r,i){var res=resultOf(r);return '<tr><td>'+(i+1)+'</td><td>'+esc(label(r))+'<br><span class="muted">'+esc(deadline(r))+'締切</span></td><td class="rate">'+esc(pct(r.manshu_rate_pct))+'</td><td>'+esc(res.combination||"結果待ち")+'</td><td class="'+(res.manshu?'manshu':'')+'">'+esc(yen(res.payout_yen))+(res.manshu?' 万舟':'')+'</td></tr>';}).join("")+'</tbody></table></section>';}
+    function render(){var rows=topRows(),xRows=rows.slice(0,5),xm=xMorning(xRows),xr=xResult(xRows),nm=noteMorning(rows),nr=noteResult(rows);document.title="投稿センター "+STATE.date;document.getElementById("page-title").textContent=STATE.date+" 投稿センター";document.getElementById("rank-link").href="manshu.html?date="+STATE.date;document.getElementById("date-input").value=STATE.date;document.getElementById("status").innerHTML="<b>"+esc(STATE.data.logic_label||"Codex厳選ランキング")+"</b> / 通常ページTOP"+rows.length+" / X投稿TOP"+xRows.length;document.getElementById("app").innerHTML='<div class="grid">'+textPanel("x","X用 朝ランキングTOP"+xRows.length,"x-morning",xm,9)+textPanel("x","X用 結果TOP"+xRows.length,"x-result",xr,9)+textPanel("note","投稿用 朝ランキングTOP"+rows.length,"note-morning",nm,18)+textPanel("note","投稿用 結果TOP"+rows.length,"note-result",nr,18)+'</div>'+resultTable(rows);["x-morning","x-result"].forEach(setLen);}
+    async function loadResults(){try{var r=await fetch(resultUrl(STATE.date),{cache:"no-store"});if(!r.ok)return;var d=await r.json();STATE.resultMap={};(d.results||[]).forEach(function(row){var tri=trifectaOf(row);if(tri)STATE.resultMap[Number(row.race_stadium_number)+"-"+Number(row.race_number)]=tri;});if(STATE.data)render();}catch(e){}}
+    async function load(date){STATE.date=date||q("date")||todayJst();var payload=null,urls=dataUrls(STATE.date);for(var i=0;i<urls.length;i+=1){try{var r=await fetch(urls[i],{cache:"no-store"});if(r.ok){payload=await r.json();break;}}catch(e){}}if(!payload){document.getElementById("status").textContent="ランキングJSONが見つかりません: "+STATE.date;document.getElementById("app").innerHTML="";return;}STATE.data=payload;render();loadResults();}
+    document.getElementById("load-btn").addEventListener("click",function(){load(document.getElementById("date-input").value||todayJst());});
+    load();
+  </script>
+</body>
+</html>
