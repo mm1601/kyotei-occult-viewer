@@ -100,6 +100,17 @@
     .boat-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
     .boat-table th,.boat-table td{padding:7px 6px;border-top:1px solid #edf1f7;text-align:right}
     .boat-table th:first-child,.boat-table td:first-child{text-align:left;font-weight:900}
+    .subhead{font-size:15px;margin:12px 0 8px;color:#111827}
+    .boat-rate-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+    .boat-rate-card{border:1px solid var(--line);border-radius:8px;background:#fff;padding:9px}
+    .boat-rate-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:7px}
+    .boat-rate-top b{font-size:15px;color:#111827}
+    .boat-rate-top span{font-size:11px;color:#64748b;font-weight:900}
+    .boat-rate-pair{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .boat-rate-num{border:1px solid #edf1f7;border-radius:7px;background:#f8fafc;padding:6px}
+    .boat-rate-num strong{display:block;font-size:18px;line-height:1.2;color:#111827}
+    .boat-rate-num span{display:block;font-size:11px;color:#64748b;font-weight:900}
+    .boat-rate-reason{margin:7px 0 0;color:#344054;font-size:12px}
     .role-box{border:1px solid #bfdbfe;background:#eff6ff;border-radius:8px;padding:9px;margin-top:8px}
     .role-box b{color:#0f3f91}
     .tickets{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
@@ -135,6 +146,7 @@
       .boat-table tbody{display:table-row-group}
       .boat-table tr{display:table-row;border:0;padding:0}
       .boat-table th,.boat-table td{display:table-cell;padding:6px 4px}
+      .boat-rate-list{grid-template-columns:1fr}
       .venue-grid{grid-template-columns:1fr}
       .reason{max-width:none}
     }
@@ -346,24 +358,64 @@
     }
     function maxValue(vals){ return vals.length?Math.max.apply(null,vals):null; }
     function minValue(vals){ return vals.length?Math.min.apply(null,vals):null; }
+    function boatByNumber(r,boat){
+      var rows=boatRows(r);
+      for(var i=0;i<rows.length;i++) if(Number(rows[i].boat_number)===Number(boat)) return rows[i];
+      return {};
+    }
+    function compositeWin(r,boat){
+      var b=boatByNumber(r,boat);
+      return num(b.composite_win_pct!=null?b.composite_win_pct:b.win_pct);
+    }
+    function compositeTop3(r,boat){
+      var b=boatByNumber(r,boat);
+      return num(b.composite_top3_pct!=null?b.composite_top3_pct:b.top3_pct);
+    }
+    function sumCompositeWin(r,boats){
+      var total=0, seen=false;
+      (boats||[]).forEach(function(boat){
+        var v=compositeWin(r,boat);
+        if(v!=null){ total+=v; seen=true; }
+      });
+      return seen?total:null;
+    }
+    function anyTop3Approx(r,boats){
+      var miss=1, seen=false;
+      (boats||[]).forEach(function(boat){
+        var v=compositeTop3(r,boat);
+        if(v!=null){ miss*=Math.max(0,1-Number(v)/100); seen=true; }
+      });
+      return seen?100*(1-miss):null;
+    }
+    function exactaApprox(r,first,second){
+      var firstWin=compositeWin(r,first), secondTop3=compositeTop3(r,second), secondWin=compositeWin(r,second);
+      if(firstWin==null||secondTop3==null||secondWin==null) return null;
+      var secondNonWin=Math.max(0, secondTop3-secondWin);
+      return firstWin*(secondNonWin/100)*0.5;
+    }
     function raceShape(r){
       var m=r.metrics||{};
-      var b1Win=num(m.boat1_nige_pct);
-      var b1Fly=num(m.boat1_loss_pct);
+      var b1Win=compositeWin(r,1);
+      var b1Top3=compositeTop3(r,1);
+      var b1Fly=b1Top3!=null?100-b1Top3:num(m.boat1_loss_pct);
       var edgeB1Win=minValue(edgeValues(r,"candidate_b1_win_pct"));
       var edgeB1Fly=maxValue(edgeValues(r,"candidate_b1_fly_pct"));
       var winner36=maxValue(edgeValues(r,"candidate_winner_3to6_pct"));
       var outer56=maxValue(edgeValues(r,"candidate_outer56_top3_pct"));
+      var composite36=sumCompositeWin(r,[3,4,5,6]);
+      var compositeOuter56=anyTop3Approx(r,[5,6]);
       if(b1Win==null) b1Win=edgeB1Win;
       if(b1Fly==null) b1Fly=edgeB1Fly;
+      if(composite36!=null) winner36=composite36;
+      if(compositeOuter56!=null) outer56=compositeOuter56;
       return {
         b1Win:b1Win,
         b1Fly:b1Fly,
         winner36:winner36,
         outer56Top3:outer56,
         manshu:num(r.manshu_rate_pct),
-        combo12:null,
-        combo13:null
+        combo12:exactaApprox(r,1,2),
+        combo13:exactaApprox(r,1,3)
       };
     }
     function probCard(title,value,base,kind,detail){
@@ -390,8 +442,8 @@
       if(s.b1Win!=null){
         out.push({
           type:s.b1Win<=35?"bad":"warn",
-          title:"1号艇の勝ちやすさ",
-          body:"同じような形では1号艇の1着率が"+pctShort(s.b1Win)+"です。目安の55%と比べると、"+pointText(s.b1Win,BASELINE.b1Win)+"です。"
+          title:"1号艇の複合1着率",
+          body:"AI・展示・1周・ST順位・相性を混ぜると、1号艇の1着率は"+pctShort(s.b1Win)+"です。目安の55%と比べると、"+pointText(s.b1Win,BASELINE.b1Win)+"です。"
         });
       }
       if(s.b1Fly!=null&&s.b1Fly>=35){
@@ -405,18 +457,18 @@
         out.push({
           type:s.winner36>=45?"good":"warn",
           title:"3〜6号艇が1着になるチャンス",
-          body:"同じような形では3〜6号艇の1着率が"+pctShort(s.winner36)+"です。目安の30%より"+pointText(s.winner36,BASELINE.winner36).replace("通常より","")+"です。"
+          body:"各艇の複合1着率を足すと、3〜6号艇の1着率は"+pctShort(s.winner36)+"です。目安の30%より"+pointText(s.winner36,BASELINE.winner36).replace("通常より","")+"です。"
         });
       }
       if(s.outer56Top3!=null){
         out.push({
           type:s.outer56Top3>=60?"good":"warn",
           title:"5・6号艇が舟券に入るチャンス",
-          body:"同じような形では5・6号艇の3着以内率が"+pctShort(s.outer56Top3)+"です。外の艇が入ると配当が高くなりやすいです。"
+          body:"5号艇か6号艇のどちらかが3着以内に入る近似率は"+pctShort(s.outer56Top3)+"です。外の艇が入ると配当が高くなりやすいです。"
         });
       }
       if(m.super_slit_boats){
-        out.push({type:"good",title:"スーパースリットアラート",body:boatList(m.super_slit_boats)+"が左の艇より前に出やすい形です。まくりや連対の材料になります。"});
+        out.push({type:"good",title:"スーパースリットアラート",body:boatList(m.super_slit_boats)+"が「左の艇より展示0.10秒速い」かつ「平均ST順位も左より良い」形です。まくりや連対の材料になります。"});
       }
       if(m.double_time_boats){
         out.push({type:"good",title:"ダブルタイム",body:boatList(m.double_time_boats)+"が展示タイムと1周タイムの両方で良い数字です。"});
@@ -458,17 +510,26 @@
     function boatRatesHtml(r){
       var rows=boatRows(r);
       return [
-        "<table class=\"boat-table\"><thead><tr>",
-        "<th>艇</th><th>複合1着率</th><th>複合3着内率</th><th>根拠</th>",
-        "</tr></thead><tbody>",
+        "<h4 class=\"subhead\">各号艇の複合確率</h4>",
+        "<div class=\"boat-rate-list\">",
         rows.map(function(b){
           var win=b.composite_win_pct!=null?b.composite_win_pct:b.win_pct;
           var top3=b.composite_top3_pct!=null?b.composite_top3_pct:b.top3_pct;
           var reasons=(b.composite_rate_reasons||[]).slice(0,3).join(" / ");
           var raw="元AI1着 "+pctShort(b.win_pct)+"・元AI3連対 "+pctShort(b.top3_pct)+"・一般3連対 "+pctShort(b.general_top3_pct)+"・AI+順位 "+(b.ai_plus_rank?b.ai_plus_rank+"位":"--");
-          return "<tr><td>"+esc(b.boat_number)+"号艇</td><td><b>"+esc(pctShort(win))+"</b><div class=\"mini\">"+esc(raw)+"</div></td><td><b>"+esc(pctShort(top3))+"</b></td><td><span class=\"mini\">"+esc(reasons||"補正材料なし")+"</span></td></tr>";
+          return [
+            "<div class=\"boat-rate-card\">",
+            "<div class=\"boat-rate-top\"><b>"+esc(b.boat_number)+"号艇</b><span>"+esc(b.ai_plus_rank?"AI+"+b.ai_plus_rank+"位":"AI+--")+"</span></div>",
+            "<div class=\"boat-rate-pair\">",
+            "<div class=\"boat-rate-num\"><strong>"+esc(pctShort(win))+"</strong><span>複合1着率</span></div>",
+            "<div class=\"boat-rate-num\"><strong>"+esc(pctShort(top3))+"</strong><span>複合3着内率</span></div>",
+            "</div>",
+            "<p class=\"boat-rate-reason\">"+esc(reasons||"強い補正材料なし")+"</p>",
+            "<p class=\"mini\">"+esc(raw)+"</p>",
+            "</div>"
+          ].join("");
         }).join(""),
-        "</tbody></table>",
+        "</div>",
         "<p class=\"mini\">複合率は、BOATERS AI、AI3連対率、一般3連対率、AI+順位、展示/1周、平均との差、平均ST順位、ダブルタイム、スーパースリット、夏場1周、相性、低評価外枠復活を混ぜた推定値です。1着率は6艇合計100%、3着内率は6艇合計300%になるように調整しています。</p>"
       ].join("");
     }
@@ -506,16 +567,17 @@
     function probabilityHtml(r){
       var s=raceShape(r), res=resultOf(r);
       return [
+        boatRatesHtml(r),
         "<div class=\"prob-grid\">",
-        probCard("1号艇 1着率",s.b1Win,BASELINE.b1Win,s.b1Win!=null&&s.b1Win<BASELINE.b1Win?"bad":"wait","目安55%。"+pointText(s.b1Win,BASELINE.b1Win)+"。低いほど1号艇1着固定は危険です。"),
-        probCard("1号艇が飛ぶ心配",s.b1Fly,BASELINE.b1Fly,s.b1Fly!=null&&s.b1Fly>BASELINE.b1Fly?"bad":"wait","目安30%。"+pointText(s.b1Fly,BASELINE.b1Fly)+"。高いほど1号艇が前に残りにくいです。"),
-        probCard("3〜6号艇 1着率",s.winner36,BASELINE.winner36,s.winner36!=null&&s.winner36>BASELINE.winner36?"good":"wait","目安30%。"+pointText(s.winner36,BASELINE.winner36)+"。外寄りの艇が頭を取る目安です。"),
-        probCard("5・6号艇 3着以内率",s.outer56Top3,BASELINE.outer56Top3,s.outer56Top3!=null&&s.outer56Top3>BASELINE.outer56Top3?"good":"wait","目安38%。"+pointText(s.outer56Top3,BASELINE.outer56Top3)+"。外枠が舟券に入る目安です。"),
+        probCard("複合 1号艇1着率",s.b1Win,BASELINE.b1Win,s.b1Win!=null&&s.b1Win<BASELINE.b1Win?"bad":"wait","目安55%。AI・展示・1周・ST順位・相性込みで"+pointText(s.b1Win,BASELINE.b1Win)+"。"),
+        probCard("複合 1号艇3着外率",s.b1Fly,BASELINE.b1Fly,s.b1Fly!=null&&s.b1Fly>BASELINE.b1Fly?"bad":"wait","1号艇の複合3着内率から逆算。高いほど1号艇を1着固定しにくいです。"),
+        probCard("複合 3〜6号艇1着率",s.winner36,BASELINE.winner36,s.winner36!=null&&s.winner36>BASELINE.winner36?"good":"wait","3〜6号艇の複合1着率を合計。"+pointText(s.winner36,BASELINE.winner36)+"。"),
+        probCard("複合 5/6どちらか3着内",s.outer56Top3,BASELINE.outer56Top3,s.outer56Top3!=null&&s.outer56Top3>BASELINE.outer56Top3?"good":"wait","5・6号艇の複合3着内率から近似。外枠が舟券に入る目安です。"),
         probCard("万舟率",s.manshu,BASELINE.manshu,s.manshu!=null&&s.manshu>BASELINE.manshu?"good":"wait","目安16.6%。"+pointText(s.manshu,BASELINE.manshu)+"。このレース全体が万舟になりやすい目安です。"),
-        "<div class=\"prob-card wait\"><strong>未計算</strong><span>1-2 / 1-3</span><small>艇別の2着率がJSONに未保存なので、正確な%はまだ出していません。</small></div>",
+        probCard("1-2近似",s.combo12,null,"wait","1号艇1着率と2号艇の3着内率から作った簡易目安です。"),
+        probCard("1-3近似",s.combo13,null,"wait","1号艇1着率と3号艇の3着内率から作った簡易目安です。"),
         "</div>",
         "<p class=\"mini\">決まり目: <b>"+esc(res.trifecta||"--")+"</b> / 配当: <b>"+esc(yen(res.payout_yen))+"</b>"+(res.manshu?" <span class=\"manshu\">万舟</span>":"")+"</p>",
-        boatRatesHtml(r),
         selectionHtml(r)
       ].join("");
     }
