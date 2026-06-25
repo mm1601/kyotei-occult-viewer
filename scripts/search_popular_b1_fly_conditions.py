@@ -513,9 +513,13 @@ def main():
         min_sample -= 4
         selected, summary = search_conditions(df, min_sample)
 
+    joined_start_date = str(df["date"].min()) if not df.empty else start_date
+    joined_end_date = str(df["date"].max()) if not df.empty else end_date
     data_summary = {
-        "start_date": start_date,
-        "end_date": end_date,
+        "start_date": joined_start_date,
+        "end_date": joined_end_date,
+        "odds_start_date": start_date,
+        "odds_end_date": end_date,
         "joined_races": int(len(df)),
         "min_sample_used": min_sample,
         "odds_db": str(args.odds_db),
