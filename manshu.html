@@ -165,7 +165,8 @@
   <script>
     "use strict";
     var MAN = 10000;
-    var STATE = { date: "", data: null, resultMap: {} };
+    var RESULT_REFRESH_MS = 30000;
+    var STATE = { date: "", data: null, resultMap: {}, resultPollTimer: null, lastResultCheck: "", resultFetchError: "" };
     function q(name){ return new URLSearchParams(location.search).get(name); }
     function todayJst(){ return new Date().toLocaleDateString("sv-SE",{timeZone:"Asia/Tokyo"}); }
     function ymd(date){ return date.replace(/-/g,""); }
@@ -177,6 +178,8 @@
       ];
     }
     function resultUrl(date){ return "https://boatraceopenapi.github.io/results/v2/"+date.slice(0,4)+"/"+ymd(date)+".json"; }
+    function liveResultUrl(date){ return resultUrl(date)+"?_="+Date.now(); }
+    function timeJst(){ return new Date().toLocaleTimeString("ja-JP",{timeZone:"Asia/Tokyo",hour12:false}); }
     function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
     function pct(v){ return v==null?"--":Number(v).toFixed(2).replace(/\.00$/,"")+"%"; }
     function yen(v){ return v==null?"結果待ち":Number(v).toLocaleString("ja-JP")+"円"; }
@@ -201,17 +204,24 @@
       var payout=live&&live.payout_yen!=null?live.payout_yen:base.payout_yen;
       return {trifecta:combo||"", payout_yen:payout==null?null:Number(payout), manshu:payout!=null&&Number(payout)>=MAN};
     }
+    function currentRows(){ return STATE.data?((STATE.data.strict_races||STATE.data.races||[]).slice(0,10)):[]; }
     function renderStatus(rows){
       var settled=rows.filter(function(r){return resultOf(r).payout_yen!=null;}).length;
       var hits=rows.filter(function(r){return resultOf(r).manshu;}).length;
       var fullTenji=(STATE.data.summary&&STATE.data.summary.races_with_full_tenji)||0;
       var fullIsshu=(STATE.data.summary&&STATE.data.summary.races_with_full_isshu)||0;
+      var allDone=rows.length>0&&settled>=rows.length;
+      var autoText=STATE.date===todayJst()?(allDone?"結果取得完了":"結果自動更新 30秒"):"過去結果を表示";
+      var checkText=STATE.lastResultCheck?("結果確認 "+STATE.lastResultCheck):"結果確認待ち";
       document.getElementById("status").innerHTML=[
         "<strong>"+esc(STATE.date)+" Codex厳選ランキングを表示中</strong>",
         "<div class=\"chips\">",
         "<span class=\"chip hot\">TOP"+rows.length+"</span>",
         "<span class=\"chip\">結果 "+settled+"/"+rows.length+"R</span>",
         "<span class=\"chip "+(hits?"hot":"")+"\">万舟 "+hits+"件</span>",
+        "<span class=\"chip ok\">"+esc(autoText)+"</span>",
+        "<span class=\"chip\">"+esc(checkText)+"</span>",
+        STATE.resultFetchError?"<span class=\"chip hot\">結果取得エラー</span>":"",
         "<span class=\"chip ok\">展示6艇 "+esc(fullTenji)+"R</span>",
         "<span class=\"chip ok\">1周6艇 "+esc(fullIsshu)+"R</span>",
         "</div>"
@@ -518,21 +528,53 @@
       ].join("");
       renderBuffPanel(rows);
     }
-    async function loadResults(){
+    function stopResultPolling(){
+      if(STATE.resultPollTimer){
+        clearInterval(STATE.resultPollTimer);
+        STATE.resultPollTimer=null;
+      }
+    }
+    function startResultPolling(){
+      stopResultPolling();
+      if(STATE.date!==todayJst()) return;
+      STATE.resultPollTimer=setInterval(function(){
+        loadResults({silent:true}).then(function(){
+          var rows=currentRows();
+          if(rows.length&&rows.every(function(r){return resultOf(r).payout_yen!=null;})){
+            stopResultPolling();
+            render();
+          }
+        });
+      },RESULT_REFRESH_MS);
+    }
+    async function loadResults(opts){
+      opts=opts||{};
       try{
-        var res=await fetch(resultUrl(STATE.date),{cache:"no-store"});
-        if(!res.ok) return;
+        var res=await fetch(liveResultUrl(STATE.date),{cache:"no-store"});
+        if(!res.ok) throw new Error("HTTP "+res.status);
         var data=await res.json();
-        STATE.resultMap={};
+        var next={};
         (data.results||[]).forEach(function(row){
           var tri=trifectaOf(row);
-          if(tri) STATE.resultMap[Number(row.race_stadium_number)+"-"+Number(row.race_number)]=tri;
+          if(tri) next[Number(row.race_stadium_number)+"-"+Number(row.race_number)]=tri;
         });
+        STATE.resultMap=next;
+        STATE.lastResultCheck=timeJst();
+        STATE.resultFetchError="";
         if(STATE.data) render();
-      }catch(e){}
+      }catch(e){
+        STATE.lastResultCheck=timeJst();
+        STATE.resultFetchError=String(e&&e.message?e.message:e);
+        if(STATE.data&&!opts.silent) render();
+        else if(STATE.data) renderStatus(currentRows());
+      }
     }
     async function load(){
+      stopResultPolling();
       STATE.date=q("date")||todayJst();
+      STATE.resultMap={};
+      STATE.lastResultCheck="";
+      STATE.resultFetchError="";
       var urls=dataUrls(STATE.date), payload=null;
       for(var i=0;i<urls.length;i+=1){
         try{
@@ -549,6 +591,7 @@
       STATE.data=payload;
       render();
       loadResults();
+      startResultPolling();
     }
     document.getElementById("reload-btn").addEventListener("click",load);
     load();
