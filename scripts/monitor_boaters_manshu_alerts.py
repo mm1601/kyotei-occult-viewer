@@ -44,6 +44,8 @@ SUMMER_B1_SLOW_DIFF = -0.10
 SUMMER_B1_FAST_NIGE_DELTA_PP = 15
 SUMMER_B1_SLOW_NIGE_DELTA_PP = -17
 SUPER_SLIT_TENJI_ADV = 0.10
+MANSHU_AXIS_AI_PLUS_RANKS = (2, 3)
+STABLE_AXIS_AI_PLUS_RANKS = (1, 3)
 
 SUPER_SLIT_ALERT_STATS = {
     2: {"win_rate_pct": 29.56, "top3_rate_pct": 70.91, "makuri_win_rate_pct": 11.53, "score_bonus": 11},
@@ -828,6 +830,21 @@ def top_boats_live(rows, pool, mode, n):
     return unique(row["boat_number"] for row in selected[:n])
 
 
+def ai_plus_axis_pair(rows, ranks=MANSHU_AXIS_AI_PLUS_RANKS):
+    by_rank = {}
+    for row in rows:
+        rank = row.get("ai_plus_rank")
+        try:
+            rank = int(rank)
+        except (TypeError, ValueError):
+            continue
+        by_rank[rank] = row["boat_number"]
+    axes = unique(by_rank.get(rank) for rank in ranks)
+    if len(axes) < 2:
+        axes = unique(axes + order_comp(rows, exclude=axes))[:2]
+    return axes[:2]
+
+
 def codex_stable_front_wind11(rows):
     kill = top_boats_live(rows, range(1, 7), "worst_ai_plus", 1)
     heads = [boat for boat in top_boats_live(rows, {3, 4, 5, 6}, "st_exhibit", 2) if boat not in kill]
@@ -1498,12 +1515,8 @@ def default_prediction_roles(rows, metrics):
     if len(heads) < 2:
         heads = unique(heads + order_value(rows, exclude=heads))[:2]
 
-    if 1 not in heads:
-        axes = unique([1] + order_comp(rows, exclude=heads))[:2]
-    else:
-        axes = order_comp(rows, exclude=heads)[:2]
-    if len(axes) < 2:
-        axes = unique(axes + order_comp(rows, exclude=set(heads) | set(axes)))[:2]
+    axes = ai_plus_axis_pair(rows)
+    stable_axes = ai_plus_axis_pair(rows, STABLE_AXIS_AI_PLUS_RANKS)
 
     excluded = set(heads) | set(axes)
     kill_pool = [boat for boat in top_boats_live(rows, range(1, 7), "worst_ai_plus", 6) if boat not in excluded]
@@ -1512,6 +1525,8 @@ def default_prediction_roles(rows, metrics):
         "decision": "見送り",
         "heads": heads,
         "axes": axes,
+        "stable_axes": stable_axes,
+        "axis_rule": "AI+2位&3位（万舟寄り）",
         "supports": [],
         "keshi": keshi,
         "tickets": [],
@@ -1523,12 +1538,17 @@ def default_prediction_roles(rows, metrics):
 
 
 def prediction_from_strategies(rows, metrics, strategies):
+    axes = ai_plus_axis_pair(rows)
+    stable_axes = ai_plus_axis_pair(rows, STABLE_AXIS_AI_PLUS_RANKS)
     if strategies:
         strategy = strategies[0]
         return {
             "decision": "買い",
             "heads": strategy.get("heads") or [],
-            "axes": strategy.get("axes") or [],
+            "axes": axes,
+            "stable_axes": stable_axes,
+            "strategy_axes": strategy.get("axes") or [],
+            "axis_rule": "AI+2位&3位（万舟寄り）",
             "supports": strategy.get("supports") or [],
             "keshi": strategy.get("keshi"),
             "tickets": strategy.get("tickets") or [],
@@ -1548,6 +1568,9 @@ def make_prediction_message(race, metrics, checks, strategies, prediction):
     deadline = parse_dt(race.get("deadline_time"))
     deadline_text = deadline.strftime("%H:%M") if deadline else "--:--"
     support_text = f" / 相手: {fmt_list(prediction.get('supports'))}" if prediction.get("supports") else ""
+    stable_text = ""
+    if prediction.get("stable_axes") and prediction.get("stable_axes") != prediction.get("axes"):
+        stable_text = f" / 安定参考: {fmt_list(prediction.get('stable_axes'))}"
     ticket_text = ""
     if prediction.get("tickets"):
         ticket_text = f"\n買い目: {' '.join(prediction.get('tickets') or [])}"
@@ -1561,7 +1584,7 @@ def make_prediction_message(race, metrics, checks, strategies, prediction):
         f"1展示{fmt_time(metrics.get('boat1_tenji_time'))}({metrics.get('boat1_tenji_time_rank')}位)"
         f"{fmt_double_time(metrics)}{fmt_super_slit(metrics)}{fmt_summer_b1_isshu(metrics)}{fmt_slit_shape(metrics)}\n"
         f"頭候補: {fmt_list(prediction.get('heads'))} / 軸候補: {fmt_list(prediction.get('axes'))}"
-        f"{support_text} / 消し: {fmt_role(prediction.get('keshi'))}\n"
+        f"({prediction.get('axis_rule')}){stable_text}{support_text} / 消し: {fmt_role(prediction.get('keshi'))}\n"
         f"理由: {prediction.get('reason')}\n"
         f"直前条件: {' / '.join(checks)}"
         f"{ticket_text}"
