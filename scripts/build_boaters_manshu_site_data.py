@@ -300,6 +300,16 @@ def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[
         "tenji_boats": "tenji_boats",
         "isshu_boats": "isshu_boats",
     }
+    for boat in range(1, 7):
+        metric_map.update(
+            {
+                f"boat{boat}_ai_prediction_pct": f"b{boat}_ai_prediction_pct",
+                f"boat{boat}_ai_3ren_pct": f"b{boat}_ai_3ren_pct",
+                f"boat{boat}_general_3ren_pct": f"b{boat}_general_3ren_pct",
+                f"boat{boat}_ai_plus": f"b{boat}_ai_plus",
+                f"boat{boat}_ai_plus_order": f"b{boat}_ai_plus_order",
+            }
+        )
     normalized_metrics = {}
     for out_key, in_key in metric_map.items():
         value = metrics.get(out_key)
@@ -325,6 +335,22 @@ def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[
             normalized_metrics[out_key] = as_num(value)
     normalized_metrics["tenji_boats"] = as_int(normalized_metrics["tenji_boats"]) or 0
     normalized_metrics["isshu_boats"] = as_int(normalized_metrics["isshu_boats"]) or 0
+    if isinstance(metrics.get("boats"), list):
+        normalized_metrics["boats"] = metrics.get("boats")
+    else:
+        boats = []
+        for boat in range(1, 7):
+            boats.append(
+                {
+                    "boat_number": boat,
+                    "win_pct": as_num(normalized_metrics.get(f"boat{boat}_ai_prediction_pct")),
+                    "top3_pct": as_num(normalized_metrics.get(f"boat{boat}_ai_3ren_pct")),
+                    "general_top3_pct": as_num(normalized_metrics.get(f"boat{boat}_general_3ren_pct")),
+                    "ai_plus": as_num(normalized_metrics.get(f"boat{boat}_ai_plus")),
+                    "ai_plus_rank": as_int(normalized_metrics.get(f"boat{boat}_ai_plus_order")),
+                }
+            )
+        normalized_metrics["boats"] = boats
     status = row.get("status") or "未確定"
     if "展示待ち" in str(status) and normalized_metrics["tenji_boats"] >= 6 and normalized_metrics["isshu_boats"] >= 6:
         status = str(status).replace("・展示待ち", "").replace("展示待ち", "展示込み")
@@ -349,6 +375,11 @@ def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[
         "condition": condition,
         "matched_logic_count": as_int(row.get("matched_logic_count")) or 0,
         "metrics": normalized_metrics,
+        "selection": row.get("selection") or {},
+        "last_minute_checked_at": row.get("last_minute_checked_at"),
+        "last_minute_alert_type": row.get("last_minute_alert_type"),
+        "last_minute_checks": row.get("last_minute_checks") or [],
+        "last_minute_strategy_ids": row.get("last_minute_strategy_ids") or [],
         "result": normalize_result(row, live_result),
     }
 

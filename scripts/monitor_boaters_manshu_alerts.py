@@ -629,6 +629,10 @@ def merge_live_metrics_into_ranking_path(path, updates, now):
             metrics = race.setdefault("metrics", {})
             before = json.dumps(metrics, sort_keys=True, ensure_ascii=False)
             metrics.update(update.get("metrics") or {})
+            if update.get("selection"):
+                old_selection = json.dumps(race.get("selection") or {}, sort_keys=True, ensure_ascii=False)
+                race["selection"] = update.get("selection")
+                changed = changed or old_selection != json.dumps(race.get("selection") or {}, sort_keys=True, ensure_ascii=False)
             if has_full_exhibition(metrics) and "展示待ち" in str(race.get("status") or ""):
                 race["status"] = str(race.get("status")).replace("・展示待ち", "").replace("展示待ち", "展示込み")
             race["last_minute_checked_at"] = update.get("checked_at")
@@ -843,6 +847,169 @@ def order_value(rows, pool=None, exclude=None):
             ("ai_prediction_pct", "desc", -1),
         ],
     )
+
+
+def rank_boat(rows, key, rank_no):
+    ranked = sorted(
+        [row for row in rows if row.get(key) is not None],
+        key=lambda row: (-row.get(key), row["boat_number"]),
+    )
+    if 1 <= rank_no <= len(ranked):
+        return ranked[rank_no - 1]["boat_number"]
+    return None
+
+
+def axis_boats_by_ai_plus(rows, ranks=(1, 3)):
+    return unique(rank_boat(rows, "ai_plus", rank_no) for rank_no in ranks)
+
+
+def head_boats_for_arunashi(rows, exclude=None):
+    exclude = set(exclude or [])
+    heads = order_value(rows, pool={3, 4, 5, 6}, exclude=exclude)[:2]
+    if len(heads) < 2:
+        heads = unique(heads + order_value(rows, pool={2, 3, 4, 5, 6}, exclude=exclude))[:2]
+    if len(heads) < 2:
+        heads = unique(heads + order_value(rows, pool={2, 3, 4, 5, 6}))[:2]
+    return heads
+
+
+def row_by_boat(rows, boat):
+    return next((row for row in rows if row.get("boat_number") == boat), {})
+
+
+def revive_reasons(row):
+    reasons = []
+    if row.get("double_time"):
+        reasons.append("ダブルタイム")
+    if row.get("super_slit_alert"):
+        reasons.append("スーパースリット")
+    if row.get("low_outer_revive"):
+        reasons.append("低評価外枠の展示復活")
+    if row.get("exhibit_rank", 9) <= 2:
+        reasons.append("展示か1周が2位以内")
+    if (row.get("avg_isshu_diff") or -9) >= 0.10:
+        reasons.append("展示+1周平均との差が良い")
+    if str(row.get("matchup_label") or "") in {"1号艇キラー", "相性バフ", "相性軸バフ"}:
+        reasons.append(row.get("matchup_label"))
+    return reasons
+
+
+def select_keshi_boat(rows, protected=None):
+    protected = set(protected or [])
+    candidates = sorted(
+        rows,
+        key=lambda row: (
+            row.get("ai_3ren_pct") if row.get("ai_3ren_pct") is not None else 999,
+            row.get("ai_prediction_pct") if row.get("ai_prediction_pct") is not None else 999,
+            row.get("ai_plus") if row.get("ai_plus") is not None else 999,
+            row["boat_number"],
+        ),
+    )
+    if not candidates:
+        return None, "消し候補を作れるデータがありません", None, []
+    last = candidates[0]
+    last_revival = revive_reasons(last)
+    chosen = next((row for row in candidates if row["boat_number"] not in protected), last)
+    if last_revival and len(candidates) >= 2:
+        for candidate in candidates[1:]:
+            if candidate["boat_number"] not in protected and len(revive_reasons(candidate)) < len(last_revival):
+                chosen = candidate
+                break
+    last_boat = last["boat_number"]
+    if chosen["boat_number"] == last_boat:
+        reason = (
+            f"AI3連対率が最下位({fmt_pct(last.get('ai_3ren_pct'))})で、"
+            f"展示・一周・スリットの復活材料が弱い"
+        )
+    elif last_boat in protected:
+        reason = (
+            f"AI3連対率最下位の{last_boat}号艇は軸候補なので消さない。"
+            f"次に消せる根拠が強い{chosen['boat_number']}号艇を消し"
+        )
+    else:
+        reason = (
+            f"AI3連対率最下位の{last_boat}号艇は"
+            f"{'、'.join(last_revival)}があり残す。"
+            f"代わりに{chosen['boat_number']}号艇を消し"
+        )
+    return chosen["boat_number"], reason, last_boat, last_revival
+
+
+def super_arunashi3(rows):
+    axes = axis_boats_by_ai_plus(rows, ranks=(1, 3))
+    alt_axes = axis_boats_by_ai_plus(rows, ranks=(2, 3))
+    keshi, keshi_reason, ai_3ren_last_boat, ai_3ren_last_revival = select_keshi_boat(rows, protected=axes)
+    heads = head_boats_for_arunashi(rows, exclude=set(axes + ([keshi] if keshi else [])))
+    if len(heads) < 2 or len(axes) < 2 or keshi is None:
+        return set(), None
+    pool = [boat for boat in range(1, 7) if boat != keshi]
+    tickets = set()
+    for head in heads:
+        if head == keshi:
+            continue
+        for axis in axes:
+            if axis in {head, keshi}:
+                continue
+            for other in pool:
+                if other in {head, axis}:
+                    continue
+                tickets.add(f"{head}{axis}{other}")
+                tickets.add(f"{head}{other}{axis}")
+    if not tickets:
+        return set(), None
+    return tickets, {
+        "heads": heads,
+        "axes": axes,
+        "alt_axes": alt_axes,
+        "supports": pool,
+        "keshi": keshi,
+        "keshi_reason": keshi_reason,
+        "ai_3ren_last_boat": ai_3ren_last_boat,
+        "ai_3ren_last_revival": ai_3ren_last_revival,
+        "role_note": (
+            f"頭{heads[0]},{heads[1]} / 軸はAI+1位と3位の{axes[0]},{axes[1]} / "
+            f"2・3着は軸どちらか必須で消し{keshi}以外へ折り返し"
+        ),
+    }
+
+
+def combo_boats(value):
+    combo = norm_combo(value)
+    return [int(ch) for ch in combo] if len(combo) == 3 else []
+
+
+def axis_hit(axes, trifecta):
+    boats = set(combo_boats(trifecta))
+    return bool(boats & set(axes or [])) if boats else None
+
+
+def selection_payload(rows, race=None, strategies=None):
+    tickets, roles = super_arunashi3(rows)
+    if not tickets or roles is None:
+        return {}
+    result = (race or {}).get("result") or {}
+    trifecta = result.get("trifecta") or (race or {}).get("trifecta")
+    return {
+        "version": "super_arunashi3_v1",
+        "label": "スーパーあるなし舟券3",
+        "heads": roles["heads"],
+        "axes": roles["axes"],
+        "axis_rule": "AI3連対率+一般3連対率の1位と3位",
+        "alt_axes": roles.get("alt_axes") or [],
+        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+        "supports": roles.get("supports") or [],
+        "keshi": roles.get("keshi"),
+        "keshi_reason": roles.get("keshi_reason"),
+        "ai_3ren_last_boat": roles.get("ai_3ren_last_boat"),
+        "ai_3ren_last_revival": roles.get("ai_3ren_last_revival") or [],
+        "points": len(tickets),
+        "tickets": [fmt_ticket(ticket) for ticket in sorted(tickets)],
+        "role_note": roles.get("role_note"),
+        "axis_hit": axis_hit(roles.get("axes"), trifecta),
+        "alt_axis_hit": axis_hit(roles.get("alt_axes"), trifecta),
+        "odds_filter": "3連単50倍未満は買わない",
+        "source_strategy_ids": [s.get("strategy_id") for s in (strategies or [])],
+    }
 
 
 def wakamatsu_mo12(rows):
@@ -1142,6 +1309,7 @@ def enrich_rows(by_boat, morning_metrics, date_text=None):
             rows[0]["makurare_pct"] = 0.0
 
     rank_values(rows, "ai_prediction_pct", ascending=False)
+    rank_values(rows, "ai_3ren_pct", ascending=False)
     rank_values(rows, "ai_plus", ascending=False)
     rank_values(rows, "general_3ren_pct", ascending=False)
     rank_values(rows, "tenji_time", ascending=True)
@@ -1375,7 +1543,28 @@ def race_metrics(rows, date_text=None):
     isshu_boats = sum(1 for row in rows if row.get("isshu_time") is not None)
     summer_factor = summer_b1_isshu_factor(date_text, b1.get("isshu_avg_diff"), isshu_boats)
     slit_metrics = slit_rank_metrics(rows)
+    _, selection_roles = super_arunashi3(rows)
+    boats = []
+    for row in sorted(rows, key=lambda item: item["boat_number"]):
+        boats.append(
+            {
+                "boat_number": row["boat_number"],
+                "win_pct": row.get("ai_prediction_pct"),
+                "top3_pct": row.get("ai_3ren_pct"),
+                "general_top3_pct": row.get("general_3ren_pct"),
+                "ai_plus": row.get("ai_plus"),
+                "ai_prediction_rank": row.get("ai_prediction_pct_rank"),
+                "top3_rank": row.get("ai_3ren_pct_rank"),
+                "ai_plus_rank": row.get("ai_plus_rank"),
+                "tenji_time": row.get("tenji_time"),
+                "isshu_time": row.get("isshu_time"),
+                "avg_isshu_diff": row.get("avg_isshu_diff"),
+                "super_slit_alert": bool(row.get("super_slit_alert")),
+                "double_time": bool(row.get("double_time")),
+            }
+        )
     return {
+        "boats": boats,
         "boat1_ai_prediction_pct": b1.get("ai_prediction_pct"),
         "boat1_odds_prediction_pct": as_num(morning_metrics.get("boat1_odds_prediction_pct")),
         "boat1_odds_rank": as_num(morning_metrics.get("boat1_odds_rank")),
@@ -1474,6 +1663,12 @@ def race_metrics(rows, date_text=None):
         "b4_matchup_label": morning_metrics.get("b4_matchup_label") or "",
         "b5_matchup_label": morning_metrics.get("b5_matchup_label") or "",
         "b6_matchup_label": morning_metrics.get("b6_matchup_label") or "",
+        "axis_primary_boats": (selection_roles or {}).get("axes") or [],
+        "axis_alt_boats": (selection_roles or {}).get("alt_axes") or [],
+        "keshi_boat": (selection_roles or {}).get("keshi"),
+        "keshi_reason": (selection_roles or {}).get("keshi_reason"),
+        "ai_3ren_last_boat": (selection_roles or {}).get("ai_3ren_last_boat"),
+        "ai_3ren_last_revival": (selection_roles or {}).get("ai_3ren_last_revival") or [],
         "tenji_boats": sum(1 for row in rows if row.get("tenji_time") is not None),
         "isshu_boats": isshu_boats,
     }
@@ -1813,19 +2008,25 @@ def roi_strategies(race, metrics, rows):
         strategies.append(("marugame_outer_no1", "丸亀: 1弱+外低評価浮上 1号艇全消し 12点", mid_heads_outer_no1))
 
     out = []
-    for strategy_id, label, ticket_func in strategies:
-        tickets, roles = ticket_func(rows)
+    for strategy_id, label, _ticket_func in strategies:
+        tickets, roles = super_arunashi3(rows)
         if not tickets or roles is None:
             continue
         out.append(
             {
                 "strategy_id": strategy_id,
-                "label": label,
+                "label": f"{label} / スーパーあるなし舟券3",
                 "points": len(tickets),
                 "heads": roles["heads"],
                 "axes": roles["axes"],
+                "alt_axes": roles.get("alt_axes", []),
+                "axis_rule": "AI3連対率+一般3連対率の1位と3位",
+                "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
                 "supports": roles.get("supports", []),
                 "keshi": roles["keshi"],
+                "keshi_reason": roles.get("keshi_reason"),
+                "ai_3ren_last_boat": roles.get("ai_3ren_last_boat"),
+                "ai_3ren_last_revival": roles.get("ai_3ren_last_revival", []),
                 "role_note": roles["role_note"],
                 "tickets": [fmt_ticket(ticket) for ticket in sorted(tickets)],
                 "odds_filter": "3連単50倍未満は買わない",
@@ -1972,7 +2173,10 @@ def make_message(race, alert_type, metrics, checks, strategies):
             f"{metric_text}\n"
             f"直前条件: {' / '.join(checks)}\n"
             f"買い方: {s['label']} / {s['points']}点 / {s['odds_filter']}\n"
-            f"頭候補: {fmt_list(s['heads'])} / 軸: {fmt_list(s['axes'])}{support_text} / 消し: {fmt_role(s['keshi'])}\n"
+            f"頭候補: {fmt_list(s['heads'])} / 軸: {fmt_list(s['axes'])}"
+            f"({s.get('axis_rule','AI+1位3位')}) / 比較軸: {fmt_list(s.get('alt_axes'))}"
+            f"{support_text} / 消し: {fmt_role(s['keshi'])}\n"
+            f"消し理由: {s.get('keshi_reason') or '-'}\n"
             f"買い目: {' '.join(s['tickets'])}"
         )
     if alert_type == "late_riser":
@@ -2074,6 +2278,7 @@ def monitor(args):
             metrics = race_metrics(rows, date_text=race.get("date"))
             confirmed, checks = condition_confirmed(race.get("condition"), metrics)
             strategies = roi_strategies(race, metrics, rows)
+            selection = selection_payload(rows, race=race, strategies=strategies)
             if source_type == "morning_top":
                 alert_type = "buy_ok" if strategies else None
             elif strategies:
@@ -2086,6 +2291,7 @@ def monitor(args):
             strategy_ids = [s["strategy_id"] for s in strategies]
             public_updates[race.get("race_id")] = {
                 "metrics": metrics,
+                "selection": selection,
                 "checked_at": now.isoformat(timespec="seconds"),
                 "alert_type": alert_type,
                 "checks": checks,
@@ -2102,6 +2308,7 @@ def monitor(args):
                     "condition_confirmed": confirmed,
                     "checks": checks,
                     "strategies": strategy_ids,
+                    "selection": selection,
                     "metrics": metrics,
                     "morning_rank": morning_rank,
                     "live_rank": live_rank,
@@ -2132,6 +2339,7 @@ def monitor(args):
                 "condition": race.get("condition"),
                 "checks": checks,
                 "metrics": metrics,
+                "selection": selection,
                 "strategies": strategies,
                 "message": make_message(message_race, alert_type, metrics, checks, strategies),
             }

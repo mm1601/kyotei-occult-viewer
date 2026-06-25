@@ -2600,6 +2600,26 @@ def row_summary(
             f"b{boat}_matchup_label": race.get(f"b{boat}_matchup_label")
             for boat in range(1, 7)
         },
+        **{
+            f"b{boat}_ai_prediction_pct": race.get(f"b{boat}_ai_prediction_pct")
+            for boat in range(1, 7)
+        },
+        **{
+            f"b{boat}_ai_3ren_pct": race.get(f"b{boat}_ai_3ren_pct")
+            for boat in range(1, 7)
+        },
+        **{
+            f"b{boat}_general_3ren_pct": race.get(f"b{boat}_general_3ren_pct")
+            for boat in range(1, 7)
+        },
+        **{
+            f"b{boat}_ai_plus": race.get(f"b{boat}_ai_plus")
+            for boat in range(1, 7)
+        },
+        **{
+            f"b{boat}_ai_plus_order": race.get(f"b{boat}_ai_plus_order")
+            for boat in range(1, 7)
+        },
         "boat1_double_time": int_num(race.get("b1_double_time")),
         "mid234_double_time_count": int_num(race.get("mid234_double_time_count")),
         "outer46_double_time_count": int_num(race.get("outer46_double_time_count")),

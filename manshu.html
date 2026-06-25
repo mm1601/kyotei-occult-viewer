@@ -97,6 +97,13 @@
     .prob-card.good strong,.prob-card.good small{color:#047857}
     .prob-card.bad strong,.prob-card.bad small{color:#be123c}
     .prob-card.wait strong{color:#475467}
+    .boat-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
+    .boat-table th,.boat-table td{padding:7px 6px;border-top:1px solid #edf1f7;text-align:right}
+    .boat-table th:first-child,.boat-table td:first-child{text-align:left;font-weight:900}
+    .role-box{border:1px solid #bfdbfe;background:#eff6ff;border-radius:8px;padding:9px;margin-top:8px}
+    .role-box b{color:#0f3f91}
+    .tickets{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+    .ticket{display:inline-block;border:1px solid #dbe3ef;background:#fff;border-radius:6px;padding:2px 6px;font-size:12px;font-weight:900;color:#111827}
     .detail-fold{margin-top:10px}
     .detail-fold summary{cursor:pointer;color:#1d4ed8;font-size:13px;font-weight:900}
     .detail-fold .factor-grid{margin-top:8px}
@@ -123,6 +130,11 @@
       .race-head{grid-template-columns:44px 1fr}
       .race-rate{grid-column:1 / -1;text-align:left}
       .prob-grid{grid-template-columns:1fr}
+      .boat-table{display:table;font-size:11px}
+      .boat-table thead{display:table-header-group}
+      .boat-table tbody{display:table-row-group}
+      .boat-table tr{display:table-row;border:0;padding:0}
+      .boat-table th,.boat-table td{display:table-cell;padding:6px 4px}
       .venue-grid{grid-template-columns:1fr}
       .reason{max-width:none}
     }
@@ -423,6 +435,67 @@
         return "<li class=\""+esc(x.type)+"\"><b>"+esc(x.title)+"</b>"+esc(x.body)+"</li>";
       }).join("")+"</ul>";
     }
+    function boatRows(r){
+      var m=r.metrics||{};
+      var rows=Array.isArray(m.boats)?m.boats.slice():[];
+      if(!rows.length){
+        for(var boat=1;boat<=6;boat++){
+          rows.push({
+            boat_number:boat,
+            win_pct:m["boat"+boat+"_ai_prediction_pct"],
+            top3_pct:m["boat"+boat+"_ai_3ren_pct"],
+            general_top3_pct:m["boat"+boat+"_general_3ren_pct"],
+            ai_plus:m["boat"+boat+"_ai_plus"],
+            ai_plus_rank:m["boat"+boat+"_ai_plus_order"]
+          });
+        }
+      }
+      return rows.sort(function(a,b){return Number(a.boat_number)-Number(b.boat_number);});
+    }
+    function boatRatesHtml(r){
+      var rows=boatRows(r);
+      return [
+        "<table class=\"boat-table\"><thead><tr>",
+        "<th>艇</th><th>1着率</th><th>3着内率</th><th>一般3着内</th><th>AI+順位</th>",
+        "</tr></thead><tbody>",
+        rows.map(function(b){
+          return "<tr><td>"+esc(b.boat_number)+"号艇</td><td>"+esc(pctShort(b.win_pct))+"</td><td>"+esc(pctShort(b.top3_pct))+"</td><td>"+esc(pctShort(b.general_top3_pct))+"</td><td>"+esc(b.ai_plus_rank?b.ai_plus_rank+"位":"--")+"</td></tr>";
+        }).join(""),
+        "</tbody></table>",
+        "<p class=\"mini\">1着率はBOATERSのAI予測%、3着内率はAI3連対率です。軸順位は AI3連対率+一般3連対率 で見ています。</p>"
+      ].join("");
+    }
+    function selectionOf(r){
+      var m=r.metrics||{};
+      return r.selection&&Object.keys(r.selection).length?r.selection:{
+        label:"スーパーあるなし舟券3",
+        heads:[],
+        axes:m.axis_primary_boats||[],
+        alt_axes:m.axis_alt_boats||[],
+        keshi:m.keshi_boat,
+        keshi_reason:m.keshi_reason,
+        tickets:[]
+      };
+    }
+    function listText(values){
+      return (values||[]).length?values.join(","):"--";
+    }
+    function selectionHtml(r){
+      var s=selectionOf(r);
+      if(!s.axes || !s.axes.length){
+        return "<p class=\"mini\">直前データ取得後に、頭・軸・消し・買い目を表示します。</p>";
+      }
+      return [
+        "<div class=\"role-box\">",
+        "<div><b>買い方:</b> "+esc(s.label||"スーパーあるなし舟券3")+" / "+esc(s.points||0)+"点</div>",
+        "<div><b>頭候補:</b> "+esc(listText(s.heads))+"号艇</div>",
+        "<div><b>軸:</b> "+esc(listText(s.axes))+"号艇 <span class=\"mini\">AI3連対率+一般3連対率の1位と3位。どちらかが3着以内なら軸成功。</span></div>",
+        "<div><b>比較用軸:</b> "+esc(listText(s.alt_axes))+"号艇 <span class=\"mini\">2位と3位でも記録して、的中率と回収率を比べます。</span></div>",
+        "<div><b>消し:</b> "+esc(s.keshi?s.keshi+"号艇":"--")+" <span class=\"mini\">"+esc(s.keshi_reason||"AI3連対率最下位を基本に、展示・一周・スリットの復活材料を見て決めます。")+"</span></div>",
+        (s.tickets&&s.tickets.length?"<details class=\"detail-fold\"><summary>買い目を見る</summary><div class=\"tickets\">"+s.tickets.map(function(t){return "<span class=\"ticket\">"+esc(t)+"</span>";}).join("")+"</div></details>":""),
+        "</div>"
+      ].join("");
+    }
     function probabilityHtml(r){
       var s=raceShape(r), res=resultOf(r);
       return [
@@ -434,7 +507,9 @@
         probCard("万舟率",s.manshu,BASELINE.manshu,s.manshu!=null&&s.manshu>BASELINE.manshu?"good":"wait","目安16.6%。"+pointText(s.manshu,BASELINE.manshu)+"。このレース全体が万舟になりやすい目安です。"),
         "<div class=\"prob-card wait\"><strong>未計算</strong><span>1-2 / 1-3</span><small>艇別の2着率がJSONに未保存なので、正確な%はまだ出していません。</small></div>",
         "</div>",
-        "<p class=\"mini\">結果: <b>"+esc(res.trifecta||"--")+"</b> / "+esc(yen(res.payout_yen))+(res.manshu?" <span class=\"manshu\">万舟</span>":"")+"</p>"
+        "<p class=\"mini\">決まり目: <b>"+esc(res.trifecta||"--")+"</b> / 配当: <b>"+esc(yen(res.payout_yen))+"</b>"+(res.manshu?" <span class=\"manshu\">万舟</span>":"")+"</p>",
+        boatRatesHtml(r),
+        selectionHtml(r)
       ].join("");
     }
     function detailFactorsHtml(r){
@@ -453,7 +528,7 @@
     function raceBadgesHtml(r){
       var s=raceShape(r), res=resultOf(r), m=r.metrics||{}, ex=exhibitState(r), badges=[];
       badges.push("<span class=\"badge\">締切 "+esc(deadline(r))+"</span>");
-      badges.push("<span class=\"badge "+(res.manshu?"good":"")+"\">"+(res.payout_yen!=null?"結果 "+esc(yen(res.payout_yen)):"結果待ち")+"</span>");
+      badges.push("<span class=\"badge "+(res.manshu?"good":"")+"\">"+(res.payout_yen!=null?"結果 "+esc(res.trifecta||"--")+" / "+esc(yen(res.payout_yen)):"結果待ち")+"</span>");
       if(s.b1Win!=null&&s.b1Win<=35) badges.push("<span class=\"badge bad\">1号艇きびしい</span>");
       if(s.outer56Top3!=null&&s.outer56Top3>=60) badges.push("<span class=\"badge good\">5・6絡み注意</span>");
       badges.push("<span class=\"badge "+esc(ex.cls)+"\">"+esc(ex.text)+"</span>");
