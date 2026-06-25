@@ -39,10 +39,11 @@ jobs:
         run: |
           python scripts/monitor_boaters_manshu_alerts.py \
             --date "${{ steps.jst.outputs.date }}" \
-            --top-n 10 \
+            --top-n 5 \
             --threshold 27 \
             --lookahead-minutes 20 \
-            --rebuild-morning
+            --rebuild-morning \
+            --notify-top5-predictions
 
       - name: Persist generated monitor data
         run: |

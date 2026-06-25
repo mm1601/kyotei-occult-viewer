@@ -561,7 +561,14 @@ def push_notifications(payload, state, now):
         key = f"alert:{alert.get('race_id')}:{alert.get('alert_type')}"
         if pushed.get(key):
             continue
-        title = "BOATERS買い候補" if alert.get("alert_type") == "buy_ok" else "BOATERS万舟率上昇"
+        if alert.get("alert_type") == "buy_ok":
+            title = "BOATERS買い候補"
+        elif alert.get("alert_type") == "top5_prediction_buy":
+            title = "厳選TOP5 買い予想"
+        elif alert.get("alert_type") == "top5_prediction_watch":
+            title = "厳選TOP5 見送り"
+        else:
+            title = "BOATERS万舟率上昇"
         result = send_ntfy(config, title, alert.get("message") or "", tags="moneybag,boat")
         results.append({"key": key, **result})
         if result.get("ok"):
@@ -1472,6 +1479,95 @@ def fetch_live_race(race, refresh=True):
     return by_boat
 
 
+def default_prediction_roles(rows, metrics):
+    b1_summer_fast = (metrics.get("b1_summer_isshu_factor") or metrics.get("boat1_summer_isshu_factor")) == "fast_hold"
+    b1_hold = (
+        b1_summer_fast
+        or (
+            (metrics.get("boat1_nige_pct") or 0) >= 50
+            and (metrics.get("boat1_avg_isshu_diff") or -9) >= 0.30
+            and not metrics.get("slit_outer56_pressure_vs_1")
+        )
+    )
+    if b1_hold:
+        heads = unique([1] + order_value(rows, pool={2, 3, 4, 5, 6})[:1])
+        reason = "1号艇の展示/1周が強く、逃げ残り寄り。万舟狙いは相手と外枠絡み待ち。"
+    else:
+        heads = order_value(rows, pool={3, 4, 5, 6})[:2]
+        reason = "万舟型では3〜6号艇の頭を優先。展示+1周、AI、平均ST順位を混ぜて上位2艇を選択。"
+    if len(heads) < 2:
+        heads = unique(heads + order_value(rows, exclude=heads))[:2]
+
+    if 1 not in heads:
+        axes = unique([1] + order_comp(rows, exclude=heads))[:2]
+    else:
+        axes = order_comp(rows, exclude=heads)[:2]
+    if len(axes) < 2:
+        axes = unique(axes + order_comp(rows, exclude=set(heads) | set(axes)))[:2]
+
+    excluded = set(heads) | set(axes)
+    kill_pool = [boat for boat in top_boats_live(rows, range(1, 7), "worst_ai_plus", 6) if boat not in excluded]
+    keshi = kill_pool[0] if kill_pool else (top_boats_live(rows, range(1, 7), "worst_ai_plus", 1) or [None])[0]
+    return {
+        "decision": "見送り",
+        "heads": heads,
+        "axes": axes,
+        "supports": [],
+        "keshi": keshi,
+        "tickets": [],
+        "points": 0,
+        "strategy_id": "watch_only",
+        "label": "直前買い条件未成立",
+        "reason": reason,
+    }
+
+
+def prediction_from_strategies(rows, metrics, strategies):
+    if strategies:
+        strategy = strategies[0]
+        return {
+            "decision": "買い",
+            "heads": strategy.get("heads") or [],
+            "axes": strategy.get("axes") or [],
+            "supports": strategy.get("supports") or [],
+            "keshi": strategy.get("keshi"),
+            "tickets": strategy.get("tickets") or [],
+            "points": strategy.get("points") or 0,
+            "strategy_id": strategy.get("strategy_id"),
+            "label": strategy.get("label"),
+            "reason": strategy.get("role_note") or "直前展示条件と買い方ロジックが一致。",
+        }
+    return default_prediction_roles(rows, metrics)
+
+
+def make_prediction_message(race, metrics, checks, strategies, prediction):
+    base = (
+        f"{race.get('place_name')}{race.get('round')}R "
+        f"万舟率{fmt_pct(race.get('manshu_rate_pct'))}"
+    )
+    deadline = parse_dt(race.get("deadline_time"))
+    deadline_text = deadline.strftime("%H:%M") if deadline else "--:--"
+    support_text = f" / 相手: {fmt_list(prediction.get('supports'))}" if prediction.get("supports") else ""
+    ticket_text = ""
+    if prediction.get("tickets"):
+        ticket_text = f"\n買い目: {' '.join(prediction.get('tickets') or [])}"
+    else:
+        ticket_text = "\n買い目: なし（見送り）"
+    return (
+        f"【厳選TOP5直前予想】{base}\n"
+        f"判定: {prediction.get('decision')} / 締切{deadline_text}\n"
+        f"展示: 1展示+1周平均との差{fmt_time(metrics.get('boat1_avg_isshu_diff'))}, "
+        f"5/6平均との差{fmt_time(metrics.get('outer56_best_avg_isshu_diff'))}, "
+        f"1展示{fmt_time(metrics.get('boat1_tenji_time'))}({metrics.get('boat1_tenji_time_rank')}位)"
+        f"{fmt_double_time(metrics)}{fmt_super_slit(metrics)}{fmt_summer_b1_isshu(metrics)}{fmt_slit_shape(metrics)}\n"
+        f"頭候補: {fmt_list(prediction.get('heads'))} / 軸候補: {fmt_list(prediction.get('axes'))}"
+        f"{support_text} / 消し: {fmt_role(prediction.get('keshi'))}\n"
+        f"理由: {prediction.get('reason')}\n"
+        f"直前条件: {' / '.join(checks)}"
+        f"{ticket_text}"
+    )
+
+
 def make_message(race, alert_type, metrics, checks, strategies):
     base = (
         f"{race.get('place_name')}{race.get('round')}R "
@@ -1586,7 +1682,18 @@ def monitor(args):
             metrics = race_metrics(rows, date_text=race.get("date"))
             confirmed, checks = condition_confirmed(race.get("condition"), metrics)
             strategies = roi_strategies(race, metrics, rows)
-            alert_type = "buy_ok" if strategies else "rate_up" if confirmed else None
+            prediction = prediction_from_strategies(rows, metrics, strategies)
+            prediction_ready = metrics.get("tenji_boats", 0) >= 6 and metrics.get("isshu_boats", 0) >= 6
+            if args.notify_top5_predictions:
+                alert_type = (
+                    "top5_prediction_buy"
+                    if prediction_ready and prediction.get("decision") == "買い"
+                    else "top5_prediction_watch"
+                    if prediction_ready
+                    else None
+                )
+            else:
+                alert_type = "buy_ok" if strategies else "rate_up" if confirmed else None
             inspected.append(
                 {
                     "race_id": race.get("race_id"),
@@ -1597,6 +1704,8 @@ def monitor(args):
                     "condition_confirmed": confirmed,
                     "checks": checks,
                     "strategies": [s["strategy_id"] for s in strategies],
+                    "prediction_ready": prediction_ready,
+                    "prediction": prediction,
                     "metrics": metrics,
                 }
             )
@@ -1619,7 +1728,12 @@ def monitor(args):
                 "checks": checks,
                 "metrics": metrics,
                 "strategies": strategies,
-                "message": make_message(race, alert_type, metrics, checks, strategies),
+                "prediction": prediction,
+                "message": (
+                    make_prediction_message(race, metrics, checks, strategies, prediction)
+                    if args.notify_top5_predictions
+                    else make_message(race, alert_type, metrics, checks, strategies)
+                ),
             }
             alerts.append(alert)
             sent[key] = now.isoformat(timespec="seconds")
@@ -1669,12 +1783,17 @@ def main():
     )
     parser.add_argument(
         "--ranking-url-base",
-        default="https://boat10000.github.io/kyotei-occult-viewer/data/output",
+        default="https://mm1601.github.io/kyotei-occult-viewer/data/output",
         help="Public base URL for daily ranking JSON fallback.",
     )
     parser.add_argument("--no-refresh", action="store_true", help="Use cached BOATERS pages when available.")
     parser.add_argument("--offline", action="store_true", help="Do not fetch BOATERS pages; only test scheduling windows.")
     parser.add_argument("--no-push", action="store_true", help="Disable smartphone push notifications.")
+    parser.add_argument(
+        "--notify-top5-predictions",
+        action="store_true",
+        help="Notify each checked strict TOP5 race once after BOATERS exhibition and lap data are complete.",
+    )
     args = parser.parse_args()
     payload = monitor(args)
     print(json.dumps(payload, ensure_ascii=False, indent=2))
