@@ -1027,18 +1027,118 @@ def rank_boat(rows, key, rank_no):
     return None
 
 
+def rank_boats_for_key(rows, key, ranks=(1, 3)):
+    ranked = sorted(
+        [row for row in rows if row.get(key) is not None],
+        key=lambda row: (-(row.get(key) or 0), row["boat_number"]),
+    )
+    out = []
+    for rank_no in ranks:
+        if 1 <= rank_no <= len(ranked):
+            out.append(ranked[rank_no - 1]["boat_number"])
+    return unique(out)
+
+
 def axis_boats_by_ai_plus(rows, ranks=(1, 3)):
     return unique(rank_boat(rows, "ai_plus", rank_no) for rank_no in ranks)
 
 
+def axis_boats_for_roles(rows, ranks=(1, 3)):
+    rank_label = "と".join(f"{rank}位" for rank in ranks)
+    if sum(1 for row in rows if row.get("ai_3ren_pct") is not None) >= max(ranks):
+        return rank_boats_for_key(rows, "ai_3ren_pct", ranks), f"AI3連対率の{rank_label}"
+    if sum(1 for row in rows if row.get("ai_plus") is not None) >= max(ranks):
+        return rank_boats_for_key(rows, "ai_plus", ranks), f"AI3連対率が不足したためAI+一般3連対の{rank_label}"
+    return rank_boats_for_key(rows, "composite_top3_actual_pct", ranks), f"AI3連対率が不足したため複合3着内率の{rank_label}"
+
+
+def head_candidate_score(row):
+    boat = row["boat_number"]
+    metrics = row.get("_morning_metrics") or {}
+    score = row.get("composite_win_pct")
+    if score is None:
+        score = row.get("ai_prediction_pct")
+    if score is None:
+        score = {1: 53, 2: 14, 3: 13, 4: 10, 5: 6, 6: 4}.get(boat, 10)
+    reasons = [f"複合1着率{score:.1f}%"]
+    if boat == 1:
+        danger = as_num(metrics.get("popular_b1_fly_score")) or 0
+        loss = as_num(metrics.get("boat1_loss_pct"))
+        if danger >= 75:
+            score -= 18
+            reasons.append("人気1号艇の超危険で下げ")
+        elif danger >= 60:
+            score -= 12
+            reasons.append("人気1号艇の危険で下げ")
+        elif loss is not None and loss >= 55:
+            score -= 7
+            reasons.append(f"逃げ失敗{loss:.1f}%で下げ")
+        if metrics.get("b1_summer_isshu_factor") == "fast_hold":
+            score += 5
+            reasons.append("夏場1周が良くイン残り寄り")
+        elif metrics.get("b1_summer_isshu_factor") == "slow_fly":
+            score -= 6
+            reasons.append("夏場1周が悪くイン飛び寄り")
+    if row.get("double_time"):
+        score += 7
+        reasons.append("ダブルタイム")
+    if row.get("super_slit_alert"):
+        score += 7 if boat in {2, 3} else 9
+        reasons.append("スーパースリット")
+    if row.get("low_outer_revive"):
+        score += 5
+        reasons.append("低評価外枠の展示復活")
+    if row.get("longshot_head_candidate"):
+        score += 5
+        reasons.append("人気薄頭候補")
+    avg_diff = row.get("avg_isshu_diff")
+    if avg_diff is not None:
+        if avg_diff >= 0.20:
+            score += 5
+            reasons.append(f"展示+1周平均との差+{avg_diff:.2f}")
+        elif avg_diff >= 0.10:
+            score += 3
+            reasons.append(f"展示+1周平均との差+{avg_diff:.2f}")
+        elif avg_diff <= -0.10:
+            score -= 3
+            reasons.append(f"展示+1周平均との差{avg_diff:.2f}")
+    if (row.get("exhibit_rank") or 9) <= 2:
+        score += 3
+        reasons.append("展示か1周が2位以内")
+    ai_plus_rank = row.get("ai_plus_rank")
+    if ai_plus_rank and ai_plus_rank <= 2:
+        score += 2
+        reasons.append(f"AI+{int(ai_plus_rank)}位")
+    elif ai_plus_rank and ai_plus_rank >= 5:
+        score -= 2
+        reasons.append(f"AI+{int(ai_plus_rank)}位")
+    if boat in {5, 6} and metrics.get("slit_outer56_pressure_vs_1"):
+        score += 2.5
+        reasons.append("5/6外圧")
+    return round(score, 3), reasons[:4]
+
+
 def head_boats_for_arunashi(rows, exclude=None):
     exclude = set(exclude or [])
-    heads = order_value(rows, pool={3, 4, 5, 6}, exclude=exclude)[:2]
-    if len(heads) < 2:
-        heads = unique(heads + order_value(rows, pool={2, 3, 4, 5, 6}, exclude=exclude))[:2]
-    if len(heads) < 2:
-        heads = unique(heads + order_value(rows, pool={2, 3, 4, 5, 6}))[:2]
-    return heads
+    scored = []
+    for row in rows:
+        if row["boat_number"] in exclude:
+            continue
+        score, _ = head_candidate_score(row)
+        scored.append((score, row["boat_number"]))
+    scored.sort(key=lambda item: (-item[0], item[1]))
+    return [boat for _, boat in scored[:2]]
+
+
+def head_score_details(rows, heads):
+    details = {}
+    for row in rows:
+        boat = row["boat_number"]
+        if boat not in set(heads):
+            continue
+        score, reasons = head_candidate_score(row)
+        details[str(boat)] = {"score": score, "reasons": reasons}
+    return details
 
 
 def row_by_boat(rows, boat):
@@ -1104,10 +1204,10 @@ def select_keshi_boat(rows, protected=None):
 
 
 def super_arunashi3(rows):
-    axes = axis_boats_by_ai_plus(rows, ranks=(1, 3))
-    alt_axes = axis_boats_by_ai_plus(rows, ranks=(2, 3))
+    axes, axis_rule = axis_boats_for_roles(rows, ranks=(1, 3))
+    alt_axes, alt_axis_rule = axis_boats_for_roles(rows, ranks=(2, 3))
     keshi, keshi_reason, ai_plus_rank6_boat, ai_plus_rank6_revival = select_keshi_boat(rows, protected=axes)
-    heads = head_boats_for_arunashi(rows, exclude=set(axes + ([keshi] if keshi else [])))
+    heads = head_boats_for_arunashi(rows, exclude=([keshi] if keshi else []))
     if len(heads) < 2 or len(axes) < 2 or keshi is None:
         return set(), None
     pool = [boat for boat in range(1, 7) if boat != keshi]
@@ -1127,15 +1227,19 @@ def super_arunashi3(rows):
         return set(), None
     return tickets, {
         "heads": heads,
+        "head_rule": "複合1着率に展示・1周・スリット・外枠復活・人気1号艇危険度を加味した2艇",
+        "head_scores": head_score_details(rows, heads),
         "axes": axes,
+        "axis_rule": axis_rule,
         "alt_axes": alt_axes,
+        "alt_axis_rule": alt_axis_rule,
         "supports": pool,
         "keshi": keshi,
         "keshi_reason": keshi_reason,
         "ai_plus_rank6_boat": ai_plus_rank6_boat,
         "ai_plus_rank6_revival": ai_plus_rank6_revival,
         "role_note": (
-            f"頭{heads[0]},{heads[1]} / 軸はAI+1位と3位の{axes[0]},{axes[1]} / "
+            f"頭{heads[0]},{heads[1]} / 軸は{axis_rule}の{axes[0]},{axes[1]} / "
             f"2・3着は軸どちらか必須で消し{keshi}以外へ折り返し"
         ),
     }
@@ -1158,13 +1262,15 @@ def selection_payload(rows, race=None, strategies=None):
     result = (race or {}).get("result") or {}
     trifecta = result.get("trifecta") or (race or {}).get("trifecta")
     return {
-        "version": "super_arunashi3_v1",
-        "label": "スーパーあるなし舟券3",
+        "version": "codex_roles_v2",
+        "label": "Codex候補",
         "heads": roles["heads"],
+        "head_rule": roles.get("head_rule"),
+        "head_scores": roles.get("head_scores") or {},
         "axes": roles["axes"],
-        "axis_rule": "AI3連対率+一般3連対率の1位と3位",
+        "axis_rule": roles.get("axis_rule") or "AI3連対率の1位と3位",
         "alt_axes": roles.get("alt_axes") or [],
-        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+        "alt_axis_rule": "比較用: " + (roles.get("alt_axis_rule") or "AI3連対率の2位と3位"),
         "supports": roles.get("supports") or [],
         "keshi": roles.get("keshi"),
         "keshi_reason": roles.get("keshi_reason"),
@@ -1711,8 +1817,8 @@ def race_metrics(rows, date_text=None):
     isshu_boats = sum(1 for row in rows if row.get("isshu_time") is not None)
     summer_factor = summer_b1_isshu_factor(date_text, b1.get("isshu_avg_diff"), isshu_boats)
     slit_metrics = slit_rank_metrics(rows)
-    _, selection_roles = super_arunashi3(rows)
     compute_composite_boat_rates(rows)
+    _, selection_roles = super_arunashi3(rows)
     boats = []
     for row in sorted(rows, key=lambda item: item["boat_number"]):
         boats.append(
@@ -1841,6 +1947,7 @@ def race_metrics(rows, date_text=None):
         "b4_matchup_label": morning_metrics.get("b4_matchup_label") or "",
         "b5_matchup_label": morning_metrics.get("b5_matchup_label") or "",
         "b6_matchup_label": morning_metrics.get("b6_matchup_label") or "",
+        "head_primary_boats": (selection_roles or {}).get("heads") or [],
         "axis_primary_boats": (selection_roles or {}).get("axes") or [],
         "axis_alt_boats": (selection_roles or {}).get("alt_axes") or [],
         "keshi_boat": (selection_roles or {}).get("keshi"),

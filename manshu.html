@@ -80,6 +80,17 @@
     .badge.good{background:#ecfdf3;border-color:#bbf7d0;color:#047857}
     .badge.bad{background:#fff1f2;border-color:#fecdd3;color:#be123c}
     .badge.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+    .quick-roles{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+    .quick-role{border:1px solid #dbe3ef;border-radius:8px;background:#f8fafc;padding:7px 8px}
+    .quick-role b{display:block;color:#344054;font-size:11px;letter-spacing:0;font-weight:900}
+    .quick-role strong{display:block;color:#111827;font-size:15px;line-height:1.25;margin-top:2px}
+    .quick-role span{display:block;color:#667085;font-size:11px;font-weight:800;margin-top:2px}
+    .quick-role.head{border-color:#fecdd3;background:#fff1f2}
+    .quick-role.axis{border-color:#bbf7d0;background:#ecfdf3}
+    .role-detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+    .role-detail-card{border:1px solid #dbe3ef;border-radius:8px;background:#fff;padding:9px}
+    .role-detail-card b{display:block;font-size:13px;color:#111827;margin-bottom:3px}
+    .role-detail-card p{margin:0;color:#475467;font-size:12px}
     .race-body{border-top:1px solid #edf1f7;padding:12px 14px;background:#fcfdff}
     .simple-box{border:1px solid #dbe3ef;border-radius:8px;background:#fff;padding:10px;margin-bottom:10px}
     .simple-box h3{margin:0 0 6px;font-size:15px;color:#111827}
@@ -138,6 +149,8 @@
       .boat-table tr{display:table-row;border:0;padding:0}
       .boat-table th,.boat-table td{display:table-cell;padding:6px 4px}
       .boat-rate-list{grid-template-columns:1fr}
+      .quick-roles{grid-template-columns:1fr}
+      .role-detail-grid{grid-template-columns:1fr}
       .b1-danger-grid{grid-template-columns:1fr}
       .venue-grid{grid-template-columns:1fr}
       .reason{max-width:none}
@@ -472,6 +485,65 @@
       }
       return rows;
     }
+    function boatsText(boats){
+      return (boats||[]).filter(function(b){return b!=null&&b!=="";}).map(function(b){return b+"号艇";}).join("・")||"--";
+    }
+    function boatsByMetric(rows, key, ranks){
+      var ranked=rows.filter(function(b){return b[key]!=null&&!isNaN(Number(b[key]));}).sort(function(a,b){
+        var diff=Number(b[key])-Number(a[key]);
+        return diff!==0?diff:Number(a.boat_number)-Number(b.boat_number);
+      });
+      return (ranks||[]).map(function(rank){return ranked[rank-1]?Number(ranked[rank-1].boat_number):null;}).filter(function(v,i,a){return v&&a.indexOf(v)===i;});
+    }
+    function selectionOf(r){
+      var s=Object.assign({},r.selection||{});
+      var rows=boatRows(r);
+      if(!Array.isArray(s.heads)||s.heads.length<2){
+        s.heads=boatsByMetric(rows,"composite_win_pct",[1,2]);
+        s.head_rule="複合1着率が高い2艇";
+      }
+      if(!Array.isArray(s.axes)||s.axes.length<2){
+        var axes=boatsByMetric(rows,"top3_pct",[1,3]);
+        var rule="AI3連対率の1位と3位";
+        if(axes.length<2){
+          axes=boatsByMetric(rows,"ai_plus",[1,3]);
+          rule="AI3連対率が不足したためAI+一般3連対の1位と3位";
+        }
+        if(axes.length<2){
+          axes=boatsByMetric(rows,"composite_top3_actual_pct",[1,3]);
+          rule="AI3連対率が不足したため複合3着内率の1位と3位";
+        }
+        s.axes=axes;
+        s.axis_rule=rule;
+      }
+      return s;
+    }
+    function quickRolesHtml(r){
+      var s=selectionOf(r);
+      var heads=(s.heads||[]).slice(0,2);
+      var axes=(s.axes||[]).slice(0,2);
+      return [
+        "<div class=\"quick-roles\">",
+        "<div class=\"quick-role head\"><b>1着候補2艇</b><strong>"+esc(boatsText(heads))+"</strong><span>"+esc(s.head_rule||"複合1着率で選定")+"</span></div>",
+        "<div class=\"quick-role axis\"><b>軸候補2艇</b><strong>"+esc(boatsText(axes))+"</strong><span>"+esc(s.axis_rule||"AI3連対率の1位と3位")+"</span></div>",
+        "</div>"
+      ].join("");
+    }
+    function roleDetailHtml(r){
+      var s=selectionOf(r);
+      var headScores=s.head_scores||{};
+      var headText=(s.heads||[]).slice(0,2).map(function(boat){
+        var detail=headScores[String(boat)]||{};
+        var reasons=Array.isArray(detail.reasons)?detail.reasons.join(" / "):"複合1着率を中心に選定";
+        return esc(boat+"号艇: "+reasons);
+      }).join("<br>");
+      return [
+        "<div class=\"role-detail-grid\">",
+        "<div class=\"role-detail-card\"><b>1着候補</b><p>"+(headText||esc(boatsText(s.heads)))+"</p></div>",
+        "<div class=\"role-detail-card\"><b>軸候補</b><p>"+esc(boatsText(s.axes))+"<br>"+esc(s.axis_rule||"AI3連対率の1位と3位")+"</p></div>",
+        "</div>"
+      ].join("");
+    }
     function boatRatesHtml(r){
       var rows=boatRows(r);
       var ex=exhibitState(r);
@@ -544,6 +616,7 @@
     function probabilityHtml(r){
       var res=resultOf(r);
       return [
+        roleDetailHtml(r),
         boatRatesHtml(r),
         popularB1Html(r),
         "<p class=\"mini\">決まり目: <b>"+esc(res.trifecta||"--")+"</b> / 配当: <b>"+esc(yen(res.payout_yen))+"</b>"+(res.manshu?" <span class=\"manshu\">万舟</span>":"")+"</p>"
@@ -579,7 +652,7 @@
         "<summary>",
         "<div class=\"race-head\">",
         "<div class=\"race-rank\">"+esc(r.rank)+"</div>",
-        "<div><div class=\"race-main-title\">"+esc(label(r))+"</div><div class=\"race-one-line\">"+esc(raceSentence(r))+"</div>"+raceBadgesHtml(r)+"</div>",
+        "<div><div class=\"race-main-title\">"+esc(label(r))+"</div><div class=\"race-one-line\">"+esc(raceSentence(r))+"</div>"+quickRolesHtml(r)+raceBadgesHtml(r)+"</div>",
         "<div class=\"race-rate\">"+esc(pctShort(r.manshu_rate_pct))+"<span>万舟率</span></div>",
         "</div>",
         "</summary>",

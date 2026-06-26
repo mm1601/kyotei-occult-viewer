@@ -668,6 +668,129 @@ def compute_composite_boat_rates(rows: list[dict], metrics: dict) -> None:
         row["composite_rate_reasons"] = composite_rate_reasons(row, by_boat)
 
 
+def rank_boats_for_key(rows: list[dict], key: str, ranks: tuple[int, ...]) -> list[int]:
+    ranked = sorted(
+        [row for row in rows if as_num(row.get(key)) is not None],
+        key=lambda row: (-(as_num(row.get(key)) or 0.0), row["boat_number"]),
+    )
+    out = []
+    for rank in ranks:
+        if 1 <= rank <= len(ranked):
+            out.append(ranked[rank - 1]["boat_number"])
+    return list(dict.fromkeys(out))
+
+
+def visible_axis_candidates(rows: list[dict], ranks: tuple[int, ...] = (1, 3)) -> tuple[list[int], str]:
+    rank_label = "と".join(f"{rank}位" for rank in ranks)
+    if sum(1 for row in rows if as_num(row.get("top3_pct")) is not None) >= max(ranks):
+        return rank_boats_for_key(rows, "top3_pct", ranks), f"AI3連対率の{rank_label}"
+    if sum(1 for row in rows if as_num(row.get("ai_plus")) is not None) >= max(ranks):
+        return rank_boats_for_key(rows, "ai_plus", ranks), f"AI3連対率が不足したためAI+一般3連対の{rank_label}"
+    return rank_boats_for_key(rows, "composite_top3_actual_pct", ranks), f"AI3連対率が不足したため複合3着内率の{rank_label}"
+
+
+def head_candidate_score(row: dict, metrics: dict) -> tuple[float, list[str]]:
+    boat = row["boat_number"]
+    score = as_num(row.get("composite_win_pct"))
+    if score is None:
+        score = as_num(row.get("win_pct"))
+    if score is None:
+        score = LANE_WIN_PRIOR.get(boat, 10.0)
+    reasons = [f"複合1着率{score:.1f}%"]
+    if boat == 1:
+        danger = as_num(metrics.get("popular_b1_fly_score")) or 0.0
+        loss = as_num(metrics.get("boat1_loss_pct"))
+        if danger >= 75:
+            score -= 18.0
+            reasons.append("人気1号艇の超危険で頭評価を下げ")
+        elif danger >= 60:
+            score -= 12.0
+            reasons.append("人気1号艇の危険で頭評価を下げ")
+        elif loss is not None and loss >= 55:
+            score -= 7.0
+            reasons.append(f"逃げ失敗{loss:.1f}%で頭評価を下げ")
+        if metrics.get("b1_summer_isshu_factor") == "fast_hold":
+            score += 5.0
+            reasons.append("夏場1周が良くイン残り寄り")
+        elif metrics.get("b1_summer_isshu_factor") == "slow_fly":
+            score -= 6.0
+            reasons.append("夏場1周が悪くイン飛び寄り")
+    if row.get("double_time"):
+        score += 7.0
+        reasons.append("ダブルタイム")
+    if row.get("super_slit_alert"):
+        score += 7.0 if boat in {2, 3} else 9.0
+        reasons.append("スーパースリット")
+    if row.get("low_outer_revive"):
+        score += 5.0
+        reasons.append("低評価外枠の展示復活")
+    if row.get("longshot_head_candidate"):
+        score += 5.0
+        reasons.append("人気薄頭候補")
+    avg_diff = as_num(row.get("avg_isshu_diff"))
+    if avg_diff is not None:
+        if avg_diff >= 0.20:
+            score += 5.0
+            reasons.append(f"展示+1周平均との差+{avg_diff:.2f}")
+        elif avg_diff >= 0.10:
+            score += 3.0
+            reasons.append(f"展示+1周平均との差+{avg_diff:.2f}")
+        elif avg_diff <= -0.10:
+            score -= 3.0
+            reasons.append(f"展示+1周平均との差{avg_diff:.2f}")
+    exhibit_rank = as_int(row.get("exhibit_rank")) or 9
+    if exhibit_rank <= 2:
+        score += 3.0
+        reasons.append("展示か1周が2位以内")
+    ai_plus_rank = as_int(row.get("ai_plus_rank"))
+    if ai_plus_rank and ai_plus_rank <= 2:
+        score += 2.0
+        reasons.append(f"AI+{ai_plus_rank}位")
+    elif ai_plus_rank and ai_plus_rank >= 5:
+        score -= 2.0
+        reasons.append(f"AI+{ai_plus_rank}位")
+    if boat in {5, 6} and metrics.get("slit_outer56_pressure_vs_1"):
+        score += 2.5
+        reasons.append("5/6外圧")
+    return round(score, 3), reasons[:4]
+
+
+def visible_head_candidates(metrics: dict) -> tuple[list[int], dict[int, dict]]:
+    rows = metrics.get("boats") if isinstance(metrics.get("boats"), list) else []
+    scored = []
+    details = {}
+    for row in rows:
+        score, reasons = head_candidate_score(row, metrics)
+        boat = row["boat_number"]
+        details[boat] = {"score": score, "reasons": reasons}
+        scored.append((score, boat))
+    scored.sort(key=lambda item: (-item[0], item[1]))
+    heads = [boat for _, boat in scored[:2]]
+    return heads, details
+
+
+def build_visible_selection(metrics: dict) -> dict:
+    rows = metrics.get("boats") if isinstance(metrics.get("boats"), list) else []
+    if not rows:
+        return {}
+    heads, head_details = visible_head_candidates(metrics)
+    axes, axis_rule = visible_axis_candidates(rows, ranks=(1, 3))
+    alt_axes, alt_axis_rule = visible_axis_candidates(rows, ranks=(2, 3))
+    if len(heads) < 2 or len(axes) < 2:
+        return {}
+    return {
+        "version": "codex_visible_roles_v1",
+        "label": "Codex候補",
+        "heads": heads,
+        "head_rule": "複合1着率に展示・1周・スリット・外枠復活・人気1号艇危険度を加味した2艇",
+        "head_scores": {str(boat): head_details.get(boat, {}) for boat in heads},
+        "axes": axes,
+        "axis_rule": axis_rule,
+        "alt_axes": alt_axes,
+        "alt_axis_rule": alt_axis_rule,
+    }
+
+
 def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[int, int], dict] | None = None) -> dict:
     place_id = race_place_id(row)
     round_no = as_int(row.get("round") if row.get("round") is not None else row.get("round_no"))
@@ -817,6 +940,11 @@ def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[
         build_popular_b1_fly_logic(normalized_metrics, row.get("composite_edges") or [], round_no)
     )
     status = row.get("status") or "未確定"
+    selection = build_visible_selection(normalized_metrics)
+    old_selection = row.get("selection") or {}
+    if old_selection.get("tickets"):
+        selection["tickets"] = old_selection.get("tickets")
+        selection["points"] = old_selection.get("points")
     if normalized_metrics["tenji_boats"] >= 6 and normalized_metrics["isshu_boats"] >= 6:
         if "展示待ち" in str(status):
             status = str(status).replace("・展示待ち", "").replace("展示待ち", "展示込み")
@@ -843,7 +971,7 @@ def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[
         "condition": condition,
         "matched_logic_count": as_int(row.get("matched_logic_count")) or 0,
         "metrics": normalized_metrics,
-        "selection": row.get("selection") or {},
+        "selection": selection,
         "last_minute_checked_at": row.get("last_minute_checked_at"),
         "last_minute_alert_type": row.get("last_minute_alert_type"),
         "last_minute_checks": row.get("last_minute_checks") or [],
