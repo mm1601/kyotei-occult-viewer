@@ -633,8 +633,12 @@ def merge_live_metrics_into_ranking_path(path, updates, now):
                 old_selection = json.dumps(race.get("selection") or {}, sort_keys=True, ensure_ascii=False)
                 race["selection"] = update.get("selection")
                 changed = changed or old_selection != json.dumps(race.get("selection") or {}, sort_keys=True, ensure_ascii=False)
-            if has_full_exhibition(metrics) and "展示待ち" in str(race.get("status") or ""):
-                race["status"] = str(race.get("status")).replace("・展示待ち", "").replace("展示待ち", "展示込み")
+            if has_full_exhibition(metrics):
+                status_text = str(race.get("status") or "")
+                if "展示待ち" in status_text:
+                    race["status"] = status_text.replace("・展示待ち", "").replace("展示待ち", "展示込み")
+                elif "展示込み" not in status_text:
+                    race["status"] = f"{status_text}・展示込み" if status_text else "展示込み"
             race["last_minute_checked_at"] = update.get("checked_at")
             race["last_minute_alert_type"] = update.get("alert_type")
             race["last_minute_checks"] = update.get("checks") or []
@@ -919,10 +923,12 @@ def compute_composite_boat_rates(rows):
     max_score = max(win_scores) if win_scores else 0
     win_weights = [math.exp(score - max_score) for score in win_scores]
     win_rates = normalize_total(win_weights, 100.0, 1.0, 70.0)
-    top3_rates = normalize_total(top3_scores, 300.0, 5.0, 92.0)
+    top3_actual_rates = normalize_total(top3_scores, 300.0, 5.0, 92.0)
+    top3_share_rates = normalize_total(top3_scores, 100.0, 1.0, 45.0)
     for idx, row in enumerate(rows):
         row["composite_win_pct"] = win_rates[idx]
-        row["composite_top3_pct"] = top3_rates[idx]
+        row["composite_top3_pct"] = top3_share_rates[idx]
+        row["composite_top3_actual_pct"] = top3_actual_rates[idx]
         row["composite_rate_reasons"] = composite_rate_reasons(row, by_boat)
 
 
@@ -1717,6 +1723,7 @@ def race_metrics(rows, date_text=None):
                 "general_top3_pct": row.get("general_3ren_pct"),
                 "composite_win_pct": row.get("composite_win_pct"),
                 "composite_top3_pct": row.get("composite_top3_pct"),
+                "composite_top3_actual_pct": row.get("composite_top3_actual_pct"),
                 "composite_rate_reasons": row.get("composite_rate_reasons") or [],
                 "ai_plus": row.get("ai_plus"),
                 "ai_prediction_rank": row.get("ai_prediction_pct_rank"),

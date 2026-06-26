@@ -659,10 +659,12 @@ def compute_composite_boat_rates(rows: list[dict], metrics: dict) -> None:
     max_score = max(win_scores) if win_scores else 0.0
     win_weights = [math.exp(score - max_score) for score in win_scores]
     win_rates = normalize_total(win_weights, 100.0, 1.0, 70.0)
-    top3_rates = normalize_total(top3_scores, 300.0, 5.0, 92.0)
+    top3_actual_rates = normalize_total(top3_scores, 300.0, 5.0, 92.0)
+    top3_share_rates = normalize_total(top3_scores, 100.0, 1.0, 45.0)
     for idx, row in enumerate(rows):
         row["composite_win_pct"] = win_rates[idx]
-        row["composite_top3_pct"] = top3_rates[idx]
+        row["composite_top3_pct"] = top3_share_rates[idx]
+        row["composite_top3_actual_pct"] = top3_actual_rates[idx]
         row["composite_rate_reasons"] = composite_rate_reasons(row, by_boat)
 
 
@@ -815,8 +817,11 @@ def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[
         build_popular_b1_fly_logic(normalized_metrics, row.get("composite_edges") or [], round_no)
     )
     status = row.get("status") or "未確定"
-    if "展示待ち" in str(status) and normalized_metrics["tenji_boats"] >= 6 and normalized_metrics["isshu_boats"] >= 6:
-        status = str(status).replace("・展示待ち", "").replace("展示待ち", "展示込み")
+    if normalized_metrics["tenji_boats"] >= 6 and normalized_metrics["isshu_boats"] >= 6:
+        if "展示待ち" in str(status):
+            status = str(status).replace("・展示待ち", "").replace("展示待ち", "展示込み")
+        elif "展示込み" not in str(status):
+            status = f"{status}・展示込み"
     return {
         "rank": rank,
         "status": status,

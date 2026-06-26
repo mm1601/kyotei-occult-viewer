@@ -373,6 +373,13 @@
       var b=boatByNumber(r,boat);
       return num(b.composite_top3_pct!=null?b.composite_top3_pct:b.top3_pct);
     }
+    function compositeTop3Actual(r,boat){
+      var b=boatByNumber(r,boat);
+      if(b.composite_top3_actual_pct!=null) return num(b.composite_top3_actual_pct);
+      if(b.top3_pct!=null) return num(b.top3_pct);
+      var share=num(b.composite_top3_pct);
+      return share==null?null:Math.min(92,share*3);
+    }
     function sumCompositeWin(r,boats){
       var total=0, seen=false;
       (boats||[]).forEach(function(boat){
@@ -384,13 +391,13 @@
     function anyTop3Approx(r,boats){
       var miss=1, seen=false;
       (boats||[]).forEach(function(boat){
-        var v=compositeTop3(r,boat);
+        var v=compositeTop3Actual(r,boat);
         if(v!=null){ miss*=Math.max(0,1-Number(v)/100); seen=true; }
       });
       return seen?100*(1-miss):null;
     }
     function exactaApprox(r,first,second){
-      var firstWin=compositeWin(r,first), secondTop3=compositeTop3(r,second), secondWin=compositeWin(r,second);
+      var firstWin=compositeWin(r,first), secondTop3=compositeTop3Actual(r,second), secondWin=compositeWin(r,second);
       if(firstWin==null||secondTop3==null||secondWin==null) return null;
       var secondNonWin=Math.max(0, secondTop3-secondWin);
       return firstWin*(secondNonWin/100)*0.5;
@@ -398,7 +405,7 @@
     function raceShape(r){
       var m=r.metrics||{};
       var b1Win=compositeWin(r,1);
-      var b1Top3=compositeTop3(r,1);
+      var b1Top3=compositeTop3Actual(r,1);
       var b1Fly=b1Top3!=null?100-b1Top3:num(m.boat1_loss_pct);
       var edgeB1Win=minValue(edgeValues(r,"candidate_b1_win_pct"));
       var edgeB1Fly=maxValue(edgeValues(r,"candidate_b1_fly_pct"));
@@ -453,7 +460,17 @@
           });
         }
       }
-      return rows.sort(function(a,b){return Number(a.boat_number)-Number(b.boat_number);});
+      rows=rows.sort(function(a,b){return Number(a.boat_number)-Number(b.boat_number);});
+      var top3Sum=rows.reduce(function(total,b){return total+Number(b.composite_top3_pct||0);},0);
+      if(top3Sum>150){
+        rows=rows.map(function(b){
+          var c=Object.assign({},b);
+          if(c.composite_top3_actual_pct==null) c.composite_top3_actual_pct=c.composite_top3_pct;
+          if(c.composite_top3_pct!=null) c.composite_top3_pct=Number((Number(c.composite_top3_pct)/3).toFixed(2));
+          return c;
+        });
+      }
+      return rows;
     }
     function boatRatesHtml(r){
       var rows=boatRows(r);
@@ -482,7 +499,7 @@
           ].join("");
         }).join(""),
         "</div>",
-        "<p class=\"mini\">複合率は、AI1着率だけではなく、AI3連対率、一般3連対率、AI+順位、展示/1周、平均との差、平均ST順位、ダブルタイム、スーパースリット、夏場1周、相性、低評価外枠復活を混ぜた推定値です。1着率は6艇合計100%、3着内率は6艇合計300%になるように調整しています。</p>"
+        "<p class=\"mini\">複合率は、AI1着率だけではなく、AI3連対率、一般3連対率、AI+順位、展示/1周、平均との差、平均ST順位、ダブルタイム、スーパースリット、夏場1周、相性、低評価外枠復活を混ぜた推定値です。1着率も3着内率も、見やすいように6艇合計100%になるよう調整しています。</p>"
       ].join("");
     }
     function popularB1Class(level){
