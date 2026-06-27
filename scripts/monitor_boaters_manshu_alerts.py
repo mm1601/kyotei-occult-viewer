@@ -665,7 +665,7 @@ def merge_live_metrics_into_ranking_path(path, updates, now):
     if not isinstance(payload, dict):
         return False
     changed = False
-    for group_name in ("races", "strict_races"):
+    for group_name in ("races", "strict_races", "morning_candidates"):
         for race in payload.get(group_name) or []:
             race_id = race.get("race_id")
             update = updates.get(race_id)
@@ -2892,7 +2892,29 @@ def monitor(args):
             inspected.append({"race_id": race.get("race_id"), "source": source_type, "status": "skip_no_deadline"})
             return None
         minutes_to_deadline = (deadline - now).total_seconds() / 60
+        metrics = race.get("metrics") or {}
+        missing_exhibition = not has_full_exhibition(metrics)
+        backfill_limit_minutes = max(0.0, args.backfill_missing_exhibition_hours) * 60
+        backfill_after_close = (
+            missing_exhibition
+            and minutes_to_deadline < -args.grace_minutes
+            and abs(minutes_to_deadline) <= backfill_limit_minutes
+        )
         if minutes_to_deadline > args.lookahead_minutes or minutes_to_deadline < -args.grace_minutes:
+            if backfill_after_close:
+                if args.offline:
+                    inspected.append(
+                        {
+                            "race_id": race.get("race_id"),
+                            "place_name": race.get("place_name"),
+                            "round": race.get("round"),
+                            "source": source_type,
+                            "status": "offline_backfill_missing_exhibition",
+                            "minutes_to_deadline": round(minutes_to_deadline, 1),
+                        }
+                    )
+                    return None
+                return {"minutes_to_deadline": minutes_to_deadline, "backfill_only": True}
             inspected.append(
                 {
                     "race_id": race.get("race_id"),
@@ -2916,12 +2938,14 @@ def monitor(args):
                 }
             )
             return None
-        return minutes_to_deadline
+        return {"minutes_to_deadline": minutes_to_deadline, "backfill_only": False}
 
     def inspect_race(race, source_type, morning_rank=None, live_rank=None):
-        minutes_to_deadline = inspect_window(race, source_type)
-        if minutes_to_deadline is None:
+        window = inspect_window(race, source_type)
+        if window is None:
             return
+        minutes_to_deadline = window["minutes_to_deadline"]
+        backfill_only = bool(window.get("backfill_only"))
         try:
             by_boat = fetch_live_race(race, refresh=not args.no_refresh)
             rows = enrich_rows(by_boat, race.get("metrics") or {}, date_text=race.get("date"))
@@ -2929,7 +2953,9 @@ def monitor(args):
             confirmed, checks = condition_confirmed(race.get("condition"), metrics)
             strategies = roi_strategies(race, metrics, rows)
             selection = selection_payload(rows, race=race, strategies=strategies)
-            if source_type == "morning_top":
+            if backfill_only:
+                alert_type = None
+            elif source_type == "morning_top":
                 alert_type = "buy_ok" if strategies else None
             elif strategies:
                 alert_type = "late_riser_buy_ok"
@@ -2953,7 +2979,7 @@ def monitor(args):
                     "place_name": race.get("place_name"),
                     "round": race.get("round"),
                     "source": source_type,
-                    "status": "checked",
+                    "status": "backfilled_missing_exhibition" if backfill_only else "checked",
                     "minutes_to_deadline": round(minutes_to_deadline, 1),
                     "condition_confirmed": confirmed,
                     "checks": checks,
@@ -3083,6 +3109,12 @@ def main():
     parser.add_argument("--offline", action="store_true", help="Do not fetch BOATERS pages; only test scheduling windows.")
     parser.add_argument("--no-push", action="store_true", help="Disable smartphone push notifications.")
     parser.add_argument("--no-public-metrics-update", action="store_true", help="Do not merge fetched exhibition metrics back into the public morning-order ranking JSON.")
+    parser.add_argument(
+        "--backfill-missing-exhibition-hours",
+        type=float,
+        default=12.0,
+        help="After deadline, still fetch ranking races with missing exhibition data for this many hours. Set 0 to disable.",
+    )
     args = parser.parse_args()
     payload = monitor(args)
     print(json.dumps(payload, ensure_ascii=False, indent=2))
