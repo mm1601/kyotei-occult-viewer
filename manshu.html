@@ -252,7 +252,7 @@
     function exhibitState(r){
       var m=r.metrics||{}, full=Number(m.tenji_boats||0)>=6&&Number(m.isshu_boats||0)>=6;
       if(full) return {full:true, text:"展示込み", cls:"good", kind:"ready"};
-      if(raceClosed(r)) return {full:false, text:"展示データ未取得", cls:"warn", kind:"missing_after_close"};
+      if(raceClosed(r)) return {full:false, text:"展示再取得中", cls:"warn", kind:"missing_after_close"};
       return {full:false, text:"展示待ち", cls:"warn", kind:"waiting"};
     }
     function currentRows(){ return STATE.data?((STATE.data.strict_races||STATE.data.races||[]).slice(0,10)):[]; }
@@ -346,7 +346,7 @@
 
       var ex=exhibitState(r);
       if(ex.full) addTag(exhibit,"buff","展示6艇取得済み","展示込み");
-      else if(ex.kind==="missing_after_close") addTag(exhibit,"debuff","展示データ未取得","レース後なので再取得対象");
+      else if(ex.kind==="missing_after_close") addTag(exhibit,"debuff","展示再取得中","レース後なので自動再取得対象");
       else addTag(exhibit,"neutral","展示待ち","締切前");
       if(Number(m.isshu_boats||0)>=6) addTag(exhibit,"buff","1周6艇取得済み","1周込み");
       if(m.double_time_boats) addTag(exhibit,"superbuff","ダブルタイム",boatList(m.double_time_boats));
