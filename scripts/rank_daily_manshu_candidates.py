@@ -745,6 +745,16 @@ def daily_features(today_db, target_date, matchup_profiles=None):
             MAX(CASE WHEN boat_number = 4 THEN ai_prediction_pct END) AS b4_ai_prediction_pct,
             MAX(CASE WHEN boat_number = 5 THEN ai_prediction_pct END) AS b5_ai_prediction_pct,
             MAX(CASE WHEN boat_number = 6 THEN ai_prediction_pct END) AS b6_ai_prediction_pct,
+            MAX(CASE WHEN boat_number = 2 THEN ai_3ren_pct END) AS b2_ai_3ren_pct,
+            MAX(CASE WHEN boat_number = 3 THEN ai_3ren_pct END) AS b3_ai_3ren_pct,
+            MAX(CASE WHEN boat_number = 4 THEN ai_3ren_pct END) AS b4_ai_3ren_pct,
+            MAX(CASE WHEN boat_number = 5 THEN ai_3ren_pct END) AS b5_ai_3ren_pct,
+            MAX(CASE WHEN boat_number = 6 THEN ai_3ren_pct END) AS b6_ai_3ren_pct,
+            MAX(CASE WHEN boat_number = 2 THEN general_3ren_pct END) AS b2_general_3ren_pct,
+            MAX(CASE WHEN boat_number = 3 THEN general_3ren_pct END) AS b3_general_3ren_pct,
+            MAX(CASE WHEN boat_number = 4 THEN general_3ren_pct END) AS b4_general_3ren_pct,
+            MAX(CASE WHEN boat_number = 5 THEN general_3ren_pct END) AS b5_general_3ren_pct,
+            MAX(CASE WHEN boat_number = 6 THEN general_3ren_pct END) AS b6_general_3ren_pct,
             MAX(CASE WHEN boat_number = 2 THEN odds_prediction_pct END) AS b2_odds_prediction_pct,
             MAX(CASE WHEN boat_number = 3 THEN odds_prediction_pct END) AS b3_odds_prediction_pct,
             MAX(CASE WHEN boat_number = 4 THEN odds_prediction_pct END) AS b4_odds_prediction_pct,
@@ -2632,86 +2642,80 @@ def all_venue_edge_signals(race):
 
 
 def morning_candidate_signals(race):
-    """展示前に取れる材料だけで朝候補を作る。"""
+    """BOATERS AI・展示・直前オッズが出る前の材料だけで朝の監視リストを作る。"""
     signals = []
     b1_loss = num(race.get("b1_loss_pct"))
     b1_nige = num(race.get("b1_nige_pct"))
-    b1_ai_pred = num(race.get("b1_ai_prediction_pct"))
-    b1_ai_order = num(race.get("b1_ai_plus_order"))
+    b1_general = num(race.get("b1_general_3ren_pct"))
     b1_st_rank = num(race.get("b1_st_rank_general"))
-    b1_odds_pct = num(race.get("b1_odds_prediction_pct"))
-    b1_odds_rank = int_num(race.get("b1_odds_rank"), default=9)
-    outer_ai_pred = num(race.get("outer56_best_ai_prediction_pct"))
-    outer_ai_plus = num(race.get("outer56_best_ai_plus"))
     round_no = int_num(race.get("round_no"))
-    rank6_boat = int_num(race.get("ai_rank6_boat"))
-    low_outer_boat = int_num(race.get("low_outer_boat"))
-    low_outer_ai_pred = num(race.get("low_outer_ai_prediction_pct"))
     matchup_pressure = num(race.get("matchup_lane1_pressure_score"))
     matchup_outer_good = int_num(race.get("matchup_outer_good_count"))
     matchup_lane1_bad = int_num(race.get("matchup_lane1_bad_flag"))
     wind_wave = (num(race.get("wind_speed")) or 0) >= 5 or (num(race.get("wave_height")) or 0) >= 5
 
-    if b1_ai_pred is not None and b1_ai_pred < 25:
-        add_edge(signals, "morning_b1_ai_pred25", "朝候補: 1号艇AI予測25%未満", None, 3.2, "b1_fly_up", {"b1_ai_prediction_pct": b1_ai_pred})
-    elif b1_ai_pred is not None and b1_ai_pred < 35:
-        add_edge(signals, "morning_b1_ai_pred35", "朝候補: 1号艇AI予測35%未満", None, 2.0, "b1_fly_up", {"b1_ai_prediction_pct": b1_ai_pred})
-
     if b1_nige is not None and b1_nige < 25:
-        add_edge(signals, "morning_b1_nige25", "朝候補: 1号艇逃げ率25%未満", None, 3.0, "b1_fly_up", {"b1_nige_pct": b1_nige})
+        add_edge(signals, "morning_b1_nige25", "朝監視: 1号艇の逃げ率25%未満", None, 3.0, "b1_fly_up", {"b1_nige_pct": b1_nige})
     elif b1_nige is not None and b1_nige < 40:
-        add_edge(signals, "morning_b1_nige40", "朝候補: 1号艇逃げ率40%未満", None, 1.8, "b1_fly_up", {"b1_nige_pct": b1_nige})
+        add_edge(signals, "morning_b1_nige40", "朝監視: 1号艇の逃げ率40%未満", None, 1.8, "b1_fly_up", {"b1_nige_pct": b1_nige})
 
     if b1_loss is not None and b1_loss >= 60:
-        add_edge(signals, "morning_b1_loss60", "朝候補: 1号艇の逃げ失敗60%以上", None, 3.0, "b1_fly_up", {"b1_loss_pct": b1_loss})
+        add_edge(signals, "morning_b1_loss60", "朝監視: 1号艇の逃げ失敗60%以上", None, 3.0, "b1_fly_up", {"b1_loss_pct": b1_loss})
     elif b1_loss is not None and b1_loss >= 45:
-        add_edge(signals, "morning_b1_loss45", "朝候補: 1号艇の逃げ失敗45%以上", None, 2.0, "b1_fly_up", {"b1_loss_pct": b1_loss})
+        add_edge(signals, "morning_b1_loss45", "朝監視: 1号艇の逃げ失敗45%以上", None, 2.0, "b1_fly_up", {"b1_loss_pct": b1_loss})
 
-    if b1_ai_order is not None and b1_ai_order >= 5:
-        add_edge(signals, "morning_b1_aiplus5", "朝候補: 1号艇AI+順位5位以下", None, 2.1, "b1_fly_up", {"b1_ai_plus_order": b1_ai_order})
-    elif b1_ai_order is not None and b1_ai_order >= 4:
-        add_edge(signals, "morning_b1_aiplus4", "朝候補: 1号艇AI+順位4位以下", None, 1.3, "b1_fly_up", {"b1_ai_plus_order": b1_ai_order})
+    if b1_general is not None and b1_general < 40:
+        add_edge(signals, "morning_b1_general40", "朝監視: 1号艇の一般3連対率40%未満", None, 1.6, "b1_fly_up", {"b1_general_3ren_pct": b1_general})
+    elif b1_general is not None and b1_general < 50:
+        add_edge(signals, "morning_b1_general50", "朝監視: 1号艇の一般3連対率50%未満", None, 0.9, "b1_fly_up", {"b1_general_3ren_pct": b1_general})
 
     if b1_st_rank is not None and b1_st_rank >= 5:
-        add_edge(signals, "morning_b1_st5", "朝候補: 1号艇の平均ST順位5位以下", None, 1.6, "b1_fly_up", {"b1_st_rank_general": b1_st_rank})
+        add_edge(signals, "morning_b1_st5", "朝監視: 1号艇の平均ST順位5位以下", None, 1.6, "b1_fly_up", {"b1_st_rank_general": b1_st_rank})
     elif b1_st_rank is not None and b1_st_rank >= 4:
-        add_edge(signals, "morning_b1_st4", "朝候補: 1号艇の平均ST順位4位以下", None, 1.0, "b1_fly_up", {"b1_st_rank_general": b1_st_rank})
+        add_edge(signals, "morning_b1_st4", "朝監視: 1号艇の平均ST順位4位以下", None, 1.0, "b1_fly_up", {"b1_st_rank_general": b1_st_rank})
 
-    if outer_ai_pred is not None and outer_ai_pred >= 12:
-        add_edge(signals, "morning_outer56_aipred12", "朝候補: 5/6号艇AI予測最大12%以上", None, 2.0, "outer_top3_up", {"outer56_ai_prediction_pct": outer_ai_pred})
-    elif outer_ai_pred is not None and outer_ai_pred >= 10:
-        add_edge(signals, "morning_outer56_aipred10", "朝候補: 5/6号艇AI予測最大10%以上", None, 1.2, "outer_top3_up", {"outer56_ai_prediction_pct": outer_ai_pred})
+    outer56_general = max([num(race.get(f"b{boat}_general_3ren_pct")) or -1 for boat in (5, 6)])
+    outer36_general = max([num(race.get(f"b{boat}_general_3ren_pct")) or -1 for boat in range(3, 7)])
+    if outer56_general >= 45:
+        add_edge(signals, "morning_outer56_general45", "朝監視: 5/6号艇に一般3連対率45%以上", None, 1.3, "outer_top3_up", {"outer56_general_3ren_pct": outer56_general})
+    elif outer56_general >= 38:
+        add_edge(signals, "morning_outer56_general38", "朝監視: 5/6号艇に一般3連対率38%以上", None, 0.7, "outer_top3_up", {"outer56_general_3ren_pct": outer56_general})
+    if outer36_general >= 55:
+        add_edge(signals, "morning_36_general55", "朝監視: 3〜6号艇に一般3連対率55%以上", None, 0.9, "head_up", {"outer36_general_3ren_pct": outer36_general})
 
-    if outer_ai_plus is not None and outer_ai_plus >= 110:
-        add_edge(signals, "morning_outer56_aiplus110", "朝候補: 5/6号艇AI+最大110以上", None, 1.4, "outer_top3_up", {"outer56_ai_plus": outer_ai_plus})
-    elif outer_ai_plus is not None and outer_ai_plus >= 100:
-        add_edge(signals, "morning_outer56_aiplus100", "朝候補: 5/6号艇AI+最大100以上", None, 0.9, "outer_top3_up", {"outer56_ai_plus": outer_ai_plus})
+    st_ranks = {boat: num(race.get(f"b{boat}_st_rank_general")) for boat in range(1, 7)}
+    if b1_st_rank is not None:
+        center_attack = [
+            boat for boat in (3, 4)
+            if st_ranks.get(boat) is not None and st_ranks[boat] + 1.0 <= b1_st_rank
+        ]
+        outer_fast = [
+            boat for boat in (5, 6)
+            if st_ranks.get(boat) is not None and st_ranks[boat] <= 2
+        ]
+        if center_attack:
+            add_edge(signals, "morning_center_st_attack", "朝監視: 3/4号艇の平均ST順位が1号艇より良い", None, 1.4, "head_up", {"center_st_boats": ",".join(map(str, center_attack))})
+        if outer_fast:
+            add_edge(signals, "morning_outer56_st_top2", "朝監視: 5/6号艇に平均ST順位2位以内", None, 0.9, "outer_top3_up", {"outer56_st_boats": ",".join(map(str, outer_fast))})
 
-    if rank6_boat in {3, 4, 5, 6}:
-        add_edge(signals, "morning_rank6_outer", "朝候補: AI+最下位が3〜6号艇", None, 0.9, "rank6_ana", {"rank6_boat": rank6_boat})
-    if low_outer_boat in {5, 6} and low_outer_ai_pred is not None and low_outer_ai_pred >= 8:
-        add_edge(signals, "morning_low_outer_ai8", "朝候補: 低評価外枠5/6号艇にAI予測8%以上", None, 1.4, "low_outer_top3_up", {"low_outer_boat": low_outer_boat, "low_outer_ai_prediction_pct": low_outer_ai_pred})
-
-    if b1_odds_rank == 1 and b1_odds_pct is not None and b1_odds_pct >= 45:
-        add_edge(signals, "morning_popular_b1_value", "朝候補: 人気が1号艇に集まり、飛べば配当妙味", None, 1.2, "popular_b1_value", {"b1_odds_prediction_pct": b1_odds_pct})
-    elif b1_odds_pct is not None and (b1_odds_rank != 1 or b1_odds_pct < 40) and (
-        (b1_ai_pred is not None and b1_ai_pred < 35) or (b1_loss is not None and b1_loss >= 45)
-    ):
-        add_edge(signals, "morning_b1_fly_already_known", "朝候補減点: 1号艇の弱さが人気に織り込み済み", None, -1.2, "low_value_b1_fly", {"b1_odds_prediction_pct": b1_odds_pct, "b1_odds_rank": b1_odds_rank})
+    if int_num(race.get("b2_wall_break_3peek")) or int_num(race.get("b3_peek_vs_12")) or int_num(race.get("b4_cadou_peek")):
+        add_edge(signals, "morning_slit_attack_shape", "朝監視: 平均STから中枠が攻めやすい隊形", None, 1.1, "head_up", {"slit_shape": race.get("slit_shape_label")})
+    if int_num(race.get("outer456_pressure")) or int_num(race.get("outer56_pressure_vs_1")):
+        add_edge(signals, "morning_outer_st_pressure", "朝監視: 平均STから外側の圧力あり", None, 0.9, "outer_top3_up", {"slit_shape": race.get("slit_shape_label")})
 
     if matchup_outer_good >= 2:
-        add_edge(signals, "morning_matchup_outer_good2", "朝候補: 1号艇に強い相性バフ艇が2艇以上", None, 1.8, "matchup_manshu_up", {"matchup_outer_good_count": matchup_outer_good})
+        add_edge(signals, "morning_matchup_outer_good2", "朝監視: 1号艇に強い相性バフ艇が2艇以上", None, 1.8, "matchup_manshu_up", {"matchup_outer_good_count": matchup_outer_good})
     elif matchup_pressure is not None and matchup_pressure >= 4.0:
-        add_edge(signals, "morning_matchup_pressure4", "朝候補: 今回メンバーが1号艇へ相性圧力", None, 1.2, "matchup_manshu_up", {"matchup_lane1_pressure_score": matchup_pressure})
+        add_edge(signals, "morning_matchup_pressure4", "朝監視: 今回メンバーが1号艇へ相性圧力", None, 1.2, "matchup_manshu_up", {"matchup_lane1_pressure_score": matchup_pressure})
     if matchup_lane1_bad:
-        add_edge(signals, "morning_matchup_lane1_bad", "朝候補: 1号艇が今回メンバー相手に劣勢", None, 1.2, "b1_fly_up", {"matchup_lane1_bad_flag": 1})
+        add_edge(signals, "morning_matchup_lane1_bad", "朝監視: 1号艇が今回メンバー相手に劣勢", None, 1.2, "b1_fly_up", {"matchup_lane1_bad_flag": 1})
 
     if wind_wave:
-        add_edge(signals, "morning_wind_wave", "朝候補: 風または波5以上", None, 0.8, "weather_up")
+        add_edge(signals, "morning_wind_wave", "朝監視: 風または波5以上", None, 0.8, "weather_up")
     if round_no <= 3:
-        add_edge(signals, "morning_early_race", "朝荒れ特化: 1〜3R", None, 1.0, "context_up")
+        add_edge(signals, "morning_early_race", "朝監視: 1〜3Rは荒れ監視を強める", None, 0.8, "context_up")
     elif 9 <= round_no <= 12 and race.get("place_name") != "宮島":
-        add_edge(signals, "morning_late_race", "後半専用候補: 9〜12R・宮島除外", None, 1.4, "context_up")
+        add_edge(signals, "morning_late_race", "朝監視: 後半9〜12R・宮島以外", None, 1.0, "context_up")
 
     signals.sort(key=lambda item: (item["bonus_pct"], item.get("historical_rate_pct") or 0), reverse=True)
     return signals
@@ -2726,12 +2730,14 @@ def morning_candidate_adjustment(signals):
 
 def morning_candidate_type(race, signals):
     round_no = int_num(race.get("round_no"))
-    signal_ids = {signal["id"] for signal in signals}
-    if round_no <= 3 and {"morning_b1_ai_pred35", "morning_b1_ai_pred25"} & signal_ids:
-        return "朝荒れ特化候補"
+    score = sum(signal["bonus_pct"] for signal in signals if signal["bonus_pct"] > 0)
+    if score >= 7.0:
+        return "重点監視"
+    if score >= 4.5:
+        return "監視"
     if 9 <= round_no <= 12 and race.get("place_name") != "宮島":
-        return "後半専用候補"
-    return "荒れ気配候補"
+        return "後半軽監視"
+    return "軽監視"
 
 
 def build_morning_candidates(df, top_n):
@@ -2742,31 +2748,26 @@ def build_morning_candidates(df, top_n):
         negative_score = sum(signal["bonus_pct"] for signal in signals if signal["bonus_pct"] < 0)
         score = round(min(12.0, positive_score) + negative_score, 2)
         candidate_type = morning_candidate_type(race, signals)
-        if candidate_type == "朝荒れ特化候補":
-            keep = score >= 5.2 and num(race.get("outer56_best_ai_prediction_pct")) is not None and num(race.get("outer56_best_ai_prediction_pct")) >= 10
-        elif candidate_type == "後半専用候補":
-            keep = score >= 6.0 and num(race.get("outer56_best_ai_prediction_pct")) is not None and num(race.get("outer56_best_ai_prediction_pct")) >= 8
-        else:
-            keep = score >= 7.0
-        if not keep:
+        if score <= 0:
             continue
 
         reasons = [signal["label"] for signal in signals if signal["bonus_pct"] > 0][:5]
         row = row_summary(
             race,
             [],
-            status="朝候補",
+            status="朝監視",
             edge_signals=signals,
             base_rate_override=16.82,
             adjustment_func=morning_candidate_adjustment,
-            condition_override=f"{candidate_type}: 展示前データだけで候補。展示後に最終判定。",
-            ranking_type="morning_candidate",
+            condition_override=f"{candidate_type}: 一般成績・平均ST・逃げ傾向・風波・対戦相性だけで監視。",
+            ranking_type="morning_watchlist",
         )
         row["candidate_type"] = candidate_type
-        row["candidate_phase"] = "morning"
+        row["candidate_phase"] = "morning_watchlist"
+        row["candidate_source_scope"] = "pre_boaters_ai_pre_exhibition_pre_live_odds"
         row["candidate_score"] = score
         row["candidate_reasons"] = reasons
-        row["finalize_rule"] = "展示タイム・1周・平均との差・スーパースリットを取得して、買い/見送りへ更新"
+        row["finalize_rule"] = "締切10〜15分前にBOATERS AI・展示・実オッズを取得して、買い/見送りへ更新"
         rows.append(row)
 
     rows.sort(
@@ -3036,6 +3037,14 @@ def row_summary(
         },
         **{
             f"b{boat}_general_3ren_pct": race.get(f"b{boat}_general_3ren_pct")
+            for boat in range(1, 7)
+        },
+        **{
+            f"b{boat}_st_rank_general": race.get(f"b{boat}_st_rank_general")
+            for boat in range(1, 7)
+        },
+        **{
+            f"b{boat}_st_time_avg_general": race.get(f"b{boat}_st_time_avg_general")
             for boat in range(1, 7)
         },
         **{

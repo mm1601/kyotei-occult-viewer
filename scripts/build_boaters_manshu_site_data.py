@@ -1071,6 +1071,8 @@ def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[
                 f"boat{boat}_ai_prediction_pct": f"b{boat}_ai_prediction_pct",
                 f"boat{boat}_ai_3ren_pct": f"b{boat}_ai_3ren_pct",
                 f"boat{boat}_general_3ren_pct": f"b{boat}_general_3ren_pct",
+                f"boat{boat}_st_rank_general": f"b{boat}_st_rank_general",
+                f"boat{boat}_st_time_avg_general": f"b{boat}_st_time_avg_general",
                 f"boat{boat}_ai_plus": f"b{boat}_ai_plus",
                 f"boat{boat}_ai_plus_order": f"b{boat}_ai_plus_order",
                 f"boat{boat}_odds_prediction_pct": f"b{boat}_odds_prediction_pct",
@@ -1161,6 +1163,7 @@ def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[
             {
                 "candidate_type": row.get("candidate_type"),
                 "candidate_phase": row.get("candidate_phase"),
+                "candidate_source_scope": row.get("candidate_source_scope"),
                 "candidate_score": as_num(row.get("candidate_score")),
                 "candidate_reasons": row.get("candidate_reasons") or [],
                 "finalize_rule": row.get("finalize_rule"),
@@ -1199,18 +1202,18 @@ def build_payload(source: dict, top_n: int, results_map: dict[tuple[int, int], d
         morning_source_rows = [
             {
                 **row,
-                "status": "朝候補",
-                "candidate_type": "後半狙い候補"
+                "status": "朝監視",
+                "candidate_type": "後半軽監視"
                 if (as_int(row.get("round")) or as_int(row.get("round_no")) or 0) >= 7
-                else "朝荒れ候補",
-                "candidate_phase": "morning",
+                else "軽監視",
+                "candidate_phase": "morning_watchlist",
                 "candidate_score": row.get("candidate_score") or row.get("best_manshu_rate_pct") or row.get("manshu_rate_pct"),
                 "candidate_reasons": [
                     "既存ランキング上位",
                     "レース番号で朝/後半を分類",
                 ],
-                "finalize_rule": "展示タイム・1周・平均との差・スーパースリットを取得して、買い/見送りへ更新",
-                "ranking_type": "morning_candidate",
+                "finalize_rule": "BOATERS AI・展示・実オッズ取得後に買い/見送りへ更新",
+                "ranking_type": "morning_watchlist",
             }
             for row in (strict_source_rows or rows)
         ]

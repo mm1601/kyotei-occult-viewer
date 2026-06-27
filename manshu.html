@@ -167,9 +167,9 @@
 <body>
   <div class="shell">
     <header class="header">
-      <p class="eyebrow">CODEX UNIFIED MANSHU LOGIC</p>
-      <h1 id="page-title">万舟狙い候補レース</h1>
-      <p>朝のうちに見る候補と、後半で狙えそうな候補を分けて表示します。展示後に買い/見送りへ更新します。</p>
+      <p class="eyebrow">CODEX ARARE WATCHLIST</p>
+      <h1 id="page-title">朝の荒れ監視リスト</h1>
+      <p>朝は買いません。BOATERS AI・展示・直前オッズが出る前のデータだけで、直前に見る価値があるレースを並べます。</p>
     </header>
     <nav class="nav">
       <a id="posts-link" href="manshu_posts.html">投稿センター</a>
@@ -179,17 +179,17 @@
       <button id="reload-btn" type="button">再読み込み</button>
     </nav>
     <section class="status" id="status">
-      <strong>Codex候補レースを読み込み中</strong>
+      <strong>Codex朝の監視リストを読み込み中</strong>
       <div class="chips"><span class="chip">JSON確認中</span></div>
     </section>
     <main class="layout">
       <section class="panel candidate-panel" id="early-candidate-panel">
-        <h2>朝の候補レース（1〜6R）</h2>
-        <p class="lead">朝のうちに先に見ておくレースです。展示後に買い/見送りへ更新します。</p>
+        <h2>朝の監視リスト（1〜6R）</h2>
+        <p class="lead">展示前・BOATERS AI前に、直前確認する前半レースです。</p>
       </section>
       <section class="panel candidate-panel late-panel" id="late-candidate-panel">
-        <h2>後半で狙えそうなレース（7〜12R）</h2>
-        <p class="lead">後半で荒れそうなレースだけを別枠で見ます。展示後に買い/見送りへ更新します。</p>
+        <h2>後半の監視リスト（7〜12R）</h2>
+        <p class="lead">朝の時点で、後半に直前確認するレースです。</p>
       </section>
       <section class="panel factor-panel" id="buff-panel">
         <h2>場別まとめ</h2>
@@ -197,7 +197,7 @@
       </section>
       <section class="panel notice">
         <h2>このページの見方</h2>
-        <p class="lead">この画面では古いランキング表示を使いません。朝候補と後半候補だけを表示し、結果と配当は確定後に自動で反映されます。カードを開くと、なぜ荒れそうなのかを数字で確認できます。</p>
+        <p class="lead">朝の監視リストは買い目ではありません。締切10〜15分前にBOATERS AI・展示・実オッズを入れて、そこで初めて買い/見送りを決めます。</p>
       </section>
     </main>
     <footer>研究・記録用。的中や利益を保証するものではありません。</footer>
@@ -266,15 +266,16 @@
         return Object.assign({},r,{
           candidate_type:candidateType(r),
           candidate_score:r.candidate_score||r.manshu_rate_pct,
-          candidate_reasons:["既存ランキング上位","朝候補JSON未生成日のフォールバック"],
-          finalize_rule:"展示タイム・1周・平均との差・スーパースリットを取得して、買い/見送りへ更新"
+          candidate_reasons:["既存ランキング上位","朝監視JSON未生成日のフォールバック"],
+          finalize_rule:"BOATERS AI・展示・実オッズ取得後に買い/見送りへ更新"
         });
       });
     }
     function currentRows(){ return currentCandidateRows(); }
     function candidateType(r){
+      if(r.candidate_type) return r.candidate_type;
       var round=Number(r.round||0);
-      return round>=7?"後半狙い候補":"朝荒れ候補";
+      return round>=7?"後半軽監視":"軽監視";
     }
     function earlyRows(){
       return currentCandidateRows().filter(function(r){ return Number(r.round||0)<=6; }).slice(0,5);
@@ -289,25 +290,22 @@
         var m=r.metrics||{};
         return m.popular_b1_is_popular&&Number(m.popular_b1_fly_score||0)>=60;
       }).length;
-      var fullTenji=(STATE.data.summary&&STATE.data.summary.races_with_full_tenji)||0;
-      var fullIsshu=(STATE.data.summary&&STATE.data.summary.races_with_full_isshu)||0;
       var allDone=rows.length>0&&settled>=rows.length;
       var autoText=STATE.date===todayJst()?(allDone?"結果取得完了":"結果自動更新 30秒"):"過去結果を表示";
       var checkText=STATE.lastResultCheck?("結果確認 "+STATE.lastResultCheck):"結果確認待ち";
       document.getElementById("status").innerHTML=[
-        "<strong>"+esc(STATE.date)+" 朝候補・後半候補を表示中</strong>",
+        "<strong>"+esc(STATE.date)+" 朝の荒れ監視リストを表示中</strong>",
         "<div class=\"chips\">",
-        "<span class=\"chip hot\">候補 "+rows.length+"R</span>",
+        "<span class=\"chip hot\">監視 "+rows.length+"R</span>",
         "<span class=\"chip\">朝 "+earlyRows().length+"R</span>",
         "<span class=\"chip\">後半 "+lateRows().length+"R</span>",
+        "<span class=\"chip ok\">AI/展示/直前オッズなし</span>",
         "<span class=\"chip\">結果 "+settled+"/"+rows.length+"R</span>",
         "<span class=\"chip "+(hits?"hot":"")+"\">万舟 "+hits+"件</span>",
         "<span class=\"chip "+(popularB1Danger?"hot":"")+"\">人気1号艇危険 "+popularB1Danger+"R</span>",
         "<span class=\"chip ok\">"+esc(autoText)+"</span>",
         "<span class=\"chip\">"+esc(checkText)+"</span>",
         STATE.resultFetchError?"<span class=\"chip hot\">結果取得エラー</span>":"",
-        "<span class=\"chip ok\">展示6艇 "+esc(fullTenji)+"R</span>",
-        "<span class=\"chip ok\">1周6艇 "+esc(fullIsshu)+"R</span>",
         "</div>"
       ].join("");
     }
@@ -729,7 +727,8 @@
     function candidateCardHtml(r){
       var m=r.metrics||{}, res=resultOf(r), reasons=(r.candidate_reasons||[]).slice(0,4);
       var type=candidateType(r);
-      var decision=buyDecision(r);
+      var b1St=m.boat1_st_rank_general;
+      var outerGen=Math.max(num(m.boat5_general_3ren_pct)===null?-1:num(m.boat5_general_3ren_pct),num(m.boat6_general_3ren_pct)===null?-1:num(m.boat6_general_3ren_pct));
       return [
         "<details class=\"race-card\">",
         "<summary>",
@@ -737,10 +736,10 @@
         "<div class=\"race-rank\">"+esc(r.rank)+"</div>",
         "<div>",
         "<div class=\"race-main-title\">"+esc(label(r))+"</div>",
-        "<div class=\"race-one-line\">"+esc(type)+"。展示前データで荒れ候補に入っています。</div>",
+        "<div class=\"race-one-line\">"+esc(type)+"。朝データだけで、直前確認するレースです。</div>",
         "<div class=\"race-badges\">",
         "<span class=\"badge\">締切 "+esc(deadline(r))+"</span>",
-        "<span class=\"badge "+esc(decision.cls)+"\">"+esc(decision.label)+"</span>",
+        "<span class=\"badge warn\">監視</span>",
         "<span class=\"badge "+(res.manshu?"good":"")+"\">"+(res.payout_yen!=null?"結果 "+esc(res.trifecta||"--")+" / "+esc(yen(res.payout_yen)):"結果待ち")+"</span>",
         "</div>",
         "</div>",
@@ -748,14 +747,15 @@
         "</div>",
         "</summary>",
         "<div class=\"race-body\">",
-        buyDecisionHtml(r),
-        "<div class=\"simple-box\"><h3>朝候補理由</h3><p class=\"lead\">"+esc(reasons.join(" / ")||r.condition||"朝データで候補")+"</p></div>",
+        "<div class=\"simple-box\"><h3>監視理由</h3><p class=\"lead\">"+esc(reasons.join(" / ")||r.condition||"朝データで監視")+"</p></div>",
         "<div class=\"cards\">",
-        "<div class=\"metric\"><b>"+esc(pct(m.boat1_ai_prediction_pct))+"</b><span>1号艇AI予測</span></div>",
+        "<div class=\"metric\"><b>"+esc(pct(m.boat1_nige_pct))+"</b><span>1号艇逃げ率</span></div>",
         "<div class=\"metric\"><b>"+esc(pct(m.boat1_loss_pct))+"</b><span>1号艇逃げ失敗</span></div>",
-        "<div class=\"metric\"><b>"+esc(pct(m.outer56_best_ai_prediction_pct))+"</b><span>5/6号艇AI最大</span></div>",
+        "<div class=\"metric\"><b>"+esc(b1St==null?'--':Number(b1St).toFixed(1).replace(/\\.0$/,''))+"</b><span>1号艇平均ST順位</span></div>",
+        "<div class=\"metric\"><b>"+esc(outerGen<0?'--':pct(outerGen))+"</b><span>5/6一般3連対最大</span></div>",
         "</div>",
-        "<p class=\"lead\" style=\"margin-top:10px\">展示後: "+esc(r.finalize_rule||"展示後に買い/見送りへ更新")+"</p>",
+        "<p class=\"lead\" style=\"margin-top:10px\">使用データ: 一般成績・平均ST・1号艇の逃げ/差され/まくられ・風波・対戦相性。BOATERS AI、展示、直前オッズは未使用。</p>",
+        "<p class=\"lead\" style=\"margin-top:6px\">直前: "+esc(r.finalize_rule||"BOATERS AI・展示・実オッズ取得後に買い/見送りへ更新")+"</p>",
         "</div>",
         "</details>"
       ].join("");
@@ -814,9 +814,9 @@
         "<h2>"+esc(title)+"</h2>",
         "<p class=\"candidate-note\">"+esc(note)+"</p>",
         "<div class=\"cards\">",
-        "<div class=\"metric\"><b>"+esc(rows.length)+"R</b><span>候補数</span></div>",
-        "<div class=\"metric\"><b>"+esc(label(rows[0]))+"</b><span>最上位候補</span></div>",
-        "<div class=\"metric\"><b>"+esc(candidateType(rows[0]))+"</b><span>候補タイプ</span></div>",
+        "<div class=\"metric\"><b>"+esc(rows.length)+"R</b><span>監視数</span></div>",
+        "<div class=\"metric\"><b>"+esc(label(rows[0]))+"</b><span>最上位監視</span></div>",
+        "<div class=\"metric\"><b>"+esc(candidateType(rows[0]))+"</b><span>監視強度</span></div>",
         "</div>",
         "<div class=\"race-list\">",
         rows.map(candidateCardHtml).join(""),
@@ -826,23 +826,23 @@
     function renderCandidatePanels(){
       renderCandidateSection(
         "early-candidate-panel",
-        "朝の候補レース（1〜6R）",
-        "朝のうちに先に見ておく候補です。展示が入ったら買い/見送りへ更新します。",
+        "朝の監視リスト（1〜6R）",
+        "朝データだけで、直前に見る価値がある前半レースです。ここでは買い目を出しません。",
         earlyRows(),
-        "朝の候補レースはまだありません。"
+        "朝の監視レースはまだありません。"
       );
       renderCandidateSection(
         "late-candidate-panel",
-        "後半で狙えそうなレース（7〜12R）",
-        "後半で荒れそうな候補です。展示が入ったら買い/見送りへ更新します。",
+        "後半の監視リスト（7〜12R）",
+        "朝データだけで、後半に直前確認するレースです。買い判断は直前データ取得後です。",
         lateRows(),
-        "後半で狙えそうなレースはまだありません。"
+        "後半の監視レースはまだありません。"
       );
     }
     function render(){
       var rows=currentCandidateRows();
-      document.title="Codex万舟候補 "+STATE.date;
-      document.getElementById("page-title").textContent=STATE.date+" 万舟狙い候補レース";
+      document.title="Codex朝の荒れ監視 "+STATE.date;
+      document.getElementById("page-title").textContent=STATE.date+" 朝の荒れ監視リスト";
       document.getElementById("posts-link").href="manshu_posts.html?date="+STATE.date;
       renderStatus(rows);
       renderCandidatePanels();
@@ -904,8 +904,8 @@
       }
       if(!payload){
         document.getElementById("status").innerHTML="<strong>ランキングJSONが見つかりません</strong><div class=\"chips\"><span class=\"chip hot\">"+esc(STATE.date)+"</span></div>";
-        document.getElementById("early-candidate-panel").innerHTML="<h2>朝の候補レース（1〜6R）</h2><p class=\"lead\">data/output の今日分JSONがまだありません。</p>";
-        document.getElementById("late-candidate-panel").innerHTML="<h2>後半で狙えそうなレース（7〜12R）</h2><p class=\"lead\">data/output の今日分JSONがまだありません。</p>";
+        document.getElementById("early-candidate-panel").innerHTML="<h2>朝の監視リスト（1〜6R）</h2><p class=\"lead\">data/output の今日分JSONがまだありません。</p>";
+        document.getElementById("late-candidate-panel").innerHTML="<h2>後半の監視リスト（7〜12R）</h2><p class=\"lead\">data/output の今日分JSONがまだありません。</p>";
         document.getElementById("buff-panel").innerHTML="<h2>場別まとめ</h2><p class=\"lead\">ランキングJSONが見つからないため表示できません。</p>";
         return;
       }
