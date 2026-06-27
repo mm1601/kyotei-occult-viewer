@@ -277,10 +277,10 @@
       return round>=7?"後半狙い候補":"朝荒れ候補";
     }
     function earlyRows(){
-      return currentCandidateRows().filter(function(r){ return Number(r.round||0)<=6; });
+      return currentCandidateRows().filter(function(r){ return Number(r.round||0)<=6; }).slice(0,5);
     }
     function lateRows(){
-      return currentCandidateRows().filter(function(r){ return Number(r.round||0)>=7; });
+      return currentCandidateRows().filter(function(r){ return Number(r.round||0)>=7; }).slice(0,5);
     }
     function renderStatus(rows){
       var settled=rows.filter(function(r){return resultOf(r).payout_yen!=null;}).length;
@@ -525,6 +525,27 @@
     function boatsText(boats){
       return (boats||[]).filter(function(b){return b!=null&&b!=="";}).map(function(b){return b+"号艇";}).join("・")||"--";
     }
+    function strategyIds(r){
+      var ids=[];
+      (r.last_minute_strategy_ids||[]).forEach(function(id){ if(id) ids.push(id); });
+      (((r.selection||{}).source_strategy_ids)||[]).forEach(function(id){ if(id&&ids.indexOf(id)<0) ids.push(id); });
+      return ids;
+    }
+    function buyDecision(r){
+      var ex=exhibitState(r), ids=strategyIds(r);
+      if(!ex.full) return {label:"判定前", cls:"warn", detail:"展示タイム・1周・平均との差・スーパースリット取得後に買い/見送り判定"};
+      if(ids.length) return {label:"買い", cls:"good", detail:"回収率100%超えを狙う検証済み条件に該当: "+ids.join(" / ")};
+      return {label:"見送り", cls:"bad", detail:"展示後データでは、回収率100%超え検証済み条件が揃っていません"};
+    }
+    function buyDecisionHtml(r){
+      var d=buyDecision(r), tickets=((r.selection||{}).tickets||[]).slice(0,20);
+      return [
+        "<div class=\"simple-box\"><h3>買い / 見送り</h3>",
+        "<p class=\"lead\"><b class=\"badge "+esc(d.cls)+"\">"+esc(d.label)+"</b> "+esc(d.detail)+"</p>",
+        d.label==="買い"&&tickets.length?"<p class=\"mini\">買い目: "+esc(tickets.join(" / "))+"</p>":"<p class=\"mini\">買い判定になった時だけ、10〜15点の買い目を表示します。</p>",
+        "</div>"
+      ].join("");
+    }
     function boatsByMetric(rows, key, ranks, pool){
       var allowed=pool?new Set(pool.map(Number)):null;
       var ranked=rows.filter(function(b){
@@ -708,6 +729,7 @@
     function candidateCardHtml(r){
       var m=r.metrics||{}, res=resultOf(r), reasons=(r.candidate_reasons||[]).slice(0,4);
       var type=candidateType(r);
+      var decision=buyDecision(r);
       return [
         "<details class=\"race-card\">",
         "<summary>",
@@ -718,7 +740,7 @@
         "<div class=\"race-one-line\">"+esc(type)+"。展示前データで荒れ候補に入っています。</div>",
         "<div class=\"race-badges\">",
         "<span class=\"badge\">締切 "+esc(deadline(r))+"</span>",
-        "<span class=\"badge good\">展示後に最終判定</span>",
+        "<span class=\"badge "+esc(decision.cls)+"\">"+esc(decision.label)+"</span>",
         "<span class=\"badge "+(res.manshu?"good":"")+"\">"+(res.payout_yen!=null?"結果 "+esc(res.trifecta||"--")+" / "+esc(yen(res.payout_yen)):"結果待ち")+"</span>",
         "</div>",
         "</div>",
@@ -726,6 +748,7 @@
         "</div>",
         "</summary>",
         "<div class=\"race-body\">",
+        buyDecisionHtml(r),
         "<div class=\"simple-box\"><h3>朝候補理由</h3><p class=\"lead\">"+esc(reasons.join(" / ")||r.condition||"朝データで候補")+"</p></div>",
         "<div class=\"cards\">",
         "<div class=\"metric\"><b>"+esc(pct(m.boat1_ai_prediction_pct))+"</b><span>1号艇AI予測</span></div>",

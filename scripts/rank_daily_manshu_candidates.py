@@ -2777,6 +2777,10 @@ def build_morning_candidates(df, top_n):
         ),
         reverse=True,
     )
+    if top_n >= 10:
+        early = [row for row in rows if int_num(row.get("round")) is not None and int_num(row.get("round")) <= 6]
+        late = [row for row in rows if int_num(row.get("round")) is not None and int_num(row.get("round")) >= 7]
+        return early[:5] + late[:5]
     return rows[:top_n]
 
 
