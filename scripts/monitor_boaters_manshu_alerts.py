@@ -45,7 +45,10 @@ SUMMER_B1_FAST_NIGE_DELTA_PP = 15
 SUMMER_B1_SLOW_NIGE_DELTA_PP = -17
 SUPER_SLIT_TENJI_ADV = 0.10
 VALIDATED_BUY_STRATEGY_IDS = {"codex_post_core_ab_rank3"}
-SUBCORE_WATCH_STRATEGY_IDS = {"codex_post_subcore_rank6_outer_exhibit_top2"}
+SUBCORE_WATCH_STRATEGY_IDS = {
+    "codex_post_subcore_rank6_outer_exhibit_top2",
+    "codex_popular_b1_exhibition_fly_watch",
+}
 
 SUPER_SLIT_ALERT_STATS = {
     2: {"win_rate_pct": 29.56, "top3_rate_pct": 70.91, "makuri_win_rate_pct": 11.53, "score_bonus": 11},
@@ -2025,7 +2028,87 @@ def slit_rank_metrics(rows):
     }
 
 
-def race_metrics(rows, date_text=None):
+def verified_popular_b1_exhibition_conditions(metrics, round_no):
+    """検証済みの「人気1号艇＋展示悪化＋外枠上振れ」条件を返す。"""
+
+    b1_nige = as_num(metrics.get("boat1_nige_pct"))
+    b1_avg = as_num(metrics.get("boat1_avg_isshu_diff"))
+    b1_tenji_rank = as_num(metrics.get("boat1_tenji_time_rank") or metrics.get("boat1_tenji_rank"))
+    outer56_avg = as_num(metrics.get("outer56_best_avg_isshu_diff"))
+    outer56_ai = as_num(metrics.get("outer56_best_ai_prediction_pct"))
+    outer56_exhibit_top2 = int(as_num(metrics.get("outer56_exhibit_top2_count")) or 0)
+    ai_rank6_tenji = as_num(metrics.get("ai_rank6_tenji_rank"))
+    ai_rank6_isshu = as_num(metrics.get("ai_rank6_isshu_rank"))
+    ai_rank5_tenji = as_num(metrics.get("ai_rank5_tenji_rank"))
+    ai_rank5_isshu = as_num(metrics.get("ai_rank5_isshu_rank"))
+    rank6_exhibit_top2 = (ai_rank6_tenji is not None and ai_rank6_tenji <= 2) or (
+        ai_rank6_isshu is not None and ai_rank6_isshu <= 2
+    )
+    rank5_exhibit_top2 = (ai_rank5_tenji is not None and ai_rank5_tenji <= 2) or (
+        ai_rank5_isshu is not None and ai_rank5_isshu <= 2
+    )
+    early = round_no is not None and round_no <= 6
+    definitions = [
+        {
+            "id": "codex_popular_b1_verified_a_nige50_avg015_outertop2_early",
+            "label": "検証済みA: 人気1号艇でも逃げ率50%未満、1の平均との差+0.15以下、5/6展示上位、1〜6R",
+            "matched": b1_nige is not None
+            and b1_nige < 50
+            and b1_avg is not None
+            and b1_avg <= 0.15
+            and outer56_exhibit_top2 >= 1
+            and early,
+            "sample_races": 21,
+            "b1_not_win_rate_pct": 71.43,
+            "b1_top3_miss_rate_pct": 28.57,
+            "manshu_rate_pct": 28.57,
+        },
+        {
+            "id": "codex_popular_b1_verified_b_avg030_outerai10_early",
+            "label": "検証済みB: 人気1号艇でも1の平均との差+0.30以下、5/6AI1着10%以上、1〜6R",
+            "matched": b1_avg is not None and b1_avg <= 0.30 and outer56_ai is not None and outer56_ai >= 10 and early,
+            "sample_races": 23,
+            "b1_not_win_rate_pct": 69.57,
+            "b1_top3_miss_rate_pct": 30.43,
+            "manshu_rate_pct": 30.43,
+        },
+        {
+            "id": "codex_popular_b1_verified_c_b1bad_rank6revive_early",
+            "label": "検証済みC: 人気1号艇でも1の平均との差+0.30以下、展示4位以下、5/6上振れ、AI+6位展示上位、1〜6R",
+            "matched": b1_avg is not None
+            and b1_avg <= 0.30
+            and b1_tenji_rank is not None
+            and b1_tenji_rank >= 4
+            and outer56_avg is not None
+            and outer56_avg >= 0.10
+            and rank6_exhibit_top2
+            and early,
+            "sample_races": 21,
+            "b1_not_win_rate_pct": 66.67,
+            "b1_top3_miss_rate_pct": 42.86,
+            "manshu_rate_pct": 33.33,
+        },
+        {
+            "id": "codex_popular_b1_verified_d_b1bad_rank5revive_early",
+            "label": "検証済みD: 人気1号艇でも1の平均との差+0.15以下、展示4位以下、5/6上振れ、AI+5位展示上位、1〜6R",
+            "matched": b1_avg is not None
+            and b1_avg <= 0.15
+            and b1_tenji_rank is not None
+            and b1_tenji_rank >= 4
+            and outer56_avg is not None
+            and outer56_avg >= 0.05
+            and rank5_exhibit_top2
+            and early,
+            "sample_races": 20,
+            "b1_not_win_rate_pct": 65.00,
+            "b1_top3_miss_rate_pct": 35.00,
+            "manshu_rate_pct": 35.00,
+        },
+    ]
+    return [{key: value for key, value in item.items() if key != "matched"} for item in definitions if item["matched"]]
+
+
+def race_metrics(rows, date_text=None, round_no=None):
     morning_metrics = rows[0].get("_morning_metrics") or {}
     b1 = next(row for row in rows if row["boat_number"] == 1)
     outer = [row for row in rows if row["boat_number"] in {5, 6}]
@@ -2108,6 +2191,51 @@ def race_metrics(rows, date_text=None):
             if summer_factor["signal"] == "slow_fly":
                 popular_score += 9
                 popular_reasons.append("夏場1周が悪い")
+            outer56_exhibit_top2_count = sum(1 for row in outer if row.get("exhibit_rank", 9) <= 2)
+            verified_metrics = {
+                "boat1_nige_pct": b1.get("nige_pct"),
+                "boat1_avg_isshu_diff": b1.get("avg_isshu_diff"),
+                "boat1_tenji_rank": b1.get("tenji_rank"),
+                "boat1_tenji_time_rank": b1.get("tenji_time_rank"),
+                "outer56_best_avg_isshu_diff": outer56_best_avgdiff,
+                "outer56_best_ai_prediction_pct": max(outer_ai_pred) if outer_ai_pred else None,
+                "outer56_exhibit_top2_count": outer56_exhibit_top2_count,
+                "ai_rank6_tenji_rank": rank6.get("tenji_rank"),
+                "ai_rank6_isshu_rank": rank6.get("isshu_rank"),
+                "ai_rank5_tenji_rank": rank5.get("tenji_rank"),
+                "ai_rank5_isshu_rank": rank5.get("isshu_rank"),
+            }
+            verified_conditions = verified_popular_b1_exhibition_conditions(verified_metrics, int(as_num(round_no) or 0) or None)
+            if verified_conditions:
+                popular_score += 15
+                best_verified = max(verified_conditions, key=lambda item: item.get("b1_not_win_rate_pct") or 0)
+                popular_reasons.append(
+                    f"検証済み同型条件に一致（1着外{best_verified.get('b1_not_win_rate_pct'):.1f}%）"
+                )
+            morning_conditions = morning_metrics.get("popular_b1_matched_conditions") or []
+            matched_by_key = {}
+            for item in list(morning_conditions) + verified_conditions:
+                if isinstance(item, dict):
+                    stats_key = (
+                        item.get("sample_races"),
+                        item.get("b1_not_win_rate_pct"),
+                        item.get("b1_top3_miss_rate_pct"),
+                        item.get("manshu_rate_pct"),
+                    )
+                    if stats_key == (None, None, None, None):
+                        stats_key = (item.get("id") or item.get("label") or str(len(matched_by_key)),)
+                    existing = matched_by_key.get(stats_key)
+                    if existing is None or str(item.get("id") or "").startswith("codex_popular_b1_verified"):
+                        matched_by_key[stats_key] = item
+            matched_conditions = sorted(
+                matched_by_key.values(),
+                key=lambda item: (
+                    item.get("b1_not_win_rate_pct") or 0,
+                    item.get("manshu_rate_pct") or 0,
+                    item.get("sample_races") or 0,
+                ),
+                reverse=True,
+            )
             popular_score = max(popular_score, as_num(morning_metrics.get("popular_b1_fly_score")) or 0)
             popular_score = round(bounded(popular_score, 0, 100), 1)
             if popular_score >= 75:
@@ -2118,18 +2246,28 @@ def race_metrics(rows, date_text=None):
                 popular_level = "注意"
             else:
                 popular_level = "人気だが鉄板寄り"
+            if matched_conditions:
+                not_win_rate = max((item.get("b1_not_win_rate_pct") or 0 for item in matched_conditions), default=0) or None
+                top3_miss_rate = max((item.get("b1_top3_miss_rate_pct") or 0 for item in matched_conditions), default=0) or None
+                manshu_rate = max((item.get("manshu_rate_pct") or 0 for item in matched_conditions), default=0) or None
+                rate_source = "展示後の検証済み同型条件"
+            else:
+                not_win_rate = round(bounded(31.87 + (popular_score - 45) * 0.62, 31.87, 72.0), 2)
+                top3_miss_rate = round(bounded(10.28 + (popular_score - 45) * 0.36, 10.28, 43.0), 2)
+                manshu_rate = round(bounded(16.6 + (popular_score - 45) * 0.25, 16.6, 36.0), 2)
+                rate_source = "展示後オッズ評価+直前展示からの目安"
             live_odds_context.update(
                 {
                     "popular_b1_is_popular": True,
                     "popular_b1_source": "展示後BOATERSオッズ評価",
                     "popular_b1_fly_score": popular_score,
                     "popular_b1_fly_level": popular_level,
-                    "popular_b1_not_win_rate_pct": round(bounded(31.87 + (popular_score - 45) * 0.62, 31.87, 72.0), 2),
-                    "popular_b1_top3_miss_rate_pct": round(bounded(10.28 + (popular_score - 45) * 0.36, 10.28, 43.0), 2),
-                    "popular_b1_manshu_rate_pct": round(bounded(16.6 + (popular_score - 45) * 0.25, 16.6, 36.0), 2),
-                    "popular_b1_rate_source": "展示後オッズ評価+直前展示からの目安",
+                    "popular_b1_not_win_rate_pct": round(not_win_rate, 2) if not_win_rate is not None else None,
+                    "popular_b1_top3_miss_rate_pct": round(top3_miss_rate, 2) if top3_miss_rate is not None else None,
+                    "popular_b1_manshu_rate_pct": round(manshu_rate, 2) if manshu_rate is not None else None,
+                    "popular_b1_rate_source": rate_source,
                     "popular_b1_reasons": popular_reasons[:7],
-                    "popular_b1_matched_conditions": morning_metrics.get("popular_b1_matched_conditions") or [],
+                    "popular_b1_matched_conditions": matched_conditions[:3],
                 }
             )
         else:
@@ -2549,6 +2687,24 @@ def roi_strategies(race, metrics, rows):
             (
                 "codex_post_subcore_rank6_outer_exhibit_top2",
                 "Codex準本命B: AI+最下位5/6が展示浮上 監視",
+                codex_logic29_outer_required,
+            )
+        )
+    popular_verified_conditions = [
+        item
+        for item in (metrics.get("popular_b1_matched_conditions") or [])
+        if str(item.get("id") or "").startswith("codex_popular_b1_verified")
+    ]
+    if (
+        full_exhibition
+        and not b1_summer_fast
+        and popular_verified_conditions
+        and (metrics.get("popular_b1_fly_score") or 0) >= 60
+    ):
+        strategies.append(
+            (
+                "codex_popular_b1_exhibition_fly_watch",
+                "Codex準本命C: 人気1号艇が展示で危険 監視",
                 codex_logic29_outer_required,
             )
         )
@@ -3095,7 +3251,7 @@ def monitor(args):
         try:
             by_boat = fetch_live_race(race, refresh=not args.no_refresh)
             rows = enrich_rows(by_boat, race.get("metrics") or {}, date_text=race.get("date"))
-            metrics = race_metrics(rows, date_text=race.get("date"))
+            metrics = race_metrics(rows, date_text=race.get("date"), round_no=race.get("round"))
             confirmed, checks = condition_confirmed(race.get("condition"), metrics)
             all_strategies = roi_strategies(race, metrics, rows)
             buy_strategies = [

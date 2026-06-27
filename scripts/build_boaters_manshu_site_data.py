@@ -282,6 +282,91 @@ def best_popular_b1_edges(edges: list[dict]) -> list[dict]:
     )
 
 
+def verified_popular_b1_exhibition_conditions(metrics: dict, round_no: int | None) -> list[dict]:
+    """検証済みの「人気1号艇＋展示悪化＋外枠上振れ」条件。
+
+    分母は保存済みオッズで三連単人気上位5点が1号艇頭だったレース。
+    2026-06-02〜2026-06-18のBOATERS展示結合データで確認した率を表示用に持つ。
+    """
+
+    b1_nige = as_num(metrics.get("boat1_nige_pct"))
+    b1_avg = as_num(metrics.get("boat1_avg_isshu_diff"))
+    b1_tenji_rank = as_int(metrics.get("boat1_tenji_time_rank")) or as_int(metrics.get("boat1_tenji_rank"))
+    outer56_avg = as_num(metrics.get("outer56_best_avg_isshu_diff"))
+    outer56_ai = as_num(metrics.get("outer56_best_ai_prediction_pct"))
+    outer56_exhibit_top2 = as_int(metrics.get("outer56_exhibit_top2_count")) or 0
+    ai_rank6_tenji = as_int(metrics.get("ai_rank6_tenji_rank"))
+    ai_rank6_isshu = as_int(metrics.get("ai_rank6_isshu_rank"))
+    ai_rank5_tenji = as_int(metrics.get("ai_rank5_tenji_rank"))
+    ai_rank5_isshu = as_int(metrics.get("ai_rank5_isshu_rank"))
+    rank6_exhibit_top2 = (ai_rank6_tenji is not None and ai_rank6_tenji <= 2) or (
+        ai_rank6_isshu is not None and ai_rank6_isshu <= 2
+    )
+    rank5_exhibit_top2 = (ai_rank5_tenji is not None and ai_rank5_tenji <= 2) or (
+        ai_rank5_isshu is not None and ai_rank5_isshu <= 2
+    )
+    early = round_no is not None and round_no <= 6
+
+    definitions = [
+        {
+            "id": "codex_popular_b1_verified_a_nige50_avg015_outertop2_early",
+            "label": "検証済みA: 人気1号艇でも逃げ率50%未満、1の平均との差+0.15以下、5/6展示上位、1〜6R",
+            "matched": b1_nige is not None
+            and b1_nige < 50
+            and b1_avg is not None
+            and b1_avg <= 0.15
+            and outer56_exhibit_top2 >= 1
+            and early,
+            "sample_races": 21,
+            "b1_not_win_rate_pct": 71.43,
+            "b1_top3_miss_rate_pct": 28.57,
+            "manshu_rate_pct": 28.57,
+        },
+        {
+            "id": "codex_popular_b1_verified_b_avg030_outerai10_early",
+            "label": "検証済みB: 人気1号艇でも1の平均との差+0.30以下、5/6AI1着10%以上、1〜6R",
+            "matched": b1_avg is not None and b1_avg <= 0.30 and outer56_ai is not None and outer56_ai >= 10 and early,
+            "sample_races": 23,
+            "b1_not_win_rate_pct": 69.57,
+            "b1_top3_miss_rate_pct": 30.43,
+            "manshu_rate_pct": 30.43,
+        },
+        {
+            "id": "codex_popular_b1_verified_c_b1bad_rank6revive_early",
+            "label": "検証済みC: 人気1号艇でも1の平均との差+0.30以下、展示4位以下、5/6上振れ、AI+6位展示上位、1〜6R",
+            "matched": b1_avg is not None
+            and b1_avg <= 0.30
+            and b1_tenji_rank is not None
+            and b1_tenji_rank >= 4
+            and outer56_avg is not None
+            and outer56_avg >= 0.10
+            and rank6_exhibit_top2
+            and early,
+            "sample_races": 21,
+            "b1_not_win_rate_pct": 66.67,
+            "b1_top3_miss_rate_pct": 42.86,
+            "manshu_rate_pct": 33.33,
+        },
+        {
+            "id": "codex_popular_b1_verified_d_b1bad_rank5revive_early",
+            "label": "検証済みD: 人気1号艇でも1の平均との差+0.15以下、展示4位以下、5/6上振れ、AI+5位展示上位、1〜6R",
+            "matched": b1_avg is not None
+            and b1_avg <= 0.15
+            and b1_tenji_rank is not None
+            and b1_tenji_rank >= 4
+            and outer56_avg is not None
+            and outer56_avg >= 0.05
+            and rank5_exhibit_top2
+            and early,
+            "sample_races": 20,
+            "b1_not_win_rate_pct": 65.00,
+            "b1_top3_miss_rate_pct": 35.00,
+            "manshu_rate_pct": 35.00,
+        },
+    ]
+    return [{key: value for key, value in item.items() if key != "matched"} for item in definitions if item["matched"]]
+
+
 def estimated_popular_b1_rate(score: float, base: float, slope: float, high: float) -> float:
     return round(bounded(base + max(0.0, score - 40.0) * slope, base, high), 2)
 
@@ -417,7 +502,28 @@ def build_popular_b1_fly_logic(metrics: dict, edges: list[dict], round_no: int |
     if round_no is not None and round_no <= 6:
         add(6, "前半1〜6Rで荒れやすい時間帯", "round_1to6")
 
-    matched = best_popular_b1_edges(edges)
+    matched_by_key = {}
+    for item in best_popular_b1_edges(edges) + verified_popular_b1_exhibition_conditions(metrics, round_no):
+        stats_key = (
+            item.get("sample_races"),
+            item.get("b1_not_win_rate_pct"),
+            item.get("b1_top3_miss_rate_pct"),
+            item.get("manshu_rate_pct"),
+        )
+        if stats_key == (None, None, None, None):
+            stats_key = (item.get("id") or item.get("label"),)
+        existing = matched_by_key.get(stats_key)
+        if existing is None or str(item.get("id") or "").startswith("codex_popular_b1_verified"):
+            matched_by_key[stats_key] = item
+    matched = sorted(
+        matched_by_key.values(),
+        key=lambda item: (
+            item.get("b1_not_win_rate_pct") or 0,
+            item.get("manshu_rate_pct") or 0,
+            item.get("sample_races") or 0,
+        ),
+        reverse=True,
+    )
     if matched:
         add(15, "保存済みの人気1号艇飛び条件に一致", "matched_popular_b1_condition")
 
@@ -996,12 +1102,18 @@ def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[
         "b1_summer_isshu_factor": "b1_summer_isshu_factor",
         "b1_summer_nige_delta_pp": "b1_summer_nige_delta_pp",
         "boat1_tenji_time": "b1_tenji_time",
+        "boat1_tenji_rank": "b1_tenji_rank",
+        "boat1_tenji_time_rank": "b1_tenji_time_rank",
         "boat1_isshu_time": "b1_isshu_time",
+        "boat1_isshu_rank": "b1_isshu_rank",
         "outer56_best_avg_isshu_diff": "outer56_best_avg_isshu_diff",
         "outer56_best_ai_prediction_pct": "outer56_best_ai_prediction_pct",
         "outer56_best_ai_plus": "outer56_best_ai_plus",
         "outer56_best_tenji_time": "outer56_best_tenji_time",
         "outer56_best_isshu_time": "outer56_best_isshu_time",
+        "outer56_tenji_top2_count": "outer56_tenji_top2_count",
+        "outer56_isshu_top2_count": "outer56_isshu_top2_count",
+        "outer56_exhibit_top2_count": "outer56_exhibit_top2_count",
         "ai_rank6_boat": "ai_rank6_boat",
         "ai_rank6_avg_isshu_diff": "ai_rank6_avg_isshu_diff",
         "ai_rank6_ai_prediction_pct": "ai_rank6_ai_prediction_pct",
