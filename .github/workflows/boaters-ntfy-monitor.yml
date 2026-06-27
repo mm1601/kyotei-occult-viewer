@@ -63,6 +63,9 @@ jobs:
             --start-date 2026-05-01 \
             --end-date "${{ steps.jst.outputs.date }}" \
             --top-n 10
+          python scripts/build_core_buy_forward_report.py \
+            --start-date 2026-06-19 \
+            --end-date "${{ steps.jst.outputs.date }}"
 
       - name: Persist generated monitor data
         run: |
@@ -76,6 +79,9 @@ jobs:
             "data/output/boaters_manshu_alerts_${{ steps.jst.outputs.key }}.json" \
             "data/output/boaters_manshu_alert_state_${{ steps.jst.outputs.key }}.json" \
             "data/output/boaters_manshu_history_index.json" \
+            "data/output/core_buy_forward_validation.json" \
+            "data/output/core_buy_forward_validation.csv" \
+            "reports/core_buy_forward_validation.md" \
             "data/output/manshu_daily_rank_${{ steps.jst.outputs.date }}.json" \
             "data/output/manshu_daily_rank_${{ steps.jst.outputs.date }}.csv"; do
             if [ -e "$path" ]; then

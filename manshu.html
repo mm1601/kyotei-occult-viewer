@@ -130,6 +130,8 @@
     .factor-panel h2{color:#065f46}
     .candidate-panel{border-left:6px solid var(--blue)}
     .candidate-panel h2{color:#0f3f91}
+    .core-panel{border-left:6px solid var(--green)}
+    .core-panel h2{color:#065f46}
     .late-panel{border-left-color:var(--amber)}
     .late-panel h2{color:#92400e}
     .candidate-note{margin:0 0 10px;color:#475467;font-size:13px}
@@ -187,6 +189,10 @@
         <h2>朝の荒れ監視TOP5</h2>
         <p class="lead">全レースを同じ朝データで分析し、直前確認する価値が高い上位5レースだけを表示します。</p>
       </section>
+      <section class="panel core-panel" id="core-forward-panel">
+        <h2>本命買い 前向き検証</h2>
+        <p class="lead">直前本命条件に入ったレースだけを、買い目と結果込みで集計します。</p>
+      </section>
       <section class="panel factor-panel" id="buff-panel">
         <h2>場別まとめ</h2>
         <p class="lead">ランキングJSONを読み込むと、場ごとに「荒れやすい良い材料」と「1号艇に悪い材料」をまとめます。</p>
@@ -202,7 +208,7 @@
     "use strict";
     var MAN = 10000;
     var RESULT_REFRESH_MS = 30000;
-    var STATE = { date: "", data: null, resultMap: {}, resultPollTimer: null, lastResultCheck: "", resultFetchError: "" };
+    var STATE = { date: "", data: null, core: null, resultMap: {}, resultPollTimer: null, lastResultCheck: "", resultFetchError: "" };
     function q(name){ return new URLSearchParams(location.search).get(name); }
     function todayJst(){ return new Date().toLocaleDateString("sv-SE",{timeZone:"Asia/Tokyo"}); }
     function ymd(date){ return date.replace(/-/g,""); }
@@ -215,6 +221,7 @@
     }
     function resultUrl(date){ return "https://boatraceopenapi.github.io/results/v2/"+date.slice(0,4)+"/"+ymd(date)+".json"; }
     function liveResultUrl(date){ return resultUrl(date)+"?_="+Date.now(); }
+    function coreReportUrl(){ return "data/output/core_buy_forward_validation.json?v=core1&_="+Date.now(); }
     function timeJst(){ return new Date().toLocaleTimeString("ja-JP",{timeZone:"Asia/Tokyo",hour12:false}); }
     function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
     function pct(v){ return v==null?"--":Number(v).toFixed(2).replace(/\.00$/,"")+"%"; }
@@ -826,6 +833,31 @@
         "朝の監視レースはまだありません。"
       );
     }
+    function renderCoreForwardPanel(){
+      var panel=document.getElementById("core-forward-panel");
+      if(!panel) return;
+      var data=STATE.core||{}, summary=data.summary||{}, picks=data.picks||[];
+      var recent=picks.slice(-5).reverse();
+      var roi=summary.roi_pct==null?"--":pct(summary.roi_pct);
+      panel.innerHTML=[
+        "<h2>本命買い 前向き検証</h2>",
+        "<p class=\"lead\">通知で「本命買い候補」になったレースだけを買い扱いにします。旧ロジックの検証中候補はここに入れません。</p>",
+        "<div class=\"cards\">",
+        "<div class=\"metric\"><b>"+esc(summary.candidate_count||0)+"R</b><span>本命候補</span></div>",
+        "<div class=\"metric\"><b>"+esc(roi)+"</b><span>回収率</span></div>",
+        "<div class=\"metric\"><b>"+esc((summary.profit_yen||0).toLocaleString?Number(summary.profit_yen||0).toLocaleString('ja-JP'):summary.profit_yen||0)+"円</b><span>収支</span></div>",
+        "</div>",
+        picks.length?[
+          "<table><thead><tr><th>日付</th><th>レース</th><th>買い目</th><th>結果</th><th>回収</th></tr></thead><tbody>",
+          recent.map(function(p){
+            var result=p.result_trifecta?esc(p.result_trifecta+" / "+yen(p.result_payout_yen)):"未確定";
+            var hit=p.hit?"<span class=\"manshu\">的中</span>":"<span class=\"miss\">--</span>";
+            return "<tr><td>"+esc(p.date)+"</td><td><b>"+esc(p.race)+"</b><span class=\"mini\">万舟率 "+esc(pct(p.manshu_rate_pct))+"</span></td><td>"+esc((p.points||0)+"点")+"<span class=\"mini\">頭 "+esc((p.heads||[]).join(","))+" / 軸 "+esc((p.axes||[]).join(","))+" / 消し "+esc(p.keshi==null?"--":p.keshi)+"</span></td><td>"+result+"</td><td>"+hit+"<span class=\"mini\">"+esc(yen(p.payback_yen||0))+"</span></td></tr>";
+          }).join(""),
+          "</tbody></table>"
+        ].join(""):"<p class=\"lead\" style=\"margin-top:10px\">まだ本命買い候補は出ていません。条件が揃った日からここに買い目と結果が残ります。</p>"
+      ].join("");
+    }
     function render(){
       var rows=currentCandidateRows();
       document.title="Codex朝の荒れ監視 "+STATE.date;
@@ -833,6 +865,7 @@
       document.getElementById("posts-link").href="manshu_posts.html?date="+STATE.date;
       renderStatus(rows);
       renderCandidatePanels();
+      renderCoreForwardPanel();
       renderBuffPanel(rows);
     }
     function stopResultPolling(){
@@ -896,6 +929,12 @@
         return;
       }
       STATE.data=payload;
+      try{
+        var coreRes=await fetch(coreReportUrl(),{cache:"no-store"});
+        STATE.core=coreRes.ok?await coreRes.json():null;
+      }catch(e){
+        STATE.core=null;
+      }
       render();
       loadResults();
       startResultPolling();
