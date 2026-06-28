@@ -32,6 +32,10 @@ SUMMER_B1_SLOW_DIFF = -0.10
 SUMMER_B1_FAST_NIGE_DELTA_PP = 15
 SUMMER_B1_SLOW_NIGE_DELTA_PP = -17
 SUPER_SLIT_TENJI_ADV = 0.10
+PRE_EXHIBITION_MAX_PER_VENUE = 2
+PRE_EXHIBITION_EXTRA_VENUE_MIN_SCORE = 19.5
+PRE_EXHIBITION_EXTRA_VENUE_MIN_MATERIALS = 8
+PRE_EXHIBITION_EXTRA_VENUE_MIN_RATE = 20.0
 
 
 def default_trifecta_odds_db():
@@ -3081,6 +3085,40 @@ def morning_candidate_type(race, signals):
     return "軽監視"
 
 
+def strong_extra_venue_morning_candidate(row):
+    return (
+        float(row.get("pre_exhibition_manshu_rate_pct") or 0) >= PRE_EXHIBITION_EXTRA_VENUE_MIN_RATE
+        and float(row.get("candidate_score") or 0) >= PRE_EXHIBITION_EXTRA_VENUE_MIN_SCORE
+        and int(row.get("candidate_material_count") or 0) >= PRE_EXHIBITION_EXTRA_VENUE_MIN_MATERIALS
+    )
+
+
+def diversify_morning_candidates(rows, top_n):
+    picked = []
+    venue_counts = {}
+    skipped_by_venue = {}
+    for row in rows:
+        place = row.get("place_name") or "不明"
+        count = venue_counts.get(place, 0)
+        is_extra_strong = strong_extra_venue_morning_candidate(row)
+        if count >= PRE_EXHIBITION_MAX_PER_VENUE and not is_extra_strong:
+            skipped_by_venue[place] = skipped_by_venue.get(place, 0) + 1
+            continue
+        row["pre_exhibition_venue_diversity_rule"] = (
+            "同じ場は原則2Rまで。3R目以降は万舟率20%以上・点数19.5以上・材料8個以上のみ残す。"
+        )
+        row["pre_exhibition_venue_count_before_pick"] = count
+        row["pre_exhibition_venue_extra_allowed"] = int(count >= PRE_EXHIBITION_MAX_PER_VENUE and is_extra_strong)
+        picked.append(row)
+        venue_counts[place] = count + 1
+        if len(picked) >= top_n:
+            break
+    for row in picked:
+        row["pre_exhibition_diversified"] = 1
+        row["pre_exhibition_skipped_same_venue_count"] = skipped_by_venue.get(row.get("place_name") or "不明", 0)
+    return picked
+
+
 def build_morning_candidates(df, top_n, pre_exhibition_calibration=None):
     rows = []
     for _, race in df.iterrows():
@@ -3136,7 +3174,7 @@ def build_morning_candidates(df, top_n, pre_exhibition_calibration=None):
         ),
         reverse=True,
     )
-    return rows[:top_n]
+    return diversify_morning_candidates(rows, top_n)
 
 
 def rankable_final_row(row, threshold):

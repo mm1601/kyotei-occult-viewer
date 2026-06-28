@@ -171,7 +171,7 @@
     <header class="header">
       <p class="eyebrow">CODEX PRE-EXHIBITION MANSHU RANKING</p>
       <h1 id="page-title">展示前 万舟率ランキング</h1>
-      <p>展示前に使えるデータだけを点数化し、荒れる下地が強いレースを万舟率順に並べます。直前にBOATERS AI・展示・オッズで最終判定します。</p>
+      <p>展示前に使えるデータだけを点数化し、荒れる下地が強いレースを万舟率順に並べます。同じ場は原則2Rまでに抑え、直前にBOATERS AI・展示・オッズで最終判定します。</p>
     </header>
     <nav class="nav">
       <a id="posts-link" href="manshu_posts.html">投稿センター</a>
@@ -187,7 +187,7 @@
     <main class="layout">
       <section class="panel candidate-panel" id="watchlist-panel">
         <h2>展示前 万舟率ランキングTOP5</h2>
-        <p class="lead">全レースを展示前データだけで点数化し、万舟になりやすい上位5レースだけを表示します。</p>
+        <p class="lead">全レースを展示前データだけで点数化し、同じ場は原則2Rまでに抑えて、万舟になりやすい上位5レースだけを表示します。</p>
       </section>
       <section class="panel core-panel" id="core-forward-panel">
         <h2>本命買い 前向き検証</h2>
@@ -743,6 +743,7 @@
         "<div class=\"race-badges\">",
         "<span class=\"badge\">締切 "+esc(deadline(r))+"</span>",
         "<span class=\"badge warn\">展示前</span>",
+        r.pre_exhibition_diversified?"<span class=\"badge good\">場分散済み</span>":"",
         "<span class=\"badge "+(res.manshu?"good":"")+"\">"+(res.payout_yen!=null?"結果 "+esc(res.trifecta||"--")+" / "+esc(yen(res.payout_yen)):"結果待ち")+"</span>",
         "</div>",
         "</div>",

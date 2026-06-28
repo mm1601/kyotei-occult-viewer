@@ -380,6 +380,7 @@ def main() -> None:
             "Training uses only 2025. Test uses 2026 through 2026-06-18.",
             "v2 display probability is calibrated from 2025 empirical score bands plus shrinked venue/material adjustments.",
             "v2 ranking sorts by calibrated probability first so the public ranking matches the displayed manshu rate.",
+            "Morning candidates use the venue diversity rule from rank_daily_manshu_candidates.py: max two races per venue unless an extra race is exceptionally strong.",
             "v2 ranking is not allowed to use 2026 outcomes for weight selection.",
         ],
     }
@@ -437,6 +438,7 @@ def main() -> None:
             "## 読み取り",
             "",
             "- v2は2025年だけで確率表示と場別補正を作り、2026年で検証しています。",
+            "- 展示前ランキングは、同じ場を原則2Rまでに抑える場分散ルール込みで検証しています。",
             "- v2の主目的は、35%台に出すぎていた表示万舟率を実測に近づけることです。",
             "- v2のTOP5万舟率がv1を上回らない場合、本番採用せず前向き検証に回します。",
         ]
