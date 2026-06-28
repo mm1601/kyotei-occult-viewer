@@ -3266,20 +3266,25 @@ def monitor(args):
             ]
             selection_strategies = buy_strategies or subcore_strategies
             selection = selection_payload(rows, race=race, strategies=selection_strategies)
+            preview_ready = has_full_exhibition(metrics)
+            alert_rate_ready = (race.get("manshu_rate_pct") or 0) >= args.alert_threshold
+            can_send_alert = preview_ready and alert_rate_ready
             if backfill_only:
                 alert_type = None
-            elif source_type == "morning_top":
+            elif source_type == "morning_top" and can_send_alert:
                 if buy_strategies:
                     alert_type = "buy_ok"
                 elif subcore_strategies:
                     alert_type = "subcore_watch"
                 else:
                     alert_type = None
+            elif not can_send_alert:
+                alert_type = None
             elif buy_strategies:
                 alert_type = "late_riser_buy_ok"
             elif subcore_strategies:
                 alert_type = "late_riser_subcore_watch"
-            elif confirmed or ((race.get("manshu_rate_pct") or 0) >= args.riser_threshold and has_full_exhibition(metrics)):
+            elif confirmed or (race.get("manshu_rate_pct") or 0) >= args.riser_threshold:
                 alert_type = "late_riser"
             else:
                 alert_type = None
@@ -3309,6 +3314,9 @@ def monitor(args):
                     "strategies": strategy_ids,
                     "subcore_strategies": subcore_strategy_ids,
                     "candidate_strategy_ids": [s["strategy_id"] for s in all_strategies],
+                    "preview_ready": preview_ready,
+                    "alert_rate_ready": alert_rate_ready,
+                    "alert_threshold_pct": args.alert_threshold,
                     "selection": selection,
                     "metrics": metrics,
                     "morning_rank": morning_rank,
@@ -3398,6 +3406,7 @@ def monitor(args):
         "top_n": args.top_n,
         "riser_top_n": args.riser_top_n,
         "lookahead_minutes": args.lookahead_minutes,
+        "alert_threshold_pct": args.alert_threshold,
         "alerts": alerts,
         "inspected": inspected,
     }
@@ -3417,9 +3426,10 @@ def main():
     parser.add_argument("--threshold", type=float, default=27.0)
     parser.add_argument("--lookahead-minutes", type=float, default=20.0)
     parser.add_argument("--grace-minutes", type=float, default=2.0)
+    parser.add_argument("--alert-threshold", type=float, default=40.0, help="Minimum post-exhibition manshu rate required before sending smartphone alerts.")
     parser.add_argument("--scan-risers", action="store_true", help="Build a separate live ranking and notify races rising from outside the morning TOP list.")
     parser.add_argument("--riser-top-n", type=int, default=10, help="Live ranking depth used for late-riser detection.")
-    parser.add_argument("--riser-threshold", type=float, default=27.0, help="Minimum live manshu rate for late-riser alerts.")
+    parser.add_argument("--riser-threshold", type=float, default=40.0, help="Minimum live manshu rate for late-riser alerts.")
     parser.add_argument("--rebuild-morning", action="store_true")
     parser.add_argument(
         "--no-build-morning",

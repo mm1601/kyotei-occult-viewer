@@ -41,10 +41,11 @@ jobs:
             --date "${{ steps.jst.outputs.date }}" \
             --top-n 10 \
             --threshold 27 \
+            --alert-threshold 40 \
             --lookahead-minutes 20 \
             --scan-risers \
             --riser-top-n 10 \
-            --riser-threshold 27
+            --riser-threshold 40
 
       - name: Refresh static results and history
         run: |
