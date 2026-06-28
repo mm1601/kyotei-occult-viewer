@@ -193,10 +193,6 @@
         <h2>本命買い 前向き検証</h2>
         <p class="lead">直前本命条件に入ったレースだけを、買い目と結果込みで集計します。</p>
       </section>
-      <section class="panel factor-panel" id="buff-panel">
-        <h2>場別まとめ</h2>
-        <p class="lead">ランキングJSONを読み込むと、場ごとに「荒れやすい良い材料」と「1号艇に悪い材料」をまとめます。</p>
-      </section>
       <section class="panel notice">
         <h2>このページの見方</h2>
         <p class="lead">朝のリストは買い目ではありません。締切10〜15分前にBOATERS AI・展示・実オッズを入れて、朝の荒れ下地が展示後も残ったレースだけを買い候補にします。</p>
@@ -779,49 +775,6 @@
         "</details>"
       ].join("");
     }
-    function venueSummaryText(rows){
-      var lowB1=0, flyB1=0, popularB1=0, outer=0, head36=0, tenji=0;
-      rows.forEach(function(r){
-        var s=raceShape(r), m=r.metrics||{};
-        if(s.b1Win!=null&&s.b1Win<=40) lowB1+=1;
-        if(s.b1Fly!=null&&s.b1Fly>=35) flyB1+=1;
-        if(m.popular_b1_is_popular&&Number(m.popular_b1_fly_score||0)>=60) popularB1+=1;
-        if(s.outer56Top3!=null&&s.outer56Top3>=60) outer+=1;
-        if(s.winner36!=null&&s.winner36>=45) head36+=1;
-        if(Number(m.tenji_boats||0)>=6&&Number(m.isshu_boats||0)>=6) tenji+=1;
-      });
-      return {
-        buff:["5・6号艇が入りやすい "+outer+"R","3〜6号艇が1着になりやすい "+head36+"R","展示込み "+tenji+"R"],
-        debuff:["人気1号艇が危険 "+popularB1+"R","1号艇が勝ちにくい "+lowB1+"R","1号艇が飛びやすい "+flyB1+"R"]
-      };
-    }
-    function renderBuffPanel(rows){
-      var panel=document.getElementById("buff-panel");
-      if(!panel) return;
-      if(!rows.length){
-        panel.innerHTML="<h2>場別まとめ</h2><p class=\"lead\">ランキングJSONが空なので表示できません。</p>";
-        return;
-      }
-      var groups={};
-      rows.forEach(function(r){ var p=r.place_name||"不明"; (groups[p]=groups[p]||[]).push(r); });
-      panel.innerHTML=[
-        "<h2>場別まとめ</h2>",
-        "<p class=\"lead\">バフは「荒れて高配当になりやすい良い材料」、デバフは「1号艇に悪い材料」です。場ごとに、どんな材料が多いかをまとめています。</p>",
-        "<div class=\"venue-grid\">",
-        Object.keys(groups).map(function(place){
-          var rs=groups[place], s=venueSummaryText(rs), top=rs.slice().sort(function(a,b){return Number(b.manshu_rate_pct||0)-Number(a.manshu_rate_pct||0);})[0];
-          return [
-            "<div class=\"venue-card\">",
-            "<h3>"+esc(place)+"</h3>",
-            "<span class=\"venue-line\"><b>対象:</b> "+esc(rs.length)+"R / 最高万舟率 "+esc(pctShort(top&&top.manshu_rate_pct))+"（"+esc(top?label(top):"--")+"）</span>",
-            "<span class=\"venue-line\"><b>バフ:</b> "+esc(s.buff.join("、"))+"</span>",
-            "<span class=\"venue-line\"><b>デバフ:</b> "+esc(s.debuff.join("、"))+"</span>",
-            "</div>"
-          ].join("");
-        }).join(""),
-        "</div>"
-      ].join("");
-    }
     function renderCandidateSection(panelId,title,note,rows,emptyText){
       var panel=document.getElementById(panelId);
       if(!panel) return;
@@ -879,7 +832,6 @@
       renderStatus(rows);
       renderCandidatePanels();
       renderCoreForwardPanel();
-      renderBuffPanel(rows);
     }
     function stopResultPolling(){
       if(STATE.resultPollTimer){
@@ -938,7 +890,6 @@
       if(!payload){
         document.getElementById("status").innerHTML="<strong>ランキングJSONが見つかりません</strong><div class=\"chips\"><span class=\"chip hot\">"+esc(STATE.date)+"</span></div>";
         document.getElementById("watchlist-panel").innerHTML="<h2>朝の荒れ監視TOP10</h2><p class=\"lead\">data/output の今日分JSONがまだありません。</p>";
-        document.getElementById("buff-panel").innerHTML="<h2>場別まとめ</h2><p class=\"lead\">ランキングJSONが見つからないため表示できません。</p>";
         return;
       }
       STATE.data=payload;
