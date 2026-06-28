@@ -3048,7 +3048,7 @@ def build_morning_candidates(df, top_n):
         ),
         reverse=True,
     )
-    return rows[:5]
+    return rows[:top_n]
 
 
 def rankable_final_row(row, threshold):
