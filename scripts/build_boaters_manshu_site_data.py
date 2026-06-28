@@ -1247,6 +1247,13 @@ def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[
             status = str(status).replace("・展示待ち", "").replace("展示待ち", "展示込み")
         elif "展示込み" not in str(status):
             status = f"{status}・展示込み"
+    elif (
+        row.get("ranking_type") != "morning_watchlist"
+        and normalized_metrics["tenji_boats"] >= 6
+        and normalized_metrics["isshu_boats"] < 6
+        and "一周未取得" not in str(status)
+    ):
+        status = f"{status}・一周未取得"
     normalized = {
         "rank": rank,
         "status": status,

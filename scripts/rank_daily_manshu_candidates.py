@@ -3184,6 +3184,8 @@ def build_morning_candidates(df, top_n, pre_exhibition_calibration=None):
 
 
 def rankable_final_row(row, threshold):
+    if not is_general_grade_race(row):
+        return False
     if row.get("matched_logic_count", 0) > 0:
         return True
     edge_signals = row.get("composite_edges") or []
