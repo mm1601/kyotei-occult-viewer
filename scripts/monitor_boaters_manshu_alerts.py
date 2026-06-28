@@ -3514,11 +3514,11 @@ def main():
     parser.add_argument("--threshold", type=float, default=27.0)
     parser.add_argument("--lookahead-minutes", type=float, default=20.0)
     parser.add_argument("--grace-minutes", type=float, default=2.0)
-    parser.add_argument("--alert-threshold", type=float, default=40.0, help="Minimum post-exhibition manshu rate required before sending smartphone alerts.")
+    parser.add_argument("--alert-threshold", type=float, default=35.0, help="Minimum post-exhibition manshu rate required before sending smartphone alerts.")
     parser.add_argument("--scan-risers", action="store_true", help="Build a separate live ranking and log races rising from outside the morning TOP list.")
     parser.add_argument("--live-top-n", type=int, default=200, help="Live ranking depth used to attach post-exhibition rates to morning watchlist races.")
     parser.add_argument("--riser-top-n", type=int, default=10, help="Live ranking depth used for late-riser detection.")
-    parser.add_argument("--riser-threshold", type=float, default=40.0, help="Minimum live manshu rate for late-riser alerts.")
+    parser.add_argument("--riser-threshold", type=float, default=35.0, help="Minimum live manshu rate for late-riser alerts.")
     parser.add_argument(
         "--notify-risers",
         action="store_true",
