@@ -585,10 +585,10 @@
       return ids;
     }
     function validatedBuyIds(ids){
-      return (ids||[]).filter(function(id){return id==="codex_post_core_ab_rank3";});
+      return (ids||[]).filter(function(id){return id==="codex_post_core_rate40"||id==="codex_post_core_ab_rank3";});
     }
     function subcoreWatchIds(ids){
-      return (ids||[]).filter(function(id){return id==="codex_post_subcore_rank6_outer_exhibit_top2";});
+      return (ids||[]).filter(function(id){return id==="codex_post_subcore_rate38_conditions"||id==="codex_post_subcore_rank6_outer_exhibit_top2";});
     }
     function finalCheckText(r){
       var checks=(r.final_decision_checks||[]).filter(Boolean);
@@ -617,13 +617,13 @@
       if(!ex.full) return {label:"判定前", cls:"warn", detail:"展示タイム・1周・平均との差・スーパースリット取得後に買い/見送り判定"};
       if(!morning&&(stored==="急浮上参考"||(rate!==null&&rate>=40))) return {label:"急浮上参考", cls:"warn", detail:"朝監視TOP10外なので本命扱いはしません。展示後40%以上の参考枠です"};
       if(!morning) return {label:"参考外", cls:"bad", detail:"朝監視TOP10外なので本命/準本命には入れません"};
-      if(stored==="本命") return {label:"本命", cls:"good", detail:"展示後40%以上。本命通知の対象です"};
-      if(stored==="準本命"||stored==="準本命判定") return {label:"準本命", cls:"warn", showTickets:true, detail:"展示後38〜39.9%。準本命通知の対象です"};
+      if(stored==="本命"&&(buyIds.length||r.core_buy_ready===true)) return {label:"本命", cls:"good", detail:"展示後40%以上。本命通知の対象です"};
+      if(stored==="準本命"&&(subcoreIds.length||r.subcore_buy_ready===true)) return {label:"準本命", cls:"warn", showTickets:true, detail:"展示後38〜39.9%かつ準本命条件成立。準本命通知の対象です"};
       if(stored==="見送り") return {label:"見送り", cls:"bad", detail:finalCheckText(r)||"展示後データでは買い条件が足りません"};
-      if(rate!==null&&rate>=40) return {label:"本命", cls:"good", detail:"展示後40%以上。本命通知の対象です"};
-      if(rate!==null&&rate>=38) return {label:"準本命", cls:"warn", showTickets:true, detail:"展示後38〜39.9%。準本命通知の対象です"};
       if(buyIds.length) return {label:"本命買い候補", cls:"good", detail:"長期検証で最も筋がよかった直前核心条件に該当: "+buyIds.join(" / ")};
       if(subcoreIds.length) return {label:"準本命候補", cls:"warn", showTickets:true, detail:"AI+最下位の5/6号艇が展示で浮上。万舟監視として前向き検証中: "+subcoreIds.join(" / ")};
+      if(rate!==null&&rate>=40) return {label:"本命条件不足", cls:"bad", detail:"展示後40%以上ですが、12点買い目を作る条件が揃っていません"};
+      if(rate!==null&&rate>=38) return {label:"準本命条件不足", cls:"bad", detail:"展示後38〜39.9%ですが、1号艇危険・外頭2艇(5/6含む)・内軸残り・12点生成が揃っていません"};
       if(ids.length) return {label:"急浮上監視", cls:"warn", detail:"直前の荒れ材料はあります。ただし本命・準本命条件ではないため買い通知対象外: "+ids.join(" / ")};
       return {label:"見送り", cls:"bad", detail:"展示後データでは、万舟率が上がる直前条件が揃っていません"};
     }

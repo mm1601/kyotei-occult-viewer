@@ -796,10 +796,10 @@ def rank_boats_for_key(rows: list[dict], key: str, ranks: tuple[int, ...]) -> li
 
 def visible_axis_candidates(rows: list[dict], ranks: tuple[int, ...] = (1, 3)) -> tuple[list[int], str]:
     rank_label = "と".join(f"{rank}位" for rank in ranks)
-    if sum(1 for row in rows if as_num(row.get("top3_pct")) is not None) >= max(ranks):
-        return rank_boats_for_key(rows, "top3_pct", ranks), f"AI3連対率の{rank_label}"
     if sum(1 for row in rows if as_num(row.get("ai_plus")) is not None) >= max(ranks):
-        return rank_boats_for_key(rows, "ai_plus", ranks), f"AI3連対率が不足したためAI+一般3連対の{rank_label}"
+        return rank_boats_for_key(rows, "ai_plus", ranks), f"AI3連対率+一般3連対率の{rank_label}"
+    if sum(1 for row in rows if as_num(row.get("top3_pct")) is not None) >= max(ranks):
+        return rank_boats_for_key(rows, "top3_pct", ranks), f"AI+一般3連対が不足したためAI3連対率の{rank_label}"
     return rank_boats_for_key(rows, "composite_top3_actual_pct", ranks), f"AI+一般3連対が不足したため複合3着内率の{rank_label}"
 
 
@@ -1251,18 +1251,24 @@ def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[
     alert_type = row.get("last_minute_alert_type")
     buy_decision = row.get("buy_decision")
     final_decision_checks = list(row.get("final_decision_checks") or [])
+    subcore_strategy_ids = set(row.get("last_minute_subcore_strategy_ids") or [])
+    has_subcore_buy = "codex_post_subcore_rate38_conditions" in subcore_strategy_ids
     if alert_type in {"buy_ok", "late_riser_buy_ok"}:
         buy_decision = "本命"
         final_decision_checks.append(f"展示後40%以上:OK({rate_num:.2f}%)")
-    elif alert_type in {"subcore_watch", "late_riser_subcore_watch"}:
+    elif alert_type in {"subcore_watch", "late_riser_subcore_watch"} and has_subcore_buy:
         buy_decision = "準本命"
     elif preview_full and rate_num >= 40.0:
         buy_decision = "本命"
         final_decision_checks.append(f"展示後40%以上:OK({rate_num:.2f}%)")
-    elif preview_full and 38.0 <= rate_num < 40.0:
-        buy_decision = "準本命判定"
+    elif preview_full and 38.0 <= rate_num < 40.0 and has_subcore_buy:
+        buy_decision = "準本命"
         final_decision_checks.append(f"展示後38〜39.9%:OK({rate_num:.2f}%)")
-        final_decision_checks.append("準本命は1号艇危険・外頭2艇(5/6含む)・内軸残り・12点生成が必要")
+        final_decision_checks.append("準本命条件:OK")
+    elif preview_full and 38.0 <= rate_num < 40.0:
+        buy_decision = "見送り"
+        final_decision_checks.append(f"展示後38〜39.9%:OK({rate_num:.2f}%)")
+        final_decision_checks.append("準本命条件不足: 1号艇危険・外頭2艇(5/6含む)・内軸残り・12点生成まで揃わず")
     elif not preview_full:
         buy_decision = "展示待ち"
     else:

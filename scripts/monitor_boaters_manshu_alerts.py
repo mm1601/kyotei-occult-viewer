@@ -1189,10 +1189,10 @@ def axis_boats_by_ai_plus(rows, ranks=(1, 3)):
 
 def axis_boats_for_roles(rows, ranks=(1, 3)):
     rank_label = "と".join(f"{rank}位" for rank in ranks)
-    if sum(1 for row in rows if row.get("ai_3ren_pct") is not None) >= max(ranks):
-        return rank_boats_for_key(rows, "ai_3ren_pct", ranks), f"AI3連対率の{rank_label}"
     if sum(1 for row in rows if row.get("ai_plus") is not None) >= max(ranks):
-        return rank_boats_for_key(rows, "ai_plus", ranks), f"AI3連対率が不足したためAI+一般3連対の{rank_label}"
+        return rank_boats_for_key(rows, "ai_plus", ranks), f"AI3連対率+一般3連対率の{rank_label}"
+    if sum(1 for row in rows if row.get("ai_3ren_pct") is not None) >= max(ranks):
+        return rank_boats_for_key(rows, "ai_3ren_pct", ranks), f"AI+一般3連対が不足したためAI3連対率の{rank_label}"
     return rank_boats_for_key(rows, "composite_top3_actual_pct", ranks), f"AI+一般3連対が不足したため複合3着内率の{rank_label}"
 
 
@@ -1575,6 +1575,60 @@ def super_arunashi3(rows):
     }
 
 
+def core_40_arunashi12(rows):
+    heads = head_boats_for_arunashi(rows)
+    axes, axis_rule = axis_boats_for_roles(rows, ranks=(2, 3))
+    if len(heads) < 2 or len(axes) < 2:
+        return set(), None
+
+    keshi, keshi_reason, ai_plus_rank6_boat, ai_plus_rank6_revival = select_keshi_boat(
+        rows, protected=set(heads + axes)
+    )
+    if keshi is None:
+        return set(), None
+
+    pool = [boat for boat in range(1, 7) if boat != keshi]
+    tickets = set()
+    for head in heads:
+        if head == keshi:
+            continue
+        for axis in axes:
+            if axis in {head, keshi}:
+                continue
+            for other in pool:
+                if other in {head, axis}:
+                    continue
+                tickets.add(f"{head}{axis}{other}")
+                tickets.add(f"{head}{other}{axis}")
+    if not tickets:
+        return set(), None
+
+    tickets = trim_tickets(tickets, heads, axes, max_points=12)
+    if len(tickets) != 12:
+        return set(), None
+
+    alt_axes, _alt_axis_rule = axis_boats_for_roles(rows, ranks=(1, 3))
+    return tickets, {
+        "heads": heads,
+        "head_rule": "本命は3〜6号艇頭を優先。1/2号艇は強い1着根拠がある時だけ例外",
+        "head_mode": "core_40_outer_priority",
+        "head_scores": head_score_details(rows, heads),
+        "axes": axes,
+        "axis_rule": axis_rule,
+        "alt_axes": alt_axes,
+        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の1位と3位",
+        "supports": pool,
+        "keshi": keshi,
+        "keshi_reason": keshi_reason,
+        "ai_plus_rank6_boat": ai_plus_rank6_boat,
+        "ai_plus_rank6_revival": ai_plus_rank6_revival,
+        "role_note": (
+            f"本命専用。頭{heads[0]},{heads[1]} / 軸は{axis_rule}の{axes[0]},{axes[1]} / "
+            f"消し{keshi}以外へ2・3着折り返し12点"
+        ),
+    }
+
+
 def combo_boats(value):
     combo = norm_combo(value)
     return [int(ch) for ch in combo] if len(combo) == 3 else []
@@ -1586,6 +1640,35 @@ def axis_hit(axes, trifecta):
 
 
 def selection_payload(rows, race=None, strategies=None):
+    primary_strategy = next((strategy for strategy in (strategies or []) if strategy.get("tickets")), None)
+    if primary_strategy:
+        result = (race or {}).get("result") or {}
+        trifecta = result.get("trifecta") or (race or {}).get("trifecta")
+        tickets = {norm_combo(ticket) for ticket in primary_strategy.get("tickets") or []}
+        tickets = {ticket for ticket in tickets if len(ticket) == 3}
+        return {
+            "version": "codex_roles_v2",
+            "label": primary_strategy.get("label") or "Codex候補",
+            "heads": primary_strategy.get("heads") or [],
+            "head_rule": primary_strategy.get("head_rule"),
+            "head_scores": primary_strategy.get("head_scores") or {},
+            "axes": primary_strategy.get("axes") or [],
+            "axis_rule": primary_strategy.get("axis_rule"),
+            "alt_axes": primary_strategy.get("alt_axes") or [],
+            "alt_axis_rule": primary_strategy.get("alt_axis_rule"),
+            "supports": primary_strategy.get("supports") or [],
+            "keshi": primary_strategy.get("keshi"),
+            "keshi_reason": primary_strategy.get("keshi_reason"),
+            "ai_plus_rank6_boat": primary_strategy.get("ai_plus_rank6_boat"),
+            "ai_plus_rank6_revival": primary_strategy.get("ai_plus_rank6_revival") or [],
+            "points": len(tickets),
+            "tickets": [fmt_ticket(ticket) for ticket in sorted(tickets)],
+            "role_note": primary_strategy.get("role_note"),
+            "axis_hit": axis_hit(primary_strategy.get("axes"), trifecta),
+            "alt_axis_hit": axis_hit(primary_strategy.get("alt_axes"), trifecta),
+            "odds_filter": primary_strategy.get("odds_filter") or "3連単50倍未満は買わない",
+            "source_strategy_ids": [s.get("strategy_id") for s in (strategies or [])],
+        }
     tickets, roles = super_arunashi3(rows)
     if not tickets or roles is None:
         return {}
@@ -2973,8 +3056,8 @@ def roi_strategies(race, metrics, rows):
         strategies.append(
             (
                 "codex_post_core_rate40",
-                "Codex本命: 展示後40%以上 外頭2艇+軸2艇 10〜15点",
-                super_arunashi3,
+                "Codex本命: 展示後40%以上 外頭2艇+AI+一般2位3位軸 12点",
+                core_40_arunashi12,
                 {
                     "tier": "core",
                     "entry_checks": [f"展示後40%以上:OK({post_rate:.2f}%)"],
@@ -3300,9 +3383,9 @@ def roi_strategies(race, metrics, rows):
 
     out = []
     for item in strategies:
-        strategy_id, label, _ticket_func = item[:3]
+        strategy_id, label, ticket_func = item[:3]
         meta = item[3] if len(item) >= 4 and isinstance(item[3], dict) else {}
-        tickets, roles = super_arunashi3(rows)
+        tickets, roles = ticket_func(rows)
         if not tickets or roles is None:
             continue
         payload = {
@@ -3310,10 +3393,13 @@ def roi_strategies(race, metrics, rows):
             "label": label,
             "points": len(tickets),
             "heads": roles["heads"],
+            "head_rule": roles.get("head_rule"),
+            "head_mode": roles.get("head_mode"),
+            "head_scores": roles.get("head_scores", {}),
             "axes": roles["axes"],
             "alt_axes": roles.get("alt_axes", []),
-            "axis_rule": "AI3連対率+一般3連対率の1位と3位",
-            "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+            "axis_rule": roles.get("axis_rule"),
+            "alt_axis_rule": roles.get("alt_axis_rule"),
             "supports": roles.get("supports", []),
             "keshi": roles["keshi"],
             "keshi_reason": roles.get("keshi_reason"),
@@ -3651,14 +3737,16 @@ def monitor(args):
             post_rate = as_num(race.get("manshu_rate_pct")) or 0
             core_rate_ready = post_rate >= args.core_alert_threshold
             subcore_rate_ready = SUBCORE_ALERT_RATE_MIN <= post_rate < args.core_alert_threshold
-            alert_rate_ready = core_rate_ready or subcore_rate_ready
+            core_buy_ready = core_rate_ready and bool(buy_strategies)
+            subcore_buy_ready = subcore_rate_ready and bool(subcore_strategies)
+            alert_rate_ready = core_buy_ready or subcore_buy_ready
             can_send_alert = preview_ready and alert_rate_ready
             if backfill_only:
                 alert_type = None
             elif source_type == "morning_top" and can_send_alert:
-                if core_rate_ready:
+                if core_buy_ready:
                     alert_type = "buy_ok"
-                elif subcore_rate_ready:
+                elif subcore_buy_ready:
                     alert_type = "subcore_watch"
                 else:
                     alert_type = None
@@ -3666,7 +3754,7 @@ def monitor(args):
                 alert_type = None
             elif not can_send_alert:
                 alert_type = None
-            elif source_type != "morning_top" and core_rate_ready:
+            elif source_type != "morning_top" and core_buy_ready:
                 alert_type = "late_riser"
             else:
                 alert_type = None
@@ -3689,13 +3777,15 @@ def monitor(args):
                 "candidate_strategy_ids": [s["strategy_id"] for s in all_strategies],
                 "core_rate_ready": core_rate_ready,
                 "subcore_rate_ready": subcore_rate_ready,
+                "core_buy_ready": core_buy_ready,
+                "subcore_buy_ready": subcore_buy_ready,
                 "buy_decision": (
                     "本命"
-                    if source_type == "morning_top" and core_rate_ready
+                    if source_type == "morning_top" and core_buy_ready
                     else (
                         "準本命"
-                        if source_type == "morning_top" and subcore_rate_ready
-                        else ("急浮上参考" if source_type != "morning_top" and core_rate_ready else ("見送り" if preview_ready else None))
+                        if source_type == "morning_top" and subcore_buy_ready
+                        else ("急浮上参考" if source_type != "morning_top" and core_buy_ready else ("見送り" if preview_ready else None))
                     )
                 ),
                 "core_alert_threshold_pct": args.core_alert_threshold,
@@ -3718,6 +3808,8 @@ def monitor(args):
                     "alert_rate_ready": alert_rate_ready,
                     "core_rate_ready": core_rate_ready,
                     "subcore_rate_ready": subcore_rate_ready,
+                    "core_buy_ready": core_buy_ready,
+                    "subcore_buy_ready": subcore_buy_ready,
                     "core_alert_threshold_pct": args.core_alert_threshold,
                     "subcore_alert_threshold_min_pct": SUBCORE_ALERT_RATE_MIN,
                     "morning_manshu_rate_pct": race.get("morning_manshu_rate_pct"),
