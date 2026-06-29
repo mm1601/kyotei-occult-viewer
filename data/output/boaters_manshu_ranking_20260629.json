@@ -1,7 +1,7 @@
 {
   "version": "boaters-manshu-logic-v2",
   "date": "2026-06-29",
-  "generated_at": "2026-06-29T09:13:51+00:00",
+  "generated_at": "2026-06-29T13:18:00+00:00",
   "threshold_pct": 27.0,
   "logic_label": "Codex厳選ランキング（全ファクター統合）",
   "logic_summary": "過去検証27%以上の強条件、三連単人気1〜5が1号艇頭の売れ過ぎイン飛び、1号艇弱化、外枠上振れ、AI+下位の穴、AI/オッズ評価、展示タイム+有効ラップ（通常は1周、江戸川は半周対応）、夏場ラップ補正、スーパースリットアラート、平均STタイム/順位で近似したスリット隊形、女子戦攻略ファクター、天候/風波、今回メンバー同士の対戦相性をすべて同じスコアに混ぜた統合厳選ランキング。",
@@ -672,30 +672,30 @@
         "popular_b1_matched_conditions": []
       },
       "selection": {
-        "version": "codex_visible_roles_v1",
+        "version": "codex_roles_v2",
         "label": "Codex候補",
         "heads": [
           4,
-          5
+          1
         ],
-        "head_rule": "万舟は3〜6号艇頭が多いので、3〜6号艇から2艇を優先",
+        "head_rule": "万舟は3〜6号艇頭が多いので3〜6号艇を優先。1/2号艇は強い1着根拠がある時だけ例外",
         "head_mode": "manshu_3to6_priority",
         "head_scores": {
-          "4": {
-            "score": 41.74,
+          "1": {
+            "score": 87.0,
             "reasons": [
-              "複合1着率17.7%",
-              "万舟は3〜6号艇頭が多い",
-              "過去条件で穴頭寄り",
-              "過去条件で穴頭寄り"
+              "複合1着率70.0%",
+              "ダブルタイム",
+              "展示+1周平均との差+0.60",
+              "例外的に内側の頭力が高い"
             ]
           },
-          "5": {
-            "score": 21.78,
+          "4": {
+            "score": 41.57,
             "reasons": [
-              "複合1着率2.8%",
+              "複合1着率17.6%",
               "万舟は3〜6号艇頭が多い",
-              "低評価外枠の復活候補",
+              "過去条件で穴頭寄り",
               "過去条件で穴頭寄り"
             ]
           }
@@ -704,12 +704,24 @@
           1,
           3
         ],
-        "axis_rule": "AI3連対率の1位と3位",
+        "axis_rule": "AI3連対率+一般3連対率の1位と3位",
         "alt_axes": [
           4,
           3
         ],
-        "alt_axis_rule": "AI3連対率の2位と3位",
+        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+        "supports": [
+          1,
+          3,
+          4,
+          5,
+          6
+        ],
+        "keshi": 2,
+        "keshi_reason": "AI3連対率+一般3連対率が6位(44.2%)で、展示・一周・スリットの復活材料が弱い",
+        "ai_plus_rank6_boat": 2,
+        "ai_plus_rank6_revival": [],
+        "points": 15,
         "tickets": [
           "1-3-4",
           "1-3-5",
@@ -727,9 +739,13 @@
           "4-6-1",
           "4-6-3"
         ],
-        "points": 15
+        "role_note": "頭4,1 / 軸はAI3連対率+一般3連対率の1位と3位の1,3 / 2・3着は軸どちらか必須で消し2以外へ折り返し",
+        "axis_hit": null,
+        "alt_axis_hit": null,
+        "odds_filter": "3連単50倍未満は買わない",
+        "source_strategy_ids": []
       },
-      "last_minute_checked_at": "2026-06-29T18:12:50+09:00",
+      "last_minute_checked_at": "2026-06-29T22:17:20+09:00",
       "last_minute_alert_type": null,
       "last_minute_checks": [
         "スリット隊形あり:NG",
@@ -1364,63 +1380,78 @@
         "popular_b1_matched_conditions": []
       },
       "selection": {
-        "version": "codex_visible_roles_v1",
+        "version": "codex_roles_v2",
         "label": "Codex候補",
         "heads": [
           3,
           2
         ],
-        "head_rule": "3〜6号艇優先。ただし内側に強い1着根拠があるため例外採用",
+        "head_rule": "万舟は3〜6号艇頭が多いので3〜6号艇を優先。1/2号艇は強い1着根拠がある時だけ例外",
         "head_mode": "manshu_3to6_priority",
         "head_scores": {
-          "3": {
-            "score": 44.47,
-            "reasons": [
-              "複合1着率27.5%",
-              "万舟は3〜6号艇頭が多い",
-              "過去条件で穴頭寄り",
-              "過去条件で穴頭寄り"
-            ]
-          },
           "2": {
-            "score": 48.65,
+            "score": 46.71,
             "reasons": [
-              "複合1着率46.6%",
+              "複合1着率44.7%",
               "AI+1位",
               "例外的に内側の頭力が高い"
+            ]
+          },
+          "3": {
+            "score": 47.96,
+            "reasons": [
+              "複合1着率28.0%",
+              "万舟は3〜6号艇頭が多い",
+              "1号艇が凹み3に出番",
+              "過去条件で穴頭寄り"
             ]
           }
         },
         "axes": [
           2,
-          1
+          3
         ],
-        "axis_rule": "AI3連対率の1位と3位",
+        "axis_rule": "AI3連対率+一般3連対率の1位と3位",
         "alt_axes": [
-          3,
-          1
+          1,
+          3
         ],
-        "alt_axis_rule": "AI3連対率の2位と3位",
+        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+        "supports": [
+          1,
+          2,
+          3,
+          5,
+          6
+        ],
+        "keshi": 4,
+        "keshi_reason": "AI3連対率+一般3連対率6位の5号艇は低評価外枠の展示復活があり残す。代わりに4号艇を消し",
+        "ai_plus_rank6_boat": 5,
+        "ai_plus_rank6_revival": [
+          "低評価外枠の展示復活"
+        ],
+        "points": 12,
         "tickets": [
           "2-1-3",
-          "2-1-5",
-          "2-1-6",
-          "2-5-1",
-          "2-6-1",
+          "2-3-1",
+          "2-3-5",
+          "2-3-6",
+          "2-5-3",
+          "2-6-3",
           "3-1-2",
-          "3-1-5",
-          "3-1-6",
           "3-2-1",
           "3-2-5",
           "3-2-6",
-          "3-5-1",
           "3-5-2",
-          "3-6-1",
           "3-6-2"
         ],
-        "points": 15
+        "role_note": "頭3,2 / 軸はAI3連対率+一般3連対率の1位と3位の2,3 / 2・3着は軸どちらか必須で消し4以外へ折り返し",
+        "axis_hit": null,
+        "alt_axis_hit": null,
+        "odds_filter": "3連単50倍未満は買わない",
+        "source_strategy_ids": []
       },
-      "last_minute_checked_at": "2026-06-29T18:12:50+09:00",
+      "last_minute_checked_at": "2026-06-29T22:17:20+09:00",
       "last_minute_alert_type": null,
       "last_minute_checks": [
         "スリット隊形あり:NG",
@@ -2050,28 +2081,28 @@
         "popular_b1_matched_conditions": []
       },
       "selection": {
-        "version": "codex_visible_roles_v1",
+        "version": "codex_roles_v2",
         "label": "Codex候補",
         "heads": [
           3,
           5
         ],
-        "head_rule": "万舟は3〜6号艇頭が多いので、3〜6号艇から2艇を優先",
+        "head_rule": "万舟は3〜6号艇頭が多いので3〜6号艇を優先。1/2号艇は強い1着根拠がある時だけ例外",
         "head_mode": "manshu_3to6_priority",
         "head_scores": {
           "3": {
-            "score": 36.17,
+            "score": 35.42,
             "reasons": [
-              "複合1着率12.2%",
+              "複合1着率11.4%",
               "万舟は3〜6号艇頭が多い",
               "過去条件で穴頭寄り",
               "過去条件で穴頭寄り"
             ]
           },
           "5": {
-            "score": 34.57,
+            "score": 33.61,
             "reasons": [
-              "複合1着率15.6%",
+              "複合1着率14.6%",
               "万舟は3〜6号艇頭が多い",
               "過去条件で穴頭寄り",
               "過去条件で穴頭寄り"
@@ -2080,34 +2111,52 @@
         },
         "axes": [
           1,
-          5
+          2
         ],
-        "axis_rule": "AI3連対率の1位と3位",
+        "axis_rule": "AI3連対率+一般3連対率の1位と3位",
         "alt_axes": [
+          5,
+          2
+        ],
+        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+        "supports": [
+          1,
           2,
+          3,
+          4,
           5
         ],
-        "alt_axis_rule": "AI3連対率の2位と3位",
+        "keshi": 6,
+        "keshi_reason": "AI3連対率+一般3連対率が6位(51.6%)で、展示・一周・スリットの復活材料が弱い",
+        "ai_plus_rank6_boat": 6,
+        "ai_plus_rank6_revival": [
+          "低評価外枠の展示復活"
+        ],
+        "points": 15,
         "tickets": [
           "3-1-4",
           "3-1-5",
-          "3-1-6",
-          "3-4-5",
+          "3-2-1",
+          "3-2-5",
           "3-5-1",
-          "3-5-4",
-          "3-5-6",
-          "3-6-1",
-          "3-6-5",
+          "3-5-2",
           "5-1-3",
           "5-1-4",
-          "5-1-6",
+          "5-2-1",
+          "5-2-3",
+          "5-2-4",
           "5-3-1",
+          "5-3-2",
           "5-4-1",
-          "5-6-1"
+          "5-4-2"
         ],
-        "points": 15
+        "role_note": "頭3,5 / 軸はAI3連対率+一般3連対率の1位と3位の1,2 / 2・3着は軸どちらか必須で消し6以外へ折り返し",
+        "axis_hit": null,
+        "alt_axis_hit": null,
+        "odds_filter": "3連単50倍未満は買わない",
+        "source_strategy_ids": []
       },
-      "last_minute_checked_at": "2026-06-29T18:12:50+09:00",
+      "last_minute_checked_at": "2026-06-29T22:17:20+09:00",
       "last_minute_alert_type": null,
       "last_minute_checks": [
         "スリット隊形あり:NG",
@@ -5184,64 +5233,82 @@
         "popular_b1_matched_conditions": []
       },
       "selection": {
-        "version": "codex_visible_roles_v1",
+        "version": "codex_roles_v2",
         "label": "Codex候補",
         "heads": [
           4,
           3
         ],
-        "head_rule": "万舟は3〜6号艇頭が多いので、3〜6号艇から2艇を優先",
+        "head_rule": "万舟は3〜6号艇頭が多いので3〜6号艇を優先。1/2号艇は強い1着根拠がある時だけ例外",
         "head_mode": "manshu_3to6_priority",
         "head_scores": {
-          "4": {
-            "score": 39.53,
-            "reasons": [
-              "複合1着率26.5%",
-              "万舟は3〜6号艇頭が多い",
-              "過去条件で穴頭寄り",
-              "AI+2位"
-            ]
-          },
           "3": {
-            "score": 36.13,
+            "score": 34.49,
             "reasons": [
-              "複合1着率22.1%",
+              "複合1着率20.5%",
               "万舟は3〜6号艇頭が多い",
               "過去条件で穴頭寄り",
               "展示か1周が2位以内"
+            ]
+          },
+          "4": {
+            "score": 36.13,
+            "reasons": [
+              "複合1着率23.1%",
+              "万舟は3〜6号艇頭が多い",
+              "過去条件で穴頭寄り",
+              "AI+2位"
             ]
           }
         },
         "axes": [
           1,
-          3
+          5
         ],
-        "axis_rule": "AI3連対率の1位と3位",
+        "axis_rule": "AI3連対率+一般3連対率の1位と3位",
         "alt_axes": [
           4,
-          3
+          5
         ],
-        "alt_axis_rule": "AI3連対率の2位と3位",
+        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+        "supports": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "keshi": 6,
+        "keshi_reason": "AI3連対率+一般3連対率が6位(39.5%)で、展示・一周・スリットの復活材料が弱い",
+        "ai_plus_rank6_boat": 6,
+        "ai_plus_rank6_revival": [
+          "低評価外枠の展示復活"
+        ],
+        "points": 15,
         "tickets": [
           "3-1-4",
           "3-1-5",
-          "3-2-1",
-          "3-4-1",
+          "3-2-5",
+          "3-4-5",
           "3-5-1",
-          "4-1-2",
+          "3-5-2",
+          "3-5-4",
           "4-1-3",
           "4-1-5",
           "4-2-1",
-          "4-2-3",
-          "4-3-1",
-          "4-3-2",
+          "4-2-5",
           "4-3-5",
           "4-5-1",
+          "4-5-2",
           "4-5-3"
         ],
-        "points": 15
+        "role_note": "頭4,3 / 軸はAI3連対率+一般3連対率の1位と3位の1,5 / 2・3着は軸どちらか必須で消し6以外へ折り返し",
+        "axis_hit": null,
+        "alt_axis_hit": null,
+        "odds_filter": "3連単50倍未満は買わない",
+        "source_strategy_ids": []
       },
-      "last_minute_checked_at": "2026-06-29T18:12:50+09:00",
+      "last_minute_checked_at": "2026-06-29T22:17:20+09:00",
       "last_minute_alert_type": null,
       "last_minute_checks": [
         "スリット隊形あり:NG",
@@ -5849,64 +5916,79 @@
         "popular_b1_matched_conditions": []
       },
       "selection": {
-        "version": "codex_visible_roles_v1",
+        "version": "codex_roles_v2",
         "label": "Codex候補",
         "heads": [
           4,
           1
         ],
-        "head_rule": "3〜6号艇優先。ただし内側に強い1着根拠があるため例外採用",
+        "head_rule": "万舟は3〜6号艇頭が多いので3〜6号艇を優先。1/2号艇は強い1着根拠がある時だけ例外",
         "head_mode": "manshu_3to6_priority",
         "head_scores": {
-          "4": {
-            "score": 56.34,
+          "1": {
+            "score": 71.47,
             "reasons": [
-              "複合1着率30.3%",
+              "複合1着率49.5%",
+              "1号艇オッズ評価39.5%で売れすぎではないが逃げ材料が強い",
+              "展示+1周平均との差+0.59",
+              "例外的に内側の頭力が高い"
+            ]
+          },
+          "4": {
+            "score": 57.72,
+            "reasons": [
+              "複合1着率31.7%",
               "万舟は3〜6号艇頭が多い",
               "過去条件で穴頭寄り",
               "過去条件で穴頭寄り"
             ]
-          },
-          "1": {
-            "score": 78.61,
-            "reasons": [
-              "複合1着率51.6%",
-              "1号艇オッズ評価39.5%で売れすぎではないが逃げ材料が強い",
-              "夏場1周が良くイン残り寄り",
-              "例外的に内側の頭力が高い"
-            ]
           }
         },
         "axes": [
-          4,
-          2
-        ],
-        "axis_rule": "AI3連対率の1位と3位",
-        "alt_axes": [
           1,
-          2
+          4
         ],
-        "alt_axis_rule": "AI3連対率の2位と3位",
+        "axis_rule": "AI3連対率+一般3連対率の1位と3位",
+        "alt_axes": [
+          2,
+          4
+        ],
+        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+        "supports": [
+          1,
+          2,
+          4,
+          5,
+          6
+        ],
+        "keshi": 3,
+        "keshi_reason": "AI3連対率+一般3連対率6位の6号艇は低評価外枠の展示復活があり残す。代わりに3号艇を消し",
+        "ai_plus_rank6_boat": 6,
+        "ai_plus_rank6_revival": [
+          "低評価外枠の展示復活"
+        ],
+        "points": 12,
         "tickets": [
           "1-2-4",
-          "1-2-5",
-          "1-2-6",
+          "1-4-2",
           "1-4-5",
           "1-4-6",
-          "1-5-2",
           "1-5-4",
-          "1-6-2",
           "1-6-4",
           "4-1-2",
+          "4-1-5",
+          "4-1-6",
           "4-2-1",
-          "4-2-5",
-          "4-2-6",
-          "4-5-2",
-          "4-6-2"
+          "4-5-1",
+          "4-6-1"
         ],
-        "points": 15
+        "role_note": "頭4,1 / 軸はAI3連対率+一般3連対率の1位と3位の1,4 / 2・3着は軸どちらか必須で消し3以外へ折り返し",
+        "axis_hit": null,
+        "alt_axis_hit": null,
+        "odds_filter": "3連単50倍未満は買わない",
+        "source_strategy_ids": []
       },
-      "last_minute_checked_at": "2026-06-29T18:12:50+09:00",
+      "last_minute_checked_at": "2026-06-29T22:17:20+09:00",
       "last_minute_alert_type": null,
       "last_minute_checks": [
         "スリット隊形あり:NG",
@@ -6511,64 +6593,82 @@
         "popular_b1_matched_conditions": []
       },
       "selection": {
-        "version": "codex_visible_roles_v1",
+        "version": "codex_roles_v2",
         "label": "Codex候補",
         "heads": [
           4,
-          3
+          6
         ],
-        "head_rule": "万舟は3〜6号艇頭が多いので、3〜6号艇から2艇を優先",
+        "head_rule": "万舟は3〜6号艇頭が多いので3〜6号艇を優先。1/2号艇は強い1着根拠がある時だけ例外",
         "head_mode": "manshu_3to6_priority",
         "head_scores": {
           "4": {
-            "score": 28.47,
+            "score": 27.46,
             "reasons": [
-              "複合1着率11.5%",
+              "複合1着率10.5%",
               "万舟は3〜6号艇頭が多い",
               "過去条件で穴頭寄り",
               "過去条件で穴頭寄り"
             ]
           },
-          "3": {
-            "score": 26.2,
+          "6": {
+            "score": 26.0,
             "reasons": [
-              "複合1着率12.2%",
+              "複合1着率1.0%",
               "万舟は3〜6号艇頭が多い",
-              "過去条件で穴頭寄り",
+              "低評価外枠の復活候補",
               "過去条件で穴頭寄り"
             ]
           }
         },
         "axes": [
           1,
-          2
+          3
         ],
-        "axis_rule": "AI3連対率の1位と3位",
+        "axis_rule": "AI3連対率+一般3連対率の1位と3位",
         "alt_axes": [
-          4,
-          2
+          2,
+          3
         ],
-        "alt_axis_rule": "AI3連対率の2位と3位",
+        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+        "supports": [
+          1,
+          2,
+          3,
+          4,
+          6
+        ],
+        "keshi": 5,
+        "keshi_reason": "AI3連対率+一般3連対率6位の6号艇は低評価外枠の展示復活があり残す。代わりに5号艇を消し",
+        "ai_plus_rank6_boat": 6,
+        "ai_plus_rank6_revival": [
+          "低評価外枠の展示復活"
+        ],
+        "points": 15,
         "tickets": [
           "4-1-3",
           "4-1-6",
-          "4-2-1",
-          "4-2-6",
+          "4-3-1",
+          "4-3-6",
           "4-6-1",
-          "4-6-2",
+          "4-6-3",
           "6-1-3",
           "6-1-4",
           "6-2-1",
           "6-2-3",
-          "6-2-4",
           "6-3-1",
           "6-3-2",
+          "6-3-4",
           "6-4-1",
-          "6-4-2"
+          "6-4-3"
         ],
-        "points": 15
+        "role_note": "頭4,6 / 軸はAI3連対率+一般3連対率の1位と3位の1,3 / 2・3着は軸どちらか必須で消し5以外へ折り返し",
+        "axis_hit": null,
+        "alt_axis_hit": null,
+        "odds_filter": "3連単50倍未満は買わない",
+        "source_strategy_ids": []
       },
-      "last_minute_checked_at": "2026-06-29T18:12:50+09:00",
+      "last_minute_checked_at": "2026-06-29T22:17:20+09:00",
       "last_minute_alert_type": null,
       "last_minute_checks": [
         "スリット隊形あり:NG",
@@ -7235,30 +7335,30 @@
         "popular_b1_matched_conditions": []
       },
       "selection": {
-        "version": "codex_visible_roles_v1",
+        "version": "codex_roles_v2",
         "label": "Codex候補",
         "heads": [
           4,
-          5
+          1
         ],
-        "head_rule": "万舟は3〜6号艇頭が多いので、3〜6号艇から2艇を優先",
+        "head_rule": "万舟は3〜6号艇頭が多いので3〜6号艇を優先。1/2号艇は強い1着根拠がある時だけ例外",
         "head_mode": "manshu_3to6_priority",
         "head_scores": {
-          "4": {
-            "score": 41.74,
+          "1": {
+            "score": 87.0,
             "reasons": [
-              "複合1着率17.7%",
-              "万舟は3〜6号艇頭が多い",
-              "過去条件で穴頭寄り",
-              "過去条件で穴頭寄り"
+              "複合1着率70.0%",
+              "ダブルタイム",
+              "展示+1周平均との差+0.60",
+              "例外的に内側の頭力が高い"
             ]
           },
-          "5": {
-            "score": 21.78,
+          "4": {
+            "score": 41.57,
             "reasons": [
-              "複合1着率2.8%",
+              "複合1着率17.6%",
               "万舟は3〜6号艇頭が多い",
-              "低評価外枠の復活候補",
+              "過去条件で穴頭寄り",
               "過去条件で穴頭寄り"
             ]
           }
@@ -7267,12 +7367,24 @@
           1,
           3
         ],
-        "axis_rule": "AI3連対率の1位と3位",
+        "axis_rule": "AI3連対率+一般3連対率の1位と3位",
         "alt_axes": [
           4,
           3
         ],
-        "alt_axis_rule": "AI3連対率の2位と3位",
+        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+        "supports": [
+          1,
+          3,
+          4,
+          5,
+          6
+        ],
+        "keshi": 2,
+        "keshi_reason": "AI3連対率+一般3連対率が6位(44.2%)で、展示・一周・スリットの復活材料が弱い",
+        "ai_plus_rank6_boat": 2,
+        "ai_plus_rank6_revival": [],
+        "points": 15,
         "tickets": [
           "1-3-4",
           "1-3-5",
@@ -7290,9 +7402,13 @@
           "4-6-1",
           "4-6-3"
         ],
-        "points": 15
+        "role_note": "頭4,1 / 軸はAI3連対率+一般3連対率の1位と3位の1,3 / 2・3着は軸どちらか必須で消し2以外へ折り返し",
+        "axis_hit": null,
+        "alt_axis_hit": null,
+        "odds_filter": "3連単50倍未満は買わない",
+        "source_strategy_ids": []
       },
-      "last_minute_checked_at": "2026-06-29T18:12:50+09:00",
+      "last_minute_checked_at": "2026-06-29T22:17:20+09:00",
       "last_minute_alert_type": null,
       "last_minute_checks": [
         "スリット隊形あり:NG",
@@ -7927,63 +8043,78 @@
         "popular_b1_matched_conditions": []
       },
       "selection": {
-        "version": "codex_visible_roles_v1",
+        "version": "codex_roles_v2",
         "label": "Codex候補",
         "heads": [
           3,
           2
         ],
-        "head_rule": "3〜6号艇優先。ただし内側に強い1着根拠があるため例外採用",
+        "head_rule": "万舟は3〜6号艇頭が多いので3〜6号艇を優先。1/2号艇は強い1着根拠がある時だけ例外",
         "head_mode": "manshu_3to6_priority",
         "head_scores": {
-          "3": {
-            "score": 44.47,
-            "reasons": [
-              "複合1着率27.5%",
-              "万舟は3〜6号艇頭が多い",
-              "過去条件で穴頭寄り",
-              "過去条件で穴頭寄り"
-            ]
-          },
           "2": {
-            "score": 48.65,
+            "score": 46.71,
             "reasons": [
-              "複合1着率46.6%",
+              "複合1着率44.7%",
               "AI+1位",
               "例外的に内側の頭力が高い"
+            ]
+          },
+          "3": {
+            "score": 47.96,
+            "reasons": [
+              "複合1着率28.0%",
+              "万舟は3〜6号艇頭が多い",
+              "1号艇が凹み3に出番",
+              "過去条件で穴頭寄り"
             ]
           }
         },
         "axes": [
           2,
-          1
+          3
         ],
-        "axis_rule": "AI3連対率の1位と3位",
+        "axis_rule": "AI3連対率+一般3連対率の1位と3位",
         "alt_axes": [
-          3,
-          1
+          1,
+          3
         ],
-        "alt_axis_rule": "AI3連対率の2位と3位",
+        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+        "supports": [
+          1,
+          2,
+          3,
+          5,
+          6
+        ],
+        "keshi": 4,
+        "keshi_reason": "AI3連対率+一般3連対率6位の5号艇は低評価外枠の展示復活があり残す。代わりに4号艇を消し",
+        "ai_plus_rank6_boat": 5,
+        "ai_plus_rank6_revival": [
+          "低評価外枠の展示復活"
+        ],
+        "points": 12,
         "tickets": [
           "2-1-3",
-          "2-1-5",
-          "2-1-6",
-          "2-5-1",
-          "2-6-1",
+          "2-3-1",
+          "2-3-5",
+          "2-3-6",
+          "2-5-3",
+          "2-6-3",
           "3-1-2",
-          "3-1-5",
-          "3-1-6",
           "3-2-1",
           "3-2-5",
           "3-2-6",
-          "3-5-1",
           "3-5-2",
-          "3-6-1",
           "3-6-2"
         ],
-        "points": 15
+        "role_note": "頭3,2 / 軸はAI3連対率+一般3連対率の1位と3位の2,3 / 2・3着は軸どちらか必須で消し4以外へ折り返し",
+        "axis_hit": null,
+        "alt_axis_hit": null,
+        "odds_filter": "3連単50倍未満は買わない",
+        "source_strategy_ids": []
       },
-      "last_minute_checked_at": "2026-06-29T18:12:50+09:00",
+      "last_minute_checked_at": "2026-06-29T22:17:20+09:00",
       "last_minute_alert_type": null,
       "last_minute_checks": [
         "スリット隊形あり:NG",
@@ -8613,28 +8744,28 @@
         "popular_b1_matched_conditions": []
       },
       "selection": {
-        "version": "codex_visible_roles_v1",
+        "version": "codex_roles_v2",
         "label": "Codex候補",
         "heads": [
           3,
           5
         ],
-        "head_rule": "万舟は3〜6号艇頭が多いので、3〜6号艇から2艇を優先",
+        "head_rule": "万舟は3〜6号艇頭が多いので3〜6号艇を優先。1/2号艇は強い1着根拠がある時だけ例外",
         "head_mode": "manshu_3to6_priority",
         "head_scores": {
           "3": {
-            "score": 36.17,
+            "score": 35.42,
             "reasons": [
-              "複合1着率12.2%",
+              "複合1着率11.4%",
               "万舟は3〜6号艇頭が多い",
               "過去条件で穴頭寄り",
               "過去条件で穴頭寄り"
             ]
           },
           "5": {
-            "score": 34.57,
+            "score": 33.61,
             "reasons": [
-              "複合1着率15.6%",
+              "複合1着率14.6%",
               "万舟は3〜6号艇頭が多い",
               "過去条件で穴頭寄り",
               "過去条件で穴頭寄り"
@@ -8643,34 +8774,52 @@
         },
         "axes": [
           1,
-          5
+          2
         ],
-        "axis_rule": "AI3連対率の1位と3位",
+        "axis_rule": "AI3連対率+一般3連対率の1位と3位",
         "alt_axes": [
+          5,
+          2
+        ],
+        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+        "supports": [
+          1,
           2,
+          3,
+          4,
           5
         ],
-        "alt_axis_rule": "AI3連対率の2位と3位",
+        "keshi": 6,
+        "keshi_reason": "AI3連対率+一般3連対率が6位(51.6%)で、展示・一周・スリットの復活材料が弱い",
+        "ai_plus_rank6_boat": 6,
+        "ai_plus_rank6_revival": [
+          "低評価外枠の展示復活"
+        ],
+        "points": 15,
         "tickets": [
           "3-1-4",
           "3-1-5",
-          "3-1-6",
-          "3-4-5",
+          "3-2-1",
+          "3-2-5",
           "3-5-1",
-          "3-5-4",
-          "3-5-6",
-          "3-6-1",
-          "3-6-5",
+          "3-5-2",
           "5-1-3",
           "5-1-4",
-          "5-1-6",
+          "5-2-1",
+          "5-2-3",
+          "5-2-4",
           "5-3-1",
+          "5-3-2",
           "5-4-1",
-          "5-6-1"
+          "5-4-2"
         ],
-        "points": 15
+        "role_note": "頭3,5 / 軸はAI3連対率+一般3連対率の1位と3位の1,2 / 2・3着は軸どちらか必須で消し6以外へ折り返し",
+        "axis_hit": null,
+        "alt_axis_hit": null,
+        "odds_filter": "3連単50倍未満は買わない",
+        "source_strategy_ids": []
       },
-      "last_minute_checked_at": "2026-06-29T18:12:50+09:00",
+      "last_minute_checked_at": "2026-06-29T22:17:20+09:00",
       "last_minute_alert_type": null,
       "last_minute_checks": [
         "スリット隊形あり:NG",
@@ -11747,64 +11896,82 @@
         "popular_b1_matched_conditions": []
       },
       "selection": {
-        "version": "codex_visible_roles_v1",
+        "version": "codex_roles_v2",
         "label": "Codex候補",
         "heads": [
           4,
           3
         ],
-        "head_rule": "万舟は3〜6号艇頭が多いので、3〜6号艇から2艇を優先",
+        "head_rule": "万舟は3〜6号艇頭が多いので3〜6号艇を優先。1/2号艇は強い1着根拠がある時だけ例外",
         "head_mode": "manshu_3to6_priority",
         "head_scores": {
-          "4": {
-            "score": 39.53,
-            "reasons": [
-              "複合1着率26.5%",
-              "万舟は3〜6号艇頭が多い",
-              "過去条件で穴頭寄り",
-              "AI+2位"
-            ]
-          },
           "3": {
-            "score": 36.13,
+            "score": 34.49,
             "reasons": [
-              "複合1着率22.1%",
+              "複合1着率20.5%",
               "万舟は3〜6号艇頭が多い",
               "過去条件で穴頭寄り",
               "展示か1周が2位以内"
+            ]
+          },
+          "4": {
+            "score": 36.13,
+            "reasons": [
+              "複合1着率23.1%",
+              "万舟は3〜6号艇頭が多い",
+              "過去条件で穴頭寄り",
+              "AI+2位"
             ]
           }
         },
         "axes": [
           1,
-          3
+          5
         ],
-        "axis_rule": "AI3連対率の1位と3位",
+        "axis_rule": "AI3連対率+一般3連対率の1位と3位",
         "alt_axes": [
           4,
-          3
+          5
         ],
-        "alt_axis_rule": "AI3連対率の2位と3位",
+        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+        "supports": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "keshi": 6,
+        "keshi_reason": "AI3連対率+一般3連対率が6位(39.5%)で、展示・一周・スリットの復活材料が弱い",
+        "ai_plus_rank6_boat": 6,
+        "ai_plus_rank6_revival": [
+          "低評価外枠の展示復活"
+        ],
+        "points": 15,
         "tickets": [
           "3-1-4",
           "3-1-5",
-          "3-2-1",
-          "3-4-1",
+          "3-2-5",
+          "3-4-5",
           "3-5-1",
-          "4-1-2",
+          "3-5-2",
+          "3-5-4",
           "4-1-3",
           "4-1-5",
           "4-2-1",
-          "4-2-3",
-          "4-3-1",
-          "4-3-2",
+          "4-2-5",
           "4-3-5",
           "4-5-1",
+          "4-5-2",
           "4-5-3"
         ],
-        "points": 15
+        "role_note": "頭4,3 / 軸はAI3連対率+一般3連対率の1位と3位の1,5 / 2・3着は軸どちらか必須で消し6以外へ折り返し",
+        "axis_hit": null,
+        "alt_axis_hit": null,
+        "odds_filter": "3連単50倍未満は買わない",
+        "source_strategy_ids": []
       },
-      "last_minute_checked_at": "2026-06-29T18:12:50+09:00",
+      "last_minute_checked_at": "2026-06-29T22:17:20+09:00",
       "last_minute_alert_type": null,
       "last_minute_checks": [
         "スリット隊形あり:NG",
@@ -12412,64 +12579,79 @@
         "popular_b1_matched_conditions": []
       },
       "selection": {
-        "version": "codex_visible_roles_v1",
+        "version": "codex_roles_v2",
         "label": "Codex候補",
         "heads": [
           4,
           1
         ],
-        "head_rule": "3〜6号艇優先。ただし内側に強い1着根拠があるため例外採用",
+        "head_rule": "万舟は3〜6号艇頭が多いので3〜6号艇を優先。1/2号艇は強い1着根拠がある時だけ例外",
         "head_mode": "manshu_3to6_priority",
         "head_scores": {
-          "4": {
-            "score": 56.34,
+          "1": {
+            "score": 71.47,
             "reasons": [
-              "複合1着率30.3%",
+              "複合1着率49.5%",
+              "1号艇オッズ評価39.5%で売れすぎではないが逃げ材料が強い",
+              "展示+1周平均との差+0.59",
+              "例外的に内側の頭力が高い"
+            ]
+          },
+          "4": {
+            "score": 57.72,
+            "reasons": [
+              "複合1着率31.7%",
               "万舟は3〜6号艇頭が多い",
               "過去条件で穴頭寄り",
               "過去条件で穴頭寄り"
             ]
-          },
-          "1": {
-            "score": 78.61,
-            "reasons": [
-              "複合1着率51.6%",
-              "1号艇オッズ評価39.5%で売れすぎではないが逃げ材料が強い",
-              "夏場1周が良くイン残り寄り",
-              "例外的に内側の頭力が高い"
-            ]
           }
         },
         "axes": [
-          4,
-          2
-        ],
-        "axis_rule": "AI3連対率の1位と3位",
-        "alt_axes": [
           1,
-          2
+          4
         ],
-        "alt_axis_rule": "AI3連対率の2位と3位",
+        "axis_rule": "AI3連対率+一般3連対率の1位と3位",
+        "alt_axes": [
+          2,
+          4
+        ],
+        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+        "supports": [
+          1,
+          2,
+          4,
+          5,
+          6
+        ],
+        "keshi": 3,
+        "keshi_reason": "AI3連対率+一般3連対率6位の6号艇は低評価外枠の展示復活があり残す。代わりに3号艇を消し",
+        "ai_plus_rank6_boat": 6,
+        "ai_plus_rank6_revival": [
+          "低評価外枠の展示復活"
+        ],
+        "points": 12,
         "tickets": [
           "1-2-4",
-          "1-2-5",
-          "1-2-6",
+          "1-4-2",
           "1-4-5",
           "1-4-6",
-          "1-5-2",
           "1-5-4",
-          "1-6-2",
           "1-6-4",
           "4-1-2",
+          "4-1-5",
+          "4-1-6",
           "4-2-1",
-          "4-2-5",
-          "4-2-6",
-          "4-5-2",
-          "4-6-2"
+          "4-5-1",
+          "4-6-1"
         ],
-        "points": 15
+        "role_note": "頭4,1 / 軸はAI3連対率+一般3連対率の1位と3位の1,4 / 2・3着は軸どちらか必須で消し3以外へ折り返し",
+        "axis_hit": null,
+        "alt_axis_hit": null,
+        "odds_filter": "3連単50倍未満は買わない",
+        "source_strategy_ids": []
       },
-      "last_minute_checked_at": "2026-06-29T18:12:50+09:00",
+      "last_minute_checked_at": "2026-06-29T22:17:20+09:00",
       "last_minute_alert_type": null,
       "last_minute_checks": [
         "スリット隊形あり:NG",
@@ -13074,64 +13256,82 @@
         "popular_b1_matched_conditions": []
       },
       "selection": {
-        "version": "codex_visible_roles_v1",
+        "version": "codex_roles_v2",
         "label": "Codex候補",
         "heads": [
           4,
-          3
+          6
         ],
-        "head_rule": "万舟は3〜6号艇頭が多いので、3〜6号艇から2艇を優先",
+        "head_rule": "万舟は3〜6号艇頭が多いので3〜6号艇を優先。1/2号艇は強い1着根拠がある時だけ例外",
         "head_mode": "manshu_3to6_priority",
         "head_scores": {
           "4": {
-            "score": 28.47,
+            "score": 27.46,
             "reasons": [
-              "複合1着率11.5%",
+              "複合1着率10.5%",
               "万舟は3〜6号艇頭が多い",
               "過去条件で穴頭寄り",
               "過去条件で穴頭寄り"
             ]
           },
-          "3": {
-            "score": 26.2,
+          "6": {
+            "score": 26.0,
             "reasons": [
-              "複合1着率12.2%",
+              "複合1着率1.0%",
               "万舟は3〜6号艇頭が多い",
-              "過去条件で穴頭寄り",
+              "低評価外枠の復活候補",
               "過去条件で穴頭寄り"
             ]
           }
         },
         "axes": [
           1,
-          2
+          3
         ],
-        "axis_rule": "AI3連対率の1位と3位",
+        "axis_rule": "AI3連対率+一般3連対率の1位と3位",
         "alt_axes": [
-          4,
-          2
+          2,
+          3
         ],
-        "alt_axis_rule": "AI3連対率の2位と3位",
+        "alt_axis_rule": "比較用: AI3連対率+一般3連対率の2位と3位",
+        "supports": [
+          1,
+          2,
+          3,
+          4,
+          6
+        ],
+        "keshi": 5,
+        "keshi_reason": "AI3連対率+一般3連対率6位の6号艇は低評価外枠の展示復活があり残す。代わりに5号艇を消し",
+        "ai_plus_rank6_boat": 6,
+        "ai_plus_rank6_revival": [
+          "低評価外枠の展示復活"
+        ],
+        "points": 15,
         "tickets": [
           "4-1-3",
           "4-1-6",
-          "4-2-1",
-          "4-2-6",
+          "4-3-1",
+          "4-3-6",
           "4-6-1",
-          "4-6-2",
+          "4-6-3",
           "6-1-3",
           "6-1-4",
           "6-2-1",
           "6-2-3",
-          "6-2-4",
           "6-3-1",
           "6-3-2",
+          "6-3-4",
           "6-4-1",
-          "6-4-2"
+          "6-4-3"
         ],
-        "points": 15
+        "role_note": "頭4,6 / 軸はAI3連対率+一般3連対率の1位と3位の1,3 / 2・3着は軸どちらか必須で消し5以外へ折り返し",
+        "axis_hit": null,
+        "alt_axis_hit": null,
+        "odds_filter": "3連単50倍未満は買わない",
+        "source_strategy_ids": []
       },
-      "last_minute_checked_at": "2026-06-29T18:12:50+09:00",
+      "last_minute_checked_at": "2026-06-29T22:17:20+09:00",
       "last_minute_alert_type": null,
       "last_minute_checks": [
         "スリット隊形あり:NG",
