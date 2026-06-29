@@ -748,6 +748,10 @@ def merge_live_metrics_into_ranking_path(path, updates, now):
             race["last_minute_strategy_ids"] = update.get("strategy_ids") or []
             race["last_minute_subcore_strategy_ids"] = update.get("subcore_strategy_ids") or []
             race["last_minute_candidate_strategy_ids"] = update.get("candidate_strategy_ids") or []
+            if update.get("buy_decision"):
+                old_buy_decision = race.get("buy_decision")
+                race["buy_decision"] = update.get("buy_decision")
+                changed = changed or old_buy_decision != race.get("buy_decision")
             after = json.dumps(metrics, sort_keys=True, ensure_ascii=False)
             changed = changed or before != after
     if changed:
@@ -3335,6 +3339,18 @@ def make_message(race, alert_type, metrics, checks, strategies):
             f"{metric_text}\n"
             f"直前条件: {' / '.join(checks)}"
         )
+    if alert_type in {"subcore_watch", "late_riser_subcore_watch"}:
+        return (
+            f"【準本命候補】{base}\n"
+            f"{metric_text}\n"
+            f"直前条件: 展示後38〜39.9% / {' / '.join(checks)}"
+        )
+    if alert_type in {"buy_ok", "late_riser_buy_ok"}:
+        return (
+            f"【本命候補】{base}\n"
+            f"{metric_text}\n"
+            f"直前条件: 展示後40%以上 / {' / '.join(checks)}"
+        )
     return (
         f"【万舟率上昇候補】{base}\n"
         f"{metric_text}\n"
@@ -3490,9 +3506,9 @@ def monitor(args):
             if backfill_only:
                 alert_type = None
             elif source_type == "morning_top" and can_send_alert:
-                if buy_strategies:
+                if core_rate_ready:
                     alert_type = "buy_ok"
-                elif subcore_strategies:
+                elif subcore_rate_ready:
                     alert_type = "subcore_watch"
                 else:
                     alert_type = None
@@ -3500,9 +3516,9 @@ def monitor(args):
                 alert_type = None
             elif not can_send_alert:
                 alert_type = None
-            elif buy_strategies:
+            elif core_rate_ready:
                 alert_type = "late_riser_buy_ok"
-            elif subcore_strategies:
+            elif subcore_rate_ready:
                 alert_type = "late_riser_subcore_watch"
             elif confirmed or (race.get("manshu_rate_pct") or 0) >= args.riser_threshold:
                 alert_type = "late_riser"
@@ -3527,6 +3543,7 @@ def monitor(args):
                 "candidate_strategy_ids": [s["strategy_id"] for s in all_strategies],
                 "core_rate_ready": core_rate_ready,
                 "subcore_rate_ready": subcore_rate_ready,
+                "buy_decision": "本命" if core_rate_ready else ("準本命" if subcore_rate_ready else ("見送り" if preview_ready else None)),
                 "core_alert_threshold_pct": args.core_alert_threshold,
                 "subcore_alert_threshold_min_pct": SUBCORE_ALERT_RATE_MIN,
             }
@@ -3645,7 +3662,7 @@ def monitor(args):
         "subcore_alert_threshold_min_pct": SUBCORE_ALERT_RATE_MIN,
         "alert_policy": {
             "primary": "morning_top_then_post_exhibition_core_subcore",
-            "description": "朝TOPリストに入った荒れ下地ありレースを、展示/AI取得後に40%以上は本命、38〜39.9%は5条件一致時だけ準本命にする",
+            "description": "朝TOPリストに入った荒れ下地ありレースを、展示/AI取得後に40%以上は本命、38〜39.9%は準本命にする",
             "morning_top_n": args.top_n,
             "post_exhibition_core_threshold_pct": args.core_alert_threshold,
             "post_exhibition_subcore_range_pct": [SUBCORE_ALERT_RATE_MIN, args.core_alert_threshold],

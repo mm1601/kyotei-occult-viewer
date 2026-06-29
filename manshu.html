@@ -24,6 +24,7 @@
     .chip{border:1px solid var(--line);background:#f8fafc;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;color:#344054}
     .chip.hot{border-color:#fecdd3;background:#fff1f2;color:#be123c}
     .chip.ok{border-color:#bbf7d0;background:#f0fdf4;color:#047857}
+    .chip.warn{border-color:#fed7aa;background:#fff7ed;color:#9a3412}
     .layout{display:grid;grid-template-columns:1fr;gap:12px}
     .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px}
     #buff-panel,.factor-panel{display:none!important}
@@ -162,12 +163,11 @@
 <body>
   <div class="shell">
     <header class="header">
-      <p class="eyebrow">CODEX MORNING WATCHLIST</p>
-      <h1 id="page-title">朝の荒れ監視リスト</h1>
-      <p>これは買い目ページではありません。一般戦だけを対象に、展示前に使えるデータで「あとで確認する荒れ候補」を探します。最終判断は締切前にBOATERS AI・展示・オッズを入れてから行います。</p>
+      <p class="eyebrow">CODEX MANSHU ONE PAGE</p>
+      <h1 id="page-title">朝監視 + 展示後 本命判定</h1>
+      <p>この1ページで見ます。上に展示前の朝監視TOP10、下にBOATERS AI・展示・オッズ取得後の本命/準本命判定を表示します。</p>
     </header>
     <nav class="nav">
-      <a href="manshu_codex.html">展示後の本命/準本命</a>
       <a id="posts-link" href="manshu_posts.html">投稿センター</a>
       <a href="manshu_chokuzen.html">直前予報</a>
       <a href="manshu_days.html">過去結果</a>
@@ -183,9 +183,13 @@
         <h2>朝の監視候補TOP10（買いではない）</h2>
         <p class="lead">展示前データだけで荒れる下地が強い上位10レースを表示します。スマホ通知は、この朝TOP10を締切前に再確認して、38〜39.9%で条件一致なら準本命、40%以上なら本命として送ります。</p>
       </section>
+      <section class="panel late-panel" id="final-panel">
+        <h2>展示後 本命/準本命判定</h2>
+        <p class="lead">締切前にBOATERS AI・展示・オッズを取得できたレースを、40%以上は本命、38〜39.9%で条件一致なら準本命として表示します。</p>
+      </section>
       <section class="panel notice">
         <h2>このページの見方</h2>
-        <p class="lead">朝のリストは買い目ではありません。ここで拾った候補を締切前に再確認し、展示後38〜39.9%で条件が揃えば準本命、40%以上なら本命として通知します。</p>
+        <p class="lead">朝のリストは買い目ではありません。朝の候補が締切前の展示後判定でも残ったら最優先、朝に入っていなくても展示後40%以上まで急浮上したレースも通知対象です。</p>
       </section>
     </main>
     <footer>研究・記録用。的中や利益を保証するものではありません。</footer>
@@ -263,6 +267,10 @@
       return num(r.last_minute_manshu_rate_pct);
     }
     function rawRankRows(){ return STATE.data?((STATE.data.strict_races||STATE.data.races||[]).slice(0,10)):[]; }
+    function currentFinalRows(){
+      if(!STATE.data) return [];
+      return (STATE.data.strict_races||STATE.data.races||[]).slice(0,10);
+    }
     function currentCandidateRows(){
       if(!STATE.data) return [];
       var rows=(STATE.data.morning_candidates||[]).slice(0,10);
@@ -275,6 +283,9 @@
       return round>=7?"後半軽監視":"軽監視";
     }
     function renderStatus(rows){
+      var finalRows=currentFinalRows();
+      var core=finalRows.filter(function(r){return buyDecision(r).label==="本命";}).length;
+      var sub=finalRows.filter(function(r){return buyDecision(r).label.indexOf("準本命")===0;}).length;
       var summary=(STATE.data&&STATE.data.summary)||{};
       var settled=rows.filter(function(r){return resultOf(r).payout_yen!=null;}).length;
       var hits=rows.filter(function(r){return resultOf(r).manshu;}).length;
@@ -286,10 +297,12 @@
       var autoText=STATE.date===todayJst()?(allDone?"結果取得完了":"結果自動更新 30秒"):"過去結果を表示";
       var checkText=STATE.lastResultCheck?("結果確認 "+STATE.lastResultCheck):"結果確認待ち";
       document.getElementById("status").innerHTML=[
-        "<strong>"+esc(STATE.date)+" 朝の荒れ監視リストを表示中</strong>",
+        "<strong>"+esc(STATE.date)+" 朝監視 + 展示後本命判定を表示中</strong>",
         "<div class=\"chips\">",
-        "<span class=\"chip hot\">TOP"+rows.length+"</span>",
-        "<span class=\"chip\">展示前データ得点式</span>",
+        "<span class=\"chip hot\">朝TOP"+rows.length+"</span>",
+        "<span class=\"chip hot\">本命 "+core+"R</span>",
+        "<span class=\"chip warn\">準本命 "+sub+"R</span>",
+        "<span class=\"chip\">展示前+展示後の2段階</span>",
         "<span class=\"chip ok\">通知は38〜39.9%準本命 / 40%以上本命</span>",
         "<span class=\"chip\">結果 "+settled+"/"+rows.length+"R</span>",
         "<span class=\"chip "+(hits?"hot":"")+"\">万舟 "+hits+"件</span>",
@@ -530,10 +543,16 @@
       return (ids||[]).filter(function(id){return id==="codex_post_subcore_rank6_outer_exhibit_top2";});
     }
     function buyDecision(r){
-      var ex=exhibitState(r), ids=strategyIds(r);
+      var ex=exhibitState(r), ids=strategyIds(r), stored=r.buy_decision;
+      var lm=lastMinuteRate(r), rate=lm!==null?lm:num(r.manshu_rate_pct);
       var buyIds=validatedBuyIds(ids);
       var subcoreIds=subcoreWatchIds(ids);
       if(!ex.full) return {label:"判定前", cls:"warn", detail:"展示タイム・1周・平均との差・スーパースリット取得後に買い/見送り判定"};
+      if(stored==="本命") return {label:"本命", cls:"good", detail:"展示後40%以上。本命通知の対象です"};
+      if(stored==="準本命"||stored==="準本命判定") return {label:"準本命", cls:"warn", showTickets:true, detail:"展示後38〜39.9%で、1号艇危険・外頭・5/6絡み・内軸残りの条件を確認します"};
+      if(stored==="見送り") return {label:"見送り", cls:"bad", detail:"展示後データでは買い条件が足りません"};
+      if(rate!==null&&rate>=40) return {label:"本命", cls:"good", detail:"展示後40%以上。本命通知の対象です"};
+      if(rate!==null&&rate>=38) return {label:"準本命確認", cls:"warn", showTickets:true, detail:"38〜39.9%帯。5条件が揃うかを確認します"};
       if(buyIds.length) return {label:"本命買い候補", cls:"good", detail:"長期検証で最も筋がよかった直前核心条件に該当: "+buyIds.join(" / ")};
       if(subcoreIds.length) return {label:"準本命候補", cls:"warn", showTickets:true, detail:"AI+最下位の5/6号艇が展示で浮上。万舟監視として前向き検証中: "+subcoreIds.join(" / ")};
       if(ids.length) return {label:"急浮上監視", cls:"warn", detail:"直前の荒れ材料はあります。ただし本命・準本命条件ではないため買い通知対象外: "+ids.join(" / ")};
@@ -702,8 +721,9 @@
       ].join("");
     }
     function raceBadgesHtml(r){
-      var s=raceShape(r), res=resultOf(r), m=r.metrics||{}, ex=exhibitState(r), badges=[];
+      var s=raceShape(r), res=resultOf(r), m=r.metrics||{}, ex=exhibitState(r), decision=buyDecision(r), badges=[];
       badges.push("<span class=\"badge\">締切 "+esc(deadline(r))+"</span>");
+      badges.push("<span class=\"badge "+esc(decision.cls)+"\">"+esc(decision.label)+"</span>");
       badges.push("<span class=\"badge "+(res.manshu?"good":"")+"\">"+(res.payout_yen!=null?"結果 "+esc(res.trifecta||"--")+" / "+esc(yen(res.payout_yen)):"結果待ち")+"</span>");
       if(m.popular_b1_is_popular&&Number(m.popular_b1_fly_score||0)>=60) badges.push("<span class=\"badge bad\">人気1号艇 "+esc(m.popular_b1_fly_level||"危険")+"</span>");
       else if(m.popular_b1_is_popular&&Number(m.popular_b1_fly_score||0)>=45) badges.push("<span class=\"badge warn\">人気1号艇 注意</span>");
@@ -723,6 +743,7 @@
         "</div>",
         "</summary>",
         "<div class=\"race-body\">",
+        buyDecisionHtml(r),
         "<div class=\"simple-box\"><h3>数字で見る</h3>"+probabilityHtml(r)+"</div>",
         detailFactorsHtml(r),
         "</div>",
@@ -795,14 +816,38 @@
         "朝の荒れ監視JSONがまだありません。生成後にTOP10を表示します。"
       );
     }
+    function renderFinalPanel(){
+      var panel=document.getElementById("final-panel");
+      if(!panel) return;
+      var rows=currentFinalRows();
+      var core=rows.filter(function(r){return buyDecision(r).label==="本命";}).length;
+      var sub=rows.filter(function(r){return buyDecision(r).label.indexOf("準本命")===0;}).length;
+      if(!rows.length){
+        panel.innerHTML="<h2>展示後 本命/準本命判定</h2><p class=\"lead\">展示後ランキングJSONがまだありません。生成後に表示します。</p>";
+        return;
+      }
+      panel.innerHTML=[
+        "<h2>展示後 本命/準本命判定</h2>",
+        "<p class=\"candidate-note\">40%以上は本命。38〜39.9%は1号艇危険・外頭が強い・5/6絡み・内軸残りまで確認して準本命にします。通知もこの判定で送ります。</p>",
+        "<div class=\"chips\" style=\"margin-bottom:10px\">",
+        "<span class=\"chip hot\">本命 "+core+"R</span>",
+        "<span class=\"chip warn\">準本命 "+sub+"R</span>",
+        "<span class=\"chip\">最終TOP"+rows.length+"</span>",
+        "</div>",
+        "<div class=\"race-list\">",
+        rows.map(raceCardHtml).join(""),
+        "</div>"
+      ].join("");
+    }
     function render(){
       removeVenueSummary();
       var rows=currentCandidateRows();
-      document.title="Codex朝の荒れ監視リスト "+STATE.date;
-      document.getElementById("page-title").textContent=STATE.date+" 朝の荒れ監視リスト";
+      document.title="Codex朝監視+展示後本命判定 "+STATE.date;
+      document.getElementById("page-title").textContent=STATE.date+" 朝監視 + 展示後 本命判定";
       document.getElementById("posts-link").href="manshu_posts.html?date="+STATE.date;
       renderStatus(rows);
       renderCandidatePanels();
+      renderFinalPanel();
     }
     function stopResultPolling(){
       if(STATE.resultPollTimer){
