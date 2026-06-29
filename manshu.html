@@ -25,6 +25,13 @@
     .chip.hot{border-color:#fecdd3;background:#fff1f2;color:#be123c}
     .chip.ok{border-color:#bbf7d0;background:#f0fdf4;color:#047857}
     .chip.warn{border-color:#fed7aa;background:#fff7ed;color:#9a3412}
+    .filter-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 12px}
+    .filter-tab{appearance:none;border:1px solid var(--line);background:#fff;color:#344054;border-radius:999px;padding:7px 10px;font:inherit;font-size:12px;font-weight:900;cursor:pointer}
+    .filter-tab span{color:#667085;margin-left:2px}
+    .filter-tab.active{border-color:#1d4ed8;background:#eff6ff;color:#1d4ed8}
+    .filter-tab.good.active{border-color:#bbf7d0;background:#ecfdf3;color:#047857}
+    .filter-tab.warn.active{border-color:#fed7aa;background:#fff7ed;color:#9a3412}
+    .filter-tab.bad.active{border-color:#fecdd3;background:#fff1f2;color:#be123c}
     .layout{display:grid;grid-template-columns:1fr;gap:12px}
     .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px}
     #buff-panel,.factor-panel{display:none!important}
@@ -221,7 +228,7 @@
     "use strict";
     var MAN = 10000;
     var RESULT_REFRESH_MS = 30000;
-    var STATE = { date: "", data: null, liveData: null, resultMap: {}, resultPollTimer: null, lastResultCheck: "", resultFetchError: "" };
+    var STATE = { date: "", data: null, liveData: null, resultMap: {}, resultPollTimer: null, lastResultCheck: "", resultFetchError: "", finalTab: "all" };
     function q(name){ return new URLSearchParams(location.search).get(name); }
     function todayJst(){ return new Date().toLocaleDateString("sv-SE",{timeZone:"Asia/Tokyo"}); }
     function ymd(date){ return date.replace(/-/g,""); }
@@ -639,6 +646,7 @@
       if(!morning&&(stored==="急浮上参考"||(rate!==null&&rate>=40))) return {label:"急浮上参考", cls:"warn", detail:"朝監視TOP10外なので本命扱いはしません。展示後40%以上の参考枠です"};
       if(!morning) return {label:"参考外", cls:"bad", detail:"朝監視TOP10外なので本命には入れません"};
       if(stored==="本命"&&(buyIds.length||r.core_buy_ready===true)) return {label:"本命", cls:"good", detail:"展示後40%以上からさらに前半1〜3R・外頭2番手・1号艇消し・5/6絡みまで揃った本命絞りです"};
+      if(stored==="準本命") return {label:"準本命", cls:"warn", detail:"展示後38〜39.9%帯で準本命条件に該当した監視枠です。現在の運用では本命だけを買い対象にします"};
       if(stored==="見送り") return {label:"見送り", cls:"bad", detail:finalCheckText(r)||"展示後データでは買い条件が足りません"};
       if(buyIds.length) return {label:"本命買い候補", cls:"good", detail:"長期検証で最も筋がよかった本命絞り条件に該当: "+buyIds.join(" / ")};
       if(rate!==null&&rate>=40) return {label:"本命条件不足", cls:"bad", detail:"展示後40%以上ですが、本命絞り条件(前半1〜3R・外頭2番手・1号艇消し・5/6絡み)が揃っていません"};
@@ -959,6 +967,58 @@
         "朝の荒れ監視JSONがまだありません。生成後にTOP10を表示します。"
       );
     }
+    function finalDecisionTabOf(r){
+      var label=buyDecision(r).label;
+      if(label==="判定前") return "pending";
+      if(label==="本命"||label==="本命買い候補") return "core";
+      if(label==="準本命"||label==="準本命判定") return "subcore";
+      return "skip";
+    }
+    function finalDecisionTabLabel(tab){
+      return {
+        all:"全て",
+        core:"本命",
+        subcore:"準本命",
+        skip:"見送り",
+        pending:"判定前"
+      }[tab]||"全て";
+    }
+    function finalDecisionTabClass(tab){
+      return {
+        core:"good",
+        subcore:"warn",
+        skip:"bad",
+        pending:"warn"
+      }[tab]||"";
+    }
+    function finalDecisionTabsHtml(counts){
+      var tabs=["all","core","subcore","skip","pending"];
+      return [
+        "<div class=\"filter-tabs\" role=\"tablist\" aria-label=\"展示後判定フィルター\">",
+        tabs.map(function(tab){
+          var active=(STATE.finalTab||"all")===tab;
+          return "<button type=\"button\" class=\"filter-tab "+esc(finalDecisionTabClass(tab))+(active?" active":"")+"\" data-final-tab=\""+esc(tab)+"\" role=\"tab\" aria-selected=\""+(active?"true":"false")+"\">"+esc(finalDecisionTabLabel(tab))+" <span>"+esc(counts[tab]||0)+"R</span></button>";
+        }).join(""),
+        "</div>"
+      ].join("");
+    }
+    function finalDecisionEmptyText(tab){
+      if(tab==="core") return "本命に該当するレースはまだありません。";
+      if(tab==="subcore") return "準本命に該当するレースはまだありません。";
+      if(tab==="skip") return "見送りに該当するレースはありません。";
+      if(tab==="pending") return "判定前のレースはありません。";
+      return "表示するレースがありません。";
+    }
+    function attachFinalDecisionTabs(panel){
+      Array.prototype.forEach.call(panel.querySelectorAll("[data-final-tab]"),function(btn){
+        btn.addEventListener("click",function(ev){
+          ev.preventDefault();
+          ev.stopPropagation();
+          STATE.finalTab=btn.getAttribute("data-final-tab")||"all";
+          renderFinalPanel();
+        });
+      });
+    }
     function renderFinalPanel(){
       var panel=document.getElementById("final-panel");
       if(!panel) return;
@@ -970,9 +1030,15 @@
       var referenceRows=currentFinalRows().filter(function(r){
         return !isMorningWatch(r)&&buyDecision(r).label==="急浮上参考";
       }).slice(0,5);
-      var core=signalRows.filter(function(r){return buyDecision(r).label==="本命";}).length;
-      var waiting=watchRows.filter(function(r){return buyDecision(r).label==="判定前";}).length;
-      var skip=watchRows.filter(function(r){return buyDecision(r).label==="見送り";}).length;
+      var counts={all:watchRows.length, core:0, subcore:0, skip:0, pending:0};
+      watchRows.forEach(function(r){
+        var tab=finalDecisionTabOf(r);
+        counts[tab]=(counts[tab]||0)+1;
+      });
+      if(!Object.prototype.hasOwnProperty.call(counts,STATE.finalTab)) STATE.finalTab="all";
+      var visibleRows=STATE.finalTab==="all"?watchRows:watchRows.filter(function(r){
+        return finalDecisionTabOf(r)===STATE.finalTab;
+      });
       if(!watchRows.length){
         panel.innerHTML=panelAccordionHtml(
           "展示後 本命絞り判定",
@@ -984,12 +1050,8 @@
       }
       var body=[
         "<p class=\"candidate-note\">朝監視TOP10に入ったレースは、展示後に本命にならなくても全て表示します。買わない時も、足りなかった条件をここで確認できます。</p>",
-        "<div class=\"chips\" style=\"margin-bottom:10px\">",
-        "<span class=\"chip hot\">本命 "+core+"R</span>",
-        "<span class=\"chip\">判定前 "+waiting+"R</span>",
-        "<span class=\"chip\">見送り "+skip+"R</span>",
-        "</div>",
-        "<div class=\"race-list\">"+watchRows.map(raceCardHtml).join("")+"</div>",
+        finalDecisionTabsHtml(counts),
+        visibleRows.length?"<div class=\"race-list\">"+visibleRows.map(raceCardHtml).join("")+"</div>":"<p class=\"lead\">"+esc(finalDecisionEmptyText(STATE.finalTab))+"</p>",
         signalRows.length?"":"<p class=\"lead\">本命絞りはまだありませんが、展示後に見送りになった理由も各カード内に表示しています。</p>",
         "<h2 style=\"margin-top:18px\">急浮上参考（朝監視TOP10外）</h2>",
         "<p class=\"candidate-note\">朝の荒れ下地がなかったため、本命扱いにはしません。展示後40%以上まで上がった時だけ参考として分けて表示します。</p>",
@@ -1001,6 +1063,7 @@
         body,
         true
       );
+      attachFinalDecisionTabs(panel);
     }
     function render(){
       removeVenueSummary();
