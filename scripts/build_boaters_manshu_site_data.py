@@ -1262,11 +1262,14 @@ def normalize_row(row: dict, rank: int, date_text: str, results_map: dict[tuple[
     elif preview_full and 38.0 <= rate_num < 40.0:
         buy_decision = "準本命判定"
         final_decision_checks.append(f"展示後38〜39.9%:OK({rate_num:.2f}%)")
-        final_decision_checks.append("5条件は締切前監視で最終確認")
+        final_decision_checks.append("準本命は1号艇危険・外頭2艇(5/6含む)・内軸残り・12点生成が必要")
     elif not preview_full:
         buy_decision = "展示待ち"
     else:
         buy_decision = "見送り"
+        if preview_full:
+            final_decision_checks.append(f"展示後38%未満:NG({rate_num:.2f}%)")
+            final_decision_checks.append("本命40%以上:NG")
     if (
         row.get("ranking_type") != "morning_watchlist"
         and normalized_metrics["tenji_boats"] >= 6

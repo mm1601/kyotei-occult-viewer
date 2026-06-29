@@ -552,6 +552,11 @@
     function subcoreWatchIds(ids){
       return (ids||[]).filter(function(id){return id==="codex_post_subcore_rank6_outer_exhibit_top2";});
     }
+    function finalCheckText(r){
+      var checks=(r.final_decision_checks||[]).filter(Boolean);
+      if(!checks.length&&Array.isArray(r.last_minute_checks)) checks=r.last_minute_checks.filter(Boolean);
+      return checks.slice(0,10).join(" / ");
+    }
     function buyDecision(r){
       var ex=exhibitState(r), ids=strategyIds(r), stored=r.buy_decision;
       var lm=lastMinuteRate(r), rate=lm!==null?lm:num(r.manshu_rate_pct);
@@ -563,7 +568,7 @@
       if(!morning) return {label:"参考外", cls:"bad", detail:"朝監視TOP10外なので本命/準本命には入れません"};
       if(stored==="本命") return {label:"本命", cls:"good", detail:"展示後40%以上。本命通知の対象です"};
       if(stored==="準本命"||stored==="準本命判定") return {label:"準本命", cls:"warn", showTickets:true, detail:"展示後38〜39.9%。準本命通知の対象です"};
-      if(stored==="見送り") return {label:"見送り", cls:"bad", detail:"展示後データでは買い条件が足りません"};
+      if(stored==="見送り") return {label:"見送り", cls:"bad", detail:finalCheckText(r)||"展示後データでは買い条件が足りません"};
       if(rate!==null&&rate>=40) return {label:"本命", cls:"good", detail:"展示後40%以上。本命通知の対象です"};
       if(rate!==null&&rate>=38) return {label:"準本命", cls:"warn", showTickets:true, detail:"展示後38〜39.9%。準本命通知の対象です"};
       if(buyIds.length) return {label:"本命買い候補", cls:"good", detail:"長期検証で最も筋がよかった直前核心条件に該当: "+buyIds.join(" / ")};
@@ -574,9 +579,11 @@
     function buyDecisionHtml(r){
       var d=buyDecision(r), tickets=((r.selection||{}).tickets||[]).slice(0,20);
       var ticketLabel=d.cls==="good"?"買い目":"参考買い目";
+      var checks=finalCheckText(r);
       return [
         "<div class=\"simple-box\"><h3>買い / 見送り</h3>",
         "<p class=\"lead\"><b class=\"badge "+esc(d.cls)+"\">"+esc(d.label)+"</b> "+esc(d.detail)+"</p>",
+        checks?"<p class=\"mini\"><b>展示後チェック:</b> "+esc(checks)+"</p>":"",
         (d.cls==="good"||d.showTickets)&&tickets.length?"<p class=\"mini\">"+esc(ticketLabel)+": "+esc(tickets.join(" / "))+"</p>":"<p class=\"mini\">買い候補になった時だけ、10〜15点の買い目を表示します。</p>",
         "</div>"
       ].join("");
@@ -849,15 +856,16 @@
         return;
       }
       panel.innerHTML=[
-        "<h2>本命/準本命（朝監視TOP10限定）</h2>",
-        "<p class=\"candidate-note\">ここは朝監視TOP10に入ったレースだけを対象にします。展示後40%以上は本命、38〜39.9%は準本命として表示し、通知もこの判定で送ります。</p>",
+        "<h2>朝監視TOP10の展示後判定</h2>",
+        "<p class=\"candidate-note\">朝監視TOP10に入ったレースは、展示後に本命/準本命にならなくても全て表示します。買わない時も、足りなかった条件をここで確認できます。</p>",
         "<div class=\"chips\" style=\"margin-bottom:10px\">",
         "<span class=\"chip hot\">本命 "+core+"R</span>",
         "<span class=\"chip warn\">準本命 "+sub+"R</span>",
         "<span class=\"chip\">判定前 "+waiting+"R</span>",
         "<span class=\"chip\">見送り "+skip+"R</span>",
         "</div>",
-        signalRows.length?"<div class=\"race-list\">"+signalRows.map(raceCardHtml).join("")+"</div>":"<p class=\"lead\">まだ朝監視TOP10から本命/準本命は出ていません。締切前の展示取得後にここへ出ます。</p>",
+        "<div class=\"race-list\">"+watchRows.map(raceCardHtml).join("")+"</div>",
+        signalRows.length?"":"<p class=\"lead\">本命/準本命はまだありませんが、展示後に見送りになった理由も各カード内に表示しています。</p>",
         "<h2 style=\"margin-top:18px\">急浮上参考（朝監視TOP10外）</h2>",
         "<p class=\"candidate-note\">朝の荒れ下地がなかったため、本命扱いにはしません。展示後40%以上まで上がった時だけ参考として分けて表示します。</p>",
         referenceRows.length?"<div class=\"race-list\">"+referenceRows.map(raceCardHtml).join("")+"</div>":"<p class=\"lead\">朝監視外の急浮上参考はありません。</p>"
