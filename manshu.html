@@ -181,11 +181,11 @@
     <main class="layout">
       <section class="panel candidate-panel" id="watchlist-panel">
         <h2>朝の監視候補TOP10（買いではない）</h2>
-        <p class="lead">展示前データだけで荒れる下地が強い上位10レースを表示します。スマホ通知は、この朝TOP10を締切前に再確認して、38〜39.9%で条件一致なら準本命、40%以上なら本命として送ります。</p>
+        <p class="lead">展示前データだけで荒れる下地が強い上位10レースを表示します。スマホ通知は、この朝TOP10を締切前に再確認して、38〜39.9%なら準本命、40%以上なら本命として送ります。</p>
       </section>
       <section class="panel late-panel" id="final-panel">
         <h2>展示後 本命/準本命判定</h2>
-        <p class="lead">締切前にBOATERS AI・展示・オッズを取得できたレースを、40%以上は本命、38〜39.9%で条件一致なら準本命として表示します。</p>
+        <p class="lead">締切前にBOATERS AI・展示・オッズを取得できたレースを、40%以上は本命、38〜39.9%は準本命として表示します。</p>
       </section>
       <section class="panel notice">
         <h2>このページの見方</h2>
@@ -549,10 +549,10 @@
       var subcoreIds=subcoreWatchIds(ids);
       if(!ex.full) return {label:"判定前", cls:"warn", detail:"展示タイム・1周・平均との差・スーパースリット取得後に買い/見送り判定"};
       if(stored==="本命") return {label:"本命", cls:"good", detail:"展示後40%以上。本命通知の対象です"};
-      if(stored==="準本命"||stored==="準本命判定") return {label:"準本命", cls:"warn", showTickets:true, detail:"展示後38〜39.9%で、1号艇危険・外頭・5/6絡み・内軸残りの条件を確認します"};
+      if(stored==="準本命"||stored==="準本命判定") return {label:"準本命", cls:"warn", showTickets:true, detail:"展示後38〜39.9%。準本命通知の対象です"};
       if(stored==="見送り") return {label:"見送り", cls:"bad", detail:"展示後データでは買い条件が足りません"};
       if(rate!==null&&rate>=40) return {label:"本命", cls:"good", detail:"展示後40%以上。本命通知の対象です"};
-      if(rate!==null&&rate>=38) return {label:"準本命確認", cls:"warn", showTickets:true, detail:"38〜39.9%帯。5条件が揃うかを確認します"};
+      if(rate!==null&&rate>=38) return {label:"準本命", cls:"warn", showTickets:true, detail:"展示後38〜39.9%。準本命通知の対象です"};
       if(buyIds.length) return {label:"本命買い候補", cls:"good", detail:"長期検証で最も筋がよかった直前核心条件に該当: "+buyIds.join(" / ")};
       if(subcoreIds.length) return {label:"準本命候補", cls:"warn", showTickets:true, detail:"AI+最下位の5/6号艇が展示で浮上。万舟監視として前向き検証中: "+subcoreIds.join(" / ")};
       if(ids.length) return {label:"急浮上監視", cls:"warn", detail:"直前の荒れ材料はあります。ただし本命・準本命条件ではないため買い通知対象外: "+ids.join(" / ")};
@@ -787,7 +787,7 @@
         "<div class=\"metric\"><b>"+esc(outerGen<0?'--':pct(outerGen))+"</b><span>5/6一般3連対最大</span></div>",
         "</div>",
         "<p class=\"lead\" style=\"margin-top:10px\">朝に使うデータ: 一般3連対率・平均ST順位・1号艇の逃げ/差され/まくられ・スリット隊形近似・風波・対戦相性・展示前オッズ。BOATERS AI、展示、1周、直前AIオッズ評価は朝には使いません。</p>",
-        "<p class=\"lead\" style=\"margin-top:6px\">直前: BOATERS AI・展示・実オッズ取得後、38〜39.9%で条件一致なら準本命、40%以上なら本命通知します。</p>",
+        "<p class=\"lead\" style=\"margin-top:6px\">直前: BOATERS AI・展示・実オッズ取得後、38〜39.9%なら準本命、40%以上なら本命通知します。</p>",
         "</div>",
         "</details>"
       ].join("");
@@ -828,7 +828,7 @@
       }
       panel.innerHTML=[
         "<h2>展示後 本命/準本命判定</h2>",
-        "<p class=\"candidate-note\">40%以上は本命。38〜39.9%は1号艇危険・外頭が強い・5/6絡み・内軸残りまで確認して準本命にします。通知もこの判定で送ります。</p>",
+        "<p class=\"candidate-note\">40%以上は本命。38〜39.9%は準本命として表示し、通知もこの判定で送ります。</p>",
         "<div class=\"chips\" style=\"margin-bottom:10px\">",
         "<span class=\"chip hot\">本命 "+core+"R</span>",
         "<span class=\"chip warn\">準本命 "+sub+"R</span>",
