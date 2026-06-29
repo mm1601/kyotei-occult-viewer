@@ -2733,7 +2733,7 @@ def subcore_outer_head_checks(rows, heads):
     head_scores = [head_candidate_score(row, manshu_head_mode=True)[0] for row in head_rows if row]
     second_score = min(head_scores) if len(head_scores) >= 2 else 0
     outer_heads = len(heads) >= 2 and set(heads).issubset({3, 4, 5, 6})
-    has_material = any(
+    material_flags = [
         row
         and (
             (row.get("ai_prediction_pct") or 0) >= 10
@@ -2743,11 +2743,12 @@ def subcore_outer_head_checks(rows, heads):
             or (row.get("exhibit_rank") or 9) <= 2
         )
         for row in head_rows
-    )
+    ]
+    has_material = all(material_flags) if material_flags else False
     has_56 = any(boat in {5, 6} for boat in heads)
     outer_strong = outer_heads and second_score >= 30 and has_material
     return outer_strong, has_56, [
-        f"外頭が強い:{'OK' if outer_strong else 'NG'}(頭{','.join(map(str, heads or [])) or '-'},下限{second_score:.1f})",
+        f"外頭2艇の2番手まで強い:{'OK' if outer_strong else 'NG'}(頭{','.join(map(str, heads or [])) or '-'},下限{second_score:.1f})",
         f"5/6絡み:{'OK' if has_56 else 'NG'}",
     ]
 
@@ -2781,6 +2782,73 @@ def subcore_entry_checks(race, metrics, rows):
         *axis_checks,
     ]
     return rate_ok and b1_ok and outer_ok and has_56 and inner_axis_ok, checks
+
+
+def subcore_38_arunashi12(rows):
+    scored = []
+    for row in rows:
+        boat = row["boat_number"]
+        if boat not in {3, 4, 5, 6}:
+            continue
+        score, _reasons = head_candidate_score(row, manshu_head_mode=True)
+        scored.append((score, boat))
+    scored.sort(key=lambda item: (-item[0], item[1]))
+    heads = [boat for _score, boat in scored[:2]]
+    if len(heads) < 2 or not any(boat in {5, 6} for boat in heads):
+        return set(), None
+
+    outer_ok, has_56, _outer_checks = subcore_outer_head_checks(rows, heads)
+    inner_axis_ok, axes, axis_checks = subcore_inner_axis_checks(rows, heads)
+    if not (outer_ok and has_56 and inner_axis_ok and len(axes) >= 2):
+        return set(), None
+
+    keshi, keshi_reason, ai_plus_rank6_boat, ai_plus_rank6_revival = select_keshi_boat(
+        rows, protected=set(heads + axes)
+    )
+    if keshi is None:
+        return set(), None
+
+    pool = [boat for boat in range(1, 7) if boat != keshi]
+    tickets = set()
+    for head in heads:
+        if head in {1, 2, keshi}:
+            continue
+        for axis in axes:
+            if axis in {head, keshi}:
+                continue
+            for other in pool:
+                if other in {head, axis}:
+                    continue
+                tickets.add(f"{head}{axis}{other}")
+                tickets.add(f"{head}{other}{axis}")
+    if not tickets:
+        return set(), None
+
+    tickets = trim_tickets(tickets, heads, axes, max_points=12)
+    if len(tickets) != 12:
+        return set(), None
+
+    axis_rule = axis_checks[1].replace("軸ルール:", "") if len(axis_checks) >= 2 else "軸候補に1号艇または2号艇が残る"
+    return tickets, {
+        "heads": heads,
+        "head_rule": "準本命は3〜6号艇から頭2艇を選び、片方に5/6号艇を入れる",
+        "head_mode": "subcore_38_outer56_required",
+        "head_scores": head_score_details(rows, heads),
+        "axes": axes,
+        "axis_rule": axis_rule,
+        "alt_axes": [],
+        "alt_axis_rule": "準本命専用: 軸候補に1号艇または2号艇が残ることを確認",
+        "supports": pool,
+        "keshi": keshi,
+        "keshi_reason": keshi_reason,
+        "ai_plus_rank6_boat": ai_plus_rank6_boat,
+        "ai_plus_rank6_revival": ai_plus_rank6_revival,
+        "role_note": (
+            f"準本命専用。頭は3〜6号艇から{heads[0]},{heads[1]}で、片方に5/6号艇を含む。"
+            f"軸は{axis_rule}の{axes[0]},{axes[1]}。"
+            f"消し{keshi}以外へ2・3着折り返し12点"
+        ),
+    }
 
 
 def roi_strategies(race, metrics, rows):
@@ -2838,8 +2906,8 @@ def roi_strategies(race, metrics, rows):
             strategies.append(
                 (
                     "codex_post_subcore_rate38_conditions",
-                    "Codex準本命: 38〜39.9%+1危険+外頭強+5/6絡み+内軸残り 10〜15点",
-                    super_arunashi3,
+                    "Codex準本命: 38〜39.9%+1危険+外頭2艇(5/6含む)+内軸残り 12点",
+                    subcore_38_arunashi12,
                     {
                         "tier": "subcore",
                         "entry_checks": subcore_checks,
