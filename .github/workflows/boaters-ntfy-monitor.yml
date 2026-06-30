@@ -76,6 +76,10 @@ jobs:
               --top-n 10 \
               --results-json "$RESULTS"
           fi
+          python scripts/backfill_official_boatrace_results.py \
+            "data/output/boaters_manshu_ranking_${KEY}.json" \
+            "data/output/boaters_manshu_ranking_codex_${KEY}.json" \
+            "data/output/boaters_manshu_morning_ranking_${KEY}.json"
           python scripts/build_boaters_manshu_history_index.py \
             --start-date 2026-05-01 \
             --end-date "${{ steps.jst.outputs.date }}" \
