@@ -8,6 +8,7 @@ import html
 import json
 import re
 import ssl
+import subprocess
 import time
 import urllib.request
 from datetime import datetime
@@ -61,8 +62,19 @@ def fetch_text(url: str) -> str:
             "Accept-Language": "ja,en-US;q=0.8,en;q=0.6",
         },
     )
-    with urllib.request.urlopen(request, timeout=8, context=context) as response:
-        return response.read().decode("utf-8", errors="replace")
+    try:
+        with urllib.request.urlopen(request, timeout=15, context=context) as response:
+            return response.read().decode("utf-8", errors="replace")
+    except Exception as exc:
+        fallback = subprocess.run(
+            ["curl", "-fsSL", "--max-time", "20", url],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if fallback.returncode == 0 and fallback.stdout:
+            return fallback.stdout
+        raise exc
 
 
 def clean_text(text: str) -> str:
