@@ -729,7 +729,7 @@ def merge_live_metrics_into_public_ranking(date_text, updates, now):
     if not updates:
         return False
     changed_any = False
-    for path in (public_ranking_path(date_text), public_codex_ranking_path(date_text)):
+    for path in (public_ranking_path(date_text), public_codex_ranking_path(date_text), morning_ranking_path(date_text)):
         changed_any = merge_live_metrics_into_ranking_path(path, updates, now) or changed_any
     return changed_any
 
@@ -3830,10 +3830,20 @@ def monitor(args):
         metrics = race.get("metrics") or {}
         missing_exhibition = not has_full_exhibition(metrics)
         backfill_limit_minutes = max(0.0, args.backfill_missing_exhibition_hours) * 60
-        backfill_after_close = (
-            missing_exhibition
-            and minutes_to_deadline < -args.grace_minutes
+        after_deadline_within_backfill = (
+            minutes_to_deadline < -args.grace_minutes
             and abs(minutes_to_deadline) <= backfill_limit_minutes
+        )
+        backfill_after_close = (
+            after_deadline_within_backfill
+            and (
+                missing_exhibition
+                # The morning TOP10 is the public watchlist.  Even when the
+                # refreshed live ranking already has exhibition metrics, the
+                # frozen morning row still needs a post-deadline fetch so the
+                # public page and status notification do not stay stale.
+                or source_type == "morning_top"
+            )
         )
         if minutes_to_deadline > args.lookahead_minutes or minutes_to_deadline < -args.grace_minutes:
             if backfill_after_close:
