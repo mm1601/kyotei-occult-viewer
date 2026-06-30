@@ -77,6 +77,15 @@ def fmt_pct(value) -> str:
         return "--"
 
 
+def as_float(value):
+    try:
+        if value is None or value == "":
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def summarize_fetch(alert_payload: dict) -> dict:
     inspected = alert_payload.get("inspected") or []
     success_statuses = {"checked", "backfilled_missing_exhibition"}
@@ -179,14 +188,51 @@ def combined_status_line(fetch_item: dict, result_by_key: dict) -> str:
     ).strip()
 
 
+def is_display_target(item: dict) -> bool:
+    source = str(item.get("source") or "")
+    if source == "morning_top":
+        return True
+    rate = as_float(item.get("post_exhibition_manshu_rate_pct")) or 0.0
+    return source == "late_riser" and rate >= 40.0
+
+
+def display_fetch_items(fetch_summary: dict) -> list[dict]:
+    return [item for item in fetch_summary["successes"] if is_display_target(item)]
+
+
+def relevant_result_rows(fetch_items: list[dict], result_summary: dict) -> list[dict]:
+    result_by_key = {race_key(row): row for row in result_summary["settled"]}
+    rows = []
+    seen = set()
+    for item in fetch_items:
+        key = race_key(item)
+        if key in seen:
+            continue
+        seen.add(key)
+        row = result_by_key.get(key)
+        if row:
+            rows.append(row)
+    return rows
+
+
 def build_message(date_text: str, fetch_summary: dict, result_summary: dict, previous_result_count: int | None) -> tuple[str, str, bool]:
+    display_items = display_fetch_items(fetch_summary)
+    display_results = relevant_result_rows(display_items, result_summary)
+    display_manshu_count = 0
+    for row in display_results:
+        try:
+            if int((row.get("result") or {}).get("payout_yen") or 0) >= 10000:
+                display_manshu_count += 1
+        except (TypeError, ValueError):
+            pass
+
     has_fetch_event = (
         fetch_summary["attempted_count"] > 0
         or fetch_summary["failure_count"] > 0
         or fetch_summary["live_failure_count"] > 0
         or fetch_summary["ranking_missing_count"] > 0
     )
-    result_count = result_summary["settled_count"]
+    result_count = len(display_results)
     result_changed = previous_result_count is None or result_count != previous_result_count
     should_notify = has_fetch_event or result_changed
 
@@ -211,8 +257,8 @@ def build_message(date_text: str, fetch_summary: dict, result_summary: dict, pre
 
     lines.append(
         "結果反映: "
-        f"TOP{result_summary['top_count']}中 {result_summary['settled_count']}R確定 "
-        f"/ 万舟 {result_summary['manshu_count']}R"
+        f"監視/急上昇{len(display_items)}R中 {len(display_results)}R確定 "
+        f"/ 万舟 {display_manshu_count}R"
     )
     if previous_result_count is not None:
         delta = result_summary["settled_count"] - previous_result_count
@@ -221,13 +267,13 @@ def build_message(date_text: str, fetch_summary: dict, result_summary: dict, pre
             lines.append(f"結果の増減: {sign}{delta}R")
 
     result_by_key = {race_key(row): row for row in result_summary["settled"]}
-    successes = fetch_summary["successes"][:8]
+    successes = display_items[:8]
     if successes:
         lines.append("")
-        lines.append("監視レース状況:")
+        lines.append("監視/急上昇レース状況:")
         lines.extend(f"- {combined_status_line(item, result_by_key)}" for item in successes)
-        if len(fetch_summary["successes"]) > len(successes):
-            lines.append(f"- ほか{len(fetch_summary['successes']) - len(successes)}R")
+        if len(display_items) > len(successes):
+            lines.append(f"- ほか{len(display_items) - len(successes)}R")
 
     failures = (fetch_summary["failures"] + fetch_summary["live_failures"])[:5]
     if failures:
@@ -235,17 +281,12 @@ def build_message(date_text: str, fetch_summary: dict, result_summary: dict, pre
         lines.append("取得できなかったレース:")
         lines.extend(f"- {failure_line(item)}" for item in failures)
 
-    success_keys = {race_key(item) for item in fetch_summary["successes"]}
-    result_only = [row for row in result_summary["settled"] if race_key(row) not in success_keys][-5:]
-    if result_only:
-        lines.append("")
-        lines.append("結果のみ反映:")
-        lines.extend(f"- {result_line(row)}" for row in result_only)
-
     return title, "\n".join(lines), should_notify
 
 
 def fingerprint(date_text: str, fetch_summary: dict, result_summary: dict) -> str:
+    targets = display_fetch_items(fetch_summary)
+    target_results = relevant_result_rows(targets, result_summary)
     payload = {
         "date": date_text,
         "success": [
@@ -259,12 +300,22 @@ def fingerprint(date_text: str, fetch_summary: dict, result_summary: dict) -> st
             ]
             for item in fetch_summary["successes"]
         ],
+        "display_targets": [
+            [
+                item.get("race_id"),
+                item.get("source"),
+                item.get("post_exhibition_manshu_rate_pct"),
+                item.get("core_buy_ready"),
+                item.get("subcore_buy_ready"),
+            ]
+            for item in targets
+        ],
         "failure": [[item.get("race_id"), item.get("status"), item.get("error")] for item in fetch_summary["failures"]],
         "live_failure": [[item.get("source"), item.get("error")] for item in fetch_summary["live_failures"]],
         "ranking_missing": bool(fetch_summary["ranking_missing_count"]),
-        "settled_count": result_summary["settled_count"],
-        "manshu_count": result_summary["manshu_count"],
-        "settled_ids": [row.get("race_id") for row in result_summary["settled"]],
+        "settled_count": len(target_results),
+        "manshu_count": sum(1 for row in target_results if int((row.get("result") or {}).get("payout_yen") or 0) >= 10000),
+        "settled_ids": [row.get("race_id") for row in target_results],
     }
     raw = json.dumps(payload, ensure_ascii=False, sort_keys=True)
     return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:16]
@@ -282,7 +333,9 @@ def main() -> int:
     state = load_json(state_path(args.date), {"sent": {}})
     fetch_summary = summarize_fetch(alerts)
     result_summary = summarize_results(ranking)
-    previous_result_count = state.get("last_result_count")
+    targets = display_fetch_items(fetch_summary)
+    target_results = relevant_result_rows(targets, result_summary)
+    previous_result_count = state.get("last_relevant_result_count")
     title, message, should_notify = build_message(args.date, fetch_summary, result_summary, previous_result_count)
     key = fingerprint(args.date, fetch_summary, result_summary)
 
@@ -297,7 +350,14 @@ def main() -> int:
         "title": title,
         "message": message,
         "fetch_summary": {k: v for k, v in fetch_summary.items() if not isinstance(v, list)},
-        "result_summary": {k: v for k, v in result_summary.items() if not isinstance(v, list)},
+        "result_summary": {
+            **{k: v for k, v in result_summary.items() if not isinstance(v, list)},
+            "relevant_target_count": len(targets),
+            "relevant_settled_count": len(target_results),
+            "relevant_manshu_count": sum(
+                1 for row in target_results if int((row.get("result") or {}).get("payout_yen") or 0) >= 10000
+            ),
+        },
     }
 
     already_sent = bool((state.get("sent") or {}).get(key))
@@ -314,6 +374,7 @@ def main() -> int:
         }
 
     state["last_result_count"] = result_summary["settled_count"]
+    state["last_relevant_result_count"] = len(target_results)
     state["updated_at"] = output["generated_at"]
     if not args.dry_run:
         save_json(state_path(args.date), state)
