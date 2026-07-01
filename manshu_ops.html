@@ -154,9 +154,11 @@
     function strategySection(data){
       const sr=data.strategy_research||{};
       const best=(sr.best_by_segment||[]).slice(0,8);
-      const rows=(sr.rows||[]).filter(r=>["本命40%以上","一般戦 本命40%以上","一般戦 本命40%以上 展示6艇","準本命38-39.9","展示後38%以上"].includes(r.segment));
+      const rows=(sr.rows||[]).filter(r=>["本命40%以上","本命40%以上＋人気1号艇危険","本命40%以上＋5/6予兆","一般戦 本命40%以上","一般戦 本命40%以上 展示6艇","準本命38-39.9","展示後38%以上","展示後38%以上＋推奨頭5/6あり","展示後38%以上＋5/6予兆"].includes(r.segment));
       const sorted=rows.sort((a,b)=>(a.segment>b.segment?1:a.segment<b.segment?-1:(Number(b.roi_pct||-1)-Number(a.roi_pct||-1))));
-      return strategyTable(best,"買い方研究 ベスト候補","各条件の中で回収率が高い買い方です。件数30未満は保留扱いです。")+
+      const valueRows=rows.filter(r=>String(r.strategy_id||"").startsWith("value_")).sort((a,b)=>(Number(b.roi_pct||-1)-Number(a.roi_pct||-1))).slice(0,12);
+      return strategyTable(valueRows,"高配当向け買い方 本命候補","安い決着を避けるため、5/6絡みや外頭を残す買い方だけを抜き出しています。")+
+        strategyTable(best,"買い方研究 ベスト候補","各条件の中で回収率が高い買い方です。件数30未満は保留扱いです。")+
         `<details style="margin-top:12px"><summary style="cursor:pointer;color:#1d4ed8;font-weight:900">買い方ごとの詳しい比較を開く</summary>`+
         strategyTable(sorted,"詳細比較","同じ条件で買い方だけを変えて比較しています。")+
         `</details><p class="lead">${esc(sr.note||"")}</p>`;
@@ -165,7 +167,11 @@
       const rows=(data.latest&&data.latest.races)||[];
       if(!rows.length)return `<h2>最新日の表示</h2><p class="lead">最新日のレースがまだありません。</p>`;
       return `<h2>${esc(data.latest.date)} 最新TOP10</h2><p class="lead">頭・軸・消し・買い目点数と結果をまとめて確認します。</p><div class="latest">`+
-        rows.map(r=>`<div class="race"><div class="race-top"><div><div class="race-title">${r.rank}位 ${esc(r.place_name)}${r.round}R <span class="badge ${cls(r.decision_class)}">${esc(r.decision_class)}</span></div><div class="mini">${esc(r.deadline)}締切 / ${r.result_trifecta?`結果 ${esc(r.result_trifecta)} ${yen(r.payout_yen)}`:"結果待ち"}</div></div><div class="rate">${pct(r.manshu_rate_pct)}</div></div><div class="roles"><div class="role"><b>推奨頭</b><strong>${esc(r.recommended_heads||"--")}</strong><span class="mini">${esc(r.recommended_head_logic||"")}</span></div><div class="role"><b>保存頭</b><strong>${esc(r.heads||"--")}</strong></div><div class="role"><b>軸</b><strong>${esc(r.axes||"--")}</strong></div><div class="role"><b>消し</b><strong>${esc(r.keshi||"--")}</strong></div><div class="role"><b>買い目</b><strong>${r.ticket_count||0}点 ${r.ticket_hit?"的中":"-"}</strong></div></div></div>`).join("")+
+        rows.map(r=>{
+          const vb=r.value_buy||{};
+          const tickets=(vb.tickets||[]).join(" / ");
+          return `<div class="race"><div class="race-top"><div><div class="race-title">${r.rank}位 ${esc(r.place_name)}${r.round}R <span class="badge ${cls(r.decision_class)}">${esc(r.decision_class)}</span></div><div class="mini">${esc(r.deadline)}締切 / ${r.result_trifecta?`結果 ${esc(r.result_trifecta)} ${yen(r.payout_yen)}`:"結果待ち"}</div></div><div class="rate">${pct(r.manshu_rate_pct)}</div></div><div class="roles"><div class="role"><b>推奨頭</b><strong>${esc(r.recommended_heads||"--")}</strong><span class="mini">${esc(r.recommended_head_logic||"")}</span></div><div class="role"><b>保存頭</b><strong>${esc(r.heads||"--")}</strong></div><div class="role"><b>軸</b><strong>${esc(r.axes||"--")}</strong></div><div class="role"><b>消し</b><strong>${esc(r.keshi||"--")}</strong></div><div class="role"><b>保存買い目</b><strong>${r.ticket_count||0}点 ${r.ticket_hit?"的中":"-"}</strong></div><div class="role"><b>高配当向け</b><strong>${esc(vb.label||"--")} ${vb.points?`${vb.points}点`:""}</strong><span class="mini">${esc(vb.reason||"")}</span>${tickets?`<div class="mini">${esc(tickets)}</div>`:""}</div></div></div>`;
+        }).join("")+
         `</div>`;
     }
     function render(data){

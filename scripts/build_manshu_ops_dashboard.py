@@ -607,6 +607,34 @@ def formation_tickets(heads: list[int], axes: list[int], supports: list[int], ma
     return limit_unique(tickets, max_points)
 
 
+def filter_value_tickets(
+    tickets: list[str],
+    *,
+    require_56: bool = False,
+    no_1_head: bool = False,
+    first_outer_or_56: bool = False,
+    max_points: int = 12,
+) -> list[str]:
+    filtered: list[str] = []
+    for ticket in tickets:
+        key = combo_key(ticket)
+        if not key:
+            continue
+        nums = [parse_int(ch) for ch in key]
+        if any(n is None for n in nums):
+            continue
+        first = nums[0]
+        has_56 = 5 in nums or 6 in nums
+        if require_56 and not has_56:
+            continue
+        if no_1_head and first == 1:
+            continue
+        if first_outer_or_56 and not ((first or 0) >= 3 or has_56):
+            continue
+        filtered.append("-".join(str(n) for n in nums if n is not None))
+    return limit_unique(filtered, max_points)
+
+
 def box_tickets(boats: list[int]) -> list[str]:
     boats = dedupe(boats)[:3]
     tickets: list[str] = []
@@ -623,8 +651,12 @@ def strategy_tickets(row: dict[str, Any], strategy_id: str) -> list[str]:
     saved = [t for t in (selection.get("tickets") or []) if combo_key(t)]
     heads = fallback_heads(row, count=2)
     outer_heads = fallback_heads(row, allowed={3, 4, 5, 6}, count=2)
+    ai_heads = head_candidates(row, "ai_plus_top2", 2)
+    hybrid_heads = head_candidates(row, "honmei_hybrid_v1", 2)
     axes_current = dedupe(ints_from_csv(row.get("axis_boats")) + fallback_axes(row, 2))[:2]
     axes_ai23 = fallback_axes(row, 2, rank_start=1)
+    axes_ai13_source = fallback_axes(row, 3, rank_start=0)
+    axes_ai13 = dedupe(([axes_ai13_source[0], axes_ai13_source[2]] if len(axes_ai13_source) >= 3 else axes_ai13_source) + axes_ai23)[:2]
     axis_ai2 = fallback_axes(row, 1, rank_start=1)
     axis_ai3 = fallback_axes(row, 1, rank_start=2)
     keshi = fallback_keshi(row)
@@ -646,11 +678,62 @@ def strategy_tickets(row: dict[str, Any], strategy_id: str) -> list[str]:
     if strategy_id == "outer_head2_no1_ai23_12":
         axes = [a for a in axes_ai23 if a != 1] or axis_ai2
         return formation_tickets(outer_heads, axes, supports_no1, 12)
+    if strategy_id == "value_ai_head2_ai23_has56_12":
+        if not any(h in {5, 6} for h in hybrid_heads):
+            return []
+        tickets = formation_tickets(ai_heads, axes_ai23, supports, 30)
+        return filter_value_tickets(tickets, require_56=True, max_points=12)
+    if strategy_id == "value_ai_head2_ai23_no1head56_12":
+        if not any(h in {5, 6} for h in hybrid_heads):
+            return []
+        tickets = formation_tickets(ai_heads, axes_ai23, supports, 30)
+        return filter_value_tickets(tickets, require_56=True, no_1_head=True, max_points=12)
+    if strategy_id == "value_hybrid_head2_ai23_has56_12":
+        if not any(h in {5, 6} for h in hybrid_heads):
+            return []
+        tickets = formation_tickets(hybrid_heads, axes_ai23, supports, 30)
+        return filter_value_tickets(tickets, require_56=True, max_points=12)
+    if strategy_id == "value_comp_ai13_outer_or_56_12":
+        tickets = formation_tickets(heads, axes_ai13, supports, 30)
+        return filter_value_tickets(tickets, first_outer_or_56=True, max_points=12)
     if strategy_id == "three_boat_box":
         return box_tickets(dedupe(outer_heads + axes_current + fallback_axes(row, 2)))
     if strategy_id == "outer3_boat_box":
         return box_tickets(dedupe(outer_heads + sorted_boats_by(row, lambda b: parse_float(b.get("composite_top3_pct")), allowed={3, 4, 5, 6})))
     return []
+
+
+VALUE_BUY_PRIMARY_STRATEGY = "value_ai_head2_ai23_has56_12"
+VALUE_BUY_FALLBACK_STRATEGY = "value_comp_ai13_outer_or_56_12"
+
+
+def value_buy_recommendation(row: dict[str, Any]) -> dict[str, Any]:
+    rate = row.get("manshu_rate_pct") or 0.0
+    primary = strategy_tickets(row, VALUE_BUY_PRIMARY_STRATEGY)
+    if rate >= 38.0 and primary:
+        return {
+            "label": "高配当向け買い候補",
+            "strategy_id": VALUE_BUY_PRIMARY_STRATEGY,
+            "strategy_name": strategy_name(VALUE_BUY_PRIMARY_STRATEGY),
+            "reason": "展示後38%以上で、推奨頭に5/6が入り、5/6絡みだけに絞れるため",
+            "tickets": primary,
+        }
+    fallback = strategy_tickets(row, VALUE_BUY_FALLBACK_STRATEGY)
+    if rate >= 40.0 and popular_b1_danger(row) and fallback:
+        return {
+            "label": "補助買い候補",
+            "strategy_id": VALUE_BUY_FALLBACK_STRATEGY,
+            "strategy_name": strategy_name(VALUE_BUY_FALLBACK_STRATEGY),
+            "reason": "本命40%以上で人気1号艇が危険。外頭または5/6絡みに絞れるため",
+            "tickets": fallback,
+        }
+    return {
+        "label": "見送り寄り",
+        "strategy_id": "",
+        "strategy_name": "",
+        "reason": "高配当向け条件が不足。頭は拾えても安い決着を買いやすい形",
+        "tickets": [],
+    }
 
 
 def actual_head(row: dict[str, Any]) -> int | None:
@@ -956,6 +1039,20 @@ def head_selector_name(selector_id: str) -> str:
         if selector["id"] == selector_id:
             return selector["name"]
     return selector_id
+
+
+def strategy_name(strategy_id: str) -> str:
+    for strategy in BUY_STRATEGIES:
+        if strategy["id"] == strategy_id:
+            return strategy["name"]
+    return strategy_id
+
+
+def strategy_logic(strategy_id: str) -> str:
+    for strategy in BUY_STRATEGIES:
+        if strategy["id"] == strategy_id:
+            return strategy["logic"]
+    return ""
 
 
 def metrics_map(row: dict[str, Any]) -> dict[str, Any]:
@@ -1362,6 +1459,26 @@ BUY_STRATEGIES = [
         "logic": "1号艇を2・3着からも外し、外頭2艇とAI+一般3連対2・3位軸で買う",
     },
     {
+        "id": "value_ai_head2_ai23_has56_12",
+        "name": "高配当向け AI頭2×AI+2・3位軸 5/6絡み",
+        "logic": "展示後38%以上で推奨頭に5/6が入る時だけ、AI+上位2艇を頭、AI+2・3位を軸にし、5/6が絡まない安い買い目を削る最大12点",
+    },
+    {
+        "id": "value_ai_head2_ai23_no1head56_12",
+        "name": "高配当向け 1号艇頭なし 5/6絡み",
+        "logic": "推奨頭に5/6が入る時だけ、AI+上位2艇頭の買い目から1号艇頭と5/6なしを削る強気型",
+    },
+    {
+        "id": "value_hybrid_head2_ai23_has56_12",
+        "name": "高配当向け ハイブリッド頭2 5/6絡み",
+        "logic": "推奨頭に5/6が入る時だけ、本命専用ハイブリッド頭2艇とAI+2・3位軸で、5/6絡みだけ買う",
+    },
+    {
+        "id": "value_comp_ai13_outer_or_56_12",
+        "name": "高配当向け 複合頭2×AI+1・3位軸",
+        "logic": "複合1着率上位2艇を頭、AI+1・3位を軸にし、外頭または5/6絡みだけを残す",
+    },
+    {
         "id": "three_boat_box",
         "name": "3艇BOX",
         "logic": "頭候補と軸候補から3艇に絞り、3連単BOX6点",
@@ -1467,8 +1584,12 @@ def build_strategy_research(records: list[dict[str, Any]]) -> dict[str, Any]:
     segments: list[tuple[str, Callable[[dict[str, Any]], bool]]] = [
         ("朝監視TOP10", lambda r: (r.get("rank") or 999) <= 10),
         ("展示後38%以上", lambda r: (r.get("manshu_rate_pct") or 0) >= 38.0),
+        ("展示後38%以上＋推奨頭5/6あり", lambda r: (r.get("manshu_rate_pct") or 0) >= 38.0 and any(h in {5, 6} for h in head_candidates(r, "honmei_hybrid_v1", 2))),
+        ("展示後38%以上＋5/6予兆", lambda r: (r.get("manshu_rate_pct") or 0) >= 38.0 and outer56_support_signal(r)),
         ("準本命38-39.9", lambda r: 38.0 <= (r.get("manshu_rate_pct") or 0) < 40.0),
         ("本命40%以上", lambda r: (r.get("manshu_rate_pct") or 0) >= 40.0),
+        ("本命40%以上＋人気1号艇危険", lambda r: (r.get("manshu_rate_pct") or 0) >= 40.0 and popular_b1_danger(r)),
+        ("本命40%以上＋5/6予兆", lambda r: (r.get("manshu_rate_pct") or 0) >= 40.0 and outer56_support_signal(r)),
         ("一般戦 本命40%以上", lambda r: is_general_race(r) and (r.get("manshu_rate_pct") or 0) >= 40.0),
         ("一般戦 本命40%以上 展示6艇", lambda r: is_general_race(r) and (r.get("manshu_rate_pct") or 0) >= 40.0 and has_full_exhibition(r)),
         ("買い目あり", lambda r: (r.get("ticket_count") or 0) > 0),
@@ -1605,6 +1726,13 @@ def latest_payload(records: list[dict[str, Any]]) -> dict[str, Any]:
                 "keshi": r.get("keshi_boat"),
                 "ticket_count": r.get("ticket_count"),
                 "ticket_hit": bool(r.get("ticket_hit")),
+                "value_buy": {
+                    "label": value_buy_recommendation(r)["label"],
+                    "strategy_name": value_buy_recommendation(r)["strategy_name"],
+                    "reason": value_buy_recommendation(r)["reason"],
+                    "points": len(value_buy_recommendation(r)["tickets"]),
+                    "tickets": value_buy_recommendation(r)["tickets"][:12],
+                },
                 "result_trifecta": r.get("result_trifecta"),
                 "payout_yen": r.get("payout_yen"),
                 "is_manshu": bool(r.get("is_manshu")),
