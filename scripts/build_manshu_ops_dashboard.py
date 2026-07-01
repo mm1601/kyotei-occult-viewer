@@ -658,6 +658,13 @@ def actual_head(row: dict[str, Any]) -> int | None:
     return parse_int(key[0]) if key else None
 
 
+def result_boats(row: dict[str, Any]) -> list[int]:
+    key = combo_key(row.get("result_trifecta"))
+    if not key:
+        return []
+    return [parse_int(ch) for ch in key if parse_int(ch)]
+
+
 def boolish(value: Any) -> bool:
     if isinstance(value, bool):
         return value
@@ -949,6 +956,303 @@ def head_selector_name(selector_id: str) -> str:
         if selector["id"] == selector_id:
             return selector["name"]
     return selector_id
+
+
+def metrics_map(row: dict[str, Any]) -> dict[str, Any]:
+    metrics = read_json_field(row, "metrics_json", {})
+    return metrics if isinstance(metrics, dict) else {}
+
+
+def popular_b1_danger(row: dict[str, Any]) -> bool:
+    metrics = metrics_map(row)
+    level = str(metrics.get("popular_b1_fly_level") or "")
+    score = parse_float(metrics.get("popular_b1_fly_score")) or 0.0
+    return level in {"危険", "超危険"} or score >= 70.0
+
+
+def outer56_support_signal(row: dict[str, Any]) -> bool:
+    metrics = metrics_map(row)
+    if (parse_float(metrics.get("outer56_super_slit_count")) or 0.0) >= 1.0:
+        return True
+    if (parse_float(metrics.get("outer56_double_time_count")) or 0.0) >= 1.0:
+        return True
+    best_diff = parse_float(metrics.get("outer56_best_avg_isshu_diff"))
+    best_ai = parse_float(metrics.get("outer56_best_ai_prediction_pct"))
+    if best_diff is not None and best_ai is not None and best_diff >= 0.25 and best_ai >= 8.0:
+        return True
+    for boat in metrics_boats(row):
+        n = boat_number(boat)
+        if n not in {5, 6}:
+            continue
+        top3 = parse_float(boat.get("composite_top3_pct")) or 0.0
+        if top3 >= 28.0 or boolish(boat.get("super_slit_alert")) or boolish(boat.get("double_time")):
+            return True
+    return False
+
+
+HEAD_VALUE_PATTERNS = [
+    {
+        "id": "all",
+        "name": "本命レース全体",
+        "usable_before_race": True,
+        "logic": "展示後40%以上の本命を全部見る",
+        "pred": lambda _row, _heads: True,
+    },
+    {
+        "id": "head_captured",
+        "name": "実際に頭2艇で1着を拾えた",
+        "usable_before_race": False,
+        "logic": "結果確認用。予想した頭2艇に実際の1着艇が入ったレース",
+        "pred": lambda row, heads: actual_head(row) in heads,
+    },
+    {
+        "id": "head_missed",
+        "name": "実際に頭2艇を外した",
+        "usable_before_race": False,
+        "logic": "結果確認用。予想した頭2艇に実際の1着艇が入らなかったレース",
+        "pred": lambda row, heads: actual_head(row) is not None and actual_head(row) not in heads,
+    },
+    {
+        "id": "heads_include_1",
+        "name": "頭候補に1号艇あり",
+        "usable_before_race": True,
+        "logic": "買う前に分かる形。頭2艇の中に1号艇が入っている",
+        "pred": lambda _row, heads: 1 in heads,
+    },
+    {
+        "id": "heads_exclude_1",
+        "name": "頭候補に1号艇なし",
+        "usable_before_race": True,
+        "logic": "買う前に分かる形。頭2艇から1号艇を外している",
+        "pred": lambda _row, heads: bool(heads) and 1 not in heads,
+    },
+    {
+        "id": "heads_inner_only",
+        "name": "頭候補が1・2号艇だけ",
+        "usable_before_race": True,
+        "logic": "買う前に分かる形。頭2艇が内寄りだけで、配当が安くなりやすい形",
+        "pred": lambda _row, heads: len(heads) >= 2 and set(heads[:2]).issubset({1, 2}),
+    },
+    {
+        "id": "heads_have_outer",
+        "name": "頭候補に3〜6号艇あり",
+        "usable_before_race": True,
+        "logic": "買う前に分かる形。頭2艇のどちらかが3〜6号艇",
+        "pred": lambda _row, heads: any(h in {3, 4, 5, 6} for h in heads),
+    },
+    {
+        "id": "heads_have_56",
+        "name": "頭候補に5・6号艇あり",
+        "usable_before_race": True,
+        "logic": "買う前に分かる形。頭2艇のどちらかが5号艇か6号艇",
+        "pred": lambda _row, heads: any(h in {5, 6} for h in heads),
+    },
+    {
+        "id": "popular_b1_danger",
+        "name": "人気1号艇危険あり",
+        "usable_before_race": True,
+        "logic": "買う前に分かる形。人気の1号艇に飛び材料がある",
+        "pred": lambda row, _heads: popular_b1_danger(row),
+    },
+    {
+        "id": "outer56_support",
+        "name": "5・6号艇絡み予兆あり",
+        "usable_before_race": True,
+        "logic": "買う前に分かる形。5・6号艇に展示、スリット、AI、複合3着内のどれか良い材料がある",
+        "pred": lambda row, _heads: outer56_support_signal(row),
+    },
+    {
+        "id": "danger_outer56",
+        "name": "1号艇危険＋5・6予兆",
+        "usable_before_race": True,
+        "logic": "買う前に分かる形。1号艇が危なく、さらに5・6号艇にも絡む材料がある",
+        "pred": lambda row, _heads: popular_b1_danger(row) and outer56_support_signal(row),
+    },
+]
+
+
+def eval_head_value_pattern(
+    records: list[dict[str, Any]],
+    selector_id: str,
+    segment: str,
+    segment_pred: Callable[[dict[str, Any]], bool],
+    pattern: dict[str, Any],
+) -> dict[str, Any]:
+    settled: list[dict[str, Any]] = []
+    for row in records:
+        if not segment_pred(row) or row.get("payout_yen") is None or actual_head(row) is None:
+            continue
+        heads = head_candidates(row, selector_id, 2)
+        if heads and pattern["pred"](row, heads):
+            settled.append(row)
+
+    head_hits = 0
+    manshu = 0
+    high_payout = 0
+    with_56 = 0
+    b1_not_win = 0
+    payouts: list[int] = []
+    examples = []
+    for row in settled:
+        heads = head_candidates(row, selector_id, 2)
+        result = result_boats(row)
+        payout = row.get("payout_yen") or 0
+        payouts.append(payout)
+        hit = actual_head(row) in heads
+        head_hits += int(hit)
+        manshu += int(bool(row.get("is_manshu")))
+        high_payout += int(payout >= 5000)
+        with_56 += int(any(n in {5, 6} for n in result))
+        b1_not_win += int(actual_head(row) != 1)
+        if (row.get("is_manshu") or payout >= 5000) and len(examples) < 5:
+            examples.append(
+                {
+                    "date": row.get("date"),
+                    "race": f"{row.get('place_name')}{row.get('round')}R",
+                    "rate": row.get("manshu_rate_pct"),
+                    "heads": heads,
+                    "result": row.get("result_trifecta"),
+                    "payout_yen": payout,
+                    "head_hit": hit,
+                }
+            )
+
+    n = len(settled)
+    median_payout = None
+    if payouts:
+        payouts.sort()
+        mid = len(payouts) // 2
+        median_payout = payouts[mid] if len(payouts) % 2 else round((payouts[mid - 1] + payouts[mid]) / 2)
+    if n < 20:
+        verdict = "保留（件数不足）"
+    elif (manshu / n * 100) >= 12.0 and (head_hits / n * 100) >= 55.0:
+        verdict = "注目"
+    elif (head_hits / n * 100) >= 65.0:
+        verdict = "頭精度は高い"
+    elif (manshu / n * 100) >= 12.0:
+        verdict = "荒れやすいが頭注意"
+    else:
+        verdict = "参考"
+    return {
+        "selector_id": selector_id,
+        "selector_name": head_selector_name(selector_id),
+        "segment": segment,
+        "pattern_id": pattern["id"],
+        "pattern_name": pattern["name"],
+        "usable_before_race": bool(pattern["usable_before_race"]),
+        "logic": pattern["logic"],
+        "races": n,
+        "head_hits": head_hits,
+        "head_capture_rate_pct": round(head_hits / n * 100, 2) if n else None,
+        "manshu_count": manshu,
+        "manshu_rate_pct": round(manshu / n * 100, 2) if n else None,
+        "high_payout_count": high_payout,
+        "high_payout_rate_pct": round(high_payout / n * 100, 2) if n else None,
+        "result_has_56_count": with_56,
+        "result_has_56_rate_pct": round(with_56 / n * 100, 2) if n else None,
+        "b1_not_win_count": b1_not_win,
+        "b1_not_win_rate_pct": round(b1_not_win / n * 100, 2) if n else None,
+        "median_payout_yen": median_payout,
+        "max_payout_yen": max(payouts) if payouts else None,
+        "examples": examples,
+        "verdict": verdict,
+    }
+
+
+def build_head_value_research(records: list[dict[str, Any]]) -> dict[str, Any]:
+    segments: list[tuple[str, str, Callable[[dict[str, Any]], bool]]] = [
+        ("本命40%以上 × 複合1着率", "composite_win_top2", lambda r: (r.get("manshu_rate_pct") or 0) >= 40.0),
+        ("本命40%以上 × AI+上位", "ai_plus_top2", lambda r: (r.get("manshu_rate_pct") or 0) >= 40.0),
+        ("展示後38%以上 × ハイブリッド", "honmei_hybrid_v1", lambda r: (r.get("manshu_rate_pct") or 0) >= 38.0),
+    ]
+    rows = []
+    for segment_name, selector_id, pred in segments:
+        for pattern in HEAD_VALUE_PATTERNS:
+            rows.append(eval_head_value_pattern(records, selector_id, segment_name, pred, pattern))
+    rows.sort(
+        key=lambda x: (
+            x["segment"],
+            not x.get("usable_before_race"),
+            -(x.get("races") or 0),
+            -(x.get("manshu_rate_pct") or -1),
+            -(x.get("head_capture_rate_pct") or -1),
+        )
+    )
+    actionable = [r for r in rows if r.get("usable_before_race") and (r.get("races") or 0) >= 10]
+    actionable.sort(key=lambda x: (-(x.get("manshu_rate_pct") or -1), -(x.get("head_capture_rate_pct") or -1), -(x.get("races") or 0)))
+    outcome = [r for r in rows if not r.get("usable_before_race")]
+    return {
+        "rows": rows,
+        "best_actionable": actionable[:8],
+        "outcome_checks": outcome,
+        "note": "頭を当てる力と、配当が跳ねる力は別物です。買う前に使える条件と、結果確認だけの条件を分けて表示します。",
+    }
+
+
+def write_head_value_research_db(db_path: Path, rows: list[dict[str, Any]]) -> None:
+    con = sqlite3.connect(db_path)
+    con.execute("DROP TABLE IF EXISTS head_value_summary")
+    con.execute(
+        """
+        CREATE TABLE head_value_summary (
+          selector_id TEXT,
+          selector_name TEXT,
+          segment TEXT,
+          pattern_id TEXT,
+          pattern_name TEXT,
+          usable_before_race INTEGER,
+          logic TEXT,
+          races INTEGER,
+          head_hits INTEGER,
+          head_capture_rate_pct REAL,
+          manshu_count INTEGER,
+          manshu_rate_pct REAL,
+          high_payout_count INTEGER,
+          high_payout_rate_pct REAL,
+          result_has_56_count INTEGER,
+          result_has_56_rate_pct REAL,
+          b1_not_win_count INTEGER,
+          b1_not_win_rate_pct REAL,
+          median_payout_yen INTEGER,
+          max_payout_yen INTEGER,
+          verdict TEXT,
+          examples_json TEXT
+        )
+        """
+    )
+    cols = [
+        "selector_id",
+        "selector_name",
+        "segment",
+        "pattern_id",
+        "pattern_name",
+        "usable_before_race",
+        "logic",
+        "races",
+        "head_hits",
+        "head_capture_rate_pct",
+        "manshu_count",
+        "manshu_rate_pct",
+        "high_payout_count",
+        "high_payout_rate_pct",
+        "result_has_56_count",
+        "result_has_56_rate_pct",
+        "b1_not_win_count",
+        "b1_not_win_rate_pct",
+        "median_payout_yen",
+        "max_payout_yen",
+        "verdict",
+        "examples_json",
+    ]
+    values = []
+    for row in rows:
+        values.append([int(row.get(col)) if col == "usable_before_race" else (compact_json(row.get("examples") or []) if col == "examples_json" else row.get(col)) for col in cols])
+    con.executemany(
+        f"INSERT INTO head_value_summary ({','.join(cols)}) VALUES ({','.join('?' for _ in cols)})",
+        values,
+    )
+    con.commit()
+    con.close()
 
 
 def write_head_research_db(db_path: Path, rows: list[dict[str, Any]]) -> None:
@@ -1313,6 +1617,7 @@ def latest_payload(records: list[dict[str, Any]]) -> dict[str, Any]:
 def build_summary(rows: list[dict[str, Any]], db_path: Path) -> dict[str, Any]:
     primary = primary_records(rows)
     head_research = build_head_research(primary)
+    head_value_research = build_head_value_research(primary)
     strategy_research = build_strategy_research(primary)
     segments = [
         ("全保存レース", lambda r: True),
@@ -1344,6 +1649,7 @@ def build_summary(rows: list[dict[str, Any]], db_path: Path) -> dict[str, Any]:
         "by_venue": grouped_summary(primary, "place_name", 24),
         "by_month": grouped_summary([{**r, "month": r["date"][:7]} for r in primary], "month", 36),
         "head_research": head_research,
+        "head_value_research": head_value_research,
         "strategy_research": strategy_research,
     }
 
@@ -1362,6 +1668,7 @@ def main() -> int:
     write_db(db_path, rows)
     summary = build_summary(rows, db_path)
     write_head_research_db(db_path, summary["head_research"]["rows"])
+    write_head_value_research_db(db_path, summary["head_value_research"]["rows"])
     write_strategy_research_db(db_path, summary["strategy_research"]["rows"])
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n")

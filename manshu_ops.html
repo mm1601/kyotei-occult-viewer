@@ -82,6 +82,7 @@
     <section class="panel" id="overview"></section>
     <section class="panel" id="latest"></section>
     <section class="panel" id="heads"></section>
+    <section class="panel" id="headValue"></section>
     <section class="panel" id="strategies"></section>
     <section class="panel" id="segments"></section>
     <div class="two">
@@ -122,6 +123,12 @@
         rows.map(r=>`<tr><td><b>${esc(r.segment)}</b></td><td><b>${esc(r.selector_name)}</b><br><span class="mini">${esc(r.logic)}</span></td><td class="num">${r.races}</td><td class="num">${pct(r.top1_hit_rate_pct)}</td><td class="num ${Number(r.top2_capture_rate_pct)>=60?'good':'warn'}">${pct(r.top2_capture_rate_pct)}</td><td>${esc(countsText(r.winner_counts))}</td><td>${esc(r.verdict)}</td></tr>`).join("")+
         `</tbody></table>`;
     }
+    function headValueTable(rows,title,lead){
+      if(!rows||!rows.length)return `<h2>${esc(title)}</h2><p class="lead">頭と万舟の研究データがまだありません。</p>`;
+      return `<h2>${esc(title)}</h2><p class="lead">${esc(lead||"")}</p><table><thead><tr><th>条件</th><th>中身</th><th class="num">対象</th><th class="num">頭2艇捕捉</th><th class="num">万舟率</th><th class="num">5000円以上</th><th class="num">5/6絡み</th><th class="num">1号艇1着外</th><th class="num">中央配当</th><th>判定</th></tr></thead><tbody>`+
+        rows.map(r=>`<tr><td><b>${esc(r.pattern_name)}</b><br><span class="mini">${esc(r.segment)}</span></td><td>${r.usable_before_race?'<span class="badge core">買う前に使える</span>':'<span class="badge wait">結果確認用</span>'}<br><span class="mini">${esc(r.logic)}</span></td><td class="num">${r.races}</td><td class="num ${Number(r.head_capture_rate_pct)>=60?'good':'warn'}">${pct(r.head_capture_rate_pct)}</td><td class="num hot">${pct(r.manshu_rate_pct)}</td><td class="num">${pct(r.high_payout_rate_pct)}</td><td class="num">${pct(r.result_has_56_rate_pct)}</td><td class="num">${pct(r.b1_not_win_rate_pct)}</td><td class="num">${yen(r.median_payout_yen)}</td><td>${esc(r.verdict)}</td></tr>`).join("")+
+        `</tbody></table>`;
+    }
     function headSection(data){
       const hr=data.head_research||{};
       const best=(hr.best_by_segment||[]).slice(0,8);
@@ -131,6 +138,18 @@
         `<details style="margin-top:12px"><summary style="cursor:pointer;color:#1d4ed8;font-weight:900">頭ロジックごとの詳しい比較を開く</summary>`+
         headTable(sorted,"頭ロジック詳細比較","外枠だけ・複合1着率・展示パワー・スリット相性などを同じ条件で比べています。")+
         `</details><p class="lead">${esc(hr.note||"")}</p>`;
+    }
+    function headValueSection(data){
+      const hv=data.head_value_research||{};
+      const best=(hv.best_actionable||[]).slice(0,8);
+      const outcome=(hv.outcome_checks||[]).filter(r=>r.segment==="本命40%以上 × 複合1着率");
+      const detail=(hv.rows||[]).filter(r=>r.segment==="本命40%以上 × 複合1着率"||r.segment==="本命40%以上 × AI+上位");
+      return headValueTable(best,"頭×万舟研究 使えそうな条件","頭を当てるだけでなく、配当が伸びる形かを確認します。ここは買う前に使える条件だけを優先表示します。")+
+        `<details style="margin-top:12px"><summary style="cursor:pointer;color:#1d4ed8;font-weight:900">75%当てた時の内訳を開く</summary>`+
+        headValueTable(outcome,"結果確認：頭を拾えた時と外した時","これは未来には使えません。なぜ頭的中率が高くても万舟率が下がるのかを確認するための表です。")+
+        `</details><details style="margin-top:12px"><summary style="cursor:pointer;color:#1d4ed8;font-weight:900">条件ごとの詳しい比較を開く</summary>`+
+        headValueTable(detail,"頭×万舟 詳細比較","同じ本命40%以上で、買う前に分かる条件ごとに分けています。")+
+        `</details><p class="lead">${esc(hv.note||"")}</p>`;
     }
     function strategySection(data){
       const sr=data.strategy_research||{};
@@ -158,6 +177,7 @@
       document.getElementById("overview").innerHTML=`<h2>運用サマリー</h2><div class="cards"><div class="card"><b>${main.settled_races??0}</b><span>確定レース</span></div><div class="card"><b>${pct(main.manshu_rate_pct)}</b><span>全体万舟率</span></div><div class="card"><b>${pct(core.manshu_rate_pct)}</b><span>本命40%以上 万舟率</span></div><div class="card"><b>${pct(buy.roi_pct)}</b><span>買い目あり回収率</span></div></div>`;
       document.getElementById("latest").innerHTML=latest(data);
       document.getElementById("heads").innerHTML=headSection(data);
+      document.getElementById("headValue").innerHTML=headValueSection(data);
       document.getElementById("strategies").innerHTML=strategySection(data);
       document.getElementById("segments").innerHTML=`<h2>条件別 成績</h2><p class="lead">回収率は保存JSON内の買い目を1点100円で買った想定です。結果がないレースは回収率計算から除外します。</p>${segTable(data.segments||[])}`;
       document.getElementById("venues").innerHTML=smallTable(data.by_venue||[],"place_name","場別");
