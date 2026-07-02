@@ -2394,6 +2394,63 @@ def build_b1_popularity_danger(records: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def b1_odds_gap_watchlist(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Latest-day watchlist for popular boat 1 races that look weak in data."""
+
+    ops = operational_records(rows)
+    if not ops:
+        return {"date": None, "races": [], "note": "運用データがまだありません。"}
+    latest_date = max(r["date"] for r in ops)
+    day = [r for r in ops if r["date"] == latest_date]
+    candidates = [r for r in day if popular_b1_overbet_danger(r)]
+
+    def sort_key(row: dict[str, Any]) -> tuple[float, float, int, str]:
+        metrics = metrics_map(row)
+        return (
+            -(parse_float(metrics.get("popular_b1_fly_score")) or 0.0),
+            -(row.get("manshu_rate_pct") or 0.0),
+            row.get("round") or 99,
+            row.get("place_name") or "",
+        )
+
+    out = []
+    for row in sorted(candidates, key=sort_key)[:20]:
+        metrics = metrics_map(row)
+        outcome = value_buy_outcome(row)
+        popularity = popular_b1_popularity_context(row)
+        out.append(
+            {
+                "rank": row.get("rank"),
+                "race": race_name(row),
+                "deadline": display_time(row.get("deadline_time")),
+                "manshu_rate_pct": row.get("manshu_rate_pct"),
+                "decision_class": row.get("decision_class"),
+                "popularity_level": popularity.get("level"),
+                "popularity_source": popularity.get("source"),
+                "danger_level": metrics.get("popular_b1_fly_level"),
+                "danger_score": parse_float(metrics.get("popular_b1_fly_score")),
+                "not_win_rate_pct": parse_float(metrics.get("popular_b1_not_win_rate_pct")),
+                "top3_miss_rate_pct": parse_float(metrics.get("popular_b1_top3_miss_rate_pct")),
+                "b1_manshu_rate_pct": parse_float(metrics.get("popular_b1_manshu_rate_pct")),
+                "odds_gap_label": popular_b1_odds_gap_label(row),
+                "reasons": popular_b1_odds_gap_reasons(row),
+                "buy_label": outcome.get("label"),
+                "strategy_name": outcome.get("strategy_name"),
+                "points": outcome.get("points"),
+                "tickets": outcome.get("tickets", [])[:12],
+                "ticket_hit": bool(outcome.get("hit")),
+                "result": row.get("result_trifecta"),
+                "payout_yen": row.get("payout_yen"),
+                "is_manshu": bool(row.get("is_manshu")),
+            }
+        )
+    return {
+        "date": latest_date,
+        "races": out,
+        "note": "今日のレースから、1号艇が普通に人気・かなり人気・売れすぎなのに、データ上は危険と出たものだけを集めます。通知対象外でも検証用に残します。",
+    }
+
+
 def post_exhibition_log(rows: list[dict[str, Any]]) -> dict[str, Any]:
     ops = operational_records(rows)
     if not ops:
@@ -2479,6 +2536,7 @@ def build_summary(rows: list[dict[str, Any]], db_path: Path) -> dict[str, Any]:
         },
         "latest": latest_payload(primary),
         "post_exhibition_log": post_exhibition_log(rows),
+        "b1_odds_gap_watchlist": b1_odds_gap_watchlist(rows),
         "segments": [summarize_records(primary, name, pred) for name, pred in segments],
         "source_segments": source_segments,
         "by_venue": grouped_summary(primary, "place_name", 24),

@@ -87,6 +87,7 @@
     <section class="panel" id="actionPlan"></section>
     <section class="panel" id="latest"></section>
     <section class="panel" id="postLog"></section>
+    <section class="panel" id="b1Watch"></section>
     <section class="panel" id="coreBuy"></section>
     <section class="panel" id="misses"></section>
     <section class="panel" id="b1Danger"></section>
@@ -204,6 +205,24 @@
         examples.map(e=>`<tr><td>${esc(e.date)}</td><td><b>${esc(e.race)}</b></td><td class="num">${pct(e.rate)}</td><td>${esc(e.decision_class)} / ${esc(e.value_label)}</td><td>${esc(e.result)}</td><td class="num">${yen(e.payout_yen)}</td><td>${esc(e.failure_label||"--")}</td><td>頭 ${esc((e.selected_heads||[]).join(",")||"--")} / 2・3着 ${esc((e.selected_second_third||[]).join(",")||"--")}</td><td>${esc((e.reasons||[]).join(" / "))}</td></tr>`).join("")+
         `</tbody></table></details>`;
     }
+    function b1WatchSection(data){
+      const watch=data.b1_odds_gap_watchlist||{};
+      const rows=watch.races||[];
+      const cards=rows.map(r=>{
+        const reasons=(r.reasons||[]).join(" / ");
+        const tickets=(r.tickets||[]).join(" / ");
+        return `<div class="race"><div class="race-top"><div><div class="race-title">${esc(r.race)} <span class="badge ${cls(r.decision_class)}">${esc(r.decision_class||"監視")}</span></div><div class="mini">${esc(r.deadline)}締切 / ${r.result?`結果 ${esc(r.result)} ${yen(r.payout_yen)}`:"結果待ち"}</div></div><div class="rate">${pct(r.manshu_rate_pct)}</div></div>`+
+          `<div class="roles"><div class="role"><b>人気の見方</b><strong>1号艇${esc(r.popularity_level||"--")}</strong><span class="mini">${esc(r.popularity_source||"")}</span></div>`+
+          `<div class="role"><b>危険度</b><strong>${esc(r.danger_level||"--")} ${r.danger_score==null?"":Number(r.danger_score).toFixed(0)+"点"}</strong><span class="mini">1着外 ${pct(r.not_win_rate_pct)} / 3着外 ${pct(r.top3_miss_rate_pct)}</span></div>`+
+          `<div class="role"><b>歪み判定</b><strong>${esc(r.odds_gap_label||"--")}</strong><span class="mini">${esc(reasons)}</span></div>`+
+          `<div class="role"><b>買い判定</b><strong>${esc(r.buy_label||"--")} ${r.points?`${r.points}点`:""}</strong><span class="mini">${esc(r.strategy_name||"通知対象外でも検証に残します")}</span></div></div>`+
+          (tickets?`<details><summary>買い目を見る</summary><p class="mini">${esc(tickets)}</p></details>`:"")+
+          `</div>`;
+      }).join("");
+      return `<h2>1号艇人気なのに危険 監視リスト</h2><p class="lead">${esc(watch.note||"")}</p>`+
+        `<div class="cards"><div class="card"><b>${rows.length}</b><span>今日拾った歪み候補</span></div><div class="card"><b>${rows.filter(r=>Number(r.manshu_rate_pct)>=40).length}</b><span>40%以上</span></div><div class="card"><b>${rows.filter(r=>r.result).length}</b><span>結果反映済み</span></div><div class="card"><b>${rows.filter(r=>r.is_manshu).length}</b><span>万舟</span></div></div>`+
+        (cards?`<div class="latest" style="margin-top:10px">${cards}</div>`:`<p class="lead">今日の該当レースはまだありません。</p>`);
+    }
     function b1DangerTable(rows,title){
       if(!rows||!rows.length)return "";
       return `<h3 style="margin:14px 0 0;font-size:15px">${esc(title)}</h3><table><thead><tr><th>1号艇人気</th><th class="num">件数</th><th class="num">1号艇1着外</th><th class="num">1号艇3着外</th><th class="num">万舟率</th><th class="num">5000円以上</th><th class="num">1号艇飛び時中央値</th></tr></thead><tbody>`+
@@ -275,6 +294,7 @@
       document.getElementById("actionPlan").innerHTML=actionPlanSection(data);
       document.getElementById("latest").innerHTML=latest(data);
       document.getElementById("postLog").innerHTML=postLogSection(data);
+      document.getElementById("b1Watch").innerHTML=b1WatchSection(data);
       document.getElementById("coreBuy").innerHTML=coreBuySection(data);
       document.getElementById("misses").innerHTML=missedSection(data);
       document.getElementById("b1Danger").innerHTML=b1DangerSection(data);
