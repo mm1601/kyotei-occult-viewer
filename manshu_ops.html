@@ -200,8 +200,8 @@
       const examples=miss.examples||[];
       return `<h2>見送り・取り逃し分析</h2><p class="lead">${esc(miss.note||"")}</p>`+
         `<div class="cards"><div class="card"><b>${miss.missed_high_payout_count??0}</b><span>5000円以上を拾えなかった件数</span></div>${counts.slice(0,3).map(c=>`<div class="card"><b>${c.count}</b><span>${esc(c.reason)}</span></div>`).join("")}</div>`+
-        `<details><summary>取り逃し例を開く</summary><table><thead><tr><th>日付</th><th>レース</th><th class="num">万舟率</th><th>判定</th><th>結果</th><th class="num">配当</th><th>拾えなかった理由</th></tr></thead><tbody>`+
-        examples.map(e=>`<tr><td>${esc(e.date)}</td><td><b>${esc(e.race)}</b></td><td class="num">${pct(e.rate)}</td><td>${esc(e.decision_class)} / ${esc(e.value_label)}</td><td>${esc(e.result)}</td><td class="num">${yen(e.payout_yen)}</td><td>${esc((e.reasons||[]).join(" / "))}</td></tr>`).join("")+
+        `<details><summary>取り逃し例を開く</summary><table><thead><tr><th>日付</th><th>レース</th><th class="num">万舟率</th><th>判定</th><th>結果</th><th class="num">配当</th><th>買い目上の抜け方</th><th>選んでいた候補</th><th>拾えなかった理由</th></tr></thead><tbody>`+
+        examples.map(e=>`<tr><td>${esc(e.date)}</td><td><b>${esc(e.race)}</b></td><td class="num">${pct(e.rate)}</td><td>${esc(e.decision_class)} / ${esc(e.value_label)}</td><td>${esc(e.result)}</td><td class="num">${yen(e.payout_yen)}</td><td>${esc(e.failure_label||"--")}</td><td>頭 ${esc((e.selected_heads||[]).join(",")||"--")} / 2・3着 ${esc((e.selected_second_third||[]).join(",")||"--")}</td><td>${esc((e.reasons||[]).join(" / "))}</td></tr>`).join("")+
         `</tbody></table></details>`;
     }
     function b1DangerTable(rows,title){
@@ -243,7 +243,7 @@
       const best=(sr.best_by_segment||[]).slice(0,8);
       const rows=(sr.rows||[]).filter(r=>["本命40%以上","本命40%以上＋人気1号艇危険","本命40%以上＋1号艇人気あり危険","本命40%以上＋1号艇歪み本命","本命40%以上＋1号艇歪み強本命","展示後38%以上＋1号艇歪み本命","展示後38%以上＋1号艇歪み強本命","展示後38%以上＋1号艇人気薄データ強","本命40%以上＋三連単上位1号艇頭","本命40%以上＋5/6予兆","一般戦 本命40%以上","一般戦 本命40%以上 展示6艇","準本命38-39.9","展示後38%以上","展示後38%以上＋推奨頭5/6あり","展示後38%以上＋5/6予兆"].includes(r.segment));
       const sorted=rows.sort((a,b)=>(a.segment>b.segment?1:a.segment<b.segment?-1:(Number(b.roi_pct||-1)-Number(a.roi_pct||-1))));
-      const oddsRows=rows.filter(r=>["odds_gap_b1_fade_strong_12","odds_gap_b1_fade_filtered_12","odds_b1_fade_comp_ai13_12"].includes(String(r.strategy_id||""))).sort((a,b)=>(Number(b.roi_pct||-1)-Number(a.roi_pct||-1)));
+      const oddsRows=rows.filter(r=>["odds_gap_b1_fade_strong_12","odds_gap_b1_fade_filtered_12","odds_b1_fade_comp_ai13_12","odds_b1_fade_inner2_recovery_12"].includes(String(r.strategy_id||""))).sort((a,b)=>(Number(b.roi_pct||-1)-Number(a.roi_pct||-1)));
       const valueRows=rows.filter(r=>String(r.strategy_id||"").startsWith("value_")).sort((a,b)=>(Number(b.roi_pct||-1)-Number(a.roi_pct||-1))).slice(0,10);
       return strategyTable(oddsRows,"オッズ歪み 本命買い方","1号艇が世間で売れているのにデータでは危険な時だけ、1号艇頭を外します。5/6は必須にしません。")+
         strategyTable(valueRows,"補助買い方 5/6材料あり","5/6は必須ではなく、展示やAIで強い時だけ参考にする補助ロジックです。")+

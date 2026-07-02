@@ -647,6 +647,23 @@ def non1_composite_heads(row: dict[str, Any], count: int = 2) -> list[int]:
     return sorted_boats_by(row, lambda b: parse_float(b.get("composite_win_pct")), allowed={2, 3, 4, 5, 6})[:count]
 
 
+def inner2_recovery_heads(row: dict[str, Any], count: int = 2) -> list[int]:
+    """Research head selector: restore 2号艇 only when its support data is strong enough."""
+
+    ranked = non1_composite_heads(row, 5)
+    boat2 = boat_metrics(row, 2)
+    ai_plus = ai_plus_score(boat2) or 0.0
+    top3 = parse_float(boat2.get("composite_top3_pct")) or 0.0
+    tenji_rank = valid_boat_rank(boat2.get("tenji_rank"))
+    isshu_rank = valid_boat_rank(boat2.get("isshu_rank"))
+    axis_signal = 2 in fallback_axes(row, 2) or 2 in ai13_axes(row)
+    display_signal = (tenji_rank is not None and tenji_rank <= 3.0) or (isshu_rank is not None and isshu_rank <= 3.0)
+    should_recover = axis_signal and (ai_plus >= 80.0 or top3 >= 15.0 or display_signal)
+    if should_recover:
+        return dedupe([2] + [h for h in ranked if h != 2])[:count]
+    return ranked[:count]
+
+
 def ai13_axes(row: dict[str, Any]) -> list[int]:
     ranked = fallback_axes(row, 3, rank_start=0)
     if len(ranked) >= 3:
@@ -700,6 +717,10 @@ def strategy_tickets(row: dict[str, Any], strategy_id: str) -> list[str]:
         if not popular_b1_overbet_danger(row):
             return []
         return formation_tickets(non1_composite_heads(row, 2), axes_ai13, supports, 12)
+    if strategy_id == "odds_b1_fade_inner2_recovery_12":
+        if not popular_b1_overbet_danger(row):
+            return []
+        return formation_tickets(inner2_recovery_heads(row, 2), axes_ai13, supports, 12)
     if strategy_id == "odds_gap_b1_fade_strong_12":
         if not popular_b1_overbet_strong(row):
             return []
@@ -1736,6 +1757,11 @@ BUY_STRATEGIES = [
         "logic": "1号艇が世間人気あり、かつ危険な時だけ買う。頭は2〜6号艇の複合1着率上位2艇、軸はAI+一般3連対の1位・3位。5/6は必須にしない",
     },
     {
+        "id": "odds_b1_fade_inner2_recovery_12",
+        "name": "研究: 1号艇人気危険 2号艇戻し12点",
+        "logic": "1号艇が人気なのに危険な時、2号艇が軸候補に入り、AI+・複合3着内率・展示のどれかが強い場合だけ2号艇を頭へ戻す研究ロジック",
+    },
+    {
         "id": "value_ai_head2_ai23_has56_12",
         "name": "高配当向け AI頭2×AI+2・3位軸 5/6絡み",
         "logic": "展示後38%以上で推奨頭に5/6が入る時だけ、AI+上位2艇を頭、AI+2・3位を軸にし、5/6が絡まない安い買い目を削る最大12点",
@@ -2081,6 +2107,83 @@ def value_buy_outcome(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def ticket_parts(tickets: list[str]) -> dict[str, list[int]]:
+    heads: list[int] = []
+    second_third: list[int] = []
+    all_boats: list[int] = []
+    for ticket in tickets:
+        key = combo_key(ticket)
+        if not key or len(key) < 3:
+            continue
+        first, second, third = (parse_int(key[0]), parse_int(key[1]), parse_int(key[2]))
+        if first:
+            heads.append(first)
+        for n in [second, third]:
+            if n:
+                second_third.append(n)
+        for n in [first, second, third]:
+            if n:
+                all_boats.append(n)
+    return {
+        "heads": dedupe(heads),
+        "second_third": dedupe(second_third),
+        "all_boats": dedupe(all_boats),
+    }
+
+
+def value_buy_failure_detail(row: dict[str, Any], outcome: dict[str, Any]) -> dict[str, Any]:
+    tickets = outcome.get("tickets") or []
+    result = result_boats(row)
+    parts = ticket_parts(tickets)
+    if not result:
+        return {
+            "failure_type": "no_result",
+            "failure_label": "結果未取得",
+            "selected_heads": parts["heads"],
+            "selected_second_third": parts["second_third"],
+            "selected_boats": parts["all_boats"],
+        }
+    if outcome.get("hit"):
+        return {
+            "failure_type": "hit",
+            "failure_label": "的中",
+            "selected_heads": parts["heads"],
+            "selected_second_third": parts["second_third"],
+            "selected_boats": parts["all_boats"],
+        }
+    if not tickets:
+        return {
+            "failure_type": "no_ticket",
+            "failure_label": "買い条件未達",
+            "selected_heads": [],
+            "selected_second_third": [],
+            "selected_boats": [],
+        }
+
+    actual_first = result[0]
+    actual_tail = result[1:]
+    if actual_first not in parts["heads"]:
+        label = f"頭抜け（{actual_first}号艇を1着に入れていない）"
+        failure_type = "head_missing"
+    elif any(n not in parts["second_third"] for n in actual_tail):
+        missing = [n for n in actual_tail if n not in parts["second_third"]]
+        label = "2・3着抜け（" + ",".join(map(str, missing)) + "号艇）"
+        failure_type = "tail_missing"
+    elif set(result).issubset(set(parts["all_boats"])):
+        label = "艇は入っていたが、並び順か点数制限で漏れ"
+        failure_type = "order_or_point_cap"
+    else:
+        label = "買い目の候補艇から抜け"
+        failure_type = "boat_pool_missing"
+    return {
+        "failure_type": failure_type,
+        "failure_label": label,
+        "selected_heads": parts["heads"],
+        "selected_second_third": parts["second_third"],
+        "selected_boats": parts["all_boats"],
+    }
+
+
 def value_buy_summary(records: list[dict[str, Any]], name: str, pred: Callable[[dict[str, Any]], bool]) -> dict[str, Any]:
     target = [r for r in records if pred(r)]
     settled = [r for r in target if r.get("payout_yen") is not None]
@@ -2193,6 +2296,10 @@ def build_missed_manshu_analysis(records: list[dict[str, Any]]) -> dict[str, Any
         if not missed:
             continue
         reasons = missed_reason(row)
+        failure = value_buy_failure_detail(row, outcome)
+        failure_label = str(failure.get("failure_label") or "")
+        if failure_label:
+            reason_counts[failure_label] += 1
         for reason in reasons:
             reason_counts[reason] += 1
         misses.append(
@@ -2208,6 +2315,11 @@ def build_missed_manshu_analysis(records: list[dict[str, Any]]) -> dict[str, Any
                 "points": outcome["points"],
                 "reasons": reasons,
                 "odds_gap": popular_b1_odds_gap_label(row),
+                "failure_type": failure.get("failure_type"),
+                "failure_label": failure_label,
+                "selected_heads": failure.get("selected_heads") or [],
+                "selected_second_third": failure.get("selected_second_third") or [],
+                "selected_boats": failure.get("selected_boats") or [],
             }
         )
     misses.sort(key=lambda x: (-(x.get("payout_yen") or 0), x.get("date") or ""))
