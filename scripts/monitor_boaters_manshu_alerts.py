@@ -4426,9 +4426,8 @@ def make_message(race, alert_type, metrics, checks, strategies):
             f"頭候補: {fmt_list(s['heads'])} / 軸: {fmt_list(s['axes'])}"
             f"{base_head_text}({s.get('axis_rule','AI+1位3位')}) / 比較軸: {fmt_list(s.get('alt_axes'))}"
             f"{support_text} / 消し: {fmt_role(s['keshi'])}\n"
-            f"狙い: {s.get('role_note') or '本命絞り'}\n"
-            f"消し理由: {s.get('keshi_reason') or '-'}\n"
-            f"買い目: {' '.join(s['tickets'])}"
+            f"荒れた時はこの買い目: {' '.join(s['tickets'])}\n"
+            f"根拠: {s.get('role_note') or '本命絞り'} / 消し理由: {s.get('keshi_reason') or '-'}"
         )
     if alert_type == "late_riser":
         return (

@@ -111,6 +111,13 @@
     .buy-role.head{border-color:#fecdd3;background:#fff1f2}
     .buy-role.axis{border-color:#bbf7d0;background:#ecfdf3}
     .buy-role.keshi{border-color:#fde68a;background:#fffbeb}
+    .storm-plan{border:1px solid #fecdd3;border-left:6px solid #be123c;border-radius:8px;background:#fff1f2;padding:10px;margin:10px 0}
+    .storm-plan.wait{border-color:#dbe3ef;border-left-color:#94a3b8;background:#f8fafc}
+    .storm-plan h4{margin:0 0 6px;font-size:15px;color:#991b1b}
+    .storm-plan.wait h4{color:#334155}
+    .storm-plan .ticket-line{margin:6px 0;color:#111827;font-size:13px;font-weight:900;line-height:1.45;word-break:break-word}
+    .storm-plan ul{margin:7px 0 0;padding-left:18px;color:#344054;font-size:12px}
+    .storm-plan li{margin:2px 0}
     .role-detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
     .role-detail-card{border:1px solid #dbe3ef;border-radius:8px;background:#fff;padding:9px}
     .role-detail-card b{display:block;font-size:13px;color:#111827;margin-bottom:3px}
@@ -676,13 +683,12 @@
     }
     function buyDecisionHtml(r){
       var d=buyDecision(r), tickets=((r.selection||{}).tickets||[]).slice(0,20);
-      var ticketLabel=d.cls==="good"?"買い目":"参考買い目";
       var checks=finalCheckText(r);
       var s=selectionOf(r);
       var pointText=(s.points||tickets.length||0)+"点";
-      var roleNote=s.role_note||"";
       var heads=(s.heads||[]).slice(0,2);
       var axes=(s.axes||[]).slice(0,2);
+      var stormPlan=stormPlanHtml(r,d,s,tickets,pointText,checks);
       var roleGrid=[
         "<div class=\"buy-role-grid\">",
         "<div class=\"buy-role head\"><b>1着候補</b><strong>"+esc(boatsText(heads))+"</strong></div>",
@@ -695,10 +701,9 @@
         "<div class=\"simple-box\"><h3>買い / 見送り</h3>",
         "<p class=\"lead\"><b class=\"badge "+esc(d.cls)+"\">"+esc(d.label)+"</b> "+esc(d.detail)+"</p>",
         roleGrid,
-        s.keshi_reason?"<p class=\"mini\"><b>消し理由:</b> "+esc(s.keshi_reason)+"</p>":"",
-        checks?"<p class=\"mini\"><b>展示後チェック:</b> "+esc(checks)+"</p>":"",
-        tickets.length?"<p class=\"mini\"><b>"+esc(ticketLabel)+" "+esc(pointText)+":</b> "+esc(tickets.join(" / "))+"</p>":"<p class=\"mini\">買い目は、展示後に候補・軸・消しが揃ったレースだけ表示します。</p>",
-        roleNote?"<p class=\"mini\"><b>狙い:</b> "+esc(roleNote)+"</p>":"",
+        stormPlan,
+        !tickets.length&&s.keshi_reason?"<p class=\"mini\"><b>消し理由:</b> "+esc(s.keshi_reason)+"</p>":"",
+        !tickets.length&&checks?"<p class=\"mini\"><b>展示後チェック:</b> "+esc(checks)+"</p>":"",
         "</div>"
       ].join("");
     }
@@ -762,6 +767,48 @@
     }
     function keshiText(s){
       return s&&s.keshi!=null&&s.keshi!==""?s.keshi+"号艇":"--";
+    }
+    function stormReasonItems(r,d,s,checks){
+      var items=[];
+      function add(v){
+        if(v==null) return;
+        var text=String(v).trim();
+        if(text&&items.indexOf(text)<0) items.push(text);
+      }
+      add(d.detail);
+      add(s.role_note);
+      add(s.head_rule);
+      if(s.axis_rule) add("軸: "+s.axis_rule);
+      if(s.keshi_reason) add("消し: "+s.keshi_reason);
+      if(s.odds_filter) add("オッズ条件: "+s.odds_filter);
+      if(checks) add("展示後チェック: "+checks);
+      var scores=s.head_scores||{};
+      (s.heads||[]).slice(0,2).forEach(function(boat){
+        var score=scores[String(boat)]||scores[boat];
+        if(score&&Array.isArray(score.reasons)&&score.reasons.length){
+          add(boat+"号艇頭: "+score.reasons.slice(0,4).join(" / "));
+        }
+      });
+      return items.slice(0,8);
+    }
+    function stormPlanHtml(r,d,s,tickets,pointText,checks){
+      if(!tickets.length){
+        return [
+          "<div class=\"storm-plan wait\">",
+          "<h4>荒れた時の買い目</h4>",
+          "<p class=\"mini\">本命/準本命条件まで届いた時だけ、ここに買い目と根拠を表示します。</p>",
+          "</div>"
+        ].join("");
+      }
+      var title=d.cls==="good"?"荒れた時はこの買い目":"荒れ想定の参考買い目";
+      var reasons=stormReasonItems(r,d,s,checks);
+      return [
+        "<div class=\"storm-plan\">",
+        "<h4>"+esc(title)+"</h4>",
+        "<p class=\"ticket-line\">"+esc(pointText)+" / "+esc(tickets.join(" / "))+"</p>",
+        reasons.length?"<ul>"+reasons.map(function(v){return "<li>"+esc(v)+"</li>";}).join("")+"</ul>":"",
+        "</div>"
+      ].join("");
     }
     function quickRolesHtml(r){
       var s=selectionOf(r);
