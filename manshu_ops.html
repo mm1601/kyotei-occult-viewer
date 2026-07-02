@@ -49,6 +49,10 @@
     .role b{display:block;color:#475467;font-size:11px}
     .role strong{display:block;color:#111827;font-size:14px}
     .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    details{border:1px solid #edf1f7;border-radius:8px;background:#fff;margin-top:9px;padding:8px 10px}
+    summary{cursor:pointer;font-weight:900;color:#1d4ed8}
+    .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+    .chip{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px 8px;font-size:11px;font-weight:900;background:#f8fafc;color:#475467}
     footer{color:#8a93a6;font-size:11.5px;text-align:center;margin-top:22px}
     @media(max-width:760px){
       .shell{padding:12px 10px 28px}
@@ -81,6 +85,10 @@
     <section class="status" id="status"><strong>運用データを読み込み中</strong></section>
     <section class="panel" id="overview"></section>
     <section class="panel" id="latest"></section>
+    <section class="panel" id="postLog"></section>
+    <section class="panel" id="coreBuy"></section>
+    <section class="panel" id="misses"></section>
+    <section class="panel" id="b1Danger"></section>
     <section class="panel" id="heads"></section>
     <section class="panel" id="headValue"></section>
     <section class="panel" id="strategies"></section>
@@ -128,6 +136,59 @@
       return `<h2>${esc(title)}</h2><p class="lead">${esc(lead||"")}</p><table><thead><tr><th>条件</th><th>中身</th><th class="num">対象</th><th class="num">頭2艇捕捉</th><th class="num">万舟率</th><th class="num">5000円以上</th><th class="num">5/6絡み</th><th class="num">1号艇1着外</th><th class="num">中央配当</th><th>判定</th></tr></thead><tbody>`+
         rows.map(r=>`<tr><td><b>${esc(r.pattern_name)}</b><br><span class="mini">${esc(r.segment)}</span></td><td>${r.usable_before_race?'<span class="badge core">買う前に使える</span>':'<span class="badge wait">結果確認用</span>'}<br><span class="mini">${esc(r.logic)}</span></td><td class="num">${r.races}</td><td class="num ${Number(r.head_capture_rate_pct)>=60?'good':'warn'}">${pct(r.head_capture_rate_pct)}</td><td class="num hot">${pct(r.manshu_rate_pct)}</td><td class="num">${pct(r.high_payout_rate_pct)}</td><td class="num">${pct(r.result_has_56_rate_pct)}</td><td class="num">${pct(r.b1_not_win_rate_pct)}</td><td class="num">${yen(r.median_payout_yen)}</td><td>${esc(r.verdict)}</td></tr>`).join("")+
         `</tbody></table>`;
+    }
+    function coreBuyTable(rows,title,lead){
+      if(!rows||!rows.length)return `<h2>${esc(title)}</h2><p class="lead">本命買いの成績がまだありません。</p>`;
+      return `<h2>${esc(title)}</h2><p class="lead">${esc(lead||"")}</p><table><thead><tr><th>条件</th><th class="num">対象</th><th class="num">確定</th><th class="num">買いR</th><th class="num">平均点</th><th class="num">的中率</th><th class="num">万舟的中</th><th class="num">回収率</th><th class="num">最大依存</th><th class="num">最大連敗</th></tr></thead><tbody>`+
+        rows.map(r=>`<tr><td><b>${esc(r.segment)}</b></td><td class="num">${r.target_races}</td><td class="num">${r.settled_races}</td><td class="num">${r.buy_races}</td><td class="num">${r.avg_points??"--"}</td><td class="num">${pct(r.hit_rate_pct)}</td><td class="num">${r.manshu_hits}</td><td class="num ${Number(r.roi_pct)>=100?'good':'warn'}">${pct(r.roi_pct)}</td><td class="num">${pct(r.payback_dependency_pct)}</td><td class="num">${r.max_losing_streak??"--"}</td></tr>`).join("")+
+        `</tbody></table>`;
+    }
+    function coreBuySection(data){
+      const perf=data.core_buy_performance||{};
+      const rows=perf.rows||[];
+      const examples=rows.flatMap(r=>(r.examples||[]).map(e=>({...e,segment:r.segment}))).slice(0,12);
+      return coreBuyTable(rows,"本命だけの成績","画面に出す高配当向け推奨買い目を、1点100円で買った想定です。")+
+        `<details><summary>的中した例を開く</summary><table><thead><tr><th>日付</th><th>条件</th><th>レース</th><th>判定</th><th>結果</th><th class="num">配当</th><th class="num">点数</th><th>買い目</th></tr></thead><tbody>`+
+        examples.map(e=>`<tr><td>${esc(e.date)}</td><td>${esc(e.segment)}</td><td><b>${esc(e.race)}</b></td><td>${esc(e.label)}</td><td>${esc(e.result)}</td><td class="num">${yen(e.payout_yen)}</td><td class="num">${e.points}</td><td>${esc((e.tickets||[]).join(" / "))}</td></tr>`).join("")+
+        `</tbody></table></details><p class="lead">${esc(perf.note||"")}</p>`;
+    }
+    function postLogSection(data){
+      const log=data.post_exhibition_log||{};
+      const rows=log.races||[];
+      if(!rows.length)return `<h2>展示後判定ログ</h2><p class="lead">最新日の展示後ログがまだありません。</p>`;
+      return `<h2>${esc(log.date)} 展示後判定ログ</h2><p class="lead">${esc(log.note||"")}</p><div class="latest">`+
+        rows.map(r=>{
+          const ready=(Number(r.tenji_boats||0)>=6 && Number(r.isshu_boats||0)>=6)?'展示6艇':'展示不足';
+          const result=r.result?`結果 ${esc(r.result)} ${yen(r.payout_yen)}`:'結果待ち';
+          const tickets=(r.tickets||[]).join(" / ");
+          return `<details><summary>${esc(r.rank)}位 ${esc(r.race)} ${pct(r.rate)} <span class="badge ${cls(r.decision_class)}">${esc(r.decision_class)}</span></summary>`+
+            `<div class="chips"><span class="chip">${esc(r.deadline)}締切</span><span class="chip">${esc(ready)}</span><span class="chip">AI/オッズ ${esc(r.odds_source||"未取得")}</span><span class="chip">${esc(result)}</span></div>`+
+            `<div class="roles"><div class="role"><b>推奨頭</b><strong>${esc(r.head_candidates||"--")}</strong></div><div class="role"><b>軸</b><strong>${esc(r.axis_candidates||"--")}</strong></div><div class="role"><b>消し</b><strong>${esc(r.keshi||"--")}</strong></div><div class="role"><b>買い判定</b><strong>${esc(r.buy_label||"--")} ${r.points?`${r.points}点`:""}</strong><span class="mini">${esc(r.reason||"")}</span></div><div class="role"><b>1号艇人気×危険</b><strong>${esc(r.odds_gap_label||"--")}</strong><span class="mini">${esc((r.odds_gap_reasons||[]).join(" / "))}</span></div><div class="role"><b>買い目</b><strong>${r.ticket_hit?"的中":"-"}</strong><span class="mini">${esc(tickets||"--")}</span></div></div>`+
+            `</details>`;
+        }).join("")+
+        `</div>`;
+    }
+    function missedSection(data){
+      const miss=data.missed_manshu_analysis||{};
+      const counts=miss.reason_counts||[];
+      const examples=miss.examples||[];
+      return `<h2>見送り・取り逃し分析</h2><p class="lead">${esc(miss.note||"")}</p>`+
+        `<div class="cards"><div class="card"><b>${miss.missed_high_payout_count??0}</b><span>5000円以上を拾えなかった件数</span></div>${counts.slice(0,3).map(c=>`<div class="card"><b>${c.count}</b><span>${esc(c.reason)}</span></div>`).join("")}</div>`+
+        `<details><summary>取り逃し例を開く</summary><table><thead><tr><th>日付</th><th>レース</th><th class="num">万舟率</th><th>判定</th><th>結果</th><th class="num">配当</th><th>拾えなかった理由</th></tr></thead><tbody>`+
+        examples.map(e=>`<tr><td>${esc(e.date)}</td><td><b>${esc(e.race)}</b></td><td class="num">${pct(e.rate)}</td><td>${esc(e.decision_class)} / ${esc(e.value_label)}</td><td>${esc(e.result)}</td><td class="num">${yen(e.payout_yen)}</td><td>${esc((e.reasons||[]).join(" / "))}</td></tr>`).join("")+
+        `</tbody></table></details>`;
+    }
+    function b1DangerTable(rows,title){
+      if(!rows||!rows.length)return "";
+      return `<h3 style="margin:14px 0 0;font-size:15px">${esc(title)}</h3><table><thead><tr><th>1号艇人気</th><th class="num">件数</th><th class="num">1号艇1着外</th><th class="num">1号艇3着外</th><th class="num">万舟率</th><th class="num">5000円以上</th><th class="num">1号艇飛び時中央値</th></tr></thead><tbody>`+
+        rows.map(r=>`<tr><td><b>${esc(r.segment)}</b></td><td class="num">${r.races}</td><td class="num">${pct(r.b1_not_win_rate_pct)}</td><td class="num">${pct(r.b1_top3_miss_rate_pct)}</td><td class="num hot">${pct(r.manshu_rate_pct)}</td><td class="num">${pct(r.high_payout_rate_pct)}</td><td class="num">${yen(r.median_payout_when_b1_not_win_yen)}</td></tr>`).join("")+
+        `</tbody></table>`;
+    }
+    function b1DangerSection(data){
+      const b=data.b1_popularity_danger||{};
+      return `<h2>1号艇人気 × 危険ロジック</h2><p class="lead">${esc(b.note||"")}</p>`+
+        b1DangerTable(b.levels||[],"人気レベル別")+
+        `<details><summary>人気レベル × 危険あり/なし を開く</summary>${b1DangerTable(b.danger_cross||[],"クロス集計")}</details>`;
     }
     function headSection(data){
       const hr=data.head_research||{};
@@ -186,6 +247,10 @@
       const buy=(data.segments||[]).find(r=>r.segment==="買い目あり")||{};
       document.getElementById("overview").innerHTML=`<h2>運用サマリー</h2><div class="cards"><div class="card"><b>${main.settled_races??0}</b><span>確定レース</span></div><div class="card"><b>${pct(main.manshu_rate_pct)}</b><span>全体万舟率</span></div><div class="card"><b>${pct(core.manshu_rate_pct)}</b><span>本命40%以上 万舟率</span></div><div class="card"><b>${pct(buy.roi_pct)}</b><span>買い目あり回収率</span></div></div>`;
       document.getElementById("latest").innerHTML=latest(data);
+      document.getElementById("postLog").innerHTML=postLogSection(data);
+      document.getElementById("coreBuy").innerHTML=coreBuySection(data);
+      document.getElementById("misses").innerHTML=missedSection(data);
+      document.getElementById("b1Danger").innerHTML=b1DangerSection(data);
       document.getElementById("heads").innerHTML=headSection(data);
       document.getElementById("headValue").innerHTML=headValueSection(data);
       document.getElementById("strategies").innerHTML=strategySection(data);

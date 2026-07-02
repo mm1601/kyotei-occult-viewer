@@ -410,10 +410,18 @@ def write_db(db_path: Path, snapshots: list[dict[str, Any]]) -> None:
     con.close()
 
 
+def record_key(row: dict[str, Any]) -> tuple[str, str, str]:
+    place_key = str(row.get("place_id") or row.get("place_name") or "")
+    round_key = str(row.get("round") or "")
+    if place_key and round_key:
+        return (str(row.get("date") or ""), place_key, round_key)
+    return (str(row.get("date") or ""), str(row.get("race_id") or ""), "")
+
+
 def primary_records(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    chosen: dict[tuple[str, str], dict[str, Any]] = {}
+    chosen: dict[tuple[str, str, str], dict[str, Any]] = {}
     for row in rows:
-        key = (row["date"], row["race_id"])
+        key = record_key(row)
         prev = chosen.get(key)
         if not prev or row["source_priority"] > prev["source_priority"]:
             chosen[key] = row
@@ -2027,8 +2035,309 @@ def latest_payload(records: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def operational_records(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Pick the freshest-looking snapshot for display, without changing research baselines."""
+
+    chosen: dict[tuple[str, str, str], dict[str, Any]] = {}
+    for row in rows:
+        key = record_key(row)
+        coverage = (row.get("tenji_boats") or 0) + max(row.get("isshu_boats") or 0, row.get("raw_isshu_boats") or 0)
+        score = (
+            int(row.get("payout_yen") is not None) * 10_000
+            + int(coverage >= 12) * 1_000
+            + coverage * 50
+            + int((row.get("manshu_rate_pct") or 0) >= 38.0) * 25
+            + (row.get("source_priority") or 0)
+        )
+        prev = chosen.get(key)
+        if not prev:
+            chosen[key] = {**row, "_ops_score": score}
+            continue
+        prev_score = prev.get("_ops_score") or 0
+        if score > prev_score:
+            chosen[key] = {**row, "_ops_score": score}
+    return sorted(chosen.values(), key=lambda r: (r["date"], r.get("deadline_time") or "", r.get("rank") or 999))
+
+
+def race_name(row: dict[str, Any]) -> str:
+    return f"{row.get('place_name')}{row.get('round')}R"
+
+
+def value_buy_outcome(row: dict[str, Any]) -> dict[str, Any]:
+    rec = value_buy_recommendation(row)
+    tickets = rec.get("tickets") or []
+    result_key = combo_key(row.get("result_trifecta"))
+    ticket_keys = {combo_key(t) for t in tickets if combo_key(t)}
+    hit = bool(result_key and result_key in ticket_keys)
+    stake = len(tickets) * 100
+    payback = (row.get("payout_yen") or 0) if hit else 0
+    return {
+        **rec,
+        "points": len(tickets),
+        "hit": hit,
+        "stake_yen": stake,
+        "payback_yen": payback,
+        "profit_yen": payback - stake,
+    }
+
+
+def value_buy_summary(records: list[dict[str, Any]], name: str, pred: Callable[[dict[str, Any]], bool]) -> dict[str, Any]:
+    target = [r for r in records if pred(r)]
+    settled = [r for r in target if r.get("payout_yen") is not None]
+    bought: list[tuple[dict[str, Any], dict[str, Any]]] = []
+    for row in settled:
+        outcome = value_buy_outcome(row)
+        if outcome["points"]:
+            bought.append((row, outcome))
+
+    stake = sum(o["stake_yen"] for _r, o in bought)
+    payback = sum(o["payback_yen"] for _r, o in bought)
+    hits = sum(1 for _r, o in bought if o["hit"])
+    manshu_hits = sum(1 for r, o in bought if o["hit"] and r.get("is_manshu"))
+    max_losing = 0
+    cur_losing = 0
+    max_hit = 0
+    examples = []
+    for row, outcome in bought:
+        if outcome["hit"]:
+            cur_losing = 0
+            max_hit = max(max_hit, row.get("payout_yen") or 0)
+            if len(examples) < 8:
+                examples.append(
+                    {
+                        "date": row.get("date"),
+                        "race": race_name(row),
+                        "decision_class": row.get("decision_class"),
+                        "label": outcome.get("label"),
+                        "result": row.get("result_trifecta"),
+                        "payout_yen": row.get("payout_yen"),
+                        "points": outcome["points"],
+                        "tickets": outcome.get("tickets", [])[:12],
+                    }
+                )
+        else:
+            cur_losing += 1
+            max_losing = max(max_losing, cur_losing)
+    dependency_pct = round(max_hit / payback * 100, 2) if payback else None
+    return {
+        "segment": name,
+        "target_races": len(target),
+        "settled_races": len(settled),
+        "buy_races": len(bought),
+        "stake_yen": stake,
+        "payback_yen": payback,
+        "profit_yen": payback - stake,
+        "roi_pct": round(payback / stake * 100, 2) if stake else None,
+        "hits": hits,
+        "hit_rate_pct": round(hits / len(bought) * 100, 2) if bought else None,
+        "manshu_hits": manshu_hits,
+        "manshu_hit_rate_pct": round(manshu_hits / len(bought) * 100, 2) if bought else None,
+        "avg_points": round(sum(o["points"] for _r, o in bought) / len(bought), 2) if bought else None,
+        "max_losing_streak": max_losing,
+        "max_hit_payout_yen": max_hit or None,
+        "payback_dependency_pct": dependency_pct,
+        "examples": examples,
+    }
+
+
+def build_core_buy_performance(records: list[dict[str, Any]]) -> dict[str, Any]:
+    segments: list[tuple[str, Callable[[dict[str, Any]], bool]]] = [
+        ("本命だけ 40%以上", lambda r: (r.get("manshu_rate_pct") or 0) >= 40.0),
+        ("強本命だけ", lambda r: r.get("decision_class") == "強本命"),
+        ("本命ラベルだけ", lambda r: r.get("decision_class") == "本命"),
+        ("準本命 38-39.9", lambda r: r.get("decision_class") == "準本命" or 38.0 <= (r.get("manshu_rate_pct") or 0) < 40.0),
+        ("1号艇歪み本命", lambda r: (r.get("manshu_rate_pct") or 0) >= 40.0 and popular_b1_overbet_filtered(r)),
+        ("1号艇歪み強本命", lambda r: (r.get("manshu_rate_pct") or 0) >= 40.0 and popular_b1_overbet_strong(r)),
+        ("40%以上＋1号艇人気あり危険", lambda r: (r.get("manshu_rate_pct") or 0) >= 40.0 and popular_b1_overbet_danger(r)),
+    ]
+    rows = [value_buy_summary(records, name, pred) for name, pred in segments]
+    rows.sort(key=lambda x: (-(x.get("buy_races") or 0), -(x.get("roi_pct") or -1)))
+    return {
+        "rows": rows,
+        "note": "ここは保存買い目ではなく、いま画面に出す高配当向け推奨買い目を1点100円で買った想定です。",
+    }
+
+
+def missed_reason(row: dict[str, Any]) -> list[str]:
+    rate = row.get("manshu_rate_pct") or 0.0
+    reasons: list[str] = []
+    if rate < 38.0:
+        reasons.append("展示後万舟率が38%未満")
+    elif rate < 40.0:
+        reasons.append("本命40%未満")
+    if not has_full_exhibition(row):
+        reasons.append("展示・1周が6艇そろっていない")
+    if not popular_b1_publicly_backed(row):
+        reasons.append("1号艇が世間で人気になっていない")
+    if not popular_b1_danger(row):
+        reasons.append("1号艇の危険材料が弱い")
+    if popular_b1_publicly_backed(row) and not popular_b1_exhibition_weak(row):
+        reasons.append("人気1号艇の展示悪化が足りない")
+    if not outer56_support_signal(row):
+        reasons.append("5・6号艇の押し上げ材料が弱い")
+    if not value_buy_outcome(row)["points"]:
+        reasons.append("推奨買い目条件に未達")
+    return reasons[:5] or ["条件は近いが買い目条件に未達"]
+
+
+def build_missed_manshu_analysis(records: list[dict[str, Any]]) -> dict[str, Any]:
+    settled = [r for r in records if r.get("payout_yen") is not None]
+    misses = []
+    reason_counts: dict[str, int] = defaultdict(int)
+    for row in settled:
+        payout = row.get("payout_yen") or 0
+        if payout < 5000:
+            continue
+        outcome = value_buy_outcome(row)
+        missed = not outcome["hit"]
+        if not missed:
+            continue
+        reasons = missed_reason(row)
+        for reason in reasons:
+            reason_counts[reason] += 1
+        misses.append(
+            {
+                "date": row.get("date"),
+                "race": race_name(row),
+                "rank": row.get("rank"),
+                "rate": row.get("manshu_rate_pct"),
+                "decision_class": row.get("decision_class"),
+                "result": row.get("result_trifecta"),
+                "payout_yen": payout,
+                "value_label": outcome.get("label"),
+                "points": outcome["points"],
+                "reasons": reasons,
+                "odds_gap": popular_b1_odds_gap_label(row),
+            }
+        )
+    misses.sort(key=lambda x: (-(x.get("payout_yen") or 0), x.get("date") or ""))
+    reasons = [{"reason": k, "count": v} for k, v in sorted(reason_counts.items(), key=lambda x: (-x[1], x[0]))]
+    return {
+        "missed_high_payout_count": len(misses),
+        "reason_counts": reasons,
+        "examples": misses[:20],
+        "note": "5000円以上の結果が出たのに、推奨買い目で拾えなかったレースです。次に直すべき穴を探すための表です。",
+    }
+
+
+def median(values: list[int]) -> int | None:
+    if not values:
+        return None
+    values = sorted(values)
+    mid = len(values) // 2
+    return values[mid] if len(values) % 2 else round((values[mid - 1] + values[mid]) / 2)
+
+
+def build_b1_popularity_danger(records: list[dict[str, Any]]) -> dict[str, Any]:
+    settled = [r for r in records if r.get("payout_yen") is not None and result_boats(r)]
+    groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    cross_groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in settled:
+        level = str(popular_b1_popularity_context(row).get("level") or "未取得")
+        groups[level].append(row)
+        danger = "危険あり" if popular_b1_danger(row) else "危険なし"
+        cross_groups[f"{level} × {danger}"].append(row)
+
+    def summarize_level(name: str, rows: list[dict[str, Any]]) -> dict[str, Any]:
+        n = len(rows)
+        b1_not_win = sum(1 for r in rows if actual_head(r) != 1)
+        b1_out = sum(1 for r in rows if 1 not in result_boats(r))
+        manshu = sum(1 for r in rows if r.get("is_manshu"))
+        high = sum(1 for r in rows if (r.get("payout_yen") or 0) >= 5000)
+        payouts = [r.get("payout_yen") or 0 for r in rows if actual_head(r) != 1]
+        examples = [
+            {
+                "date": r.get("date"),
+                "race": race_name(r),
+                "rate": r.get("manshu_rate_pct"),
+                "result": r.get("result_trifecta"),
+                "payout_yen": r.get("payout_yen"),
+                "danger_label": popular_b1_odds_gap_label(r),
+            }
+            for r in sorted(rows, key=lambda x: -(x.get("payout_yen") or 0))[:5]
+        ]
+        return {
+            "segment": name,
+            "races": n,
+            "b1_not_win_count": b1_not_win,
+            "b1_not_win_rate_pct": round(b1_not_win / n * 100, 2) if n else None,
+            "b1_top3_miss_count": b1_out,
+            "b1_top3_miss_rate_pct": round(b1_out / n * 100, 2) if n else None,
+            "manshu_count": manshu,
+            "manshu_rate_pct": round(manshu / n * 100, 2) if n else None,
+            "high_payout_count": high,
+            "high_payout_rate_pct": round(high / n * 100, 2) if n else None,
+            "median_payout_when_b1_not_win_yen": median(payouts),
+            "examples": examples,
+        }
+
+    level_order = ["売れすぎ", "かなり人気", "普通に人気", "人気不足", "未取得"]
+    level_rows = [summarize_level(level, groups.get(level, [])) for level in level_order if level in groups]
+    cross_rows = [summarize_level(name, rows) for name, rows in cross_groups.items()]
+    cross_rows.sort(key=lambda x: (-(x.get("races") or 0), x.get("segment") or ""))
+    return {
+        "levels": level_rows,
+        "danger_cross": cross_rows,
+        "note": "普通に人気・かなり人気・売れすぎは、三連単人気上位またはBOATERS AIオッズ評価から作った1号艇人気レベルです。結果は使わずに分類しています。",
+    }
+
+
+def post_exhibition_log(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    ops = operational_records(rows)
+    if not ops:
+        return {"date": None, "races": []}
+    latest_date = max(r["date"] for r in ops)
+    day = [r for r in ops if r["date"] == latest_date]
+    view = [
+        r
+        for r in day
+        if (r.get("rank") or 999) <= 10
+        or (r.get("manshu_rate_pct") or 0) >= 38.0
+        or r.get("decision_class") in {"強本命", "本命", "準本命", "急浮上参考"}
+        or r.get("payout_yen") is not None
+    ]
+    view = sorted(view, key=lambda r: (r.get("rank") or 999, r.get("deadline_time") or "", r.get("place_name") or ""))[:24]
+    races = []
+    for row in view:
+        outcome = value_buy_outcome(row)
+        races.append(
+            {
+                "rank": row.get("rank"),
+                "race": race_name(row),
+                "deadline": display_time(row.get("deadline_time")),
+                "source_type": row.get("source_type"),
+                "rate": row.get("manshu_rate_pct"),
+                "base_rate": row.get("base_manshu_rate_pct"),
+                "decision_class": row.get("decision_class"),
+                "tenji_boats": row.get("tenji_boats"),
+                "isshu_boats": row.get("isshu_boats") or row.get("raw_isshu_boats"),
+                "odds_source": row.get("odds_snapshot_source") or "",
+                "head_candidates": ",".join(map(str, head_candidates(row, recommended_head_selector(row), 2))),
+                "axis_candidates": row.get("axis_boats") or ",".join(map(str, fallback_axes(row, 2))),
+                "keshi": row.get("keshi_boat") or fallback_keshi(row),
+                "buy_label": outcome.get("label"),
+                "strategy_name": outcome.get("strategy_name"),
+                "reason": outcome.get("reason"),
+                "points": outcome["points"],
+                "tickets": outcome.get("tickets", [])[:12],
+                "ticket_hit": outcome["hit"],
+                "result": row.get("result_trifecta"),
+                "payout_yen": row.get("payout_yen"),
+                "is_manshu": bool(row.get("is_manshu")),
+                "odds_gap_label": popular_b1_odds_gap_label(row),
+                "odds_gap_reasons": popular_b1_odds_gap_reasons(row),
+            }
+        )
+    return {
+        "date": latest_date,
+        "races": races,
+        "note": "最新日の朝監視TOP10、展示後38%以上、急浮上、本命/準本命、結果反映済みを1本のログにまとめます。",
+    }
+
+
 def build_summary(rows: list[dict[str, Any]], db_path: Path) -> dict[str, Any]:
     primary = primary_records(rows)
+    ops_primary = operational_records(rows)
     head_research = build_head_research(primary)
     head_value_research = build_head_value_research(primary)
     strategy_research = build_strategy_research(primary)
@@ -2057,6 +2366,7 @@ def build_summary(rows: list[dict[str, Any]], db_path: Path) -> dict[str, Any]:
             "note": "保存済みJSONから作った運用検証用データです。本番ランキング生成ロジックは変更していません。",
         },
         "latest": latest_payload(primary),
+        "post_exhibition_log": post_exhibition_log(rows),
         "segments": [summarize_records(primary, name, pred) for name, pred in segments],
         "source_segments": source_segments,
         "by_venue": grouped_summary(primary, "place_name", 24),
@@ -2064,6 +2374,9 @@ def build_summary(rows: list[dict[str, Any]], db_path: Path) -> dict[str, Any]:
         "head_research": head_research,
         "head_value_research": head_value_research,
         "strategy_research": strategy_research,
+        "core_buy_performance": build_core_buy_performance(ops_primary),
+        "missed_manshu_analysis": build_missed_manshu_analysis(ops_primary),
+        "b1_popularity_danger": build_b1_popularity_danger(ops_primary),
     }
 
 
