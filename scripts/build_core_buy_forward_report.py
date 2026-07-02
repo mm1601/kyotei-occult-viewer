@@ -15,7 +15,20 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = ROOT / "data" / "output"
 REPORT_DIR = ROOT / "reports"
-CORE_STRATEGY_ID = "codex_post_core_ab_rank3"
+BUY_STRATEGY_IDS = {
+    "codex_odds_gap_b1_fade_strong12",
+    "codex_odds_gap_b1_fade_filtered12",
+    "codex_post_core_front_head2_no1_outer56",
+    "codex_post_core_rate40",
+    "codex_post_subcore_rate38_conditions",
+}
+STRATEGY_LABELS = {
+    "codex_odds_gap_b1_fade_strong12": "強本命: 1号艇人気の歪み+展示Wデバフ 12点",
+    "codex_odds_gap_b1_fade_filtered12": "本命: 1号艇人気の歪み+前半展示弱化 12点",
+    "codex_post_core_front_head2_no1_outer56": "本命絞り: 前半1〜3R+外頭2番手+1号艇消し+5/6絡み",
+    "codex_post_core_rate40": "本命参考: 展示後40%以上 外頭2艇+AI+一般2位3位軸 12点",
+    "codex_post_subcore_rate38_conditions": "準本命: 38〜39.9%+1危険+外頭2艇+内軸残り 12点",
+}
 ALERT_RE = re.compile(r"boaters_manshu_alerts_(\d{8})\.json$")
 RANKING_RE = re.compile(r"boaters_manshu_ranking_(\d{8})\.json$")
 
@@ -107,13 +120,33 @@ def strategy_ids_from_alert(alert: dict[str, Any]) -> list[str]:
 
 def strategy_ids_from_row(row: dict[str, Any]) -> list[str]:
     ids = [str(value) for value in row.get("last_minute_strategy_ids") or [] if value]
+    for strategy_id in row.get("last_minute_candidate_strategy_ids") or []:
+        if strategy_id and strategy_id not in ids:
+            ids.append(str(strategy_id))
     for strategy_id in ((row.get("selection") or {}).get("source_strategy_ids")) or []:
         if strategy_id and strategy_id not in ids:
             ids.append(str(strategy_id))
     return ids
 
 
-def tickets_from_item(item: dict[str, Any]) -> list[str]:
+def matching_strategy(item: dict[str, Any], strategy_id: str) -> dict[str, Any]:
+    for strategy in item.get("strategies") or []:
+        if (strategy or {}).get("strategy_id") == strategy_id:
+            return strategy or {}
+    selection = item.get("selection") or {}
+    if strategy_id in (selection.get("source_strategy_ids") or []):
+        return selection
+    if strategy_id in (item.get("last_minute_candidate_strategy_ids") or []):
+        return selection
+    return {}
+
+
+def tickets_from_item(item: dict[str, Any], strategy_id: str | None = None) -> list[str]:
+    if strategy_id:
+        strategy = matching_strategy(item, strategy_id)
+        tickets = [normalize_combo(ticket) for ticket in strategy.get("tickets") or []]
+        if tickets:
+            return sorted({ticket for ticket in tickets if ticket})
     selection = item.get("selection") or {}
     tickets = [normalize_combo(ticket) for ticket in selection.get("tickets") or []]
     if not tickets:
@@ -154,34 +187,36 @@ def add_candidate(candidates: dict[str, dict[str, Any]], source: dict[str, Any],
     if not race_id:
         return
     strategy_ids = strategy_ids_from_alert(source) if source_type == "alert" else strategy_ids_from_row(source)
-    if CORE_STRATEGY_ID not in strategy_ids:
-        return
-    tickets = tickets_from_item(source)
-    if not tickets:
-        return
-    key = f"{date_text}:{race_id}:{CORE_STRATEGY_ID}"
-    previous = candidates.get(key)
-    if previous and previous.get("source_type") == "alert":
-        return
-    candidates[key] = {
-        "date": source.get("date") or date_text,
-        "race_id": race_id,
-        "place_name": source.get("place_name"),
-        "round": source.get("round") or source.get("round_no"),
-        "deadline_time": source.get("deadline_time"),
-        "rank": source.get("rank"),
-        "morning_rank": source.get("morning_rank"),
-        "live_rank": source.get("live_rank"),
-        "manshu_rate_pct": as_num(source.get("manshu_rate_pct")),
-        "alert_type": source.get("alert_type") or source.get("last_minute_alert_type"),
-        "strategy_id": CORE_STRATEGY_ID,
-        "source_type": source_type,
-        "heads": (source.get("selection") or {}).get("heads") or [],
-        "axes": (source.get("selection") or {}).get("axes") or [],
-        "keshi": (source.get("selection") or {}).get("keshi"),
-        "tickets": tickets,
-        "points": len(tickets),
-    }
+    for strategy_id in sorted(set(strategy_ids) & BUY_STRATEGY_IDS):
+        strategy = matching_strategy(source, strategy_id)
+        selection = source.get("selection") or {}
+        tickets = tickets_from_item(source, strategy_id)
+        if not tickets:
+            continue
+        key = f"{date_text}:{race_id}:{strategy_id}"
+        previous = candidates.get(key)
+        if previous and previous.get("source_type") == "alert":
+            continue
+        candidates[key] = {
+            "date": source.get("date") or date_text,
+            "race_id": race_id,
+            "place_name": source.get("place_name"),
+            "round": source.get("round") or source.get("round_no"),
+            "deadline_time": source.get("deadline_time"),
+            "rank": source.get("rank"),
+            "morning_rank": source.get("morning_rank"),
+            "live_rank": source.get("live_rank"),
+            "manshu_rate_pct": as_num(source.get("manshu_rate_pct")),
+            "alert_type": source.get("alert_type") or source.get("last_minute_alert_type"),
+            "strategy_id": strategy_id,
+            "strategy_label": STRATEGY_LABELS.get(strategy_id) or strategy.get("label") or selection.get("label") or strategy_id,
+            "source_type": source_type,
+            "heads": strategy.get("heads") or selection.get("heads") or [],
+            "axes": strategy.get("axes") or selection.get("axes") or [],
+            "keshi": strategy.get("keshi") if strategy.get("keshi") is not None else selection.get("keshi"),
+            "tickets": tickets,
+            "points": len(tickets),
+        }
 
 
 def collect_candidates(start_date: str | None, end_date: str | None) -> dict[str, dict[str, Any]]:
@@ -235,6 +270,19 @@ def summarize(picks: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def summarize_by_strategy(picks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for pick in picks:
+        groups.setdefault(str(pick.get("strategy_id") or ""), []).append(pick)
+    out = []
+    for strategy_id in sorted(groups):
+        summary = summarize(groups[strategy_id])
+        summary["strategy_id"] = strategy_id
+        summary["strategy_label"] = STRATEGY_LABELS.get(strategy_id, strategy_id)
+        out.append(summary)
+    return out
+
+
 def build(start_date: str | None, end_date: str | None) -> dict[str, Any]:
     candidates = collect_candidates(start_date, end_date)
     results = result_index(start_date, end_date)
@@ -257,11 +305,12 @@ def build(start_date: str | None, end_date: str | None) -> dict[str, Any]:
     return {
         "version": "codex-core-buy-forward-v1",
         "generated_at": iso_now(),
-        "strategy_id": CORE_STRATEGY_ID,
-        "strategy_label": "Codex直前本命: 朝TOP3+1AI30未満+外上昇A/B",
+        "strategy_ids": sorted(BUY_STRATEGY_IDS),
+        "strategy_label": "Codex本命系: 展示後40%・準本命38%・1号艇人気歪みを戦略別に前向き検証",
         "start_date": start_date,
         "end_date": end_date,
         "summary": summarize(picks),
+        "by_strategy": summarize_by_strategy(picks),
         "picks": picks,
     }
 
@@ -272,6 +321,8 @@ def write_csv(path: Path, picks: list[dict[str, Any]]) -> None:
         "date",
         "race",
         "race_id",
+        "strategy_id",
+        "strategy_label",
         "alert_type",
         "manshu_rate_pct",
         "heads",
@@ -287,7 +338,7 @@ def write_csv(path: Path, picks: list[dict[str, Any]]) -> None:
         "profit_yen",
     ]
     with path.open("w", encoding="utf-8", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=fields)
+        writer = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for pick in picks:
             row = {field: pick.get(field) for field in fields}
@@ -304,21 +355,47 @@ def write_markdown(path: Path, payload: dict[str, Any]) -> None:
     lines = [
         "# Codex直前本命 前向き検証",
         "",
-        f"- 戦略: `{payload.get('strategy_id')}`",
+        f"- 戦略: {payload.get('strategy_label')}",
         f"- 期間: {payload.get('start_date') or '-'} 〜 {payload.get('end_date') or '-'}",
         f"- 候補: {summary.get('candidate_count')}R / 確定: {summary.get('settled_count')}R / 未確定: {summary.get('pending_count')}R",
         f"- 購入: {summary.get('buy_races')}R / {summary.get('total_points')}点 / {summary.get('investment_yen'):,}円",
         f"- 払戻: {summary.get('payback_yen'):,}円 / 収支: {summary.get('profit_yen'):,}円 / 回収率: {roi_text}",
         f"- 的中: {summary.get('hit_count')}R / 万舟的中: {summary.get('manshu_hit_count')}R",
         "",
-        "| 日付 | レース | 万舟率 | 頭 | 軸 | 消し | 点数 | 結果 | 配当 | 的中 |",
-        "| --- | --- | ---: | --- | --- | --- | ---: | --- | ---: | --- |",
+        "## 戦略別",
+        "",
+        "| 戦略 | 候補 | 確定 | 購入額 | 払戻 | 回収率 | 的中 | 万舟的中 |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
+    for row in payload.get("by_strategy") or []:
+        strategy_roi = "--" if row.get("roi_pct") is None else f"{row.get('roi_pct')}%"
+        lines.append(
+            "| {label} | {candidate} | {settled} | {investment} | {payback} | {roi} | {hits} | {manshu_hits} |".format(
+                label=row.get("strategy_label") or row.get("strategy_id") or "",
+                candidate=row.get("candidate_count") or 0,
+                settled=row.get("settled_count") or 0,
+                investment=f"{row.get('investment_yen') or 0:,}円",
+                payback=f"{row.get('payback_yen') or 0:,}円",
+                roi=strategy_roi,
+                hits=row.get("hit_count") or 0,
+                manshu_hits=row.get("manshu_hit_count") or 0,
+            )
+        )
+    lines.extend(
+        [
+            "",
+            "## 候補一覧",
+            "",
+            "| 日付 | レース | 戦略 | 万舟率 | 頭 | 軸 | 消し | 点数 | 結果 | 配当 | 的中 |",
+            "| --- | --- | --- | ---: | --- | --- | --- | ---: | --- | ---: | --- |",
+        ]
+    )
     for pick in payload.get("picks") or []:
         lines.append(
-            "| {date} | {race} | {rate} | {heads} | {axes} | {keshi} | {points} | {result} | {payout} | {hit} |".format(
+            "| {date} | {race} | {strategy} | {rate} | {heads} | {axes} | {keshi} | {points} | {result} | {payout} | {hit} |".format(
                 date=pick.get("date") or "",
                 race=pick.get("race") or "",
+                strategy=STRATEGY_LABELS.get(pick.get("strategy_id"), pick.get("strategy_id") or ""),
                 rate="" if pick.get("manshu_rate_pct") is None else pick.get("manshu_rate_pct"),
                 heads=",".join(map(str, pick.get("heads") or [])),
                 axes=",".join(map(str, pick.get("axes") or [])),
