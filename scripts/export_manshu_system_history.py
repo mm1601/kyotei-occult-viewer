@@ -8,6 +8,7 @@ import csv
 import json
 import math
 import re
+import sqlite3
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -21,7 +22,10 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--details-csv", required=True)
     parser.add_argument("--rules", required=True)
+    parser.add_argument("--db", required=True)
     parser.add_argument("--forward-dir", default="")
+    parser.add_argument("--live-ranking-dir", default="")
+    parser.add_argument("--approved-root", default="")
     parser.add_argument("--start-date", default="2026-01-01")
     parser.add_argument("--end-date", default=date.today().isoformat())
     parser.add_argument(
@@ -138,6 +142,111 @@ def fallback_buy_method(row: dict[str, Any]) -> str:
     return template_labels.get(template_id, f"保存済み買い方（{template_id}）")
 
 
+def chunks(values: list[str], size: int = 400) -> list[list[str]]:
+    return [values[start : start + size] for start in range(0, len(values), size)]
+
+
+def probability_rows(boats: Any) -> list[dict[str, Any]]:
+    if isinstance(boats, dict):
+        boat_items = []
+        for boat_number, values in boats.items():
+            if isinstance(values, dict):
+                boat_items.append({"boat_number": boat_number, **values})
+    elif isinstance(boats, list):
+        boat_items = boats
+    else:
+        boat_items = []
+    rows = []
+    for boat in boat_items:
+        boat_number = as_int(boat.get("boat_number"))
+        if boat_number is None:
+            continue
+        rows.append(
+            {
+                "boat": boat_number,
+                "win_pct": as_num(
+                    boat.get("ai_prediction_pct", boat.get("win_pct"))
+                ),
+                "top3_pct": as_num(boat.get("ai_3ren_pct", boat.get("top3_pct"))),
+                "general_top3_pct": as_num(boat.get("general_3ren_pct")),
+                "source": "original_boaters",
+            }
+        )
+    return sorted(rows, key=lambda row: row["boat"])
+
+
+def venue_round_key(venue: Any, round_number: Any) -> str:
+    round_value = as_int(round_number)
+    return f"{venue}:{round_value:02d}" if venue and round_value is not None else ""
+
+
+def probabilities_for_entry(
+    probabilities: dict[str, list[dict[str, Any]]], entry: dict[str, Any]
+) -> list[dict[str, Any]]:
+    race_id = str(entry.get("race_id") or "")
+    venue_key = venue_round_key(entry.get("place_name"), entry.get("round"))
+    return probabilities.get(race_id) or probabilities.get(venue_key) or []
+
+
+def database_probability_map(
+    db_path: Path, race_ids: list[str]
+) -> dict[str, list[dict[str, Any]]]:
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    connection = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    connection.row_factory = sqlite3.Row
+    try:
+        for group in chunks(sorted(set(race_ids))):
+            placeholders = ",".join("?" for _ in group)
+            sql = f"""
+                SELECT race_id, boat_number, ai_prediction_pct,
+                       ai_3ren_pct, general_3ren_pct
+                FROM v_race_boats_with_official_aux
+                WHERE race_id IN ({placeholders}) AND is_absent = 0
+                ORDER BY race_id, boat_number
+            """
+            for raw in connection.execute(sql, group):
+                row = dict(raw)
+                grouped[str(row["race_id"])].append(row)
+    finally:
+        connection.close()
+    return {
+        race_id: probability_rows(boats)
+        for race_id, boats in grouped.items()
+        if len(boats) == 6
+    }
+
+
+def ranking_probability_map(path: Path) -> dict[str, list[dict[str, Any]]]:
+    payload = read_json(path, {})
+    result = {}
+    for race in payload.get("races") or []:
+        rows = probability_rows(((race.get("metrics") or {}).get("boats") or []))
+        if len(rows) == 6:
+            race_id = str(race.get("race_id") or "")
+            if race_id:
+                result[race_id] = rows
+            key = venue_round_key(
+                race.get("place_name") or race.get("venue"),
+                race.get("round") or race.get("race_number"),
+            )
+            if key:
+                result[key] = rows
+    return result
+
+
+def approved_probability_map(
+    approved_root: Path, date_key: str
+) -> dict[str, list[dict[str, Any]]]:
+    result = {}
+    for path in sorted((approved_root / date_key).glob("*.json")):
+        payload = read_json(path, {})
+        rows = probability_rows(payload.get("boats") or {})
+        key = venue_round_key(payload.get("place_name"), payload.get("round"))
+        if key and len(rows) == 6:
+            result[key] = rows
+    return result
+
+
 def condition_fields(row: dict[str, Any]) -> dict[str, Any]:
     return {
         "wind_speed": as_num(row.get("wind_speed")),
@@ -160,6 +269,7 @@ def condition_fields(row: dict[str, Any]) -> dict[str, Any]:
 def historical_signal(
     row: dict[str, Any],
     rules: dict[tuple[str, str, str, str], dict[str, Any]],
+    probabilities: list[dict[str, Any]],
 ) -> dict[str, Any]:
     venue = str(row.get("place_name") or "")
     key = (
@@ -190,6 +300,7 @@ def historical_signal(
         "axes": int_list(row.get("axes")),
         "keshi": as_int(row.get("keshi")),
         "historical": rule.get("historical") or {},
+        "probabilities": probabilities,
         "conditions": condition_fields(row),
         "result": {
             "trifecta": trifecta(row.get("result")),
@@ -204,7 +315,9 @@ def historical_signal(
     }
 
 
-def forward_signal(entry: dict[str, Any]) -> dict[str, Any]:
+def forward_signal(
+    entry: dict[str, Any], probabilities: list[dict[str, Any]]
+) -> dict[str, Any]:
     snapshot = entry.get("condition_snapshot") or {}
     raw_result = entry.get("result") or {}
     payout = as_int(raw_result.get("payout_yen"))
@@ -231,6 +344,7 @@ def forward_signal(entry: dict[str, Any]) -> dict[str, Any]:
         "axes": int_list(entry.get("axes")),
         "keshi": as_int(entry.get("keshi")),
         "historical": entry.get("historical") or {},
+        "probabilities": probabilities,
         "conditions": condition_fields(snapshot),
         "result": {
             "trifecta": trifecta(raw_result.get("trifecta")),
@@ -277,12 +391,24 @@ def main() -> int:
     end = date.fromisoformat(args.end_date)
     rules = rule_map(Path(args.rules))
 
-    historical: list[dict[str, Any]] = []
+    source_rows: list[dict[str, Any]] = []
     with Path(args.details_csv).open(encoding="utf-8", newline="") as handle:
         for row in csv.DictReader(handle):
             row_date = str(row.get("date") or "")
             if args.start_date <= row_date <= args.end_date:
-                historical.append(historical_signal(row, rules))
+                source_rows.append(row)
+
+    database_probabilities = database_probability_map(
+        Path(args.db), [str(row.get("race_id") or "") for row in source_rows]
+    )
+    historical = [
+        historical_signal(
+            row,
+            rules,
+            database_probabilities.get(str(row.get("race_id") or ""), []),
+        )
+        for row in source_rows
+    ]
 
     historical.sort(key=lambda row: (row.get("date") or "", row.get("race_id") or ""))
     complete_through = max((row["date"] for row in historical), default=args.start_date)
@@ -297,10 +423,26 @@ def main() -> int:
             if not (args.start_date <= log_date <= args.end_date):
                 continue
             forward_dates.add(log_date)
+            live_probabilities = {}
+            if args.live_ranking_dir:
+                ranking_path = (
+                    Path(args.live_ranking_dir)
+                    / f"boaters_manshu_live_ranking_{log_date.replace('-', '')}.json"
+                )
+                live_probabilities = ranking_probability_map(ranking_path)
+            if args.approved_root:
+                live_probabilities.update(
+                    approved_probability_map(
+                        Path(args.approved_root), log_date.replace("-", "")
+                    )
+                )
             for entry in payload.get("entries") or []:
                 if entry.get("race_id") in known_ids:
                     continue
-                signal = forward_signal(entry)
+                signal = forward_signal(
+                    entry,
+                    probabilities_for_entry(live_probabilities, entry),
+                )
                 forward_rows.append(signal)
                 known_ids.add(signal.get("race_id"))
 

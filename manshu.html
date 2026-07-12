@@ -78,6 +78,17 @@
     .signal-body{padding:12px 14px 14px}
     .condition{margin:0;color:#303640;font-size:13px;font-weight:750}
     .buy-method{margin:5px 0 0;color:var(--muted);font-size:12px}
+    .boat-probabilities{margin-top:11px;padding-top:9px;border-top:1px solid #edf0f3}
+    .boat-probability-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px}
+    .boat-probability-title{font-size:11px;font-weight:850;color:#3d4550}
+    .boat-probability-note{font-size:10px;color:var(--muted)}
+    .boat-probability-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border:1px solid var(--line);border-radius:5px;overflow:hidden;background:var(--surface-soft)}
+    .boat-probability{min-width:0;padding:7px 8px;border-right:1px solid var(--line)}
+    .boat-probability:last-child{border-right:0}
+    .boat-probability-lane{display:flex;align-items:center;gap:5px;margin-bottom:4px;font-size:11px;font-weight:850}
+    .boat-probability .lane{width:20px;height:20px;font-size:11px}
+    .boat-probability-value{display:flex;justify-content:space-between;gap:3px;color:var(--muted);font-size:10px;white-space:nowrap}
+    .boat-probability-value b{color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums}
     .role-line{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0 8px;padding:8px 0;border-top:1px solid #edf0f3;border-bottom:1px solid #edf0f3}
     .role-item{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:12px}
     .role-item b{color:var(--ink)}
@@ -151,6 +162,7 @@
       .toolbar{align-items:stretch;flex-direction:column}.tabs{width:100%}.tab{flex:1;padding:8px 9px}.date-tools{justify-content:flex-end}
       .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi:nth-child(2){border-right:0}.kpi:nth-child(-n+2){border-bottom:1px solid var(--line)}
       .signal-summary{grid-template-columns:1fr}.result-box{text-align:left;min-width:0}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.fact:nth-child(2){border-right:0}.fact:nth-child(-n+2){border-bottom:1px solid var(--line)}
+      .boat-probability-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.boat-probability:nth-child(3n){border-right:0}.boat-probability:nth-child(n+4){border-top:1px solid var(--line)}
       .detail-grid{grid-template-columns:1fr}.model-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.model-metric:nth-child(2){border-right:0}.model-metric:nth-child(-n+2){border-bottom:1px solid var(--line)}
       .pipeline{grid-template-columns:1fr}.monitor-table thead,.rules-table thead,.history-table thead{display:none}.monitor-table,.rules-table,.history-table,.monitor-table tbody,.rules-table tbody,.history-table tbody,.monitor-table tr,.rules-table tr,.history-table tr,.monitor-table td,.rules-table td,.history-table td{display:block;width:100%}.monitor-table tr,.rules-table tr,.history-table tr{padding:9px 10px;border-bottom:1px solid var(--line)}.monitor-table td,.rules-table td,.history-table td{padding:3px 0;border:0}.monitor-table td:before,.rules-table td:before,.history-table td:before{content:attr(data-label);display:inline-block;width:84px;color:var(--muted);font-size:10px;font-weight:800;vertical-align:top}
     }
@@ -277,6 +289,11 @@
       var t10=(ev||{}).t10||{},t5=(ev||{}).t5||{};
       return '<div><div class="detail-title">'+esc(label)+'</div>'+detailLine("T-10期待回収",t10.available?pct(t10.expected_roi_pct,1):"未取得")+detailLine("T-5期待回収",t5.available?pct(t5.expected_roi_pct,1):"未取得")+detailLine("T-5合成オッズ",t5.available?num(t5.synthetic_odds,1)+"倍":"未取得")+'</div>';
     }
+    function probabilityHtml(signal){
+      var rows=(signal.probabilities||[]).slice().sort(function(a,b){return Number(a.boat)-Number(b.boat);});
+      if(rows.length!==6)return "";
+      return '<div class="boat-probabilities"><div class="boat-probability-head"><span class="boat-probability-title">1〜6号艇のBOATERS AI確率</span><span class="boat-probability-note">予想時に保存</span></div><div class="boat-probability-grid">'+rows.map(function(row){return '<div class="boat-probability"><div class="boat-probability-lane">'+lane(row.boat)+'<span>'+num(row.boat,0)+'号艇</span></div><div class="boat-probability-value"><span>1着</span><b>'+pct(row.win_pct,1)+'</b></div><div class="boat-probability-value"><span>3着内</span><b>'+pct(row.top3_pct,1)+'</b></div></div>';}).join("")+'</div></div>';
+    }
     function signalHtml(signal){
       var archived=signal.record_kind==="historical_backtest",result=resultFromApi(signal),status=statusLabel(signal,result),hit=result&&result.trifecta&&isHit(signal,result),cardClass=hit?" hit":(result&&result.trifecta?" miss":"");
       var resultMain=result&&result.trifecta?esc(result.trifecta):"結果待ち";
@@ -285,7 +302,7 @@
       var analysisDetails=archived?'<div><div class="detail-title">このレースの収支（100円/点）</div>'+detailLine("購入",yen(signal.investment_yen))+detailLine("払戻",yen(signal.payback_yen))+detailLine("収支",yen(signal.profit_yen))+'</div>':evBlock("既存AI1/AI3期待値",signal.legacy_ev)+evBlock("場別確率補正（影）",signal.probability_overlay_ev);
       return '<article class="signal-card'+cardClass+'">'+
         '<div class="signal-summary"><div><div class="race-line"><span class="race-name">'+esc(signal.venue)+Number(signal.round)+'R</span><span class="tag signal">'+(archived?'過去サイン':'24場サイン')+'</span><span class="tag '+esc(status.className)+'">'+esc(status.text)+'</span><span class="tag">'+esc(signal.data_mode==="full"?"展示完備":"展示限定")+'</span></div><div class="signal-time">'+timeText+'</div></div><div class="result-box"><div class="result-main">'+resultMain+'</div><span class="result-sub">'+resultSub+'</span></div></div>'+
-        '<div class="signal-body"><p class="condition">'+esc(signal.condition||"条件記録なし")+'</p><p class="buy-method">'+esc(signal.buy_method||"")+'</p>'+
+        '<div class="signal-body"><p class="condition">'+esc(signal.condition||"条件記録なし")+'</p><p class="buy-method">'+esc(signal.buy_method||"")+'</p>'+probabilityHtml(signal)+
         '<div class="role-line"><span class="role-item">頭 <b>'+lanes(signal.heads)+'</b></span><span class="role-item">相手 <b>'+lanes(signal.axes)+'</b></span><span class="role-item">消し <b>'+lane(signal.keshi)+'</b></span><span class="role-item">点数 <b>'+num(signal.points,0)+'点</b></span></div>'+
         '<div class="tickets">'+(signal.tickets||[]).map(ticket).join("")+'</div>'+
         '<div class="facts">'+fact("過去回収率",pct(h.roi_pct,1))+fact("過去該当",num(h.races,0)+"R")+fact("1号艇AI1着",pct(c.boat1_ai_win_pct,1))+fact("1号艇周回順位",c.boat1_lap_rank?num(c.boat1_lap_rank,0)+"位":"-")+'</div>'+

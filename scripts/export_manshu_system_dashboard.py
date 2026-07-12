@@ -79,7 +79,106 @@ def snapshot_summary(shadow: dict[str, Any], target: str) -> dict[str, Any]:
     }
 
 
-def signal_row(entry: dict[str, Any]) -> dict[str, Any]:
+def probability_rows(boats: Any) -> list[dict[str, Any]]:
+    if isinstance(boats, dict):
+        boat_items = []
+        for boat_number, values in boats.items():
+            if isinstance(values, dict):
+                boat_items.append({"boat_number": boat_number, **values})
+    elif isinstance(boats, list):
+        boat_items = boats
+    else:
+        boat_items = []
+    rows = []
+    for boat in boat_items:
+        boat_number = as_int(boat.get("boat_number"))
+        if boat_number is None:
+            continue
+        rows.append(
+            {
+                "boat": boat_number,
+                "win_pct": as_num(
+                    boat.get("ai_prediction_pct", boat.get("win_pct"))
+                ),
+                "top3_pct": as_num(boat.get("ai_3ren_pct", boat.get("top3_pct"))),
+                "general_top3_pct": as_num(boat.get("general_3ren_pct")),
+                "source": "original_boaters",
+            }
+        )
+    return sorted(rows, key=lambda row: row["boat"])
+
+
+def venue_round_key(venue: Any, round_number: Any) -> str:
+    round_value = as_int(round_number)
+    return f"{venue}:{round_value:02d}" if venue and round_value is not None else ""
+
+
+def approved_probability_map(
+    source_root: Path, date_key: str
+) -> dict[str, list[dict[str, Any]]]:
+    approved_dir = (
+        source_root
+        / "data"
+        / "input"
+        / "boaters_screenshots"
+        / "approved"
+        / date_key
+    )
+    result = {}
+    for path in sorted(approved_dir.glob("*.json")):
+        payload = read_json(path, {})
+        rows = probability_rows(payload.get("boats") or {})
+        key = venue_round_key(payload.get("place_name"), payload.get("round"))
+        if key and len(rows) == 6:
+            result[key] = rows
+    return result
+
+
+def probabilities_for_entry(
+    probabilities: dict[str, list[dict[str, Any]]], entry: dict[str, Any]
+) -> list[dict[str, Any]]:
+    race_id = str(entry.get("race_id") or "")
+    venue_key = venue_round_key(entry.get("place_name"), entry.get("round"))
+    return probabilities.get(race_id) or probabilities.get(venue_key) or []
+
+
+def live_probability_map(
+    source_root: Path, date_key: str, monitor: dict[str, Any]
+) -> dict[str, list[dict[str, Any]]]:
+    candidates = []
+    configured = monitor.get("live_ranking_path")
+    if configured:
+        configured_path = Path(str(configured))
+        candidates.append(
+            configured_path
+            if configured_path.is_absolute()
+            else source_root / configured_path
+        )
+    candidates.append(
+        source_root / "data" / "output" / f"boaters_manshu_live_ranking_{date_key}.json"
+    )
+    path = next((candidate for candidate in candidates if candidate.exists()), None)
+    payload = read_json(path, {}) if path else {}
+    result = {}
+    for race in payload.get("races") or []:
+        rows = probability_rows(((race.get("metrics") or {}).get("boats") or []))
+        if len(rows) == 6:
+            race_id = str(race.get("race_id") or "")
+            if race_id:
+                result[race_id] = rows
+            key = venue_round_key(
+                race.get("place_name") or race.get("venue"),
+                race.get("round") or race.get("race_number"),
+            )
+            if key:
+                result[key] = rows
+    result.update(approved_probability_map(source_root, date_key))
+    return result
+
+
+def signal_row(
+    entry: dict[str, Any], probabilities: list[dict[str, Any]] | None = None
+) -> dict[str, Any]:
     condition = entry.get("condition_snapshot") or {}
     result = entry.get("result") or {}
     legacy_ev = entry.get("ticket_ev_shadow") or {}
@@ -107,6 +206,7 @@ def signal_row(entry: dict[str, Any]) -> dict[str, Any]:
         "axes": entry.get("axes") or [],
         "keshi": as_int(entry.get("keshi")),
         "historical": entry.get("historical") or {},
+        "probabilities": probabilities or [],
         "conditions": {
             "wind_speed": as_num(condition.get("wind_speed")),
             "wave_height": as_num(condition.get("wave_height")),
@@ -220,7 +320,11 @@ def build_payload(source_root: Path, date_text: str) -> dict[str, Any]:
     ]
     active_monitor_rows = active_monitor_rows[-40:]
 
-    signals = [signal_row(entry) for entry in forward.get("entries") or []]
+    probabilities = live_probability_map(source_root, date_key, monitor)
+    signals = [
+        signal_row(entry, probabilities_for_entry(probabilities, entry))
+        for entry in forward.get("entries") or []
+    ]
     signals.sort(key=lambda row: str(row.get("detected_at") or ""), reverse=True)
     performance = (
         forward_summary.get("performance")
