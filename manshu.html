@@ -2,1249 +2,317 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#171a1f">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>Codex万舟率ランキング</title>
+  <title>24場サイン管制盤</title>
   <style>
-    :root{--bg:#f5f7fb;--ink:#172033;--muted:#667085;--line:#dbe3ef;--panel:#fff;--red:#c92335;--blue:#1f5fbf;--green:#138a5b;--amber:#9a6200}
+    :root{
+      --bg:#f3f4f6;--surface:#ffffff;--surface-soft:#f8f9fa;--ink:#171a1f;
+      --muted:#69717d;--line:#d9dde3;--line-strong:#bdc3cc;--signal:#d84b37;
+      --signal-soft:#fff2ef;--teal:#087f6b;--teal-soft:#eaf7f4;--gold:#9a6a12;
+      --gold-soft:#fff8e8;--blue:#2864ad;--blue-soft:#edf4fc;--danger:#b42338;
+      --danger-soft:#fff0f2;--shadow:0 1px 2px rgba(23,26,31,.05);
+      --lane1:#fff;--lane2:#272a2f;--lane3:#d4313d;--lane4:#2674c8;--lane5:#f0c62d;--lane6:#2b9d62;
+    }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;line-height:1.6}
-    .shell{max-width:1120px;margin:0 auto;padding:18px 14px 32px}
-    .header{background:#111827;color:#fff;border-radius:8px;padding:18px;margin-bottom:12px}
-    .eyebrow{margin:0 0 4px;color:#fbbf24;font-size:12px;font-weight:800;letter-spacing:.08em}
-    h1{margin:0;font-size:25px;line-height:1.25;letter-spacing:0}
-    .header p{margin:8px 0 0;color:#d1d5db;font-size:13px}
-    .nav{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 14px}
-    .nav a,.nav button{appearance:none;border:1px solid var(--line);background:#fff;color:#1d4ed8;border-radius:8px;padding:9px 12px;font:inherit;font-size:13px;font-weight:800;text-decoration:none;cursor:pointer}
-    .status{background:#fff;border:1px solid var(--line);border-left:6px solid var(--blue);border-radius:8px;padding:12px 14px;margin-bottom:12px}
-    .status strong{color:#0f3f91}
-    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .chip{border:1px solid var(--line);background:#f8fafc;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;color:#344054}
-    .chip.hot{border-color:#fecdd3;background:#fff1f2;color:#be123c}
-    .chip.ok{border-color:#bbf7d0;background:#f0fdf4;color:#047857}
-    .chip.warn{border-color:#fed7aa;background:#fff7ed;color:#9a3412}
-    .filter-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 12px}
-    .filter-tab{appearance:none;border:1px solid var(--line);background:#fff;color:#344054;border-radius:999px;padding:7px 10px;font:inherit;font-size:12px;font-weight:900;cursor:pointer}
-    .filter-tab span{color:#667085;margin-left:2px}
-    .filter-tab.active{border-color:#1d4ed8;background:#eff6ff;color:#1d4ed8}
-    .filter-tab.good.active{border-color:#bbf7d0;background:#ecfdf3;color:#047857}
-    .filter-tab.warn.active{border-color:#fed7aa;background:#fff7ed;color:#9a3412}
-    .filter-tab.bad.active{border-color:#fecdd3;background:#fff1f2;color:#be123c}
-    .layout{display:grid;grid-template-columns:1fr;gap:12px}
-    .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px}
-    #buff-panel,.factor-panel{display:none!important}
-    .panel h2{margin:0 0 8px;font-size:18px;color:#111827}
-    .section-fold > summary{cursor:pointer;list-style:none}
-    .section-fold > summary::-webkit-details-marker{display:none}
-    .section-summary{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-    .section-summary h2{margin:0 0 6px;font-size:18px}
-    .section-summary:after{content:"閉じる";border:1px solid var(--line);border-radius:999px;background:#f8fafc;color:#1d4ed8;padding:3px 8px;font-size:12px;font-weight:900;white-space:nowrap}
-    .section-fold:not([open]) .section-summary:after{content:"開く"}
-    .section-body{padding-top:10px}
-    .lead{margin:0;color:var(--muted);font-size:13px}
-    table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
-    th,td{border-top:1px solid #edf1f7;padding:10px 8px;text-align:left;vertical-align:top}
-    th{background:#f8fafc;color:#475467;font-size:12px}
-    .rank{width:44px;text-align:center;font-weight:900;color:#7c2d12}
-    .race{font-weight:900;font-size:15px;color:#111827;white-space:nowrap}
-    .rate{font-size:22px;font-weight:900;color:var(--red);white-space:nowrap}
-    .mini{display:block;color:var(--muted);font-size:12px;margin-top:2px}
-    .reason{max-width:560px}
-    .edge{display:inline-block;margin:4px 4px 0 0;border-radius:999px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:2px 7px;font-size:11px;font-weight:800}
-    .wait{display:inline-block;border-radius:999px;background:#eff6ff;color:#1d4ed8;padding:2px 7px;font-size:11px;font-weight:800}
-    .ready{display:inline-block;border-radius:999px;background:#ecfdf3;color:#047857;padding:2px 7px;font-size:11px;font-weight:800}
-    .manshu{color:var(--red);font-weight:900}
-    .miss{color:#475467;font-weight:800}
-    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
-    .metric{border:1px solid var(--line);border-radius:8px;padding:10px;background:#fbfcff}
-    .metric b{display:block;font-size:20px;color:#111827}
-    .metric span{display:block;color:var(--muted);font-size:12px}
-    .factor-summary{border:1px solid #a7f3d0;background:#f0fdf4;border-radius:8px;padding:10px;margin-top:10px}
-    .factor-summary h3{margin:0 0 4px;color:#065f46;font-size:15px}
-    .factor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
-    .factor-box{border:1px solid #dbe3ef;border-radius:8px;background:#fff;padding:9px}
-    .factor-title{font-weight:900;color:#111827;margin-bottom:4px}
-    .factor-tag{display:inline-block;margin:3px 4px 0 0;border-radius:999px;border:1px solid var(--line);padding:2px 7px;font-size:11px;font-weight:900}
-    .factor-tag.buff{background:#ecfdf3;border-color:#bbf7d0;color:#047857}
-    .factor-tag.superbuff{background:#dcfce7;border-color:#86efac;color:#166534}
-    .factor-tag.debuff{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
-    .factor-tag.superdebuff{background:#fff1f2;border-color:#fecdd3;color:#be123c}
-    .factor-tag.neutral{background:#f8fafc;color:#475467}
-    .factor-detail{display:block;color:var(--muted);font-size:12px;margin-top:5px}
-    .impact{display:block;border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px;margin:6px 0}
-    .impact-title{display:block;font-size:12px;font-weight:900;color:#334155}
-    .impact-value{display:block;font-size:16px;font-weight:900;color:#111827;line-height:1.35}
-    .impact-delta{display:inline-block;margin-left:4px;font-size:12px;font-weight:900}
-    .impact.up .impact-delta{color:#047857}
-    .impact.down .impact-delta{color:#be123c}
-    .impact.neutral .impact-delta{color:#475467}
-    .impact-detail{display:block;color:var(--muted);font-size:11px;margin-top:3px}
-    .race-list{display:grid;gap:10px;margin-top:12px}
-    .race-card{border:1px solid var(--line);border-radius:8px;background:#fff;overflow:hidden}
-    .race-card > summary{cursor:pointer;list-style:none;padding:12px 14px}
-    .race-card > summary::-webkit-details-marker{display:none}
-    .race-head{display:grid;grid-template-columns:56px 1fr auto;gap:10px;align-items:start}
-    .race-rank{display:inline-flex;width:38px;height:38px;border-radius:8px;align-items:center;justify-content:center;background:#eff6ff;color:#1d4ed8;font-weight:900}
-    .race-main-title{font-size:17px;font-weight:900;color:#111827}
-    .race-one-line{color:#475467;font-size:13px;margin-top:2px}
-    .race-rate{font-size:22px;font-weight:900;color:var(--red);text-align:right;white-space:nowrap}
-    .race-rate span{display:block;color:var(--muted);font-size:11px;font-weight:800}
-    .race-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-    .badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;background:#f8fafc;color:#344054;padding:2px 8px;font-size:11px;font-weight:900}
-    .badge.good{background:#ecfdf3;border-color:#bbf7d0;color:#047857}
-    .badge.bad{background:#fff1f2;border-color:#fecdd3;color:#be123c}
-    .badge.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
-    .quick-roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:7px;margin-top:8px}
-    .quick-role{border:1px solid #dbe3ef;border-radius:8px;background:#f8fafc;padding:7px 8px}
-    .quick-role b{display:block;color:#344054;font-size:11px;letter-spacing:0;font-weight:900}
-    .quick-role strong{display:block;color:#111827;font-size:15px;line-height:1.25;margin-top:2px}
-    .quick-role span{display:block;color:#667085;font-size:11px;font-weight:800;margin-top:2px}
-    .quick-role.head{border-color:#fecdd3;background:#fff1f2}
-    .quick-role.axis{border-color:#bbf7d0;background:#ecfdf3}
-    .quick-role.keshi{border-color:#fde68a;background:#fffbeb}
-    .buy-role-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:7px;margin:8px 0}
-    .buy-role{border:1px solid #dbe3ef;border-radius:8px;background:#f8fafc;padding:8px}
-    .buy-role b{display:block;color:#344054;font-size:11px;font-weight:900}
-    .buy-role strong{display:block;color:#111827;font-size:15px;line-height:1.25;margin-top:2px}
-    .buy-role.head{border-color:#fecdd3;background:#fff1f2}
-    .buy-role.axis{border-color:#bbf7d0;background:#ecfdf3}
-    .buy-role.keshi{border-color:#fde68a;background:#fffbeb}
-    .storm-plan{border:1px solid #fecdd3;border-left:6px solid #be123c;border-radius:8px;background:#fff1f2;padding:10px;margin:10px 0}
-    .storm-plan.wait{border-color:#dbe3ef;border-left-color:#94a3b8;background:#f8fafc}
-    .storm-plan h4{margin:0 0 6px;font-size:15px;color:#991b1b}
-    .storm-plan.wait h4{color:#334155}
-    .storm-plan .ticket-line{margin:6px 0;color:#111827;font-size:13px;font-weight:900;line-height:1.45;word-break:break-word}
-    .storm-plan ul{margin:7px 0 0;padding-left:18px;color:#344054;font-size:12px}
-    .storm-plan li{margin:2px 0}
-    .role-detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
-    .role-detail-card{border:1px solid #dbe3ef;border-radius:8px;background:#fff;padding:9px}
-    .role-detail-card b{display:block;font-size:13px;color:#111827;margin-bottom:3px}
-    .role-detail-card p{margin:0;color:#475467;font-size:12px}
-    .race-body{border-top:1px solid #edf1f7;padding:12px 14px;background:#fcfdff}
-    .simple-box{border:1px solid #dbe3ef;border-radius:8px;background:#fff;padding:10px;margin-bottom:10px}
-    .simple-box h3{margin:0 0 6px;font-size:15px;color:#111827}
-    .accordion-box{border:1px solid #dbe3ef;border-radius:8px;background:#fff;margin-bottom:10px;overflow:hidden}
-    .accordion-box > summary{cursor:pointer;list-style:none;padding:10px 12px;font-size:14px;font-weight:900;color:#111827;background:#f8fafc}
-    .accordion-box > summary::-webkit-details-marker{display:none}
-    .accordion-box > summary:after{content:"開く";float:right;color:#1d4ed8;font-size:12px}
-    .accordion-box[open] > summary:after{content:"閉じる"}
-    .accordion-body{padding:10px 12px;border-top:1px solid #edf1f7}
-    .b1-danger-card{border:1px solid #fed7aa;border-left:6px solid #f59e0b;border-radius:8px;background:#fff7ed;padding:10px;margin:10px 0}
-    .b1-danger-card.danger,.b1-danger-card.super{border-color:#fecdd3;border-left-color:#be123c;background:#fff1f2}
-    .b1-danger-top{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
-    .b1-danger-top b{font-size:15px;color:#111827}
-    .b1-danger-score{font-size:13px;font-weight:900;color:#be123c}
-    .b1-danger-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:8px 0}
-    .b1-danger-metric{border:1px solid rgba(0,0,0,.08);border-radius:7px;background:#fff;padding:7px}
-    .b1-danger-metric strong{display:block;font-size:18px;line-height:1.2;color:#111827}
-    .b1-danger-metric span{display:block;font-size:11px;color:#64748b;font-weight:900}
-    .b1-danger-card ul{margin:6px 0 0;padding-left:18px;color:#344054;font-size:12px}
-    .boat-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
-    .boat-table th,.boat-table td{padding:7px 6px;border-top:1px solid #edf1f7;text-align:right}
-    .boat-table th:first-child,.boat-table td:first-child{text-align:left;font-weight:900}
-    .subhead{font-size:15px;margin:12px 0 8px;color:#111827}
-    .boat-rate-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
-    .boat-rate-card{border:1px solid var(--line);border-radius:8px;background:#fff;padding:9px}
-    .boat-rate-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:7px}
-    .boat-rate-top b{font-size:15px;color:#111827}
-    .boat-rate-top span{font-size:11px;color:#64748b;font-weight:900}
-    .boat-rate-pair{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-    .boat-rate-num{border:1px solid #edf1f7;border-radius:7px;background:#f8fafc;padding:6px}
-    .boat-rate-num strong{display:block;font-size:18px;line-height:1.2;color:#111827}
-    .boat-rate-num span{display:block;font-size:11px;color:#64748b;font-weight:900}
-    .boat-rate-reason{margin:7px 0 0;color:#344054;font-size:12px}
-    .detail-fold{margin-top:10px}
-    .detail-fold summary{cursor:pointer;color:#1d4ed8;font-size:13px;font-weight:900}
-    .detail-fold .factor-grid{margin-top:8px}
-    .factor-panel{border-left:6px solid var(--green)}
-    .factor-panel h2{color:#065f46}
-    .candidate-panel{border-left:6px solid var(--blue)}
-    .candidate-panel h2{color:#0f3f91}
-    .late-panel{border-left-color:var(--amber)}
-    .late-panel h2{color:#92400e}
-    .candidate-note{margin:0 0 10px;color:#475467;font-size:13px}
-    .candidate-score{font-size:20px;font-weight:900;color:#1d4ed8;text-align:right;white-space:nowrap}
-    .candidate-score span{display:block;color:var(--muted);font-size:11px;font-weight:800}
-    .notice{border-left-color:var(--amber)}
-    footer{color:#8a93a6;font-size:11.5px;text-align:center;margin-top:22px}
+    [hidden]{display:none!important}
+    html{background:var(--bg)}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;font-size:14px;line-height:1.55;letter-spacing:0}
+    button,input{font:inherit;letter-spacing:0}
+    button{cursor:pointer}
+    a{color:inherit}
+    .app{max-width:1180px;margin:0 auto;padding:14px 14px 40px}
+    .masthead{background:#171a1f;color:#fff;border-radius:6px;padding:17px 18px 16px;box-shadow:var(--shadow)}
+    .mast-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+    .brand-line{display:flex;align-items:center;gap:9px;color:#ffb7aa;font-size:12px;font-weight:800}
+    .live-dot{width:8px;height:8px;border-radius:50%;background:#62d5b1;box-shadow:0 0 0 4px rgba(98,213,177,.14);flex:0 0 auto}
+    .live-dot.stale{background:#e6ad3b;box-shadow:0 0 0 4px rgba(230,173,59,.14)}
+    h1{font-size:27px;line-height:1.2;margin:7px 0 0;font-weight:850;letter-spacing:0}
+    .mast-meta{margin:8px 0 0;color:#cbd0d8;font-size:12px}
+    .icon-btn{width:38px;height:38px;border:1px solid #424851;border-radius:5px;background:#252a31;color:#fff;font-size:21px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+    .icon-btn:active{background:#343a43}
+    .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0}
+    .tabs{display:flex;gap:3px;padding:3px;background:#e4e7eb;border:1px solid #d7dbe1;border-radius:6px;overflow-x:auto}
+    .tab{border:0;border-radius:4px;background:transparent;color:#59616d;padding:8px 12px;font-size:13px;font-weight:800;white-space:nowrap}
+    .tab.active{background:#fff;color:#171a1f;box-shadow:0 1px 2px rgba(23,26,31,.08)}
+    .tab-count{display:inline-flex;min-width:19px;height:19px;align-items:center;justify-content:center;margin-left:5px;border-radius:10px;background:#d8dce2;color:#4d5561;font-size:11px;padding:0 5px}
+    .tab.active .tab-count{background:var(--signal-soft);color:var(--signal)}
+    .date-tools{display:flex;align-items:center;gap:6px}
+    .date-tools input{height:38px;border:1px solid var(--line-strong);border-radius:5px;background:#fff;color:var(--ink);padding:0 8px;max-width:142px}
+    .date-tools button{height:38px;border:1px solid var(--line-strong);border-radius:5px;background:#fff;color:var(--ink);font-weight:800;padding:0 11px}
+    .status-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:6px;background:var(--surface);padding:10px 12px;margin-bottom:12px;box-shadow:var(--shadow)}
+    .status-main{font-weight:800}
+    .status-sub{color:var(--muted);font-size:12px;margin-top:1px}
+    .status-badge{border-radius:4px;padding:4px 8px;background:var(--teal-soft);color:var(--teal);font-size:12px;font-weight:850;white-space:nowrap}
+    .status-badge.warn{background:var(--gold-soft);color:var(--gold)}
+    .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--surface);border:1px solid var(--line);border-radius:6px;margin-bottom:12px;box-shadow:var(--shadow)}
+    .kpi{padding:12px 14px;border-right:1px solid var(--line);min-width:0}
+    .kpi:last-child{border-right:0}
+    .kpi-label{display:block;color:var(--muted);font-size:11px;font-weight:750}
+    .kpi-value{display:block;font-size:23px;line-height:1.2;margin-top:3px;font-weight:900;font-variant-numeric:tabular-nums}
+    .kpi-value.signal{color:var(--signal)}
+    .kpi-note{display:block;color:var(--muted);font-size:11px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .view{display:none}
+    .view.active{display:block}
+    .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:17px 0 8px}
+    .section-head h2{font-size:17px;margin:0;letter-spacing:0}
+    .section-head p{margin:2px 0 0;color:var(--muted);font-size:12px}
+    .signal-list{display:grid;gap:9px}
+    .signal-card{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--signal);border-radius:6px;box-shadow:var(--shadow);overflow:hidden}
+    .signal-card.hit{border-left-color:var(--teal)}
+    .signal-card.miss{border-left-color:#7a828e}
+    .signal-summary{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:13px 14px;border-bottom:1px solid var(--line)}
+    .race-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+    .race-name{font-size:19px;font-weight:900;line-height:1.2}
+    .tag{display:inline-flex;align-items:center;min-height:23px;border:1px solid var(--line);border-radius:4px;background:var(--surface-soft);color:#4f5763;padding:2px 7px;font-size:11px;font-weight:800}
+    .tag.signal{border-color:#f3b9ae;background:var(--signal-soft);color:#b63b29}
+    .tag.ok{border-color:#a8ddcf;background:var(--teal-soft);color:var(--teal)}
+    .tag.warn{border-color:#ead39f;background:var(--gold-soft);color:var(--gold)}
+    .tag.bad{border-color:#edb8c0;background:var(--danger-soft);color:var(--danger)}
+    .signal-time{margin-top:5px;color:var(--muted);font-size:12px}
+    .result-box{text-align:right;min-width:118px}
+    .result-main{font-size:15px;font-weight:900;font-variant-numeric:tabular-nums}
+    .result-sub{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+    .signal-body{padding:12px 14px 14px}
+    .condition{margin:0;color:#303640;font-size:13px;font-weight:750}
+    .buy-method{margin:5px 0 0;color:var(--muted);font-size:12px}
+    .role-line{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0 8px;padding:8px 0;border-top:1px solid #edf0f3;border-bottom:1px solid #edf0f3}
+    .role-item{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:12px}
+    .role-item b{color:var(--ink)}
+    .lane{display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;font-size:12px;font-weight:900;border:1px solid transparent;vertical-align:middle;flex:0 0 auto}
+    .lane-1{background:var(--lane1);color:#171a1f;border-color:#9ca3ad}
+    .lane-2{background:var(--lane2);color:#fff}
+    .lane-3{background:var(--lane3);color:#fff}
+    .lane-4{background:var(--lane4);color:#fff}
+    .lane-5{background:var(--lane5);color:#171a1f}
+    .lane-6{background:var(--lane6);color:#fff}
+    .tickets{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .ticket{display:inline-flex;align-items:center;gap:3px;border:1px solid var(--line);border-radius:5px;background:#fff;padding:5px 7px;box-shadow:0 1px 1px rgba(23,26,31,.03)}
+    .arrow{color:#9aa1aa;font-size:10px}
+    .facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:11px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .fact{padding:9px 8px;border-right:1px solid var(--line);min-width:0}
+    .fact:first-child{padding-left:0}
+    .fact:last-child{border-right:0}
+    .fact span{display:block;color:var(--muted);font-size:10px;font-weight:750}
+    .fact b{display:block;font-size:14px;margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    details.more{margin-top:8px}
+    details.more summary{cursor:pointer;color:var(--blue);font-size:12px;font-weight:800;list-style:none;padding:4px 0}
+    details.more summary::-webkit-details-marker{display:none}
+    .detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:6px;padding-top:9px;border-top:1px solid #edf0f3}
+    .detail-title{font-size:11px;color:var(--muted);font-weight:800;margin-bottom:4px}
+    .detail-line{display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:12px;border-bottom:1px dotted #e2e5e9}
+    .detail-line b{font-variant-numeric:tabular-nums}
+    .empty{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:28px 18px;text-align:center;color:var(--muted)}
+    .empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+    .monitor-table,.rules-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:6px;overflow:hidden;box-shadow:var(--shadow)}
+    .monitor-table th,.monitor-table td,.rules-table th,.rules-table td{padding:10px 9px;border-bottom:1px solid #e8ebef;text-align:left;vertical-align:top}
+    .monitor-table th,.rules-table th{background:#f6f7f8;color:var(--muted);font-size:11px;font-weight:800}
+    .monitor-table tr:last-child td,.rules-table tr:last-child td{border-bottom:0}
+    .table-race{font-weight:900;white-space:nowrap}
+    .table-note{color:var(--muted);font-size:11px;margin-top:2px}
+    .model-band{background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);padding:15px;margin-bottom:10px}
+    .model-band h3{margin:0;font-size:15px}
+    .model-band p{margin:5px 0 0;color:var(--muted);font-size:12px}
+    .model-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .model-metric{padding:10px;border-right:1px solid var(--line)}
+    .model-metric:first-child{padding-left:0}
+    .model-metric:last-child{border-right:0}
+    .model-metric span{display:block;color:var(--muted);font-size:10px}
+    .model-metric b{display:block;font-size:18px;margin-top:2px;font-variant-numeric:tabular-nums}
+    .pipeline{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+    .pipeline-step{border-top:3px solid var(--blue);background:#f7f9fb;padding:10px 11px;min-height:82px}
+    .pipeline-step:nth-child(2){border-top-color:var(--signal)}
+    .pipeline-step:nth-child(3){border-top-color:var(--teal)}
+    .pipeline-step span{color:var(--muted);font-size:10px;font-weight:800}
+    .pipeline-step b{display:block;margin-top:2px;font-size:13px}
+    .pipeline-step p{margin:4px 0 0;font-size:11px;color:var(--muted)}
+    .progress-line{height:7px;background:#e5e8ec;border-radius:4px;overflow:hidden;margin-top:9px}
+    .progress-fill{height:100%;background:var(--teal);min-width:0}
+    .search-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 8px}
+    .search-row input{width:min(100%,280px);height:38px;border:1px solid var(--line-strong);border-radius:5px;padding:0 10px;background:#fff;color:var(--ink)}
+    .roi{color:var(--teal);font-weight:900;white-space:nowrap}
+    .warning{border-left:4px solid var(--gold);background:var(--gold-soft);padding:9px 11px;color:#67490d;font-size:12px;margin-top:12px}
+    .loading{display:flex;align-items:center;justify-content:center;min-height:260px;color:var(--muted);font-weight:800}
+    .error{background:var(--danger-soft);border:1px solid #edb8c0;color:var(--danger);border-radius:6px;padding:14px;margin-top:12px}
+    footer{margin-top:22px;padding-top:12px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     @media(max-width:760px){
-      .shell{padding:12px 10px 28px}
-      .header{padding:16px 14px}
-      h1{font-size:22px}
-      table,thead,tbody,tr,th,td{display:block}
-      thead{display:none}
-      tr{border-top:1px solid #edf1f7;padding:10px 0}
-      td{border:0;padding:4px 0}
-      .rank{text-align:left;width:auto}
-      .cards{grid-template-columns:1fr}
-      .factor-grid{grid-template-columns:1fr}
-      .race-head{grid-template-columns:44px 1fr}
-      .race-rate{grid-column:1 / -1;text-align:left}
-      .boat-table{display:table;font-size:11px}
-      .boat-table thead{display:table-header-group}
-      .boat-table tbody{display:table-row-group}
-      .boat-table tr{display:table-row;border:0;padding:0}
-      .boat-table th,.boat-table td{display:table-cell;padding:6px 4px}
-      .boat-rate-list{grid-template-columns:1fr}
-      .quick-roles{grid-template-columns:1fr}
-      .role-detail-grid{grid-template-columns:1fr}
-      .b1-danger-grid{grid-template-columns:1fr}
-      .reason{max-width:none}
+      .app{padding:8px 8px 28px}.masthead{padding:14px}.mast-top{gap:8px}h1{font-size:23px}
+      .toolbar{align-items:stretch;flex-direction:column}.tabs{width:100%}.tab{flex:1;padding:8px 9px}.date-tools{justify-content:flex-end}
+      .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi:nth-child(2){border-right:0}.kpi:nth-child(-n+2){border-bottom:1px solid var(--line)}
+      .signal-summary{grid-template-columns:1fr}.result-box{text-align:left;min-width:0}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.fact:nth-child(2){border-right:0}.fact:nth-child(-n+2){border-bottom:1px solid var(--line)}
+      .detail-grid{grid-template-columns:1fr}.model-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.model-metric:nth-child(2){border-right:0}.model-metric:nth-child(-n+2){border-bottom:1px solid var(--line)}
+      .pipeline{grid-template-columns:1fr}.monitor-table thead,.rules-table thead{display:none}.monitor-table,.rules-table,.monitor-table tbody,.rules-table tbody,.monitor-table tr,.rules-table tr,.monitor-table td,.rules-table td{display:block;width:100%}.monitor-table tr,.rules-table tr{padding:9px 10px;border-bottom:1px solid var(--line)}.monitor-table td,.rules-table td{padding:3px 0;border:0}.monitor-table td:before,.rules-table td:before{content:attr(data-label);display:inline-block;width:84px;color:var(--muted);font-size:10px;font-weight:800;vertical-align:top}
+    }
+    @media(max-width:420px){
+      .status-strip{align-items:flex-start}.kpi{padding:10px}.kpi-value{font-size:20px}.signal-card{border-left-width:4px}.signal-summary,.signal-body{padding:11px}.race-name{font-size:18px}.role-line{gap:8px}.ticket{padding:5px}.date-tools input{flex:1;max-width:none}
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <header class="header">
-      <p class="eyebrow">CODEX MANSHU ONE PAGE</p>
-      <h1 id="page-title">朝監視 + 展示後 本命判定</h1>
-      <p>この1ページで見ます。上に展示前の朝監視TOP10、下にBOATERS AI・展示・オッズ取得後の本命絞り判定を表示します。</p>
+  <main class="app">
+    <header class="masthead">
+      <div class="mast-top">
+        <div>
+          <div class="brand-line"><span class="live-dot" id="live-dot"></span><span id="system-status">データ読込中</span></div>
+          <h1>24場サイン管制盤</h1>
+          <p class="mast-meta" id="mast-meta">現在の監視データを確認しています</p>
+        </div>
+        <button class="icon-btn" id="refresh-btn" type="button" title="最新データを再読み込み" aria-label="最新データを再読み込み">↻</button>
+      </div>
     </header>
-    <nav class="nav">
-      <a id="posts-link" href="manshu_posts.html">投稿センター</a>
-      <a href="manshu_chokuzen.html">直前予報</a>
-      <a href="manshu_days.html">過去結果</a>
-      <a href="manshu_ops.html">運用DB</a>
-      <a href="manshu_research.html">研究ノート</a>
-      <button id="reload-btn" type="button">再読み込み</button>
-    </nav>
-    <section class="status" id="status">
-      <strong>Codex展示前 万舟率ランキングを読み込み中</strong>
-      <div class="chips"><span class="chip">JSON確認中</span></div>
+
+    <div class="toolbar">
+      <nav class="tabs" aria-label="表示切り替え">
+        <button class="tab active" type="button" data-view="signals">本日のサイン<span class="tab-count" id="signal-count-tab">0</span></button>
+        <button class="tab" type="button" data-view="monitor">監視状況<span class="tab-count" id="monitor-count-tab">0</span></button>
+        <button class="tab" type="button" data-view="model">検証実績</button>
+        <button class="tab" type="button" data-view="rules">24場ルール<span class="tab-count" id="rule-count-tab">24</span></button>
+      </nav>
+      <div class="date-tools">
+        <input id="date-input" type="date" aria-label="表示日">
+        <button id="date-btn" type="button">表示</button>
+      </div>
+    </div>
+
+    <div id="status-strip" class="status-strip">
+      <div><div class="status-main">監視データを読み込んでいます</div><div class="status-sub">しばらくお待ちください</div></div>
+      <span class="status-badge">読込中</span>
+    </div>
+
+    <section class="kpis" aria-label="本日の監視概要">
+      <div class="kpi"><span class="kpi-label">本日の24場サイン</span><b class="kpi-value signal" id="kpi-signals">-</b><span class="kpi-note" id="kpi-signals-note">-</span></div>
+      <div class="kpi"><span class="kpi-label">監視対象</span><b class="kpi-value" id="kpi-monitored">-</b><span class="kpi-note" id="kpi-monitored-note">-</span></div>
+      <div class="kpi"><span class="kpi-label">通知成功</span><b class="kpi-value" id="kpi-notified">-</b><span class="kpi-note" id="kpi-notified-note">-</span></div>
+      <div class="kpi"><span class="kpi-label">フォワード蓄積</span><b class="kpi-value" id="kpi-forward">-</b><span class="kpi-note" id="kpi-forward-note">目標100件</span></div>
     </section>
-    <main class="layout">
-      <section class="panel candidate-panel" id="watchlist-panel">
-        <details class="section-fold" open>
-          <summary><div class="section-summary"><div><h2>朝の監視候補TOP10（買いではない）</h2><p class="lead">展示前データだけで荒れる下地が強い上位10レースを表示します。</p></div></div></summary>
-          <div class="section-body"><p class="lead">スマホ通知は、この朝TOP10を締切前に再確認して、本命絞り条件まで揃った時だけ送ります。</p></div>
-        </details>
-      </section>
-      <section class="panel late-panel" id="final-panel">
-        <details class="section-fold" open>
-          <summary><div class="section-summary"><div><h2>本命絞り（朝監視TOP10限定）</h2><p class="lead">展示後に買うか見送るかを判定します。</p></div></div></summary>
-          <div class="section-body"><p class="lead">締切前にBOATERS AI・展示・オッズを取得できた朝監視TOP10のレースだけを、展示後40%以上からさらに前半1〜3R・外頭2番手・1号艇消し・5/6絡みで絞ります。</p></div>
-        </details>
-      </section>
-      <section class="panel notice">
-        <h2>このページの見方</h2>
-        <p class="lead">朝のリストは買い目ではありません。朝の候補が締切前の展示後判定でも本命絞りまで残った時だけ買い候補にします。</p>
-        <ul class="lead">
-          <li>本命絞り: 展示後40%以上、1〜3R、外頭2番手だけ、1号艇なし、5/6絡み。</li>
-          <li>運用目標は回収率150%前後です。買い目は平均3点前後で、広げすぎず高配当形だけを狙います。</li>
-          <li>長期検証では強い一方、最大連敗24があります。連敗を前提にした攻め方です。</li>
-          <li>朝TOP10外の40%以上は参考枠で、本命扱いにはしません。</li>
-        </ul>
-      </section>
-    </main>
-    <footer>研究・記録用。的中や利益を保証するものではありません。</footer>
-  </div>
+
+    <div id="loading" class="loading">24場サインを読み込んでいます</div>
+    <div id="error" class="error" hidden></div>
+
+    <section id="view-signals" class="view active">
+      <div class="section-head"><div><h2>本日のサイン</h2><p>展示後に条件が確定し、通知対象になったレース</p></div></div>
+      <div id="signal-list" class="signal-list"></div>
+    </section>
+
+    <section id="view-monitor" class="view">
+      <div class="section-head"><div><h2>直前監視</h2><p>締切前に確認したレースと見送り理由</p></div></div>
+      <div id="monitor-content"></div>
+    </section>
+
+    <section id="view-model" class="view">
+      <div class="section-head"><div><h2>検証実績</h2><p>本番ロジックと影モデルを分けて表示</p></div></div>
+      <div id="model-content"></div>
+    </section>
+
+    <section id="view-rules" class="view">
+      <div class="section-head"><div><h2>24場ルール</h2><p>場ごとに異なる条件と買い方</p></div></div>
+      <div class="search-row"><input id="rule-search" type="search" placeholder="場名で絞り込み" aria-label="場名で絞り込み"><span id="rule-filter-count" class="status-sub"></span></div>
+      <div id="rules-content"></div>
+    </section>
+
+    <footer><span>表示データ: 24場サイン監視・フォワード検証</span><span>過去実績は将来の利益を保証しません</span></footer>
+  </main>
+
   <script>
     "use strict";
-    var MAN = 10000;
-    var RESULT_REFRESH_MS = 30000;
-    var STATE = { date: "", data: null, liveData: null, resultMap: {}, resultPollTimer: null, lastResultCheck: "", resultFetchError: "", finalTab: "all" };
-    function q(name){ return new URLSearchParams(location.search).get(name); }
-    function todayJst(){ return new Date().toLocaleDateString("sv-SE",{timeZone:"Asia/Tokyo"}); }
-    function ymd(date){ return date.replace(/-/g,""); }
-    function dataUrls(date){
-      var key=ymd(date), stamp=Date.now();
-      return [
-        "data/output/boaters_manshu_ranking_codex_"+key+".json?v=codex12&_="+stamp,
-        "data/output/boaters_manshu_ranking_"+key+".json?v=codex12&_="+stamp
-      ];
-    }
-    function liveDataUrl(date){ return "data/output/boaters_manshu_live_ranking_"+ymd(date)+".json?v=live1&_="+Date.now(); }
-    function resultUrl(date){ return "https://boatraceopenapi.github.io/results/v2/"+date.slice(0,4)+"/"+ymd(date)+".json"; }
-    function liveResultUrl(date){ return resultUrl(date)+"?_="+Date.now(); }
-    function timeJst(){ return new Date().toLocaleTimeString("ja-JP",{timeZone:"Asia/Tokyo",hour12:false}); }
-    function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
-    function pct(v){ return v==null?"--":Number(v).toFixed(2).replace(/\.00$/,"")+"%"; }
-    function yen(v){ return v==null?"結果待ち":Number(v).toLocaleString("ja-JP")+"円"; }
-    function sec(v){ return v==null?"--":Number(v).toFixed(2).replace(/0$/,"").replace(/\.0$/,""); }
-    function raceKey(r){
-      if(r.place_id&&r.round) return Number(r.place_id)+"-"+Number(r.round);
-      var m=String(r.race_id||"").match(/^\d{4}-\d{2}-\d{2}(\d{2})(\d{2})/);
-      return m?Number(m[1])+"-"+Number(m[2]):"";
-    }
-    function label(r){ return (r.place_name||"")+r.round+"R"; }
-    function deadline(r){ return r.deadline_time?String(r.deadline_time).slice(11,16):"--:--"; }
-    function removeVenueSummary(){
-      var stale=document.getElementById("buff-panel");
-      if(stale&&stale.parentNode) stale.parentNode.removeChild(stale);
-      document.querySelectorAll(".factor-panel").forEach(function(node){
-        if(node&&node.parentNode) node.parentNode.removeChild(node);
-      });
-    }
-    function trifectaOf(row){
-      var t=(row.payouts&&row.payouts.trifecta&&row.payouts.trifecta[0])||null;
-      if(t&&t.payout!=null) return {combination:t.combination,payout_yen:t.payout};
-      var pl={};
-      (row.boats||[]).forEach(function(b){ if(b.racer_place_number) pl[b.racer_place_number]=b.racer_boat_number; });
-      return pl[1]&&pl[2]&&pl[3]?{combination:pl[1]+"-"+pl[2]+"-"+pl[3],payout_yen:null}:null;
-    }
-    function resultOf(r){
-      var live=STATE.resultMap[raceKey(r)], base=r.result||{};
-      var combo=live&&live.combination?live.combination:base.trifecta;
-      var payout=live&&live.payout_yen!=null?live.payout_yen:base.payout_yen;
-      return {trifecta:combo||"", payout_yen:payout==null?null:Number(payout), manshu:payout!=null&&Number(payout)>=MAN};
-    }
-    function raceClosed(r){
-      var res=resultOf(r);
-      if(res.trifecta||res.payout_yen!=null) return true;
-      if(STATE.date&&STATE.date<todayJst()) return true;
-      var deadlineMs=Date.parse(r.deadline_time||"");
-      return Number.isFinite(deadlineMs)&&Date.now()>deadlineMs;
-    }
-    function lapBoatCount(m){
-      m=m||{};
-      return Math.max(Number(m.isshu_boats||0),Number(m.raw_isshu_boats||0));
-    }
-    function fullExhibition(m){
-      m=m||{};
-      return Number(m.tenji_boats||0)>=6&&lapBoatCount(m)>=6;
-    }
-    function exhibitState(r){
-      var m=r.metrics||{}, full=fullExhibition(m);
-      if(full) return {full:true, text:"展示込み", cls:"good", kind:"ready"};
-      if(m.preview_fetch_attempted&&m.preview_missing_reason) return {full:false, text:m.preview_missing_reason, cls:"warn", kind:"not_published"};
-      if(m.preview_fetch_attempted) return {full:false, text:"BOATERS未公開", cls:"warn", kind:"not_published"};
-      if(raceClosed(r)) return {full:false, text:"展示再取得中", cls:"warn", kind:"missing_after_close"};
-      return {full:false, text:"展示待ち", cls:"warn", kind:"waiting"};
-    }
-    function morningRate(r){
-      var v=num(r.morning_manshu_rate_pct);
-      if(v!==null) return v;
-      v=num(r.pre_exhibition_manshu_rate_pct);
-      if(v!==null) return v;
-      return num(r.manshu_rate_pct);
-    }
-    function lastMinuteRate(r){
-      return num(r.last_minute_manshu_rate_pct);
-    }
-    function allLiveRows(){
-      var src=STATE.liveData||STATE.data||{};
-      return (src.strict_races||src.races||[]).concat(src.morning_candidates||[]);
-    }
-    function liveRowFor(r){
-      var key=raceKey(r), id=r.race_id||"", place=r.place_name||"", round=Number(r.round||0);
-      var rows=allLiveRows();
-      for(var i=0;i<rows.length;i+=1){
-        var x=rows[i];
-        if(id&&x.race_id===id) return x;
-        if(key&&raceKey(x)===key) return x;
-        if(place&&round&&x.place_name===place&&Number(x.round||0)===round) return x;
-      }
-      return null;
-    }
-    function mergeMorningWithLive(r){
-      var live=liveRowFor(r);
-      if(!live||live===r) return r;
-      var merged=Object.assign({}, r, live);
-      merged.rank=r.rank;
-      merged.morning_rank=r.rank;
-      merged.live_rank=live.rank;
-      merged.candidate_type=r.candidate_type;
-      merged.candidate_phase=r.candidate_phase||"morning_watchlist";
-      merged.ranking_type=r.ranking_type||"morning_watchlist";
-      merged.candidate_reasons=r.candidate_reasons||live.candidate_reasons||[];
-      merged.candidate_score=r.candidate_score;
-      merged.morning_manshu_rate_pct=morningRate(r);
-      if((!live.result||(!live.result.trifecta&&live.result.payout_yen==null))&&r.result){
-        merged.result=r.result;
-      }
-      if(fullExhibition(live.metrics||{})&&live.manshu_rate_pct!=null){
-        merged.last_minute_manshu_rate_pct=live.manshu_rate_pct;
-      }
-      return merged;
-    }
-    function rawRankRows(){ return STATE.data?((STATE.data.strict_races||STATE.data.races||[]).slice(0,10)):[]; }
-    function currentFinalRows(){
-      var src=STATE.liveData||STATE.data;
-      if(!src) return [];
-      return (src.strict_races||src.races||[]).slice(0,10);
-    }
-    function currentCandidateRows(){
-      if(!STATE.data) return [];
-      var rows=(STATE.data.morning_candidates||[]).slice(0,10);
-      return rows.map(mergeMorningWithLive);
-    }
-    function currentRows(){ return currentCandidateRows(); }
-    function isMorningWatch(r){
-      if(!r) return false;
-      if(r.candidate_phase==="morning_watchlist"||r.ranking_type==="morning_watchlist") return true;
-      var id=r.race_id||"", key=raceKey(r);
-      return currentCandidateRows().some(function(c){
-        return (id&&c.race_id===id)||(key&&raceKey(c)===key);
-      });
-    }
-    function candidateType(r){
-      if(r.candidate_type) return r.candidate_type;
-      var round=Number(r.round||0);
-      return round>=7?"後半軽監視":"軽監視";
-    }
-    function renderStatus(rows){
-      var watchRows=currentCandidateRows();
-      var core=watchRows.filter(function(r){return buyDecision(r).label==="本命";}).length;
-      var riser=currentFinalRows().filter(function(r){return !isMorningWatch(r)&&buyDecision(r).label==="急浮上参考";}).length;
-      var summary=(STATE.data&&STATE.data.summary)||{};
-      var settled=rows.filter(function(r){return resultOf(r).payout_yen!=null;}).length;
-      var hits=rows.filter(function(r){return resultOf(r).manshu;}).length;
-      var popularB1Danger=rows.filter(function(r){
-        var m=r.metrics||{};
-        return m.popular_b1_is_popular&&Number(m.popular_b1_fly_score||0)>=60;
-      }).length;
-      var allDone=rows.length>0&&settled>=rows.length;
-      var autoText=STATE.date===todayJst()?(allDone?"結果取得完了":"結果自動更新 30秒"):"過去結果を表示";
-      var checkText=STATE.lastResultCheck?("結果確認 "+STATE.lastResultCheck):"結果確認待ち";
-      document.getElementById("status").innerHTML=[
-        "<strong>"+esc(STATE.date)+" 朝監視 + 展示後本命判定を表示中</strong>",
-        "<div class=\"chips\">",
-        "<span class=\"chip hot\">朝TOP"+rows.length+"</span>",
-        "<span class=\"chip hot\">本命 "+core+"R</span>",
-        "<span class=\"chip warn\">急浮上参考 "+riser+"R</span>",
-        "<span class=\"chip\">展示前+展示後の2段階</span>",
-        "<span class=\"chip ok\">本命通知は朝TOP10限定</span>",
-        "<span class=\"chip\">結果 "+settled+"/"+rows.length+"R</span>",
-        "<span class=\"chip "+(hits?"hot":"")+"\">万舟 "+hits+"件</span>",
-        "<span class=\"chip "+(popularB1Danger?"hot":"")+"\">人気1号艇危険 "+popularB1Danger+"R</span>",
-        "<span class=\"chip\">基準値のみ非表示 "+esc(summary.baseline_only_hidden_count||0)+"R</span>",
-        "<span class=\"chip ok\">"+esc(autoText)+"</span>",
-        "<span class=\"chip\">"+esc(checkText)+"</span>",
-        STATE.resultFetchError?"<span class=\"chip hot\">結果取得エラー</span>":"",
-        "</div>"
-      ].join("");
-    }
-    function edgeHtml(r){
-      return (r.composite_edges||[]).filter(function(e){return Number(e.bonus_pct||0)>0;}).slice(0,3).map(function(e){
-        return "<span class=\"edge\">"+esc(e.label)+"</span>";
-      }).join("");
-    }
-    function has(v){ return v!==null&&v!==undefined&&v!==""&&!Number.isNaN(Number(v)); }
-    function num(v){ return has(v)?Number(v):null; }
-    function boatList(text){
-      return String(text||"").split(/[,\s、]+/).map(function(v){return v.trim();}).filter(Boolean).map(function(v){return v+"号艇";}).join("・");
-    }
-    var BASELINE={b1Win:55,b1Fly:30,winner36:30,outer56Top3:38,manshu:16.6};
-    function pp(v){ if(v==null) return "--"; return (v>=0?"+":"")+Number(v).toFixed(1).replace(/\.0$/,"")+"pt"; }
-    function addImpact(list,type,label,value,base,detail){
-      var val=num(value), bas=num(base), delta=(val!==null&&bas!==null)?val-bas:null;
-      list.push({type:type,label:label,value:val,base:bas,delta:delta,detail:detail||""});
-    }
-    function addTag(list,type,label,detail){ list.push({type:type,label:label,detail:detail||""}); }
-    function factorSignals(r){
-      var m=r.metrics||{}, edges=r.composite_edges||[], b1=[], outer=[], exhibit=[];
-      var b1Nige=num(m.boat1_nige_pct), b1Loss=num(m.boat1_loss_pct), b1Ai=num(m.boat1_ai_prediction_pct), b1Plus=num(m.boat1_ai_plus), b1Order=num(m.boat1_ai_plus_order);
-      if(m.popular_b1_is_popular){
-        addTag(b1,Number(m.popular_b1_fly_score||0)>=60?"superdebuff":"debuff","人気1号艇 "+(m.popular_b1_fly_level||"注意"),"みんなが1号艇を買っている前提で判定");
-        if(m.popular_b1_not_win_rate_pct!=null) addImpact(b1,"up","人気1号艇の1着失敗目安",m.popular_b1_not_win_rate_pct,31.87,m.popular_b1_rate_source||"");
-        if(m.popular_b1_top3_miss_rate_pct!=null) addImpact(b1,"up","人気1号艇の3着外目安",m.popular_b1_top3_miss_rate_pct,10.28,m.popular_b1_rate_source||"");
-      }
-      if(b1Nige!==null) addImpact(b1,"down","1号艇1着率",b1Nige,BASELINE.b1Win,"通常目安55%との比較");
-      if(b1Loss!==null) addImpact(b1,"up","1号艇が飛ぶ心配",b1Loss,BASELINE.b1Fly,"差され+まくられ率。通常目安30%との比較");
-      if(b1Ai!==null) addImpact(b1,b1Ai<25?"down":"neutral","1号艇AI勝ち目",b1Ai,35,"AI予測の目安35%との比較");
-      if(b1Plus!==null&&b1Plus<80) addTag(b1,"superdebuff","AI+一般が弱い","AI+ "+pct(b1Plus));
-      if(b1Order!==null&&b1Order>=4) addTag(b1,"superdebuff","AI+順位が下位","1号艇 "+b1Order+"位");
-      if(Number(m.slit_b1_hole_vs_23||0)>0) addTag(b1,"debuff","スリットで1号艇遅れ","隊形 "+(m.slit_shape_label||""));
-      if(Number(m.matchup_lane1_bad_flag||0)>0) addTag(b1,"debuff","対戦相性で1号艇マイナス",m.matchup_notes||"");
-
-      var outerDiff=num(m.outer56_best_avg_isshu_diff), outerAi=num(m.outer56_best_ai_prediction_pct);
-      if(outerDiff!==null&&outerDiff>=0.14) addTag(outer,"superbuff","5/6の展示+1周が強い","平均との差 "+sec(outerDiff));
-      else if(outerDiff!==null&&outerDiff>=0.10) addTag(outer,"buff","5/6の展示+1周が良い","平均との差 "+sec(outerDiff));
-      if(outerAi!==null) addImpact(outer,outerAi>=12?"up":"neutral","5/6号艇AI絡み率",outerAi,10,"外枠AI予測の目安10%との比較");
-      if(m.low_outer_boat) addTag(outer,"buff","低評価外枠の浮上候補",m.low_outer_boat+"号艇");
-      if(m.longshot_head_boats) addTag(outer,"superbuff","人気薄の頭候補",boatList(m.longshot_head_boats));
-      if(Number(m.matchup_outer_good_count||0)>0) addTag(outer,"buff","対戦相性で外枠プラス",m.matchup_buff_boats?boatList(m.matchup_buff_boats):"");
-      edges.filter(function(e){return Number(e.bonus_pct||0)>0;}).slice(0,5).forEach(function(e){
-        var d=e.details||{};
-        if(d.candidate_b1_win_pct!=null) addImpact(b1,"down","過去同条件の1号艇1着率",d.candidate_b1_win_pct,BASELINE.b1Win,e.label);
-        if(d.candidate_b1_fly_pct!=null) addImpact(b1,"up","過去同条件の1号艇飛び率",d.candidate_b1_fly_pct,BASELINE.b1Fly,e.label);
-        if(d.candidate_winner_3to6_pct!=null) addImpact(outer,"up","3〜6号艇1着率",d.candidate_winner_3to6_pct,BASELINE.winner36,e.label);
-        if(d.candidate_outer56_top3_pct!=null) addImpact(outer,"up","5・6号艇3着内率",d.candidate_outer56_top3_pct,BASELINE.outer56Top3,e.label);
-      });
-
-      var ex=exhibitState(r);
-      if(ex.full) addTag(exhibit,"buff","展示6艇取得済み","展示込み");
-      else if(ex.kind==="missing_after_close") addTag(exhibit,"debuff","展示再取得中","レース後なので自動再取得対象");
-      else if(ex.kind==="not_published") addTag(exhibit,"neutral",ex.text,"取得は試したがBOATERS側がまだ未公開");
-      else addTag(exhibit,"neutral","展示待ち","締切前");
-      if(lapBoatCount(m)>=6) addTag(exhibit,"buff","1周6艇取得済み","1周込み");
-      if(m.double_time_boats) addTag(exhibit,"superbuff","ダブルタイム",boatList(m.double_time_boats));
-      if(m.super_slit_boats) addTag(exhibit,"superbuff","スーパースリットアラート",boatList(m.super_slit_boats));
-      if(m.slit_shape_label) addTag(exhibit,"buff","スリット隊形 "+m.slit_shape_label,"");
-      if(Number(m.slit_outer56_pressure_vs_1||0)>0) addTag(exhibit,"buff","5/6外圧が1号艇へ","外圧あり");
-      if(Number(m.slit_outer456_pressure||0)>0) addTag(exhibit,"buff","4〜6外圧","外圧あり");
-      return {b1:b1,outer:outer,exhibit:exhibit};
-    }
-    function compactImpacts(items){
-      var seen={}, out=[];
-      (items||[]).forEach(function(t){
-        var key=t.label+"|"+(t.detail||"");
-        if(seen[key]) return;
-        seen[key]=1; out.push(t);
-      });
-      out.sort(function(a,b){return Math.abs(b.delta||0)-Math.abs(a.delta||0);});
-      return out;
-    }
-    function tagHtml(tags,limit){
-      var shown=compactImpacts(tags||[]).slice(0,limit||4);
-      if(!shown.length) return "<span class=\"factor-tag neutral\">強い材料なし</span>";
-      return shown.map(function(t){
-        if(t.value!==undefined){
-          var cls=t.delta==null?"neutral":(t.delta>=0?"up":"down");
-          var word=t.delta==null?"":(t.delta>=0?pp(t.delta)+"アップ":pp(t.delta)+"低下");
-          return "<span class=\"impact "+cls+"\"><span class=\"impact-title\">"+esc(t.label)+"</span><span class=\"impact-value\">"+esc(pct(t.value))+(word?" <span class=\"impact-delta\">通常比"+esc(word)+"</span>":"")+"</span>"+(t.detail?"<span class=\"impact-detail\">"+esc(t.detail)+"</span>":"")+"</span>";
-        }
-        return "<span class=\"factor-tag "+esc(t.type)+"\">"+esc(t.label)+"</span>"+(t.detail?"<span class=\"factor-detail\">"+esc(t.detail)+"</span>":"");
-      }).join("");
-    }
-    function pctShort(v){ return v==null?"未保存":Number(v).toFixed(1).replace(/\.0$/,"")+"%"; }
-    function pointText(v,base){
-      if(v==null||base==null) return "正確な比較はまだ出せません";
-      var d=Number(v)-Number(base), abs=Math.abs(d).toFixed(1).replace(/\.0$/,"");
-      if(Math.abs(d)<0.05) return "通常とほぼ同じ";
-      return "通常より"+abs+"pt"+(d>=0?"アップ":"低下");
-    }
-    function edgeValues(r,key){
-      var vals=[];
-      (r.composite_edges||[]).forEach(function(e){
-        var d=e.details||{};
-        if(d[key]!=null&&!Number.isNaN(Number(d[key]))) vals.push(Number(d[key]));
-      });
-      return vals;
-    }
-    function maxValue(vals){ return vals.length?Math.max.apply(null,vals):null; }
-    function minValue(vals){ return vals.length?Math.min.apply(null,vals):null; }
-    function boatByNumber(r,boat){
-      var rows=boatRows(r);
-      for(var i=0;i<rows.length;i++) if(Number(rows[i].boat_number)===Number(boat)) return rows[i];
-      return {};
-    }
-    function compositeWin(r,boat){
-      var b=boatByNumber(r,boat);
-      return num(b.composite_win_pct!=null?b.composite_win_pct:b.win_pct);
-    }
-    function compositeTop3(r,boat){
-      var b=boatByNumber(r,boat);
-      return num(b.composite_top3_pct!=null?b.composite_top3_pct:b.top3_pct);
-    }
-    function compositeTop3Actual(r,boat){
-      var b=boatByNumber(r,boat);
-      if(b.composite_top3_actual_pct!=null) return num(b.composite_top3_actual_pct);
-      if(b.top3_pct!=null) return num(b.top3_pct);
-      var share=num(b.composite_top3_pct);
-      return share==null?null:Math.min(92,share*3);
-    }
-    function sumCompositeWin(r,boats){
-      var total=0, seen=false;
-      (boats||[]).forEach(function(boat){
-        var v=compositeWin(r,boat);
-        if(v!=null){ total+=v; seen=true; }
-      });
-      return seen?total:null;
-    }
-    function anyTop3Approx(r,boats){
-      var miss=1, seen=false;
-      (boats||[]).forEach(function(boat){
-        var v=compositeTop3Actual(r,boat);
-        if(v!=null){ miss*=Math.max(0,1-Number(v)/100); seen=true; }
-      });
-      return seen?100*(1-miss):null;
-    }
-    function exactaApprox(r,first,second){
-      var firstWin=compositeWin(r,first), secondTop3=compositeTop3Actual(r,second), secondWin=compositeWin(r,second);
-      if(firstWin==null||secondTop3==null||secondWin==null) return null;
-      var secondNonWin=Math.max(0, secondTop3-secondWin);
-      return firstWin*(secondNonWin/100)*0.5;
-    }
-    function raceShape(r){
-      var m=r.metrics||{};
-      var b1Win=compositeWin(r,1);
-      var b1Top3=compositeTop3Actual(r,1);
-      var b1Fly=b1Top3!=null?100-b1Top3:num(m.boat1_loss_pct);
-      var edgeB1Win=minValue(edgeValues(r,"candidate_b1_win_pct"));
-      var edgeB1Fly=maxValue(edgeValues(r,"candidate_b1_fly_pct"));
-      var winner36=maxValue(edgeValues(r,"candidate_winner_3to6_pct"));
-      var outer56=maxValue(edgeValues(r,"candidate_outer56_top3_pct"));
-      var composite36=sumCompositeWin(r,[3,4,5,6]);
-      var compositeOuter56=anyTop3Approx(r,[5,6]);
-      if(b1Win==null) b1Win=edgeB1Win;
-      if(b1Fly==null) b1Fly=edgeB1Fly;
-      if(composite36!=null) winner36=composite36;
-      if(compositeOuter56!=null) outer56=compositeOuter56;
-      return {
-        b1Win:b1Win,
-        b1Fly:b1Fly,
-        winner36:winner36,
-        outer56Top3:outer56,
-        manshu:num(r.manshu_rate_pct),
-        combo12:exactaApprox(r,1,2),
-        combo13:exactaApprox(r,1,3)
-      };
-    }
-    function raceSentence(r){
-      var s=raceShape(r), parts=[], m=r.metrics||{};
-      var edgeCount=(r.composite_edges||[]).filter(function(e){return Number(e.bonus_pct||0)>0;}).length;
-      var matched=Number(r.matched_logic_count||0);
-      if(s.manshu!=null&&s.manshu>=35) parts.push("万舟条件がかなり強い");
-      else if((s.manshu!=null&&s.manshu>=27)||matched>0||edgeCount>0) parts.push("過去の高万舟条件に一致");
-      if(m.popular_b1_is_popular&&Number(m.popular_b1_fly_score||0)>=60) parts.push("人気1号艇が飛びやすい");
-      else if(m.popular_b1_is_popular&&Number(m.popular_b1_fly_score||0)>=45) parts.push("人気1号艇に不安あり");
-      if(s.b1Win!=null&&s.b1Win<=35) parts.push("1号艇が勝ちにくい");
-      else if(s.b1Fly!=null&&s.b1Fly>=38) parts.push("1号艇が残りにくい");
-      if(s.winner36!=null&&s.winner36>=45) parts.push("3〜6号艇の1着が見える");
-      if(s.outer56Top3!=null&&s.outer56Top3>=60) parts.push("5・6号艇が入りやすい");
-      if(!parts.length) parts.push("今の保存データでは大きな荒れ材料は少なめ");
-      return parts.join("、")+"形です";
-    }
-    function boatRows(r){
-      var m=r.metrics||{};
-      var rows=Array.isArray(m.boats)?m.boats.slice():[];
-      if(!rows.length){
-        for(var boat=1;boat<=6;boat++){
-          rows.push({
-            boat_number:boat,
-            win_pct:m["boat"+boat+"_ai_prediction_pct"],
-            top3_pct:m["boat"+boat+"_ai_3ren_pct"],
-            general_top3_pct:m["boat"+boat+"_general_3ren_pct"],
-            composite_win_pct:m["boat"+boat+"_composite_win_pct"],
-            composite_top3_pct:m["boat"+boat+"_composite_top3_pct"],
-            composite_rate_reasons:[],
-            ai_plus:m["boat"+boat+"_ai_plus"],
-            ai_plus_rank:m["boat"+boat+"_ai_plus_order"]
-          });
-        }
-      }
-      rows=rows.sort(function(a,b){return Number(a.boat_number)-Number(b.boat_number);});
-      var top3Sum=rows.reduce(function(total,b){return total+Number(b.composite_top3_pct||0);},0);
-      if(top3Sum>150){
-        rows=rows.map(function(b){
-          var c=Object.assign({},b);
-          if(c.composite_top3_actual_pct==null) c.composite_top3_actual_pct=c.composite_top3_pct;
-          if(c.composite_top3_pct!=null) c.composite_top3_pct=Number((Number(c.composite_top3_pct)/3).toFixed(2));
-          return c;
-        });
-      }
-      return rows;
-    }
-    function boatsText(boats){
-      return (boats||[]).filter(function(b){return b!=null&&b!=="";}).map(function(b){return b+"号艇";}).join("・")||"--";
-    }
-    function strategyIds(r){
-      var ids=[];
-      (r.last_minute_strategy_ids||[]).forEach(function(id){ if(id) ids.push(id); });
-      (r.last_minute_subcore_strategy_ids||[]).forEach(function(id){ if(id&&ids.indexOf(id)<0) ids.push(id); });
-      (r.last_minute_candidate_strategy_ids||[]).forEach(function(id){ if(id&&ids.indexOf(id)<0) ids.push(id); });
-      (((r.selection||{}).source_strategy_ids)||[]).forEach(function(id){ if(id&&ids.indexOf(id)<0) ids.push(id); });
-      return ids;
-    }
-    function validatedBuyIds(ids){
-      return (ids||[]).filter(function(id){return id==="codex_post_core_front_head2_no1_outer56";});
-    }
-    function subcoreWatchIds(ids){
-      return [];
-    }
-    function finalCheckText(r){
-      var checks=(r.final_decision_checks||[]).filter(Boolean);
-      if(!checks.length&&Array.isArray(r.last_minute_checks)) checks=r.last_minute_checks.filter(Boolean);
-      if(!checks.length){
-        var ex=exhibitState(r), rate=lastMinuteRate(r);
-        if(rate===null) rate=num(r.manshu_rate_pct);
-        if(ex.full&&rate!==null&&rate<38){
-          checks.push("展示後38%未満:NG("+pctShort(rate)+")");
-          checks.push("本命40%以上:NG");
-        }else if(ex.full&&rate!==null&&rate<40){
-          checks.push("展示後38〜39.9%:OK("+pctShort(rate)+")");
-          checks.push("本命絞りは展示後40%以上が必要");
-        }else if(!ex.full){
-          checks.push(ex.text);
-        }
-      }
-      return checks.slice(0,10).join(" / ");
-    }
-    function buyDecision(r){
-      var ex=exhibitState(r), ids=strategyIds(r), stored=r.buy_decision;
-      var lm=lastMinuteRate(r), rate=lm!==null?lm:num(r.manshu_rate_pct);
-      var morning=isMorningWatch(r);
-      var buyIds=validatedBuyIds(ids);
-      var subcoreIds=subcoreWatchIds(ids);
-      if(!ex.full) return {label:"判定前", cls:"warn", detail:"展示タイム・1周・平均との差・スーパースリット取得後に買い/見送り判定"};
-      if(!morning&&(stored==="急浮上参考"||(rate!==null&&rate>=40))) return {label:"急浮上参考", cls:"warn", detail:"朝監視TOP10外なので本命扱いはしません。展示後40%以上の参考枠です"};
-      if(!morning) return {label:"参考外", cls:"bad", detail:"朝監視TOP10外なので本命には入れません"};
-      if(stored==="本命"&&(buyIds.length||r.core_buy_ready===true)) return {label:"本命", cls:"good", detail:"展示後40%以上からさらに前半1〜3R・外頭2番手・1号艇消し・5/6絡みまで揃った本命絞りです"};
-      if(stored==="準本命") return {label:"準本命", cls:"warn", detail:"展示後38〜39.9%帯で準本命条件に該当した監視枠です。現在の運用では本命だけを買い対象にします"};
-      if(stored==="見送り") return {label:"見送り", cls:"bad", detail:finalCheckText(r)||"展示後データでは買い条件が足りません"};
-      if(buyIds.length) return {label:"本命買い候補", cls:"good", detail:"長期検証で最も筋がよかった本命絞り条件に該当: "+buyIds.join(" / ")};
-      if(rate!==null&&rate>=40) return {label:"本命条件不足", cls:"bad", detail:"展示後40%以上ですが、本命絞り条件(前半1〜3R・外頭2番手・1号艇消し・5/6絡み)が揃っていません"};
-      if(rate!==null&&rate>=38) return {label:"見送り", cls:"bad", detail:"展示後38〜39.9%です。本命絞りは40%以上からなので買い通知対象外です"};
-      if(ids.length) return {label:"急浮上監視", cls:"warn", detail:"直前の荒れ材料はあります。ただし本命条件ではないため買い通知対象外: "+ids.join(" / ")};
-      return {label:"見送り", cls:"bad", detail:"展示後データでは、万舟率が上がる直前条件が揃っていません"};
-    }
-    function buyDecisionHtml(r){
-      var d=buyDecision(r), tickets=((r.selection||{}).tickets||[]).slice(0,20);
-      var checks=finalCheckText(r);
-      var s=selectionOf(r);
-      var pointText=(s.points||tickets.length||0)+"点";
-      var heads=(s.heads||[]).slice(0,2);
-      var axes=(s.axes||[]).slice(0,2);
-      var stormPlan=stormPlanHtml(r,d,s,tickets,pointText,checks);
-      var roleGrid=[
-        "<div class=\"buy-role-grid\">",
-        "<div class=\"buy-role head\"><b>1着候補</b><strong>"+esc(boatsText(heads))+"</strong></div>",
-        "<div class=\"buy-role axis\"><b>軸候補</b><strong>"+esc(boatsText(axes))+"</strong></div>",
-        "<div class=\"buy-role keshi\"><b>消し候補</b><strong>"+esc(keshiText(s))+"</strong></div>",
-        "<div class=\"buy-role\"><b>点数</b><strong>"+esc(pointText)+"</strong></div>",
-        "</div>"
-      ].join("");
-      return [
-        "<div class=\"simple-box\"><h3>買い / 見送り</h3>",
-        "<p class=\"lead\"><b class=\"badge "+esc(d.cls)+"\">"+esc(d.label)+"</b> "+esc(d.detail)+"</p>",
-        roleGrid,
-        stormPlan,
-        !tickets.length&&s.keshi_reason?"<p class=\"mini\"><b>消し理由:</b> "+esc(s.keshi_reason)+"</p>":"",
-        !tickets.length&&checks?"<p class=\"mini\"><b>展示後チェック:</b> "+esc(checks)+"</p>":"",
-        "</div>"
-      ].join("");
-    }
-    function accordionHtml(title, body, open){
-      return [
-        "<details class=\"accordion-box\""+(open?" open":"")+">",
-        "<summary>"+esc(title)+"</summary>",
-        "<div class=\"accordion-body\">"+body+"</div>",
-        "</details>"
-      ].join("");
-    }
-    function panelAccordionHtml(title, note, body, open){
-      return [
-        "<details class=\"section-fold\""+(open?" open":"")+">",
-        "<summary><div class=\"section-summary\"><div><h2>"+esc(title)+"</h2>",
-        note?"<p class=\"lead\">"+esc(note)+"</p>":"",
-        "</div></div></summary>",
-        "<div class=\"section-body\">"+body+"</div>",
-        "</details>"
-      ].join("");
-    }
-    function boatsByMetric(rows, key, ranks, pool){
-      var allowed=pool?new Set(pool.map(Number)):null;
-      var ranked=rows.filter(function(b){
-        return (!allowed||allowed.has(Number(b.boat_number)))&&b[key]!=null&&!isNaN(Number(b[key]));
-      }).sort(function(a,b){
-        var diff=Number(b[key])-Number(a[key]);
-        return diff!==0?diff:Number(a.boat_number)-Number(b.boat_number);
-      });
-      return (ranks||[]).map(function(rank){return ranked[rank-1]?Number(ranked[rank-1].boat_number):null;}).filter(function(v,i,a){return v&&a.indexOf(v)===i;});
-    }
-    function selectionOf(r){
-      var s=Object.assign({},r.selection||{});
-      var rows=boatRows(r);
-      var m=r.metrics||{};
-      if((s.keshi==null||s.keshi==="")&&m.keshi_boat!=null) s.keshi=m.keshi_boat;
-      if(!s.keshi_reason&&m.keshi_reason) s.keshi_reason=m.keshi_reason;
-      if(s.head_mode==="core_front_head2_no1_outer56"&&Array.isArray(s.heads)&&s.heads.length){
-        return s;
-      }
-      if(!Array.isArray(s.heads)||s.heads.length<2){
-        var outerHeads=boatsByMetric(rows,"composite_win_pct",[1,2],[3,4,5,6]);
-        s.heads=outerHeads.length>=2?outerHeads:boatsByMetric(rows,"composite_win_pct",[1,2]);
-        s.head_rule=outerHeads.length>=2?"万舟は3〜6号艇頭が多いので3〜6号艇から優先":"複合1着率が高い2艇";
-      }
-      if(!Array.isArray(s.axes)||s.axes.length<2){
-        var axes=boatsByMetric(rows,"top3_pct",[1,3]);
-        var rule="AI3連対率の1位と3位";
-        if(axes.length<2){
-          axes=boatsByMetric(rows,"ai_plus",[1,3]);
-          rule="AI3連対率が不足したためAI+一般3連対の1位と3位";
-        }
-        if(axes.length<2){
-          axes=boatsByMetric(rows,"composite_top3_actual_pct",[1,3]);
-          rule="AI3連対率が不足したため複合3着内率の1位と3位";
-        }
-        s.axes=axes;
-        s.axis_rule=rule;
-      }
-      return s;
-    }
-    function keshiText(s){
-      return s&&s.keshi!=null&&s.keshi!==""?s.keshi+"号艇":"--";
-    }
-    function stormReasonItems(r,d,s,checks){
-      var items=[];
-      function add(v){
-        if(v==null) return;
-        var text=String(v).trim();
-        if(text&&items.indexOf(text)<0) items.push(text);
-      }
-      add(d.detail);
-      add(s.role_note);
-      add(s.head_rule);
-      if(s.axis_rule) add("軸: "+s.axis_rule);
-      if(s.keshi_reason) add("消し: "+s.keshi_reason);
-      if(s.odds_filter) add("オッズ条件: "+s.odds_filter);
-      if(checks) add("展示後チェック: "+checks);
-      var scores=s.head_scores||{};
-      (s.heads||[]).slice(0,2).forEach(function(boat){
-        var score=scores[String(boat)]||scores[boat];
-        if(score&&Array.isArray(score.reasons)&&score.reasons.length){
-          add(boat+"号艇頭: "+score.reasons.slice(0,4).join(" / "));
-        }
-      });
-      return items.slice(0,8);
-    }
-    function stormPlanHtml(r,d,s,tickets,pointText,checks){
-      if(!tickets.length){
-        return [
-          "<div class=\"storm-plan wait\">",
-          "<h4>荒れた時の買い目</h4>",
-          "<p class=\"mini\">本命/準本命条件まで届いた時だけ、ここに買い目と根拠を表示します。</p>",
-          "</div>"
-        ].join("");
-      }
-      var title=d.cls==="good"?"荒れた時はこの買い目":"荒れ想定の参考買い目";
-      var reasons=stormReasonItems(r,d,s,checks);
-      return [
-        "<div class=\"storm-plan\">",
-        "<h4>"+esc(title)+"</h4>",
-        "<p class=\"ticket-line\">"+esc(pointText)+" / "+esc(tickets.join(" / "))+"</p>",
-        reasons.length?"<ul>"+reasons.map(function(v){return "<li>"+esc(v)+"</li>";}).join("")+"</ul>":"",
-        "</div>"
-      ].join("");
-    }
-    function quickRolesHtml(r){
-      var s=selectionOf(r);
-      if(s.head_mode==="core_front_head2_no1_outer56"){
-        var fixed=(s.heads||[])[0];
-        var base=s.base_heads&&s.base_heads.length?s.base_heads:s.heads;
-        return [
-          "<div class=\"quick-roles\">",
-          "<div class=\"quick-role head\"><b>本命1着固定</b><strong>"+esc(boatsText([fixed]))+"</strong><span>元外頭候補 "+esc(boatsText(base))+" の2番手だけを頭にします</span></div>",
-          "<div class=\"quick-role axis\"><b>軸候補</b><strong>"+esc(boatsText((s.axes||[]).slice(0,2)))+"</strong><span>"+esc(s.axis_rule||"AI3連対率+一般3連対率の2位と3位")+"</span></div>",
-          "<div class=\"quick-role keshi\"><b>消し候補</b><strong>"+esc(keshiText(s))+"</strong><span>"+esc(s.keshi_reason||"買い目から外す艇")+"</span></div>",
-          "</div>"
-        ].join("");
-      }
-      var heads=(s.heads||[]).slice(0,2);
-      var axes=(s.axes||[]).slice(0,2);
-      return [
-        "<div class=\"quick-roles\">",
-        "<div class=\"quick-role head\"><b>万舟1着候補2艇</b><strong>"+esc(boatsText(heads))+"</strong><span>"+esc(s.head_rule||"3〜6号艇優先で選定")+"</span></div>",
-        "<div class=\"quick-role axis\"><b>軸候補2艇</b><strong>"+esc(boatsText(axes))+"</strong><span>"+esc(s.axis_rule||"AI3連対率の1位と3位")+"</span></div>",
-        "<div class=\"quick-role keshi\"><b>消し候補</b><strong>"+esc(keshiText(s))+"</strong><span>"+esc(s.keshi_reason||"買い目から外す艇")+"</span></div>",
-        "</div>"
-      ].join("");
-    }
-    function roleDetailHtml(r){
-      var s=selectionOf(r);
-      if(s.head_mode==="core_front_head2_no1_outer56"){
-        return [
-          "<div class=\"role-detail-grid\">",
-          "<div class=\"role-detail-card\"><b>本命買い方</b><p>"+esc(s.role_note||"外頭2番手を1着固定。1号艇なし、5/6絡みだけ買います。")+"</p></div>",
-          "<div class=\"role-detail-card\"><b>軸候補</b><p>"+esc(boatsText(s.axes))+"<br>"+esc(s.axis_rule||"AI3連対率+一般3連対率の2位と3位")+"</p></div>",
-          "</div>"
-        ].join("");
-      }
-      var headScores=s.head_scores||{};
-      var headText=(s.heads||[]).slice(0,2).map(function(boat){
-        var detail=headScores[String(boat)]||{};
-        var reasons=Array.isArray(detail.reasons)?detail.reasons.join(" / "):"複合1着率を中心に選定";
-        return esc(boat+"号艇: "+reasons);
-      }).join("<br>");
-      return [
-        "<div class=\"role-detail-grid\">",
-        "<div class=\"role-detail-card\"><b>万舟1着候補</b><p>"+(headText||esc(boatsText(s.heads)))+"</p></div>",
-        "<div class=\"role-detail-card\"><b>軸候補</b><p>"+esc(boatsText(s.axes))+"<br>"+esc(s.axis_rule||"AI3連対率の1位と3位")+"</p></div>",
-        "</div>"
-      ].join("");
-    }
-    function boatRatesHtml(r){
-      var rows=boatRows(r);
-      var ex=exhibitState(r);
-      var title=ex.full?"各号艇の展示込み複合確率":"各号艇の朝時点 複合確率";
-      return [
-        "<h4 class=\"subhead\">"+esc(title)+"</h4>",
-        "<div class=\"boat-rate-list\">",
-        rows.map(function(b){
-          var win=b.composite_win_pct!=null?b.composite_win_pct:b.win_pct;
-          var top3=b.composite_top3_pct!=null?b.composite_top3_pct:b.top3_pct;
-          var threeRen=b.three_ren_pct!=null?b.three_ren_pct:(b.ai_plus!=null?b.ai_plus:(b.top3_pct!=null?b.top3_pct:b.general_top3_pct));
-          var reasons=(b.composite_rate_reasons||[]).slice(0,3).join(" / ");
-          var oddsRank=b.odds_prediction_rank||b.odds_prediction_pct_rank;
-          var raw="元AI1着 "+pctShort(b.win_pct)+"・オッズ評価 "+pctShort(b.odds_prediction_pct)+(oddsRank?"("+oddsRank+"位)":"")+"・AI3連対 "+pctShort(b.top3_pct)+"・一般3連対 "+pctShort(b.general_top3_pct)+"・AI+順位 "+(b.ai_plus_rank?b.ai_plus_rank+"位":"--");
-          return [
-            "<div class=\"boat-rate-card\">",
-            "<div class=\"boat-rate-top\"><b>"+esc(b.boat_number)+"号艇</b><span>"+esc(b.ai_plus_rank?"AI+"+b.ai_plus_rank+"位":"AI+--")+"</span></div>",
-            "<div class=\"boat-rate-pair\">",
-            "<div class=\"boat-rate-num\"><strong>"+esc(pctShort(win))+"</strong><span>複合1着率</span></div>",
-            "<div class=\"boat-rate-num\"><strong>"+esc(pctShort(top3))+"</strong><span>複合3着内率</span></div>",
-            "<div class=\"boat-rate-num\"><strong>"+esc(pctShort(threeRen))+"</strong><span>AI+一般3連対</span></div>",
-            "</div>",
-            "<p class=\"boat-rate-reason\">"+esc(reasons||"強い補正材料なし")+"</p>",
-            "<p class=\"mini\">"+esc(raw)+"</p>",
-            "</div>"
-          ].join("");
-        }).join(""),
-        "</div>",
-        "<p class=\"mini\">複合率は、AI1着率だけではなく、AI3連対率、一般3連対率、AI+順位、展示/1周、平均との差、平均ST順位、ダブルタイム、スーパースリット、夏場1周、相性、低評価外枠復活を混ぜた推定値です。1着率も3着内率も、見やすいように6艇合計100%になるよう調整しています。</p>"
-      ].join("");
-    }
-    function popularB1Class(level){
-      if(level==="超危険") return "super";
-      if(level==="危険") return "danger";
-      if(level==="注意") return "warn";
-      return "hold";
-    }
-    function popularB1Html(r){
-      var m=r.metrics||{};
-      if(!m.popular_b1_is_popular) return "";
-      var reasons=Array.isArray(m.popular_b1_reasons)?m.popular_b1_reasons:[];
-      var conditions=Array.isArray(m.popular_b1_matched_conditions)?m.popular_b1_matched_conditions:[];
-      var level=m.popular_b1_fly_level||"注意";
-      var plain=reasons.slice(0,3).join("。");
-      if(plain) plain+="。";
-      var condHtml=conditions.length?[
-        "<details class=\"detail-fold\">",
-        "<summary>同じ形の過去データを見る</summary>",
-        "<ul>",
-        conditions.map(function(c){
-          return "<li>過去"+esc(c.sample_races||"--")+"R: 1着外 "+esc(pctShort(c.b1_not_win_rate_pct))+" / 3着外 "+esc(pctShort(c.b1_top3_miss_rate_pct))+" / 万舟 "+esc(pctShort(c.manshu_rate_pct))+"</li>";
-        }).join(""),
-        "</ul>",
-        "</details>"
-      ].join(""):"";
-      return [
-        "<div class=\"b1-danger-card "+esc(popularB1Class(level))+"\">",
-        "<div class=\"b1-danger-top\"><b>人気1号艇飛びロジック: "+esc(level)+"</b><span class=\"b1-danger-score\">危険度 "+esc(m.popular_b1_fly_score)+"点</span></div>",
-        "<p class=\"lead\">"+esc(plain||"1号艇人気はありますが、強い不安材料は少なめです。")+"</p>",
-        "<div class=\"b1-danger-grid\">",
-        "<div class=\"b1-danger-metric\"><strong>"+esc(pctShort(m.popular_b1_not_win_rate_pct))+"</strong><span>1号艇が1着を外す目安</span></div>",
-        "<div class=\"b1-danger-metric\"><strong>"+esc(pctShort(m.popular_b1_top3_miss_rate_pct))+"</strong><span>1号艇が3着外の目安</span></div>",
-        "<div class=\"b1-danger-metric\"><strong>"+esc(pctShort(m.popular_b1_manshu_rate_pct))+"</strong><span>同型の万舟目安</span></div>",
-        "</div>",
-        "<p class=\"mini\">人気判定: "+esc(m.popular_b1_source||"--")+" / 数字の元: "+esc(m.popular_b1_rate_source||"--")+"</p>",
-        reasons.length?"<ul>"+reasons.slice(0,7).map(function(x){return "<li>"+esc(x)+"</li>";}).join("")+"</ul>":"",
-        condHtml,
-        "</div>"
-      ].join("");
-    }
-    function probabilityHtml(r){
-      var res=resultOf(r);
-      var popular=popularB1Html(r);
-      return [
-        accordionHtml("1着固定・軸の根拠", roleDetailHtml(r), false),
-        accordionHtml("各号艇の複合1着率・3着内率", boatRatesHtml(r), false),
-        popular?accordionHtml("人気1号艇の危険ロジック", popular, false):"",
-        "<p class=\"mini\">決まり目: <b>"+esc(res.trifecta||"--")+"</b> / 配当: <b>"+esc(yen(res.payout_yen))+"</b>"+(res.manshu?" <span class=\"manshu\">万舟</span>":"")+"</p>"
-      ].join("");
-    }
-    function detailFactorsHtml(r){
-      var sig=factorSignals(r);
-      return [
-        "<details class=\"detail-fold\">",
-        "<summary>研究用の元データを見る</summary>",
-        "<div class=\"factor-grid\">",
-        "<div class=\"factor-box\"><div class=\"factor-title\">1号艇に悪い材料</div>"+tagHtml(sig.b1,5)+"</div>",
-        "<div class=\"factor-box\"><div class=\"factor-title\">外枠・穴に良い材料</div>"+tagHtml(sig.outer,5)+"</div>",
-        "<div class=\"factor-box\"><div class=\"factor-title\">展示・スリット</div>"+tagHtml(sig.exhibit,5)+"</div>",
-        "</div>",
-        "</details>"
-      ].join("");
-    }
-    function raceBadgesHtml(r){
-      var s=raceShape(r), res=resultOf(r), m=r.metrics||{}, ex=exhibitState(r), decision=buyDecision(r), badges=[];
-      badges.push("<span class=\"badge\">締切 "+esc(deadline(r))+"</span>");
-      badges.push("<span class=\"badge "+esc(decision.cls)+"\">"+esc(decision.label)+"</span>");
-      badges.push("<span class=\"badge "+(res.manshu?"good":"")+"\">"+(res.payout_yen!=null?"結果 "+esc(res.trifecta||"--")+" / "+esc(yen(res.payout_yen)):"結果待ち")+"</span>");
-      if(m.popular_b1_is_popular&&Number(m.popular_b1_fly_score||0)>=60) badges.push("<span class=\"badge bad\">人気1号艇 "+esc(m.popular_b1_fly_level||"危険")+"</span>");
-      else if(m.popular_b1_is_popular&&Number(m.popular_b1_fly_score||0)>=45) badges.push("<span class=\"badge warn\">人気1号艇 注意</span>");
-      if(s.b1Win!=null&&s.b1Win<=35) badges.push("<span class=\"badge bad\">1号艇きびしい</span>");
-      if(s.outer56Top3!=null&&s.outer56Top3>=60) badges.push("<span class=\"badge good\">5・6絡み注意</span>");
-      badges.push("<span class=\"badge "+esc(ex.cls)+"\">"+esc(ex.text)+"</span>");
-      return "<div class=\"race-badges\">"+badges.join("")+"</div>";
-    }
-    function raceCardHtml(r){
-      return [
-        "<details class=\"race-card\">",
-        "<summary>",
-        "<div class=\"race-head\">",
-        "<div class=\"race-rank\">"+esc(r.rank)+"</div>",
-        "<div><div class=\"race-main-title\">"+esc(label(r))+"</div><div class=\"race-one-line\">"+esc(raceSentence(r))+"</div>"+quickRolesHtml(r)+raceBadgesHtml(r)+"</div>",
-        "<div class=\"race-rate\">"+esc(pctShort(r.manshu_rate_pct))+"<span>万舟率</span></div>",
-        "</div>",
-        "</summary>",
-        "<div class=\"race-body\">",
-        buyDecisionHtml(r),
-        probabilityHtml(r),
-        detailFactorsHtml(r),
-        "</div>",
-        "</details>"
-      ].join("");
-    }
-    function candidateCardHtml(r){
-      var m=r.metrics||{}, res=resultOf(r), reasons=(r.candidate_reasons||[]).slice(0,4);
-      var type=candidateType(r);
-      var b1St=m.boat1_st_rank_general;
-      var outerGen=Math.max(num(m.boat5_general_3ren_pct)===null?-1:num(m.boat5_general_3ren_pct),num(m.boat6_general_3ren_pct)===null?-1:num(m.boat6_general_3ren_pct));
-      var mr=morningRate(r), lm=lastMinuteRate(r);
-      var shownRate=lm!==null?lm:num(r.manshu_rate_pct);
-      var rateLabel=lm!==null?("展示後確認率 / 朝 "+pctShort(mr)):"展示前万舟率 / 点数 "+(r.candidate_score==null?"--":Number(r.candidate_score).toFixed(1).replace(/\.0$/,""));
-      var morningReason=[
-        "<p class=\"lead\">"+esc(reasons.join(" / ")||r.condition||"展示前データで判定")+"</p>"
-      ].join("");
-      var morningMetrics=[
-        "<div class=\"cards\">",
-        "<div class=\"metric\"><b>"+esc(pct(m.boat1_nige_pct))+"</b><span>1号艇逃げ率</span></div>",
-        "<div class=\"metric\"><b>"+esc(pct(m.boat1_loss_pct))+"</b><span>1号艇逃げ失敗</span></div>",
-        "<div class=\"metric\"><b>"+esc(b1St==null?'--':Number(b1St).toFixed(1).replace(/\\.0$/,''))+"</b><span>1号艇平均ST順位</span></div>",
-        "<div class=\"metric\"><b>"+esc(outerGen<0?'--':pct(outerGen))+"</b><span>5/6一般3連対最大</span></div>",
-        "</div>"
-      ].join("");
-      var morningMemo=[
-        "<p class=\"lead\">朝に使うデータ: 一般3連対率・平均ST順位・1号艇の逃げ/差され/まくられ・スリット隊形近似・風波・対戦相性・展示前オッズ。BOATERS AI、展示、1周、直前AIオッズ評価は朝には使いません。</p>",
-        "<p class=\"lead\" style=\"margin-top:6px\">直前: BOATERS AI・展示・実オッズ取得後、展示後40%以上かつ本命絞り条件まで揃った時だけ通知します。</p>"
-      ].join("");
-      return [
-        "<details class=\"race-card\">",
-        "<summary>",
-        "<div class=\"race-head\">",
-        "<div class=\"race-rank\">"+esc(r.rank)+"</div>",
-        "<div>",
-        "<div class=\"race-main-title\">"+esc(label(r))+"</div>",
-        "<div class=\"race-one-line\">"+esc(type)+"。朝の荒れ下地で拾い、展示後に買い/見送りを決めるレースです。</div>",
-        "<div class=\"race-badges\">",
-        "<span class=\"badge\">締切 "+esc(deadline(r))+"</span>",
-        "<span class=\"badge good\">一般戦のみ</span>",
-        "<span class=\"badge warn\">朝監視</span>",
-        lm!==null?"<span class=\"badge good\">展示後確認 "+esc(pctShort(lm))+"</span>":"",
-        r.pre_exhibition_diversified?"<span class=\"badge good\">場分散済み</span>":"",
-        "<span class=\"badge "+(res.manshu?"good":"")+"\">"+(res.payout_yen!=null?"結果 "+esc(res.trifecta||"--")+" / "+esc(yen(res.payout_yen)):"結果待ち")+"</span>",
-        "</div>",
-        "</div>",
-        "<div class=\"candidate-score\">"+esc(pctShort(shownRate))+"<span>"+esc(rateLabel)+"</span></div>",
-        "</div>",
-        "</summary>",
-        "<div class=\"race-body\">",
-        accordionHtml("朝に拾った理由", morningReason, true),
-        accordionHtml("朝データの数字", morningMetrics, false),
-        accordionHtml("朝監視の運用メモ", morningMemo, false),
-        "</div>",
-        "</details>"
-      ].join("");
-    }
-    function renderCandidateSection(panelId,title,note,rows,emptyText){
-      var panel=document.getElementById(panelId);
-      if(!panel) return;
-      if(!rows.length){
-        panel.innerHTML=panelAccordionHtml(title,note,"<p class=\"lead\">"+esc(emptyText)+"</p>",true);
-        return;
-      }
-      var body=[
-        "<p class=\"candidate-note\">"+esc(note)+"</p>",
-        "<div class=\"race-list\">",
-        rows.map(candidateCardHtml).join(""),
-        "</div>"
-      ].join("");
-      panel.innerHTML=panelAccordionHtml(title,note,body,true);
-    }
-    function renderCandidatePanels(){
-      renderCandidateSection(
-        "watchlist-panel",
-        "朝の監視候補TOP10（買いではない）",
-        "全レースを展示前データだけで点数化し、荒れる下地が強い順に10レース表示します。買い判定は締切前にBOATERS AI・展示・実オッズを入れ直してからです。",
-        currentCandidateRows(),
-        "朝の荒れ監視JSONがまだありません。生成後にTOP10を表示します。"
-      );
-    }
-    function finalDecisionTabOf(r){
-      var label=buyDecision(r).label;
-      if(label==="判定前") return "pending";
-      if(label==="本命"||label==="本命買い候補") return "core";
-      if(label==="準本命"||label==="準本命判定") return "subcore";
-      return "skip";
-    }
-    function finalDecisionTabLabel(tab){
-      return {
-        all:"全て",
-        core:"本命",
-        subcore:"準本命",
-        skip:"見送り",
-        pending:"判定前"
-      }[tab]||"全て";
-    }
-    function finalDecisionTabClass(tab){
-      return {
-        core:"good",
-        subcore:"warn",
-        skip:"bad",
-        pending:"warn"
-      }[tab]||"";
-    }
-    function finalDecisionTabsHtml(counts){
-      var tabs=["all","core","subcore","skip","pending"];
-      return [
-        "<div class=\"filter-tabs\" role=\"tablist\" aria-label=\"展示後判定フィルター\">",
-        tabs.map(function(tab){
-          var active=(STATE.finalTab||"all")===tab;
-          return "<button type=\"button\" class=\"filter-tab "+esc(finalDecisionTabClass(tab))+(active?" active":"")+"\" data-final-tab=\""+esc(tab)+"\" role=\"tab\" aria-selected=\""+(active?"true":"false")+"\">"+esc(finalDecisionTabLabel(tab))+" <span>"+esc(counts[tab]||0)+"R</span></button>";
-        }).join(""),
-        "</div>"
-      ].join("");
-    }
-    function finalDecisionEmptyText(tab){
-      if(tab==="core") return "本命に該当するレースはまだありません。";
-      if(tab==="subcore") return "準本命に該当するレースはまだありません。";
-      if(tab==="skip") return "見送りに該当するレースはありません。";
-      if(tab==="pending") return "判定前のレースはありません。";
-      return "表示するレースがありません。";
-    }
-    function attachFinalDecisionTabs(panel){
-      Array.prototype.forEach.call(panel.querySelectorAll("[data-final-tab]"),function(btn){
-        btn.addEventListener("click",function(ev){
-          ev.preventDefault();
-          ev.stopPropagation();
-          STATE.finalTab=btn.getAttribute("data-final-tab")||"all";
-          renderFinalPanel();
-        });
-      });
-    }
-    function renderFinalPanel(){
-      var panel=document.getElementById("final-panel");
-      if(!panel) return;
-      var watchRows=currentCandidateRows();
-      var signalRows=watchRows.filter(function(r){
-        var label=buyDecision(r).label;
-        return label==="本命";
-      });
-      var referenceRows=currentFinalRows().filter(function(r){
-        return !isMorningWatch(r)&&buyDecision(r).label==="急浮上参考";
-      }).slice(0,5);
-      var counts={all:watchRows.length, core:0, subcore:0, skip:0, pending:0};
-      watchRows.forEach(function(r){
-        var tab=finalDecisionTabOf(r);
-        counts[tab]=(counts[tab]||0)+1;
-      });
-      if(!Object.prototype.hasOwnProperty.call(counts,STATE.finalTab)) STATE.finalTab="all";
-      var visibleRows=STATE.finalTab==="all"?watchRows:watchRows.filter(function(r){
-        return finalDecisionTabOf(r)===STATE.finalTab;
-      });
-      if(!watchRows.length){
-        panel.innerHTML=panelAccordionHtml(
-          "展示後 本命絞り判定",
-          "朝監視TOP10を展示後に再判定します。",
-          "<p class=\"lead\">展示後ランキングJSONがまだありません。生成後に表示します。</p>",
-          true
-        );
-        return;
-      }
-      var body=[
-        "<p class=\"candidate-note\">朝監視TOP10に入ったレースは、展示後に本命にならなくても全て表示します。買わない時も、足りなかった条件をここで確認できます。</p>",
-        finalDecisionTabsHtml(counts),
-        visibleRows.length?"<div class=\"race-list\">"+visibleRows.map(raceCardHtml).join("")+"</div>":"<p class=\"lead\">"+esc(finalDecisionEmptyText(STATE.finalTab))+"</p>",
-        signalRows.length?"":"<p class=\"lead\">本命絞りはまだありませんが、展示後に見送りになった理由も各カード内に表示しています。</p>",
-        "<h2 style=\"margin-top:18px\">急浮上参考（朝監視TOP10外）</h2>",
-        "<p class=\"candidate-note\">朝の荒れ下地がなかったため、本命扱いにはしません。展示後40%以上まで上がった時だけ参考として分けて表示します。</p>",
-        referenceRows.length?"<div class=\"race-list\">"+referenceRows.map(raceCardHtml).join("")+"</div>":"<p class=\"lead\">朝監視外の急浮上参考はありません。</p>"
-      ].join("");
-      panel.innerHTML=panelAccordionHtml(
-        "朝監視TOP10の展示後判定",
-        "展示・AI・オッズ取得後に、本命/見送りを確認します。",
-        body,
-        true
-      );
-      attachFinalDecisionTabs(panel);
-    }
-    function render(){
-      removeVenueSummary();
-      var rows=currentCandidateRows();
-      document.title="Codex朝監視+展示後本命判定 "+STATE.date;
-      document.getElementById("page-title").textContent=STATE.date+" 朝監視 + 展示後 本命判定";
-      document.getElementById("posts-link").href="manshu_posts.html?date="+STATE.date;
-      renderStatus(rows);
-      renderCandidatePanels();
-      renderFinalPanel();
-    }
-    function stopResultPolling(){
-      if(STATE.resultPollTimer){
-        clearInterval(STATE.resultPollTimer);
-        STATE.resultPollTimer=null;
-      }
-    }
-    function startResultPolling(){
-      stopResultPolling();
-      if(STATE.date!==todayJst()) return;
-      STATE.resultPollTimer=setInterval(function(){
-        loadResults({silent:true}).then(function(){
-          var rows=currentRows();
-          if(rows.length&&rows.every(function(r){return resultOf(r).payout_yen!=null;})){
-            stopResultPolling();
-            render();
-          }
-        });
-      },RESULT_REFRESH_MS);
-    }
-    async function loadResults(opts){
-      opts=opts||{};
-      try{
-        var res=await fetch(liveResultUrl(STATE.date),{cache:"no-store"});
-        if(!res.ok) throw new Error("HTTP "+res.status);
-        var data=await res.json();
-        var next={};
-        (data.results||[]).forEach(function(row){
-          var tri=trifectaOf(row);
-          if(tri) next[Number(row.race_stadium_number)+"-"+Number(row.race_number)]=tri;
-        });
-        STATE.resultMap=next;
-        STATE.lastResultCheck=timeJst();
-        STATE.resultFetchError="";
-        if(STATE.data) render();
-      }catch(e){
-        STATE.lastResultCheck=timeJst();
-        STATE.resultFetchError=String(e&&e.message?e.message:e);
-        if(STATE.data&&!opts.silent) render();
-        else if(STATE.data) renderStatus(currentRows());
-      }
-    }
-    async function loadLiveData(){
-      STATE.liveData=null;
-      try{
-        var res=await fetch(liveDataUrl(STATE.date),{cache:"no-store"});
-        if(res.ok) STATE.liveData=await res.json();
-      }catch(e){
-        STATE.liveData=null;
-      }
-    }
+    var STATE={data:null,view:"signals",resultMap:{},date:"",loading:false};
+    var VENUE_CODES={"桐生":1,"戸田":2,"江戸川":3,"平和島":4,"多摩川":5,"浜名湖":6,"蒲郡":7,"常滑":8,"津":9,"三国":10,"びわこ":11,"住之江":12,"尼崎":13,"鳴門":14,"丸亀":15,"児島":16,"宮島":17,"徳山":18,"下関":19,"若松":20,"芦屋":21,"福岡":22,"唐津":23,"大村":24};
+    function esc(value){return String(value==null?"":value).replace(/[&<>"']/g,function(ch){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch];});}
+    function num(value,digits){var n=Number(value);return Number.isFinite(n)?n.toLocaleString("ja-JP",{minimumFractionDigits:digits||0,maximumFractionDigits:digits||0}):"-";}
+    function pct(value,digits){return value==null?"-":num(value,digits==null?1:digits)+"%";}
+    function yen(value){return value==null?"-":num(value,0)+"円";}
+    function query(name){return new URLSearchParams(location.search).get(name)||"";}
+    function todayJst(){return new Intl.DateTimeFormat("sv-SE",{timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());}
+    function dateKey(value){return String(value||"").replace(/-/g,"");}
+    function clock(value){if(!value)return "-";var d=new Date(value);if(Number.isNaN(d.getTime()))return "-";return new Intl.DateTimeFormat("ja-JP",{timeZone:"Asia/Tokyo",hour:"2-digit",minute:"2-digit",hour12:false}).format(d);}
+    function ageMinutes(value){var d=new Date(value);return Number.isNaN(d.getTime())?null:Math.max(0,(Date.now()-d.getTime())/60000);}
+    function lane(n){var v=Number(n);return v>=1&&v<=6?'<span class="lane lane-'+v+'">'+v+'</span>':"";}
+    function lanes(values){return (values||[]).map(lane).join("");}
+    function ticket(value){var boats=String(value||"").match(/[1-6]/g)||[];return '<span class="ticket">'+boats.map(function(n,i){return (i?'<span class="arrow">›</span>':"")+lane(n);}).join("")+'</span>';}
+    function resultFromApi(signal){var key=Number(VENUE_CODES[signal.venue])+"-"+Number(signal.round);return STATE.resultMap[key]||signal.result||{};}
+    function isHit(signal,result){var combo=String(result.trifecta||"").replace(/\D/g,"");return combo&&signal.tickets.some(function(value){return String(value).replace(/\D/g,"")===combo;});}
+    function fetchUrl(){if(STATE.date&&STATE.date!==todayJst())return "data/output/manshu_system_dashboard_"+dateKey(STATE.date)+".json";return "data/output/manshu_system_dashboard_latest.json";}
+    function resultUrl(date){var key=dateKey(date);return "https://boatraceopenapi.github.io/results/v2/"+key.slice(0,4)+"/"+key+".json";}
+    function resultOf(row){
+      var trifecta=null,payout=null;
+      var tri=((row.payouts||{}).trifecta||[])[0];
+      if(tri){trifecta=tri.combination;payout=Number(tri.payout);}
+      if(!trifecta){var places={};(row.boats||[]).forEach(function(boat){if(boat.racer_place_number)places[boat.racer_place_number]=boat.racer_boat_number;});if(places[1]&&places[2]&&places[3])trifecta=places[1]+"-"+places[2]+"-"+places[3];}
+      return {trifecta:trifecta,payout_yen:Number.isFinite(payout)?payout:null,manshu:Number.isFinite(payout)&&payout>=10000};
+    }
+    async function loadResults(){
+      try{var response=await fetch(resultUrl(STATE.data.date),{cache:"no-store"});if(!response.ok)return;var payload=await response.json();var map={};(payload.results||[]).forEach(function(row){map[Number(row.race_stadium_number)+"-"+Number(row.race_number)]=resultOf(row);});STATE.resultMap=map;renderSignals();}
+      catch(error){}
+    }
+    function statusLabel(signal,result){
+      if(result&&result.trifecta){if(isHit(signal,result))return {text:"的中",className:"ok"};return {text:"結果確定",className:""};}
+      if(signal.notification_status==="sent"||signal.notification_status==="duplicate_sent")return {text:"通知済み",className:"signal"};
+      if(signal.notification_status==="failed")return {text:"通知失敗",className:"bad"};
+      return {text:"結果待ち",className:"warn"};
+    }
+    function fact(label,value){return '<div class="fact"><span>'+esc(label)+'</span><b>'+esc(value)+'</b></div>';}
+    function detailLine(label,value){return '<div class="detail-line"><span>'+esc(label)+'</span><b>'+esc(value)+'</b></div>';}
+    function evBlock(label,ev){
+      var t10=(ev||{}).t10||{},t5=(ev||{}).t5||{};
+      return '<div><div class="detail-title">'+esc(label)+'</div>'+detailLine("T-10期待回収",t10.available?pct(t10.expected_roi_pct,1):"未取得")+detailLine("T-5期待回収",t5.available?pct(t5.expected_roi_pct,1):"未取得")+detailLine("T-5合成オッズ",t5.available?num(t5.synthetic_odds,1)+"倍":"未取得")+'</div>';
+    }
+    function signalHtml(signal){
+      var result=resultFromApi(signal),status=statusLabel(signal,result),hit=result&&result.trifecta&&isHit(signal,result),cardClass=hit?" hit":(result&&result.trifecta?" miss":"");
+      var resultMain=result&&result.trifecta?esc(result.trifecta):"結果待ち";
+      var resultSub=result&&result.payout_yen!=null?yen(result.payout_yen)+(hit?" / 買い目的中":" / 買い目外"):"通知 "+esc(signal.notification_status||"未確認");
+      var h=signal.historical||{},c=signal.conditions||{};
+      return '<article class="signal-card'+cardClass+'">'+
+        '<div class="signal-summary"><div><div class="race-line"><span class="race-name">'+esc(signal.venue)+Number(signal.round)+'R</span><span class="tag signal">24場サイン</span><span class="tag '+esc(status.className)+'">'+esc(status.text)+'</span><span class="tag">'+esc(signal.data_mode==="full"?"展示完備":"展示限定")+'</span></div><div class="signal-time">締切 '+clock(signal.deadline_time)+' / 検知 '+clock(signal.detected_at)+' / 締切'+num(signal.first_minutes_to_deadline,1)+'分前</div></div><div class="result-box"><div class="result-main">'+resultMain+'</div><span class="result-sub">'+resultSub+'</span></div></div>'+
+        '<div class="signal-body"><p class="condition">'+esc(signal.condition||"条件記録なし")+'</p><p class="buy-method">'+esc(signal.buy_method||"")+'</p>'+
+        '<div class="role-line"><span class="role-item">頭 <b>'+lanes(signal.heads)+'</b></span><span class="role-item">相手 <b>'+lanes(signal.axes)+'</b></span><span class="role-item">消し <b>'+lane(signal.keshi)+'</b></span><span class="role-item">点数 <b>'+num(signal.points,0)+'点</b></span></div>'+
+        '<div class="tickets">'+(signal.tickets||[]).map(ticket).join("")+'</div>'+
+        '<div class="facts">'+fact("過去回収率",pct(h.roi_pct,1))+fact("過去該当",num(h.races,0)+"R")+fact("1号艇AI1着",pct(c.boat1_ai_win_pct,1))+fact("1号艇周回順位",c.boat1_lap_rank?num(c.boat1_lap_rank,0)+"位":"-")+'</div>'+
+        '<details class="more"><summary>条件・期待値の詳細</summary><div class="detail-grid"><div><div class="detail-title">展示・水面</div>'+detailLine("風 / 波",num(c.wind_speed,1)+"m / "+num(c.wave_height,1)+"cm")+detailLine("1号艇人気",pct(c.boat1_popularity_pct,1))+detailLine("1号艇逃げ率",pct(c.boat1_escape_pct,1))+detailLine("1号艇平均との差",c.boat1_average_diff==null?"-":num(c.boat1_average_diff,3))+detailLine("5/6号艇平均との差",c.outer56_average_diff==null?"-":num(c.outer56_average_diff,3))+'</div>'+evBlock("既存AI1/AI3期待値",signal.legacy_ev)+evBlock("場別確率補正（影）",signal.probability_overlay_ev)+'</div></details></div></article>';
+    }
+    function renderSignals(){
+      if(!STATE.data)return;var list=document.getElementById("signal-list"),signals=STATE.data.signals||[];
+      list.innerHTML=signals.length?signals.map(signalHtml).join(""):'<div class="empty"><b>本日の24場サインはまだありません</b><span>条件がそろったレースだけ、ここに追加されます。</span></div>';
+    }
+    function renderMonitor(){
+      var rows=STATE.data.monitor||[],content=document.getElementById("monitor-content");
+      if(!rows.length){content.innerHTML='<div class="empty"><b>直前確認対象はありません</b><span>締切前の確認結果が入ると表示されます。</span></div>';return;}
+      var statusNames={outside_window:"監視時間外",checked:"確認済み",fetch_failed:"取得失敗",preview_wait:"展示待ち",odds_wait:"オッズ待ち"};
+      content.innerHTML='<table class="monitor-table"><thead><tr><th>レース</th><th>状態</th><th>締切まで</th><th>判定</th><th>役割</th></tr></thead><tbody>'+rows.map(function(row){var minutes=Number(row.minutes_to_deadline),deadlineText=Number.isFinite(minutes)?(minutes<0?'終了'+num(Math.abs(minutes),1)+'分':num(minutes,1)+'分'):'-';var state=row.preview_ready?'展示確認済み':(statusNames[row.status]||row.status||"待機");return '<tr><td data-label="レース"><span class="table-race">'+esc(row.venue)+Number(row.round)+'R</span></td><td data-label="状態"><span class="tag '+(row.preview_ready?'ok':'warn')+'">'+esc(state)+'</span></td><td data-label="締切まで">'+deadlineText+'</td><td data-label="判定"><b>'+esc(row.near_miss_level||"見送り")+'</b><div class="table-note">'+esc(row.near_miss_summary||"")+'</div></td><td data-label="役割"><div>頭 '+lanes(row.heads)+' / 軸 '+lanes(row.axes)+' / 消し '+lane(row.keshi)+'</div></td></tr>';}).join("")+'</tbody></table>';
+    }
+    function metric(label,value){return '<div class="model-metric"><span>'+esc(label)+'</span><b>'+esc(value)+'</b></div>';}
+    function renderModel(){
+      var v=STATE.data.validation||{},hist=v.historical_24_sign||{},forward=v.forward||{},progress=v.progress||{},base=v.probability_baseline||{},overlay=v.probability_overlay||{},scales=v.probability_scales||{};
+      var delta12=(Number(overlay.top12_hit_pct)-Number(base.top12_hit_pct));var progressPct=Number(progress.minimum_progress_pct)||0;
+      document.getElementById("model-content").innerHTML=
+        '<section class="model-band"><h3>本番 24場サイン</h3><p>場ごとの条件と固定買い目。通知と購入判断に使う本番系統です。</p><div class="model-metrics">'+metric("検証レース",num(hist.race_count,0)+"R")+metric("的中",num(hist.hits,0)+"件")+metric("回収率",pct(hist.roi_pct,1))+metric("利益（100円/点）",yen(hist.profit_yen))+'</div><div class="warning">回収率は2024年から2026年の過去検証値です。未来の利益を保証する数字ではありません。</div></section>'+
+        '<section class="model-band"><h3>場別確率補正</h3><p>場×艇番、展示、風・波、潮・潮流、平均との差、スリットを2着率・3着率へ反映する影モデルです。</p><div class="model-metrics">'+metric("120通りlog loss",num(base.trifecta_log_loss,6)+" → "+num(overlay.trifecta_log_loss,6))+metric("上位6点内包",pct(overlay.top6_hit_pct,3))+metric("上位12点内包",pct(overlay.top12_hit_pct,3))+metric("上位12点改善",(delta12>=0?"+":"")+num(delta12,3)+"pt")+'</div><div class="pipeline"><div class="pipeline-step"><span>1</span><b>BOATERS基準確率</b><p>AI1着率・AI3連対率を着順別へ分解</p></div><div class="pipeline-step"><span>2</span><b>場別バフ・デバフ</b><p>1着×0 / 2着×'+num(scales["2"]*100,0)+'% / 3着×'+num(scales["3"]*100,0)+'%</p></div><div class="pipeline-step"><span>3</span><b>未来比較</b><p>本番買い目を変えずT-10/T-5期待値を保存</p></div></div></section>'+
+        '<section class="model-band"><h3>フォワード検証</h3><p>実運用で出たサインだけを結果確定後に集計します。</p><div class="model-metrics">'+metric("蓄積",num(progress.entry_count,0)+" / 100")+metric("通知成功",num(forward.notification_sent_count,0)+"件")+metric("結果確定",num(forward.settled_count,0)+"件")+metric("現在の収支",forward.profit_yen==null?"集計待ち":yen(forward.profit_yen))+'</div><div class="progress-line"><div class="progress-fill" style="width:'+Math.min(100,progressPct)+'%"></div></div></section>';
+    }
+    function renderRules(){
+      var q=document.getElementById("rule-search").value.trim(),rules=(STATE.data.rules||[]).filter(function(rule){return !q||String(rule.venue||"").indexOf(q)>=0;}),content=document.getElementById("rules-content");document.getElementById("rule-filter-count").textContent=rules.length+"場";
+      content.innerHTML='<table class="rules-table"><thead><tr><th>場</th><th>買う条件</th><th>買い方</th><th>過去件数</th><th>過去回収率</th></tr></thead><tbody>'+rules.map(function(rule){var h=rule.historical||{};return '<tr><td data-label="場"><span class="table-race">'+esc(rule.venue)+'</span><div class="table-note">評価 '+esc(rule.status||"-")+'</div></td><td data-label="買う条件">'+esc(rule.condition||"-")+'</td><td data-label="買い方">'+esc(rule.buy_method||"-")+'</td><td data-label="過去件数">'+num(h.races,0)+'R</td><td data-label="過去回収率"><span class="roi">'+pct(h.roi_pct,1)+'</span></td></tr>';}).join("")+'</tbody></table>';
+    }
+    function renderHeader(){
+      var d=STATE.data,s=d.system||{},age=ageMinutes(d.source_generated_at),stale=age!=null&&age>20,forward=(d.validation||{}).forward||{},progress=(d.validation||{}).progress||{};
+      document.getElementById("live-dot").className="live-dot"+(stale?" stale":"");document.getElementById("system-status").textContent=stale?"更新待ち":"監視データ正常";
+      document.getElementById("mast-meta").textContent=d.date+" / 最終更新 "+clock(d.source_generated_at)+" / 24場サインのみ通知";
+      var badge=document.querySelector("#status-strip .status-badge");document.querySelector("#status-strip .status-main").textContent=stale?"最終更新から20分以上経過しています":"24場サイン監視データを表示中";document.querySelector("#status-strip .status-sub").textContent="取得元 "+(s.live_source||"不明")+" / 監視 "+num(s.monitored_count,0)+"R / 取得失敗 "+num(s.fetch_failed_count,0)+"R";badge.textContent=stale?"更新待ち":"正常";badge.className="status-badge"+(stale?" warn":"");
+      document.getElementById("kpi-signals").textContent=num(s.signal_count,0)+"R";document.getElementById("kpi-signals-note").textContent="条件確定・買い目あり";document.getElementById("kpi-monitored").textContent=num(s.monitored_count,0)+"R";document.getElementById("kpi-monitored-note").textContent="直前確認 "+num(s.checked_count,0)+"R";document.getElementById("kpi-notified").textContent=num(forward.notification_sent_count,0)+"件";document.getElementById("kpi-notified-note").textContent="失敗 "+num(forward.notification_failed_count,0)+"件";document.getElementById("kpi-forward").textContent=num(progress.entry_count,0)+"件";document.getElementById("kpi-forward-note").textContent="目標100件まで "+num(progress.remaining_to_minimum,0)+"件";
+      document.getElementById("signal-count-tab").textContent=num((d.signals||[]).length,0);document.getElementById("monitor-count-tab").textContent=num((d.monitor||[]).length,0);document.getElementById("rule-count-tab").textContent=num((d.rules||[]).length,0);
+    }
+    function render(){document.getElementById("loading").hidden=true;document.getElementById("error").hidden=true;renderHeader();renderSignals();renderMonitor();renderModel();renderRules();document.title="24場サイン管制盤 "+STATE.data.date;}
     async function load(){
-      removeVenueSummary();
-      stopResultPolling();
-      STATE.date=q("date")||todayJst();
-      STATE.resultMap={};
-      STATE.liveData=null;
-      STATE.lastResultCheck="";
-      STATE.resultFetchError="";
-      var urls=dataUrls(STATE.date), payload=null;
-      for(var i=0;i<urls.length;i+=1){
-        try{
-          var res=await fetch(urls[i],{cache:"no-store"});
-          if(res.ok){ payload=await res.json(); break; }
-        }catch(e){}
-      }
-      if(!payload){
-        document.getElementById("status").innerHTML="<strong>ランキングJSONが見つかりません</strong><div class=\"chips\"><span class=\"chip hot\">"+esc(STATE.date)+"</span></div>";
-        document.getElementById("watchlist-panel").innerHTML=panelAccordionHtml(
-          "朝の監視候補TOP10（買いではない）",
-          "展示前の監視リストです。",
-          "<p class=\"lead\">data/output の今日分JSONがまだありません。</p>",
-          true
-        );
-        return;
-      }
-      STATE.data=payload;
-      await loadLiveData();
-      render();
-      loadResults();
-      startResultPolling();
+      if(STATE.loading)return;STATE.loading=true;document.getElementById("loading").hidden=false;document.getElementById("error").hidden=true;
+      try{var response=await fetch(fetchUrl()+"?t="+Date.now(),{cache:"no-store"});if(!response.ok)throw new Error("表示用JSONが見つかりません");STATE.data=await response.json();STATE.date=STATE.data.date;document.getElementById("date-input").value=STATE.date;history.replaceState(null,"",STATE.date===todayJst()?location.pathname:location.pathname+"?date="+STATE.date);render();loadResults();}
+      catch(error){document.getElementById("loading").hidden=true;var box=document.getElementById("error");box.hidden=false;box.textContent="データを表示できませんでした: "+String(error&&error.message?error.message:error);}
+      finally{STATE.loading=false;}
     }
-    document.getElementById("reload-btn").addEventListener("click",load);
-    load();
+    document.querySelectorAll(".tab").forEach(function(button){button.addEventListener("click",function(){STATE.view=button.dataset.view;document.querySelectorAll(".tab").forEach(function(item){item.classList.toggle("active",item===button);});document.querySelectorAll(".view").forEach(function(view){view.classList.toggle("active",view.id==="view-"+STATE.view);});});});
+    document.getElementById("refresh-btn").addEventListener("click",load);
+    document.getElementById("date-btn").addEventListener("click",function(){STATE.date=document.getElementById("date-input").value||todayJst();load();});
+    document.getElementById("rule-search").addEventListener("input",renderRules);
+    STATE.date=query("date")||todayJst();document.getElementById("date-input").value=STATE.date;load();
   </script>
 </body>
 </html>

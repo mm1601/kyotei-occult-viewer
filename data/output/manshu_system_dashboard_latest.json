@@ -1,0 +1,1803 @@
+{
+  "version": "manshu-system-dashboard-v1",
+  "date": "2026-07-12",
+  "exported_at": "2026-07-12T18:30:46+09:00",
+  "source_generated_at": "2026-07-12T18:29:04+09:00",
+  "source_monitor_file": "data/output/boaters_manshu_alerts_20260712.json",
+  "system": {
+    "name": "24場サイン管制盤",
+    "mode": "all_races_venue_sign_only",
+    "live_source": "official",
+    "lookahead_minutes": 20.0,
+    "signal_count": 4,
+    "monitored_count": 192,
+    "checked_count": 2,
+    "preview_ready_count": 1,
+    "fetch_failed_count": 0,
+    "notifications_sent": 0,
+    "notifications_failed": 0,
+    "status_counts": {
+      "outside_window": 190,
+      "checked": 2
+    }
+  },
+  "models": {
+    "probability_overlay": {
+      "enabled": true,
+      "model_path": "data/output/self_ai_models/venue_probability_overlay_current.joblib",
+      "active": false,
+      "notification_enabled": false,
+      "description": "場×艇番、展示、風・波・潮・潮流、平均との差、スーパースリットを1着・2着・3着率のポイント補正として影記録する。24場サインと買い目は変更しない。"
+    },
+    "position_model": {
+      "enabled": true,
+      "model_path": "data/output/self_ai_models/trifecta_position_model_current.joblib",
+      "active": false,
+      "notification_enabled": false,
+      "description": "1着・2着・3着専用モデルの120通り確率と期待値を影記録する。24場サインと買い目は変更しない。"
+    },
+    "factor_dictionaries": {
+      "venue_exhibition": {
+        "path": "data/output/venue_exhibition_factor_dictionary.json",
+        "exists": true,
+        "version": "venue-exhibition-factor-dictionary-v2",
+        "generated_at": "2026-07-12T10:22:09+09:00",
+        "factor_count": 526,
+        "active_index_keys": 354,
+        "venue_count": 24,
+        "ready": true
+      },
+      "avg_diff_threshold": {
+        "path": "data/output/avg_diff_threshold_effect_profile.json",
+        "exists": true,
+        "version": "avg-diff-threshold-effect-profile-v1",
+        "generated_at": "2026-07-09T20:43:57",
+        "factor_count": 2268,
+        "active_factor_count": 2268,
+        "active_index_keys": 715,
+        "venue_count": 24,
+        "ready": true
+      },
+      "super_slit": {
+        "path": "data/output/super_slit_place_boat_effects.json",
+        "exists": true,
+        "generated_at": "2026-07-09T20:23:17",
+        "place_boat_count": 120,
+        "venue_count": 24,
+        "ready": true
+      },
+      "ready": true
+    }
+  },
+  "signals": [
+    {
+      "race_id": "2026-07-121109",
+      "date": "2026-07-12",
+      "venue": "びわこ",
+      "round": 9,
+      "deadline_time": "2026-07-12T14:51:00+09:00",
+      "detected_at": "2026-07-12T14:50:26+09:00",
+      "first_minutes_to_deadline": 0.6,
+      "status": "pending_result",
+      "notification_status": "sent",
+      "notification_sent_at": "2026-07-12T14:50:26+09:00",
+      "notification_ok": true,
+      "rule_status": "A",
+      "rule_id": "original_boaters_24_v1:びわこ:pop1_overbet0:b1lap3:non1_h2_no1_has56_top6",
+      "condition": "1号艇がBOATERS人気1位で市場支持がAI1着率より0pt以上高い / 1号艇の一周/半周順位3位以下",
+      "buy_method": "非1号艇頭2艇・1号艇消し・5/6絡み・予測順位上位6点",
+      "data_mode": "full",
+      "points": 6,
+      "tickets": [
+        "4-2-5",
+        "4-5-2",
+        "4-3-5",
+        "4-5-3",
+        "4-2-6",
+        "4-3-6"
+      ],
+      "heads": [
+        4
+      ],
+      "axes": [
+        2,
+        3,
+        5
+      ],
+      "keshi": 1,
+      "historical": {
+        "races": 149,
+        "hits": 13,
+        "hit_rate_pct": 8.72,
+        "avg_points": 6.0,
+        "roi_pct": 217.34
+      },
+      "conditions": {
+        "wind_speed": 2.0,
+        "wave_height": 2.0,
+        "boat1_popularity_pct": 62.8,
+        "boat1_ai_win_pct": 62.5,
+        "boat1_escape_pct": 54.3,
+        "boat1_exhibition_rank": 1,
+        "boat1_lap_rank": 5,
+        "boat1_average_diff": -0.3933,
+        "outer56_average_diff": 0.2367
+      },
+      "legacy_ev": {
+        "status": "odds_ready",
+        "t10": {
+          "available": true,
+          "expected_roi_pct": 139.9741,
+          "synthetic_odds": 31.9785,
+          "positive_ev_tickets": 5,
+          "snapshot_at": "2026-07-12T14:38:37",
+          "complete_odds": true
+        },
+        "t5": {
+          "available": true,
+          "expected_roi_pct": 118.8243,
+          "synthetic_odds": 26.7477,
+          "positive_ev_tickets": 3,
+          "snapshot_at": "2026-07-12T14:44:11",
+          "complete_odds": true
+        }
+      },
+      "probability_overlay_ev": {
+        "status": null,
+        "t10": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        },
+        "t5": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        }
+      },
+      "result": {
+        "trifecta": null,
+        "payout_yen": null,
+        "manshu": false,
+        "hit": null,
+        "profit_yen": null
+      }
+    },
+    {
+      "race_id": "2026-07-120505",
+      "date": "2026-07-12",
+      "venue": "多摩川",
+      "round": 5,
+      "deadline_time": "2026-07-12T13:36:00+09:00",
+      "detected_at": "2026-07-12T13:31:21+09:00",
+      "first_minutes_to_deadline": 4.6,
+      "status": "pending_result",
+      "notification_status": "sent",
+      "notification_sent_at": "2026-07-12T13:31:21+09:00",
+      "notification_ok": true,
+      "rule_status": "A",
+      "rule_id": "original_boaters_24_v1:多摩川:pop2_odds30_nige70:b1avg000:non1_h2_no1_top4_plus5_outertop3_ge70",
+      "condition": "1号艇がBOATERS人気2位以内・支持率30%以上・逃げ率70%以下 / 1号艇の展示+周回平均との差0以下",
+      "buy_method": "2-6号艇の頭2艇・1号艇全消し・基本4点、外艇AI3連対率70%以上なら5点",
+      "data_mode": "full",
+      "points": 4,
+      "tickets": [
+        "3-5-6",
+        "3-6-5",
+        "3-5-2",
+        "3-5-4"
+      ],
+      "heads": [
+        3
+      ],
+      "axes": [
+        5,
+        6
+      ],
+      "keshi": 1,
+      "historical": {
+        "races": 386,
+        "hits": 29,
+        "hit_rate_pct": 7.51,
+        "avg_points": 4.34,
+        "roi_pct": 203.04
+      },
+      "conditions": {
+        "wind_speed": 0.0,
+        "wave_height": 2.0,
+        "boat1_popularity_pct": 35.5,
+        "boat1_ai_win_pct": 45.8,
+        "boat1_escape_pct": 45.0,
+        "boat1_exhibition_rank": 4,
+        "boat1_lap_rank": 4,
+        "boat1_average_diff": -0.0033,
+        "outer56_average_diff": 0.4167
+      },
+      "legacy_ev": {
+        "status": null,
+        "t10": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        },
+        "t5": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        }
+      },
+      "probability_overlay_ev": {
+        "status": null,
+        "t10": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        },
+        "t5": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        }
+      },
+      "result": {
+        "trifecta": null,
+        "payout_yen": null,
+        "manshu": false,
+        "hit": null,
+        "profit_yen": null
+      }
+    },
+    {
+      "race_id": "2026-07-120805",
+      "date": "2026-07-12",
+      "venue": "常滑",
+      "round": 5,
+      "deadline_time": "2026-07-12T12:31:00+09:00",
+      "detected_at": "2026-07-12T12:27:38+09:00",
+      "first_minutes_to_deadline": 3.4,
+      "status": "pending_result",
+      "notification_status": "sent",
+      "notification_sent_at": "2026-07-12T12:27:38+09:00",
+      "notification_ok": true,
+      "rule_status": "A",
+      "rule_id": "original_boaters_24_v1:常滑:pop1_aiwin50:outer2_early:head56_h2_no1_top6",
+      "condition": "1号艇がBOATERS人気1位だがAI1着率50%以下 / 1-6Rかつ外艇上位2艇以上",
+      "buy_method": "5/6号艇の2艇頭・1号艇全消し・予測順位上位6点",
+      "data_mode": "full",
+      "points": 6,
+      "tickets": [
+        "6-3-4",
+        "6-4-3",
+        "6-3-2",
+        "6-4-2",
+        "6-2-3",
+        "6-2-4"
+      ],
+      "heads": [
+        6
+      ],
+      "axes": [
+        2,
+        3,
+        4
+      ],
+      "keshi": 1,
+      "historical": {
+        "races": 271,
+        "hits": 19,
+        "hit_rate_pct": 7.01,
+        "avg_points": 6.0,
+        "roi_pct": 211.38
+      },
+      "conditions": {
+        "wind_speed": 1.0,
+        "wave_height": 0.0,
+        "boat1_popularity_pct": 34.9,
+        "boat1_ai_win_pct": 28.7,
+        "boat1_escape_pct": 36.4,
+        "boat1_exhibition_rank": 3,
+        "boat1_lap_rank": 1,
+        "boat1_average_diff": 0.305,
+        "outer56_average_diff": -0.015
+      },
+      "legacy_ev": {
+        "status": null,
+        "t10": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        },
+        "t5": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        }
+      },
+      "probability_overlay_ev": {
+        "status": null,
+        "t10": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        },
+        "t5": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        }
+      },
+      "result": {
+        "trifecta": null,
+        "payout_yen": null,
+        "manshu": false,
+        "hit": null,
+        "profit_yen": null
+      }
+    },
+    {
+      "race_id": "2026-07-121408",
+      "date": "2026-07-12",
+      "venue": "鳴門",
+      "round": 8,
+      "deadline_time": "2026-07-12T12:00:00+09:00",
+      "detected_at": "2026-07-12T11:52:51+09:00",
+      "first_minutes_to_deadline": 7.1,
+      "status": "pending_result",
+      "notification_status": "duplicate_sent",
+      "notification_sent_at": "2026-07-12T11:52:51+09:00",
+      "notification_ok": true,
+      "rule_status": "A",
+      "rule_id": "original_boaters_24_v1:鳴門:pop1_odds30_nige40:outer2_o56avg010:outer_h1_no1_top4",
+      "condition": "1号艇がBOATERS人気1位・支持率30%以上・逃げ率40%以下 / 外艇上位2艇以上かつ5/6号艇平均との差+0.10以上",
+      "buy_method": "3-6号艇の頭1艇・1号艇全消し・予測順位上位4点",
+      "data_mode": "full",
+      "points": 4,
+      "tickets": [
+        "4-2-3",
+        "4-3-2",
+        "4-2-5",
+        "4-5-2"
+      ],
+      "heads": [
+        4
+      ],
+      "axes": [
+        2,
+        3,
+        5
+      ],
+      "keshi": 1,
+      "historical": {
+        "races": 158,
+        "hits": 14,
+        "hit_rate_pct": 8.86,
+        "avg_points": 4.0,
+        "roi_pct": 207.74
+      },
+      "conditions": {
+        "wind_speed": 3.0,
+        "wave_height": 3.0,
+        "boat1_popularity_pct": 39.9,
+        "boat1_ai_win_pct": 49.0,
+        "boat1_escape_pct": 25.0,
+        "boat1_exhibition_rank": 4,
+        "boat1_lap_rank": 1,
+        "boat1_average_diff": 0.51,
+        "outer56_average_diff": 0.5
+      },
+      "legacy_ev": {
+        "status": null,
+        "t10": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        },
+        "t5": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        }
+      },
+      "probability_overlay_ev": {
+        "status": null,
+        "t10": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        },
+        "t5": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        }
+      },
+      "result": {
+        "trifecta": null,
+        "payout_yen": null,
+        "manshu": false,
+        "hit": null,
+        "profit_yen": null
+      }
+    }
+  ],
+  "monitor": [
+    {
+      "race_id": "2026-07-122212",
+      "venue": "福岡",
+      "round": 12,
+      "status": "outside_window",
+      "minutes_to_deadline": -29.1,
+      "preview_ready": false,
+      "fetch_reason": null,
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": null,
+      "heads": [],
+      "axes": [],
+      "keshi": null
+    },
+    {
+      "race_id": "2026-07-122006",
+      "venue": "若松",
+      "round": 6,
+      "status": "outside_window",
+      "minutes_to_deadline": -26.1,
+      "preview_ready": false,
+      "fetch_reason": null,
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": null,
+      "heads": [],
+      "axes": [],
+      "keshi": null
+    },
+    {
+      "race_id": "2026-07-121902",
+      "venue": "下関",
+      "round": 2,
+      "status": "outside_window",
+      "minutes_to_deadline": -21.1,
+      "preview_ready": false,
+      "fetch_reason": null,
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": null,
+      "heads": [],
+      "axes": [],
+      "keshi": null
+    },
+    {
+      "race_id": "2026-07-121507",
+      "venue": "丸亀",
+      "round": 7,
+      "status": "outside_window",
+      "minutes_to_deadline": -11.1,
+      "preview_ready": false,
+      "fetch_reason": null,
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": null,
+      "heads": [],
+      "axes": [],
+      "keshi": null
+    },
+    {
+      "race_id": "2026-07-122007",
+      "venue": "若松",
+      "round": 7,
+      "status": "checked",
+      "minutes_to_deadline": -1.1,
+      "preview_ready": false,
+      "fetch_reason": "venue_sign_alert_window",
+      "near_miss_level": "取得待ち",
+      "near_miss_summary": "1周/半周0/6のため本命判定前",
+      "near_miss_reasons": [
+        "1周/半周0/6",
+        "展示・1周が揃ってから本命/見送りを確定"
+      ],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": 0.0,
+      "heads": [
+        5,
+        6
+      ],
+      "axes": [
+        1,
+        3
+      ],
+      "keshi": 4
+    },
+    {
+      "race_id": "2026-07-121903",
+      "venue": "下関",
+      "round": 3,
+      "status": "checked",
+      "minutes_to_deadline": 4.9,
+      "preview_ready": true,
+      "fetch_reason": "venue_sign_alert_window",
+      "near_miss_level": "見送り",
+      "near_miss_summary": "展示後38%未満(0.00%)",
+      "near_miss_reasons": [
+        "展示後38%未満(0.00%)",
+        "朝監視TOP10外なので本命扱いではない"
+      ],
+      "near_miss_positives": [
+        "1号艇人気: かなり人気",
+        "1号艇人気あり",
+        "1号艇危険度: 超危険",
+        "前半1〜3R:OK(3R)",
+        "1号艇展示弱化:OK"
+      ],
+      "post_exhibition_manshu_rate_pct": 0.0,
+      "heads": [
+        5,
+        6
+      ],
+      "axes": [
+        1,
+        5
+      ],
+      "keshi": 4
+    },
+    {
+      "race_id": "2026-07-121508",
+      "venue": "丸亀",
+      "round": 8,
+      "status": "outside_window",
+      "minutes_to_deadline": 14.9,
+      "preview_ready": false,
+      "fetch_reason": null,
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": null,
+      "heads": [],
+      "axes": [],
+      "keshi": null
+    },
+    {
+      "race_id": "2026-07-122008",
+      "venue": "若松",
+      "round": 8,
+      "status": "outside_window",
+      "minutes_to_deadline": 24.9,
+      "preview_ready": false,
+      "fetch_reason": null,
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": null,
+      "heads": [],
+      "axes": [],
+      "keshi": null
+    }
+  ],
+  "validation": {
+    "progress": {
+      "status": "collecting",
+      "entry_count": 4,
+      "minimum_target": 100,
+      "preferred_target": 200,
+      "remaining_to_minimum": 96,
+      "remaining_to_preferred": 196,
+      "minimum_progress_pct": 4.0,
+      "preferred_progress_pct": 2.0
+    },
+    "forward": {
+      "entry_count": 4,
+      "pending_count": 4,
+      "settled_count": 0,
+      "hit_count": 0,
+      "miss_count": 0,
+      "hit_rate_pct": null,
+      "investment_yen": 0,
+      "payback_yen": 0,
+      "profit_yen": null,
+      "roi_pct": null,
+      "notification_sent_count": 3,
+      "notification_duplicate_sent_count": 1,
+      "notification_failed_count": 0,
+      "notification_pending_count": 0,
+      "avg_points": 5.0,
+      "planned_stake_yen": 2000,
+      "max_losing_streak": null,
+      "current_losing_streak": null,
+      "manshu_result_count": 0,
+      "manshu_hit_count": 0,
+      "first_signal_at": "2026-07-12T11:52:51+09:00",
+      "last_signal_at": "2026-07-12T14:50:26+09:00",
+      "head_swap_shadow": {
+        "version": "original-boaters-24-head-swap-shadow-v1",
+        "policy_id": "aiwin_delta4_scoregap5_v1",
+        "notification_enabled": false,
+        "active_count": 0,
+        "pending_count": 0,
+        "settled_count": 0,
+        "would_change_tickets_count": 0,
+        "head_rescued_count": 0,
+        "head_lost_count": 0,
+        "net_head_gain": 0,
+        "ticket_rescued_count": 0,
+        "ticket_lost_count": 0,
+        "net_ticket_gain": 0,
+        "baseline_hit_count": 0,
+        "shadow_hit_count": 0,
+        "investment_yen": 0,
+        "baseline_payback_yen": 0,
+        "shadow_payback_yen": 0,
+        "baseline_roi_pct": null,
+        "shadow_roi_pct": null,
+        "roi_delta_pp": null
+      },
+      "new_buff_debuff_shadow": {
+        "version": "venue-buff-debuff-s-head-skip-shadow-v1",
+        "policy_id": "skip_s_head_debuff_v1",
+        "active": false,
+        "notification_enabled": false,
+        "entry_count": 4,
+        "pending_count": 4,
+        "settled_count": 0,
+        "triggered_count": 0,
+        "avoided_loss_count": 0,
+        "skipped_hit_count": 0,
+        "baseline_investment_yen": 0,
+        "baseline_payback_yen": 0,
+        "shadow_investment_yen": 0,
+        "shadow_payback_yen": 0,
+        "baseline_roi_pct": null,
+        "shadow_roi_pct": null,
+        "profit_delta_yen": 0
+      },
+      "head56_confidence_shadow": {
+        "version": "original-boaters-24-head56-confidence-shadow-v1",
+        "policy_id": "head56_unselected_ai_not_lower_v1",
+        "active": false,
+        "notification_enabled": false,
+        "entry_count": 0,
+        "pending_count": 0,
+        "settled_count": 0,
+        "avoided_loss_count": 0,
+        "skipped_hit_count": 0,
+        "baseline_investment_yen": 0,
+        "baseline_payback_yen": 0,
+        "shadow_investment_yen": 0,
+        "shadow_payback_yen": 0,
+        "baseline_roi_pct": null,
+        "shadow_roi_pct": null,
+        "profit_delta_yen": 0
+      },
+      "low_confidence_shadow": {
+        "version": "original-boaters-24-low-confidence-shadow-v1",
+        "policy_id": "three_gate_low_confidence_v1",
+        "active": false,
+        "notification_enabled": false,
+        "entry_count": 0,
+        "candidates": {}
+      },
+      "ticket_ev_shadow": {
+        "version": "original-boaters-24-ticket-ev-shadow-v1",
+        "policy_id": "aiwin_top3_sequential_v1",
+        "active": false,
+        "notification_enabled": false,
+        "entry_count": 1,
+        "settled_count": 0,
+        "t10_snapshot_count": 1,
+        "t10_complete_ticket_odds_count": 1,
+        "t10_avg_portfolio_expected_roi_pct": 139.97,
+        "t10_synthetic_odds_ge3_count": 1,
+        "t5_snapshot_count": 1,
+        "t5_complete_ticket_odds_count": 1,
+        "t5_avg_portfolio_expected_roi_pct": 118.82,
+        "t5_synthetic_odds_ge3_count": 1,
+        "both_targets_count": 1
+      },
+      "ticket_position_shadow": {
+        "version": "original-boaters-24-ticket-position-shadow-v1",
+        "policy_id": "position123_hgb_calibrated_v1",
+        "active": false,
+        "notification_enabled": false,
+        "entry_count": 0,
+        "settled_count": 0,
+        "t10_snapshot_count": 0,
+        "t10_complete_ticket_odds_count": 0,
+        "t10_avg_portfolio_expected_roi_pct": null,
+        "t10_synthetic_odds_ge3_count": 0,
+        "t5_snapshot_count": 0,
+        "t5_complete_ticket_odds_count": 0,
+        "t5_avg_portfolio_expected_roi_pct": null,
+        "t5_synthetic_odds_ge3_count": 0,
+        "both_targets_count": 0
+      },
+      "ticket_venue_probability_shadow": {
+        "version": "original-boaters-24-ticket-venue-probability-shadow-v1",
+        "policy_id": "venue_lane_probability_point_overlay_v1",
+        "active": false,
+        "notification_enabled": false,
+        "entry_count": 0,
+        "settled_count": 0,
+        "t10_snapshot_count": 0,
+        "t10_complete_ticket_odds_count": 0,
+        "t10_avg_portfolio_expected_roi_pct": null,
+        "t10_synthetic_odds_ge3_count": 0,
+        "t5_snapshot_count": 0,
+        "t5_complete_ticket_odds_count": 0,
+        "t5_avg_portfolio_expected_roi_pct": null,
+        "t5_synthetic_odds_ge3_count": 0,
+        "both_targets_count": 0
+      },
+      "by_venue": {
+        "びわこ": {
+          "entry_count": 1,
+          "pending_count": 1,
+          "settled_count": 0,
+          "hit_count": 0,
+          "miss_count": 0,
+          "hit_rate_pct": null,
+          "investment_yen": 0,
+          "payback_yen": 0,
+          "profit_yen": null,
+          "roi_pct": null,
+          "notification_sent_count": 1,
+          "notification_duplicate_sent_count": 0,
+          "notification_failed_count": 0,
+          "notification_pending_count": 0,
+          "avg_points": 6.0,
+          "planned_stake_yen": 600,
+          "max_losing_streak": null,
+          "current_losing_streak": null,
+          "manshu_result_count": 0,
+          "manshu_hit_count": 0,
+          "first_signal_at": "2026-07-12T14:50:26+09:00",
+          "last_signal_at": "2026-07-12T14:50:26+09:00",
+          "head_swap_shadow": {
+            "version": "original-boaters-24-head-swap-shadow-v1",
+            "policy_id": "aiwin_delta4_scoregap5_v1",
+            "notification_enabled": false,
+            "active_count": 0,
+            "pending_count": 0,
+            "settled_count": 0,
+            "would_change_tickets_count": 0,
+            "head_rescued_count": 0,
+            "head_lost_count": 0,
+            "net_head_gain": 0,
+            "ticket_rescued_count": 0,
+            "ticket_lost_count": 0,
+            "net_ticket_gain": 0,
+            "baseline_hit_count": 0,
+            "shadow_hit_count": 0,
+            "investment_yen": 0,
+            "baseline_payback_yen": 0,
+            "shadow_payback_yen": 0,
+            "baseline_roi_pct": null,
+            "shadow_roi_pct": null,
+            "roi_delta_pp": null
+          },
+          "new_buff_debuff_shadow": {
+            "version": "venue-buff-debuff-s-head-skip-shadow-v1",
+            "policy_id": "skip_s_head_debuff_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 1,
+            "pending_count": 1,
+            "settled_count": 0,
+            "triggered_count": 0,
+            "avoided_loss_count": 0,
+            "skipped_hit_count": 0,
+            "baseline_investment_yen": 0,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 0,
+            "shadow_payback_yen": 0,
+            "baseline_roi_pct": null,
+            "shadow_roi_pct": null,
+            "profit_delta_yen": 0
+          },
+          "head56_confidence_shadow": {
+            "version": "original-boaters-24-head56-confidence-shadow-v1",
+            "policy_id": "head56_unselected_ai_not_lower_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "pending_count": 0,
+            "settled_count": 0,
+            "avoided_loss_count": 0,
+            "skipped_hit_count": 0,
+            "baseline_investment_yen": 0,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 0,
+            "shadow_payback_yen": 0,
+            "baseline_roi_pct": null,
+            "shadow_roi_pct": null,
+            "profit_delta_yen": 0
+          },
+          "low_confidence_shadow": {
+            "version": "original-boaters-24-low-confidence-shadow-v1",
+            "policy_id": "three_gate_low_confidence_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "candidates": {}
+          },
+          "ticket_ev_shadow": {
+            "version": "original-boaters-24-ticket-ev-shadow-v1",
+            "policy_id": "aiwin_top3_sequential_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 1,
+            "settled_count": 0,
+            "t10_snapshot_count": 1,
+            "t10_complete_ticket_odds_count": 1,
+            "t10_avg_portfolio_expected_roi_pct": 139.97,
+            "t10_synthetic_odds_ge3_count": 1,
+            "t5_snapshot_count": 1,
+            "t5_complete_ticket_odds_count": 1,
+            "t5_avg_portfolio_expected_roi_pct": 118.82,
+            "t5_synthetic_odds_ge3_count": 1,
+            "both_targets_count": 1
+          },
+          "ticket_position_shadow": {
+            "version": "original-boaters-24-ticket-position-shadow-v1",
+            "policy_id": "position123_hgb_calibrated_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "settled_count": 0,
+            "t10_snapshot_count": 0,
+            "t10_complete_ticket_odds_count": 0,
+            "t10_avg_portfolio_expected_roi_pct": null,
+            "t10_synthetic_odds_ge3_count": 0,
+            "t5_snapshot_count": 0,
+            "t5_complete_ticket_odds_count": 0,
+            "t5_avg_portfolio_expected_roi_pct": null,
+            "t5_synthetic_odds_ge3_count": 0,
+            "both_targets_count": 0
+          },
+          "ticket_venue_probability_shadow": {
+            "version": "original-boaters-24-ticket-venue-probability-shadow-v1",
+            "policy_id": "venue_lane_probability_point_overlay_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "settled_count": 0,
+            "t10_snapshot_count": 0,
+            "t10_complete_ticket_odds_count": 0,
+            "t10_avg_portfolio_expected_roi_pct": null,
+            "t10_synthetic_odds_ge3_count": 0,
+            "t5_snapshot_count": 0,
+            "t5_complete_ticket_odds_count": 0,
+            "t5_avg_portfolio_expected_roi_pct": null,
+            "t5_synthetic_odds_ge3_count": 0,
+            "both_targets_count": 0
+          }
+        },
+        "多摩川": {
+          "entry_count": 1,
+          "pending_count": 1,
+          "settled_count": 0,
+          "hit_count": 0,
+          "miss_count": 0,
+          "hit_rate_pct": null,
+          "investment_yen": 0,
+          "payback_yen": 0,
+          "profit_yen": null,
+          "roi_pct": null,
+          "notification_sent_count": 1,
+          "notification_duplicate_sent_count": 0,
+          "notification_failed_count": 0,
+          "notification_pending_count": 0,
+          "avg_points": 4.0,
+          "planned_stake_yen": 400,
+          "max_losing_streak": null,
+          "current_losing_streak": null,
+          "manshu_result_count": 0,
+          "manshu_hit_count": 0,
+          "first_signal_at": "2026-07-12T13:31:21+09:00",
+          "last_signal_at": "2026-07-12T13:31:21+09:00",
+          "head_swap_shadow": {
+            "version": "original-boaters-24-head-swap-shadow-v1",
+            "policy_id": "aiwin_delta4_scoregap5_v1",
+            "notification_enabled": false,
+            "active_count": 0,
+            "pending_count": 0,
+            "settled_count": 0,
+            "would_change_tickets_count": 0,
+            "head_rescued_count": 0,
+            "head_lost_count": 0,
+            "net_head_gain": 0,
+            "ticket_rescued_count": 0,
+            "ticket_lost_count": 0,
+            "net_ticket_gain": 0,
+            "baseline_hit_count": 0,
+            "shadow_hit_count": 0,
+            "investment_yen": 0,
+            "baseline_payback_yen": 0,
+            "shadow_payback_yen": 0,
+            "baseline_roi_pct": null,
+            "shadow_roi_pct": null,
+            "roi_delta_pp": null
+          },
+          "new_buff_debuff_shadow": {
+            "version": "venue-buff-debuff-s-head-skip-shadow-v1",
+            "policy_id": "skip_s_head_debuff_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 1,
+            "pending_count": 1,
+            "settled_count": 0,
+            "triggered_count": 0,
+            "avoided_loss_count": 0,
+            "skipped_hit_count": 0,
+            "baseline_investment_yen": 0,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 0,
+            "shadow_payback_yen": 0,
+            "baseline_roi_pct": null,
+            "shadow_roi_pct": null,
+            "profit_delta_yen": 0
+          },
+          "head56_confidence_shadow": {
+            "version": "original-boaters-24-head56-confidence-shadow-v1",
+            "policy_id": "head56_unselected_ai_not_lower_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "pending_count": 0,
+            "settled_count": 0,
+            "avoided_loss_count": 0,
+            "skipped_hit_count": 0,
+            "baseline_investment_yen": 0,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 0,
+            "shadow_payback_yen": 0,
+            "baseline_roi_pct": null,
+            "shadow_roi_pct": null,
+            "profit_delta_yen": 0
+          },
+          "low_confidence_shadow": {
+            "version": "original-boaters-24-low-confidence-shadow-v1",
+            "policy_id": "three_gate_low_confidence_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "candidates": {}
+          },
+          "ticket_ev_shadow": {
+            "version": "original-boaters-24-ticket-ev-shadow-v1",
+            "policy_id": "aiwin_top3_sequential_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "settled_count": 0,
+            "t10_snapshot_count": 0,
+            "t10_complete_ticket_odds_count": 0,
+            "t10_avg_portfolio_expected_roi_pct": null,
+            "t10_synthetic_odds_ge3_count": 0,
+            "t5_snapshot_count": 0,
+            "t5_complete_ticket_odds_count": 0,
+            "t5_avg_portfolio_expected_roi_pct": null,
+            "t5_synthetic_odds_ge3_count": 0,
+            "both_targets_count": 0
+          },
+          "ticket_position_shadow": {
+            "version": "original-boaters-24-ticket-position-shadow-v1",
+            "policy_id": "position123_hgb_calibrated_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "settled_count": 0,
+            "t10_snapshot_count": 0,
+            "t10_complete_ticket_odds_count": 0,
+            "t10_avg_portfolio_expected_roi_pct": null,
+            "t10_synthetic_odds_ge3_count": 0,
+            "t5_snapshot_count": 0,
+            "t5_complete_ticket_odds_count": 0,
+            "t5_avg_portfolio_expected_roi_pct": null,
+            "t5_synthetic_odds_ge3_count": 0,
+            "both_targets_count": 0
+          },
+          "ticket_venue_probability_shadow": {
+            "version": "original-boaters-24-ticket-venue-probability-shadow-v1",
+            "policy_id": "venue_lane_probability_point_overlay_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "settled_count": 0,
+            "t10_snapshot_count": 0,
+            "t10_complete_ticket_odds_count": 0,
+            "t10_avg_portfolio_expected_roi_pct": null,
+            "t10_synthetic_odds_ge3_count": 0,
+            "t5_snapshot_count": 0,
+            "t5_complete_ticket_odds_count": 0,
+            "t5_avg_portfolio_expected_roi_pct": null,
+            "t5_synthetic_odds_ge3_count": 0,
+            "both_targets_count": 0
+          }
+        },
+        "常滑": {
+          "entry_count": 1,
+          "pending_count": 1,
+          "settled_count": 0,
+          "hit_count": 0,
+          "miss_count": 0,
+          "hit_rate_pct": null,
+          "investment_yen": 0,
+          "payback_yen": 0,
+          "profit_yen": null,
+          "roi_pct": null,
+          "notification_sent_count": 1,
+          "notification_duplicate_sent_count": 0,
+          "notification_failed_count": 0,
+          "notification_pending_count": 0,
+          "avg_points": 6.0,
+          "planned_stake_yen": 600,
+          "max_losing_streak": null,
+          "current_losing_streak": null,
+          "manshu_result_count": 0,
+          "manshu_hit_count": 0,
+          "first_signal_at": "2026-07-12T12:27:38+09:00",
+          "last_signal_at": "2026-07-12T12:27:38+09:00",
+          "head_swap_shadow": {
+            "version": "original-boaters-24-head-swap-shadow-v1",
+            "policy_id": "aiwin_delta4_scoregap5_v1",
+            "notification_enabled": false,
+            "active_count": 0,
+            "pending_count": 0,
+            "settled_count": 0,
+            "would_change_tickets_count": 0,
+            "head_rescued_count": 0,
+            "head_lost_count": 0,
+            "net_head_gain": 0,
+            "ticket_rescued_count": 0,
+            "ticket_lost_count": 0,
+            "net_ticket_gain": 0,
+            "baseline_hit_count": 0,
+            "shadow_hit_count": 0,
+            "investment_yen": 0,
+            "baseline_payback_yen": 0,
+            "shadow_payback_yen": 0,
+            "baseline_roi_pct": null,
+            "shadow_roi_pct": null,
+            "roi_delta_pp": null
+          },
+          "new_buff_debuff_shadow": {
+            "version": "venue-buff-debuff-s-head-skip-shadow-v1",
+            "policy_id": "skip_s_head_debuff_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 1,
+            "pending_count": 1,
+            "settled_count": 0,
+            "triggered_count": 0,
+            "avoided_loss_count": 0,
+            "skipped_hit_count": 0,
+            "baseline_investment_yen": 0,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 0,
+            "shadow_payback_yen": 0,
+            "baseline_roi_pct": null,
+            "shadow_roi_pct": null,
+            "profit_delta_yen": 0
+          },
+          "head56_confidence_shadow": {
+            "version": "original-boaters-24-head56-confidence-shadow-v1",
+            "policy_id": "head56_unselected_ai_not_lower_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "pending_count": 0,
+            "settled_count": 0,
+            "avoided_loss_count": 0,
+            "skipped_hit_count": 0,
+            "baseline_investment_yen": 0,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 0,
+            "shadow_payback_yen": 0,
+            "baseline_roi_pct": null,
+            "shadow_roi_pct": null,
+            "profit_delta_yen": 0
+          },
+          "low_confidence_shadow": {
+            "version": "original-boaters-24-low-confidence-shadow-v1",
+            "policy_id": "three_gate_low_confidence_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "candidates": {}
+          },
+          "ticket_ev_shadow": {
+            "version": "original-boaters-24-ticket-ev-shadow-v1",
+            "policy_id": "aiwin_top3_sequential_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "settled_count": 0,
+            "t10_snapshot_count": 0,
+            "t10_complete_ticket_odds_count": 0,
+            "t10_avg_portfolio_expected_roi_pct": null,
+            "t10_synthetic_odds_ge3_count": 0,
+            "t5_snapshot_count": 0,
+            "t5_complete_ticket_odds_count": 0,
+            "t5_avg_portfolio_expected_roi_pct": null,
+            "t5_synthetic_odds_ge3_count": 0,
+            "both_targets_count": 0
+          },
+          "ticket_position_shadow": {
+            "version": "original-boaters-24-ticket-position-shadow-v1",
+            "policy_id": "position123_hgb_calibrated_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "settled_count": 0,
+            "t10_snapshot_count": 0,
+            "t10_complete_ticket_odds_count": 0,
+            "t10_avg_portfolio_expected_roi_pct": null,
+            "t10_synthetic_odds_ge3_count": 0,
+            "t5_snapshot_count": 0,
+            "t5_complete_ticket_odds_count": 0,
+            "t5_avg_portfolio_expected_roi_pct": null,
+            "t5_synthetic_odds_ge3_count": 0,
+            "both_targets_count": 0
+          },
+          "ticket_venue_probability_shadow": {
+            "version": "original-boaters-24-ticket-venue-probability-shadow-v1",
+            "policy_id": "venue_lane_probability_point_overlay_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "settled_count": 0,
+            "t10_snapshot_count": 0,
+            "t10_complete_ticket_odds_count": 0,
+            "t10_avg_portfolio_expected_roi_pct": null,
+            "t10_synthetic_odds_ge3_count": 0,
+            "t5_snapshot_count": 0,
+            "t5_complete_ticket_odds_count": 0,
+            "t5_avg_portfolio_expected_roi_pct": null,
+            "t5_synthetic_odds_ge3_count": 0,
+            "both_targets_count": 0
+          }
+        },
+        "鳴門": {
+          "entry_count": 1,
+          "pending_count": 1,
+          "settled_count": 0,
+          "hit_count": 0,
+          "miss_count": 0,
+          "hit_rate_pct": null,
+          "investment_yen": 0,
+          "payback_yen": 0,
+          "profit_yen": null,
+          "roi_pct": null,
+          "notification_sent_count": 0,
+          "notification_duplicate_sent_count": 1,
+          "notification_failed_count": 0,
+          "notification_pending_count": 0,
+          "avg_points": 4.0,
+          "planned_stake_yen": 400,
+          "max_losing_streak": null,
+          "current_losing_streak": null,
+          "manshu_result_count": 0,
+          "manshu_hit_count": 0,
+          "first_signal_at": "2026-07-12T11:52:51+09:00",
+          "last_signal_at": "2026-07-12T11:52:51+09:00",
+          "head_swap_shadow": {
+            "version": "original-boaters-24-head-swap-shadow-v1",
+            "policy_id": "aiwin_delta4_scoregap5_v1",
+            "notification_enabled": false,
+            "active_count": 0,
+            "pending_count": 0,
+            "settled_count": 0,
+            "would_change_tickets_count": 0,
+            "head_rescued_count": 0,
+            "head_lost_count": 0,
+            "net_head_gain": 0,
+            "ticket_rescued_count": 0,
+            "ticket_lost_count": 0,
+            "net_ticket_gain": 0,
+            "baseline_hit_count": 0,
+            "shadow_hit_count": 0,
+            "investment_yen": 0,
+            "baseline_payback_yen": 0,
+            "shadow_payback_yen": 0,
+            "baseline_roi_pct": null,
+            "shadow_roi_pct": null,
+            "roi_delta_pp": null
+          },
+          "new_buff_debuff_shadow": {
+            "version": "venue-buff-debuff-s-head-skip-shadow-v1",
+            "policy_id": "skip_s_head_debuff_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 1,
+            "pending_count": 1,
+            "settled_count": 0,
+            "triggered_count": 0,
+            "avoided_loss_count": 0,
+            "skipped_hit_count": 0,
+            "baseline_investment_yen": 0,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 0,
+            "shadow_payback_yen": 0,
+            "baseline_roi_pct": null,
+            "shadow_roi_pct": null,
+            "profit_delta_yen": 0
+          },
+          "head56_confidence_shadow": {
+            "version": "original-boaters-24-head56-confidence-shadow-v1",
+            "policy_id": "head56_unselected_ai_not_lower_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "pending_count": 0,
+            "settled_count": 0,
+            "avoided_loss_count": 0,
+            "skipped_hit_count": 0,
+            "baseline_investment_yen": 0,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 0,
+            "shadow_payback_yen": 0,
+            "baseline_roi_pct": null,
+            "shadow_roi_pct": null,
+            "profit_delta_yen": 0
+          },
+          "low_confidence_shadow": {
+            "version": "original-boaters-24-low-confidence-shadow-v1",
+            "policy_id": "three_gate_low_confidence_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "candidates": {}
+          },
+          "ticket_ev_shadow": {
+            "version": "original-boaters-24-ticket-ev-shadow-v1",
+            "policy_id": "aiwin_top3_sequential_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "settled_count": 0,
+            "t10_snapshot_count": 0,
+            "t10_complete_ticket_odds_count": 0,
+            "t10_avg_portfolio_expected_roi_pct": null,
+            "t10_synthetic_odds_ge3_count": 0,
+            "t5_snapshot_count": 0,
+            "t5_complete_ticket_odds_count": 0,
+            "t5_avg_portfolio_expected_roi_pct": null,
+            "t5_synthetic_odds_ge3_count": 0,
+            "both_targets_count": 0
+          },
+          "ticket_position_shadow": {
+            "version": "original-boaters-24-ticket-position-shadow-v1",
+            "policy_id": "position123_hgb_calibrated_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "settled_count": 0,
+            "t10_snapshot_count": 0,
+            "t10_complete_ticket_odds_count": 0,
+            "t10_avg_portfolio_expected_roi_pct": null,
+            "t10_synthetic_odds_ge3_count": 0,
+            "t5_snapshot_count": 0,
+            "t5_complete_ticket_odds_count": 0,
+            "t5_avg_portfolio_expected_roi_pct": null,
+            "t5_synthetic_odds_ge3_count": 0,
+            "both_targets_count": 0
+          },
+          "ticket_venue_probability_shadow": {
+            "version": "original-boaters-24-ticket-venue-probability-shadow-v1",
+            "policy_id": "venue_lane_probability_point_overlay_v1",
+            "active": false,
+            "notification_enabled": false,
+            "entry_count": 0,
+            "settled_count": 0,
+            "t10_snapshot_count": 0,
+            "t10_complete_ticket_odds_count": 0,
+            "t10_avg_portfolio_expected_roi_pct": null,
+            "t10_synthetic_odds_ge3_count": 0,
+            "t5_snapshot_count": 0,
+            "t5_complete_ticket_odds_count": 0,
+            "t5_avg_portfolio_expected_roi_pct": null,
+            "t5_synthetic_odds_ge3_count": 0,
+            "both_targets_count": 0
+          }
+        }
+      }
+    },
+    "historical_24_sign": {
+      "stake": 420900,
+      "payback": 931910,
+      "hits": 78,
+      "profit_yen": 511010,
+      "roi_pct": 221.409,
+      "hit_rate_pct": 10.955,
+      "race_count": 712
+    },
+    "probability_baseline": {
+      "race_count": 28681,
+      "trifecta_log_loss": 3.906452,
+      "multiclass_brier": 0.963092,
+      "mean_actual_combo_probability_pct": 3.43513,
+      "median_result_rank": 11.0,
+      "top1_hit_pct": 9.731,
+      "top3_hit_pct": 24.316,
+      "top6_hit_pct": 37.854,
+      "top12_hit_pct": 53.872,
+      "top20_hit_pct": 65.542
+    },
+    "probability_overlay": {
+      "race_count": 28681,
+      "trifecta_log_loss": 3.884036,
+      "multiclass_brier": 0.961986,
+      "mean_actual_combo_probability_pct": 3.55907,
+      "median_result_rank": 10.0,
+      "top1_hit_pct": 9.975,
+      "top3_hit_pct": 24.581,
+      "top6_hit_pct": 38.384,
+      "top12_hit_pct": 54.384,
+      "top20_hit_pct": 66.242
+    },
+    "probability_scales": {
+      "1": 0.0,
+      "2": 0.35,
+      "3": 0.2
+    },
+    "probability_adjustments": {
+      "position1": {
+        "mean_absolute_pp": 0.0,
+        "p95_absolute_pp": 0.0,
+        "max_absolute_pp": 0.0
+      },
+      "position2": {
+        "mean_absolute_pp": 1.6041,
+        "p95_absolute_pp": 3.8585,
+        "max_absolute_pp": 9.2526
+      },
+      "position3": {
+        "mean_absolute_pp": 0.7359,
+        "p95_absolute_pp": 1.8609,
+        "max_absolute_pp": 4.174
+      }
+    },
+    "probability_report": "reports/venue_probability_overlay/venue_probability_overlay_20260712_171523.json"
+  },
+  "rules": [
+    {
+      "venue": "尼崎",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気2位以内・支持率30%以上・逃げ率45%以下 / 1-6Rかつ1号艇展示4位以下",
+      "buy_method": "外艇頭2艇・1号艇消し・5/6絡み・予測順位上位5点",
+      "base_id": "pop2_odds30_nige45",
+      "context_id": "early_b1tenji4",
+      "template_id": "outer_h2_no1_has56_top5",
+      "historical": {
+        "races": 148,
+        "hits": 15,
+        "hit_rate_pct": 10.14,
+        "avg_points": 5.0,
+        "roi_pct": 230.64
+      }
+    },
+    {
+      "venue": "芦屋",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位で市場支持がAI1着率より5pt以上高い / 1号艇の展示順位4位以下",
+      "buy_method": "3-6号艇の頭1艇・1号艇全消し・予測順位上位4点",
+      "base_id": "pop1_overbet5",
+      "context_id": "b1tenji4",
+      "template_id": "outer_h1_no1_top4",
+      "historical": {
+        "races": 82,
+        "hits": 12,
+        "hit_rate_pct": 14.63,
+        "avg_points": 4.0,
+        "roi_pct": 210.7
+      }
+    },
+    {
+      "venue": "びわこ",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位で市場支持がAI1着率より0pt以上高い / 1号艇の一周/半周順位3位以下",
+      "buy_method": "非1号艇頭2艇・1号艇消し・5/6絡み・予測順位上位6点",
+      "base_id": "pop1_overbet0",
+      "context_id": "b1lap3",
+      "template_id": "non1_h2_no1_has56_top6",
+      "historical": {
+        "races": 149,
+        "hits": 13,
+        "hit_rate_pct": 8.72,
+        "avg_points": 6.0,
+        "roi_pct": 217.34
+      }
+    },
+    {
+      "venue": "江戸川",
+      "status": "B",
+      "condition": "1号艇がBOATERS人気1位で市場支持がAI1着率より0pt以上高い / 5/6号艇のAI1着率最大12%以上",
+      "buy_method": "3-6号艇の複合上位3艇BOX6点",
+      "base_id": "pop1_overbet0",
+      "context_id": "outer56_ai12",
+      "template_id": "outer_box3_6",
+      "historical": {
+        "races": 88,
+        "hits": 8,
+        "hit_rate_pct": 9.09,
+        "avg_points": 6.0,
+        "roi_pct": 204.09
+      }
+    },
+    {
+      "venue": "福岡",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気2位以内・支持率25%以上・逃げ率55%以下 / 9-12Rかつ1号艇展示4位以下",
+      "buy_method": "非1号艇頭2艇・1号艇消し・5/6絡み・予測順位上位5点",
+      "base_id": "pop2_odds25_nige55",
+      "context_id": "late_b1tenji4",
+      "template_id": "non1_h2_no1_has56_top5",
+      "historical": {
+        "races": 109,
+        "hits": 13,
+        "hit_rate_pct": 11.93,
+        "avg_points": 5.0,
+        "roi_pct": 211.23
+      }
+    },
+    {
+      "venue": "蒲郡",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気2位以内・支持率25%以上・逃げ率65%以下 / 風速5m以上",
+      "buy_method": "5/6号艇の2艇頭・1号艇全消し・予測順位上位8点",
+      "base_id": "pop2_odds25_nige65",
+      "context_id": "wind5",
+      "template_id": "head56_h2_no1_top8",
+      "historical": {
+        "races": 249,
+        "hits": 12,
+        "hit_rate_pct": 4.82,
+        "avg_points": 8.0,
+        "roi_pct": 224.64
+      }
+    },
+    {
+      "venue": "浜名湖",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気2位以内・支持率25%以上・逃げ率55%以下 / 1号艇の展示+周回平均との差-0.05以下",
+      "buy_method": "5/6号艇のうち評価上位1艇頭・1号艇は2/3着可・予測順位上位5点",
+      "base_id": "pop2_odds25_nige55",
+      "context_id": "b1avg_m005",
+      "template_id": "head56_h1_b1place_top5",
+      "historical": {
+        "races": 214,
+        "hits": 18,
+        "hit_rate_pct": 8.41,
+        "avg_points": 5.0,
+        "roi_pct": 234.08
+      }
+    },
+    {
+      "venue": "平和島",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位・支持率50%以上・逃げ率65%以下 / 9-12R",
+      "buy_method": "2-6号艇の頭2艇・1号艇全消し・基本4点、外艇AI3連対率65%以上なら5点",
+      "base_id": "pop1_odds50_nige65",
+      "context_id": "round9_12",
+      "template_id": "non1_h2_no1_top4_plus5_outertop3_ge65",
+      "historical": {
+        "races": 254,
+        "hits": 10,
+        "hit_rate_pct": 3.94,
+        "avg_points": 4.26,
+        "roi_pct": 223.97
+      }
+    },
+    {
+      "venue": "唐津",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位・支持率50%以上・逃げ率60%以下 / 外艇上位2艇以上かつ風速5m以上",
+      "buy_method": "3-6号艇の頭1艇・1号艇は2/3着可・予測順位上位5点",
+      "base_id": "pop1_odds50_nige60",
+      "context_id": "outer2_wind5",
+      "template_id": "outer_h1_b1place_top5",
+      "historical": {
+        "races": 114,
+        "hits": 13,
+        "hit_rate_pct": 11.4,
+        "avg_points": 5.0,
+        "roi_pct": 202.96
+      }
+    },
+    {
+      "venue": "桐生",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気2位以内・支持率25%以上・逃げ率35%以下 / 1号艇の一周/半周順位3位以下",
+      "buy_method": "5/6号艇の2艇頭・1号艇全消し・予測順位上位6点",
+      "base_id": "pop2_odds25_nige35",
+      "context_id": "b1lap3",
+      "template_id": "head56_h2_no1_top6",
+      "historical": {
+        "races": 149,
+        "hits": 11,
+        "hit_rate_pct": 7.38,
+        "avg_points": 6.0,
+        "roi_pct": 202.54
+      }
+    },
+    {
+      "venue": "児島",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位・支持率50%以上・逃げ率50%以下 / 外艇上位2艇以上かつ風速3m以上",
+      "buy_method": "2-6号艇の頭1艇・1号艇は2/3着可・予測順位上位4点",
+      "base_id": "pop1_odds50_nige50",
+      "context_id": "outer2_wind3",
+      "template_id": "non1_h1_b1place_top4",
+      "historical": {
+        "races": 100,
+        "hits": 16,
+        "hit_rate_pct": 16.0,
+        "avg_points": 4.0,
+        "roi_pct": 220.6
+      }
+    },
+    {
+      "venue": "丸亀",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位・支持率30%以上・逃げ率45%以下 / 9-12R",
+      "buy_method": "2-6号艇の頭1艇・1号艇全消し・予測順位上位4点",
+      "base_id": "pop1_odds30_nige45",
+      "context_id": "round9_12",
+      "template_id": "non1_h1_no1_top4",
+      "historical": {
+        "races": 111,
+        "hits": 11,
+        "hit_rate_pct": 9.91,
+        "avg_points": 4.0,
+        "roi_pct": 212.61
+      }
+    },
+    {
+      "venue": "三国",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位で市場支持がAI1着率より0pt以上高い / 1号艇の一周/半周順位3位以下",
+      "buy_method": "2-6号艇の頭2艇・1号艇全消し・予測順位上位11点",
+      "base_id": "pop1_overbet0",
+      "context_id": "b1lap3",
+      "template_id": "non1_h2_no1_top11",
+      "historical": {
+        "races": 137,
+        "hits": 28,
+        "hit_rate_pct": 20.44,
+        "avg_points": 11.0,
+        "roi_pct": 218.75
+      }
+    },
+    {
+      "venue": "宮島",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位・支持率30%以上・逃げ率40%以下 / 外艇上位2艇以上かつ波高3cm以上",
+      "buy_method": "5/6号艇の2艇頭・1号艇は2/3着可・予測順位上位6点",
+      "base_id": "pop1_odds30_nige40",
+      "context_id": "outer2_wave3",
+      "template_id": "head56_h2_b1place_top6",
+      "historical": {
+        "races": 180,
+        "hits": 19,
+        "hit_rate_pct": 10.56,
+        "avg_points": 6.0,
+        "roi_pct": 241.28
+      }
+    },
+    {
+      "venue": "鳴門",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位・支持率30%以上・逃げ率40%以下 / 外艇上位2艇以上かつ5/6号艇平均との差+0.10以上",
+      "buy_method": "3-6号艇の頭1艇・1号艇全消し・予測順位上位4点",
+      "base_id": "pop1_odds30_nige40",
+      "context_id": "outer2_o56avg010",
+      "template_id": "outer_h1_no1_top4",
+      "historical": {
+        "races": 158,
+        "hits": 14,
+        "hit_rate_pct": 8.86,
+        "avg_points": 4.0,
+        "roi_pct": 207.74
+      }
+    },
+    {
+      "venue": "大村",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位・支持率45%以上・逃げ率55%以下 / 1号艇周回4位以下かつ外艇AI3連対率55%以上",
+      "buy_method": "2-6号艇の頭1艇・1号艇は2/3着可・予測順位上位4点",
+      "base_id": "pop1_odds45_nige55",
+      "context_id": "b1lap4_outertop355",
+      "template_id": "non1_h1_b1place_top4",
+      "historical": {
+        "races": 191,
+        "hits": 37,
+        "hit_rate_pct": 19.37,
+        "avg_points": 4.0,
+        "roi_pct": 230.07
+      }
+    },
+    {
+      "venue": "下関",
+      "status": "B",
+      "condition": "1号艇がBOATERS人気1位・支持率30%以上・逃げ率35%以下 / 風速4m以上かつ外艇上位2艇以上",
+      "buy_method": "5/6号艇のうち評価上位1艇頭・1号艇は2/3着可・予測順位上位5点",
+      "base_id": "pop1_odds30_nige35",
+      "context_id": "wind4_outer2",
+      "template_id": "head56_h1_b1place_top5",
+      "historical": {
+        "races": 77,
+        "hits": 9,
+        "hit_rate_pct": 11.69,
+        "avg_points": 5.0,
+        "roi_pct": 222.05
+      }
+    },
+    {
+      "venue": "住之江",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位・支持率50%以上・逃げ率70%以下 / 1-3R",
+      "buy_method": "3-6号艇の頭2艇・1号艇全消し・予測順位上位8点",
+      "base_id": "pop1_odds50_nige70",
+      "context_id": "round1_3",
+      "template_id": "outer_h2_no1_top8",
+      "historical": {
+        "races": 260,
+        "hits": 13,
+        "hit_rate_pct": 5.0,
+        "avg_points": 8.0,
+        "roi_pct": 208.29
+      }
+    },
+    {
+      "venue": "多摩川",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気2位以内・支持率30%以上・逃げ率70%以下 / 1号艇の展示+周回平均との差0以下",
+      "buy_method": "2-6号艇の頭2艇・1号艇全消し・基本4点、外艇AI3連対率70%以上なら5点",
+      "base_id": "pop2_odds30_nige70",
+      "context_id": "b1avg000",
+      "template_id": "non1_h2_no1_top4_plus5_outertop3_ge70",
+      "historical": {
+        "races": 386,
+        "hits": 29,
+        "hit_rate_pct": 7.51,
+        "avg_points": 4.34,
+        "roi_pct": 203.04
+      }
+    },
+    {
+      "venue": "戸田",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位・支持率35%以上・逃げ率65%以下 / 9-12Rかつ1号艇周回4位以下",
+      "buy_method": "外艇頭2艇・1号艇消し・5/6絡み・予測順位上位6点",
+      "base_id": "pop1_odds35_nige65",
+      "context_id": "late_b1lap4",
+      "template_id": "outer_h2_no1_has56_top6",
+      "historical": {
+        "races": 100,
+        "hits": 10,
+        "hit_rate_pct": 10.0,
+        "avg_points": 6.0,
+        "roi_pct": 220.68
+      }
+    },
+    {
+      "venue": "常滑",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位だがAI1着率50%以下 / 1-6Rかつ外艇上位2艇以上",
+      "buy_method": "5/6号艇の2艇頭・1号艇全消し・予測順位上位6点",
+      "base_id": "pop1_aiwin50",
+      "context_id": "outer2_early",
+      "template_id": "head56_h2_no1_top6",
+      "historical": {
+        "races": 271,
+        "hits": 19,
+        "hit_rate_pct": 7.01,
+        "avg_points": 6.0,
+        "roi_pct": 211.38
+      }
+    },
+    {
+      "venue": "徳山",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位・支持率50%以上・逃げ率65%以下 / 1号艇の展示+周回平均との差-0.05以下",
+      "buy_method": "3-6号艇の頭1艇・1号艇は2/3着可・予測順位上位6点",
+      "base_id": "pop1_odds50_nige65",
+      "context_id": "b1avg_m005",
+      "template_id": "outer_h1_b1place_top6",
+      "historical": {
+        "races": 115,
+        "hits": 15,
+        "hit_rate_pct": 13.04,
+        "avg_points": 6.0,
+        "roi_pct": 230.8
+      }
+    },
+    {
+      "venue": "津",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位で市場支持がAI1着率より0pt以上高い / 1号艇の展示順位5位以下",
+      "buy_method": "5/6号艇のうち評価上位1艇頭・1号艇は2/3着可・予測順位上位5点",
+      "base_id": "pop1_overbet0",
+      "context_id": "b1tenji5",
+      "template_id": "head56_h1_b1place_top5",
+      "historical": {
+        "races": 109,
+        "hits": 12,
+        "hit_rate_pct": 11.01,
+        "avg_points": 5.0,
+        "roi_pct": 213.56
+      }
+    },
+    {
+      "venue": "若松",
+      "status": "A",
+      "condition": "1号艇がBOATERS人気1位・支持率30%以上・逃げ率35%以下 / 風速5m以上",
+      "buy_method": "5/6号艇のうち評価上位1艇頭・1号艇全消し・予測順位上位7点",
+      "base_id": "pop1_odds30_nige35",
+      "context_id": "wind5",
+      "template_id": "head56_h1_no1_top7",
+      "historical": {
+        "races": 78,
+        "hits": 11,
+        "hit_rate_pct": 14.1,
+        "avg_points": 7.0,
+        "roi_pct": 219.67
+      }
+    }
+  ],
+  "notes": [
+    "24場サインの条件と買い目は現行のままです。",
+    "場別確率補正は影運用で、本番買い目と通知を変更しません。",
+    "過去回収率は将来の利益を保証しません。"
+  ]
+}
