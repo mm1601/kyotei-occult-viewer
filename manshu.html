@@ -89,6 +89,10 @@
     .boat-probability .lane{width:20px;height:20px;font-size:11px}
     .boat-probability-value{display:flex;justify-content:space-between;gap:3px;color:var(--muted);font-size:10px;white-space:nowrap}
     .boat-probability-value b{color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums}
+    .boat-probability-context{margin-top:5px;padding-top:5px;border-top:1px solid #dfe4e9}
+    .boat-probability-context-label{display:flex;justify-content:space-between;gap:3px;margin-bottom:2px;color:#2e669e;font-size:9px;font-weight:850;white-space:nowrap}
+    .boat-probability-context .boat-probability-value span{font-size:9px}
+    .boat-probability-context .boat-probability-value b{font-size:10px}
     .role-line{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0 8px;padding:8px 0;border-top:1px solid #edf0f3;border-bottom:1px solid #edf0f3}
     .role-item{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:12px}
     .role-item b{color:var(--ink)}
@@ -292,7 +296,7 @@
     function probabilityHtml(signal){
       var rows=(signal.probabilities||[]).slice().sort(function(a,b){return Number(a.boat)-Number(b.boat);});
       if(rows.length!==6)return "";
-      return '<div class="boat-probabilities"><div class="boat-probability-head"><span class="boat-probability-title">1〜6号艇の独自AI確率</span><span class="boat-probability-note">複合モデル・予想時保存</span></div><div class="boat-probability-grid">'+rows.map(function(row){return '<div class="boat-probability"><div class="boat-probability-lane">'+lane(row.boat)+'<span>'+num(row.boat,0)+'号艇</span></div><div class="boat-probability-value"><span>1着</span><b>'+pct(row.win_pct,1)+'</b></div><div class="boat-probability-value"><span>3着内</span><b>'+pct(row.top3_pct,1)+'</b></div></div>';}).join("")+'</div></div>';
+      return '<div class="boat-probabilities"><div class="boat-probability-head"><span class="boat-probability-title">独自AI確率＋同場サイン実績</span><span class="boat-probability-note">今回予測 / 2024-25</span></div><div class="boat-probability-grid">'+rows.map(function(row){var hasContext=row.sign_position1_pct!=null&&row.sign_position2_pct!=null&&row.sign_position3_pct!=null;var context=hasContext?'<div class="boat-probability-context"><div class="boat-probability-context-label"><span>同サイン時</span><span>n='+num(row.sign_sample_races,0)+'</span></div><div class="boat-probability-value"><span>1着</span><b>'+pct(row.sign_position1_pct,1)+'</b></div><div class="boat-probability-value"><span>2着</span><b>'+pct(row.sign_position2_pct,1)+'</b></div><div class="boat-probability-value"><span>3着</span><b>'+pct(row.sign_position3_pct,1)+'</b></div></div>':'';return '<div class="boat-probability"><div class="boat-probability-lane">'+lane(row.boat)+'<span>'+num(row.boat,0)+'号艇</span></div><div class="boat-probability-value"><span>今回1着</span><b>'+pct(row.win_pct,1)+'</b></div><div class="boat-probability-value"><span>今回3着内</span><b>'+pct(row.top3_pct,1)+'</b></div>'+context+'</div>';}).join("")+'</div></div>';
     }
     function signalHtml(signal){
       var archived=signal.record_kind==="historical_backtest",result=resultFromApi(signal),status=statusLabel(signal,result),hit=result&&result.trifecta&&isHit(signal,result),cardClass=hit?" hit":(result&&result.trifecta?" miss":"");

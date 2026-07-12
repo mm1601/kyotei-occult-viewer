@@ -29,6 +29,11 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="CSV or CSV.GZ containing frozen independent probabilities by race/boat.",
     )
+    parser.add_argument(
+        "--sign-position-priors",
+        default="",
+        help="JSON containing leakage-safe 2024-2025 venue/boat sign position priors.",
+    )
     parser.add_argument("--forward-dir", default="")
     parser.add_argument("--live-ranking-dir", default="")
     parser.add_argument("--approved-root", default="")
@@ -186,6 +191,37 @@ def probability_rows(
             }
         )
     return sorted(rows, key=lambda row: row["boat"])
+
+
+def sign_position_prior_map(
+    path: Path | None,
+) -> tuple[dict[tuple[str, int], dict[str, Any]], dict[str, Any]]:
+    payload = read_json(path, {}) if path else {}
+    result: dict[tuple[str, int], dict[str, Any]] = {}
+    for row in payload.get("priors") or []:
+        venue = str(row.get("venue") or "")
+        boat = as_int(row.get("boat"))
+        if not venue or boat is None:
+            continue
+        result[(venue, boat)] = {
+            "sign_position1_pct": as_num(row.get("position1_pct")),
+            "sign_position2_pct": as_num(row.get("position2_pct")),
+            "sign_position3_pct": as_num(row.get("position3_pct")),
+            "sign_sample_races": as_int(row.get("sample_races")),
+        }
+    return result, payload
+
+
+def enrich_sign_position_priors(
+    rows: list[dict[str, Any]],
+    priors: dict[tuple[str, int], dict[str, Any]],
+    venue: Any,
+) -> list[dict[str, Any]]:
+    venue_name = str(venue or "")
+    return [
+        {**row, **(priors.get((venue_name, as_int(row.get("boat")) or 0)) or {})}
+        for row in rows
+    ]
 
 
 def venue_round_key(venue: Any, round_number: Any) -> str:
@@ -434,6 +470,10 @@ def main() -> int:
     start = date.fromisoformat(args.start_date)
     end = date.fromisoformat(args.end_date)
     rules = rule_map(Path(args.rules))
+    sign_position_path = Path(args.sign_position_priors) if args.sign_position_priors else None
+    sign_position_priors, sign_position_report = sign_position_prior_map(
+        sign_position_path
+    )
 
     source_rows: list[dict[str, Any]] = []
     with Path(args.details_csv).open(encoding="utf-8", newline="") as handle:
@@ -450,7 +490,11 @@ def main() -> int:
         historical_signal(
             row,
             rules,
-            independent_probabilities.get(str(row.get("race_id") or ""), []),
+            enrich_sign_position_priors(
+                independent_probabilities.get(str(row.get("race_id") or ""), []),
+                sign_position_priors,
+                row.get("place_name"),
+            ),
         )
         for row in source_rows
     ]
@@ -486,7 +530,11 @@ def main() -> int:
                     continue
                 signal = forward_signal(
                     entry,
-                    probabilities_for_entry(live_probabilities, entry),
+                    enrich_sign_position_priors(
+                        probabilities_for_entry(live_probabilities, entry),
+                        sign_position_priors,
+                        entry.get("place_name"),
+                    ),
                 )
                 forward_rows.append(signal)
                 known_ids.add(signal.get("race_id"))
@@ -543,6 +591,11 @@ def main() -> int:
                 args.independent_predictions
             ).name,
             "historical_probability_races": len(independent_probabilities),
+            "sign_position_prior_source": (
+                sign_position_path.name if sign_position_path else ""
+            ),
+            "sign_position_prior_version": sign_position_report.get("version"),
+            "sign_position_prior_periods": sign_position_report.get("periods") or {},
         },
         "totals": {
             "all": summarize(signals),

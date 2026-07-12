@@ -115,6 +115,37 @@ def probability_rows(
     return sorted(rows, key=lambda row: row["boat"])
 
 
+def sign_position_prior_map(
+    path: Path,
+) -> tuple[dict[tuple[str, int], dict[str, Any]], dict[str, Any]]:
+    payload = read_json(path, {})
+    result: dict[tuple[str, int], dict[str, Any]] = {}
+    for row in payload.get("priors") or []:
+        venue = str(row.get("venue") or "")
+        boat = as_int(row.get("boat"))
+        if not venue or boat is None:
+            continue
+        result[(venue, boat)] = {
+            "sign_position1_pct": as_num(row.get("position1_pct")),
+            "sign_position2_pct": as_num(row.get("position2_pct")),
+            "sign_position3_pct": as_num(row.get("position3_pct")),
+            "sign_sample_races": as_int(row.get("sample_races")),
+        }
+    return result, payload
+
+
+def enrich_sign_position_priors(
+    rows: list[dict[str, Any]],
+    priors: dict[tuple[str, int], dict[str, Any]],
+    venue: Any,
+) -> list[dict[str, Any]]:
+    venue_name = str(venue or "")
+    return [
+        {**row, **(priors.get((venue_name, as_int(row.get("boat")) or 0)) or {})}
+        for row in rows
+    ]
+
+
 def venue_round_key(venue: Any, round_number: Any) -> str:
     round_value = as_int(round_number)
     return f"{venue}:{round_value:02d}" if venue and round_value is not None else ""
@@ -325,6 +356,12 @@ def build_payload(source_root: Path, date_text: str) -> dict[str, Any]:
     independent_report = (
         read_json(independent_report_path, {}) if independent_report_path else {}
     )
+    sign_position_prior_path = (
+        source_root / "data" / "output" / "sign_conditional_position_priors.json"
+    )
+    sign_position_priors, sign_position_prior_report = sign_position_prior_map(
+        sign_position_prior_path
+    )
 
     inspected = monitor.get("inspected") or []
     status_counts: dict[str, int] = {}
@@ -341,7 +378,14 @@ def build_payload(source_root: Path, date_text: str) -> dict[str, Any]:
 
     probabilities = live_probability_map(source_root, date_key, monitor)
     signals = [
-        signal_row(entry, probabilities_for_entry(probabilities, entry))
+        signal_row(
+            entry,
+            enrich_sign_position_priors(
+                probabilities_for_entry(probabilities, entry),
+                sign_position_priors,
+                entry.get("place_name"),
+            ),
+        )
         for entry in forward.get("entries") or []
     ]
     signals.sort(key=lambda row: str(row.get("detected_at") or ""), reverse=True)
@@ -394,6 +438,19 @@ def build_payload(source_root: Path, date_text: str) -> dict[str, Any]:
                 "feature_count": as_int(independent_report.get("feature_count")),
                 "source_policy": independent_report.get("source_policy") or {},
             },
+            "sign_position_priors": {
+                "available": bool(sign_position_priors),
+                "version": sign_position_prior_report.get("version"),
+                "generated_at": sign_position_prior_report.get("generated_at"),
+                "periods": sign_position_prior_report.get("periods") or {},
+                "selected_prior_strength": as_num(
+                    sign_position_prior_report.get("selected_prior_strength")
+                ),
+                "untouched_2026_metrics": sign_position_prior_report.get(
+                    "untouched_2026_metrics"
+                )
+                or {},
+            },
             "probability_overlay": public_paths(
                 monitor.get("venue_probability_overlay") or {}, source_root
             ),
@@ -427,11 +484,16 @@ def build_payload(source_root: Path, date_text: str) -> dict[str, Any]:
                 if independent_report_path
                 else ""
             ),
+            "sign_position_priors": sign_position_prior_report.get(
+                "untouched_2026_metrics"
+            )
+            or {},
         },
         "rules": [rule_row(rule) for rule in rules.get("rules") or []],
         "notes": [
             "24場サインの条件と買い目は現行のままです。",
             "1着率・3着内率はBOATERS値ではなく、独自複合モデルの確率です。",
+            "同場サイン時の1着・2着・3着率は、2024-2025年だけから縮小補正して作った場×艇番別の参考実績です。",
             "場別確率補正は影運用で、本番買い目と通知を変更しません。",
             "過去回収率は将来の利益を保証しません。",
         ],
