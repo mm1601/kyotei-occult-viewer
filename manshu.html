@@ -19,7 +19,7 @@
     [hidden]{display:none!important}
     html{background:var(--bg)}
     body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;font-size:14px;line-height:1.55;letter-spacing:0}
-    button,input{font:inherit;letter-spacing:0}
+    button,input,select{font:inherit;letter-spacing:0}
     button{cursor:pointer}
     a{color:inherit}
     .app{max-width:1180px;margin:0 auto;padding:14px 14px 40px}
@@ -41,6 +41,7 @@
     .date-tools{display:flex;align-items:center;gap:6px}
     .date-tools input{height:38px;border:1px solid var(--line-strong);border-radius:5px;background:#fff;color:var(--ink);padding:0 8px;max-width:142px}
     .date-tools button{height:38px;border:1px solid var(--line-strong);border-radius:5px;background:#fff;color:var(--ink);font-weight:800;padding:0 11px}
+    .date-tools .date-step{width:38px;padding:0;font-size:20px;line-height:1}
     .status-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:6px;background:var(--surface);padding:10px 12px;margin-bottom:12px;box-shadow:var(--shadow)}
     .status-main{font-weight:800}
     .status-sub{color:var(--muted);font-size:12px;margin-top:1px}
@@ -105,10 +106,10 @@
     .detail-line b{font-variant-numeric:tabular-nums}
     .empty{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:28px 18px;text-align:center;color:var(--muted)}
     .empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
-    .monitor-table,.rules-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:6px;overflow:hidden;box-shadow:var(--shadow)}
-    .monitor-table th,.monitor-table td,.rules-table th,.rules-table td{padding:10px 9px;border-bottom:1px solid #e8ebef;text-align:left;vertical-align:top}
-    .monitor-table th,.rules-table th{background:#f6f7f8;color:var(--muted);font-size:11px;font-weight:800}
-    .monitor-table tr:last-child td,.rules-table tr:last-child td{border-bottom:0}
+    .monitor-table,.rules-table,.history-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:6px;overflow:hidden;box-shadow:var(--shadow)}
+    .monitor-table th,.monitor-table td,.rules-table th,.rules-table td,.history-table th,.history-table td{padding:10px 9px;border-bottom:1px solid #e8ebef;text-align:left;vertical-align:top}
+    .monitor-table th,.rules-table th,.history-table th{background:#f6f7f8;color:var(--muted);font-size:11px;font-weight:800}
+    .monitor-table tr:last-child td,.rules-table tr:last-child td,.history-table tr:last-child td{border-bottom:0}
     .table-race{font-weight:900;white-space:nowrap}
     .table-note{color:var(--muted);font-size:11px;margin-top:2px}
     .model-band{background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);padding:15px;margin-bottom:10px}
@@ -131,6 +132,15 @@
     .progress-fill{height:100%;background:var(--teal);min-width:0}
     .search-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 8px}
     .search-row input{width:min(100%,280px);height:38px;border:1px solid var(--line-strong);border-radius:5px;padding:0 10px;background:#fff;color:var(--ink)}
+    .history-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 8px}
+    .history-controls select{height:38px;min-width:150px;border:1px solid var(--line-strong);border-radius:5px;padding:0 9px;background:#fff;color:var(--ink)}
+    .history-open{height:30px;border:1px solid var(--line-strong);border-radius:4px;background:#fff;color:var(--blue);font-size:11px;font-weight:850;padding:0 9px;white-space:nowrap}
+    .history-month{font-weight:900;white-space:nowrap}
+    .history-result{font-weight:850;white-space:nowrap}
+    .history-result.hit{color:var(--teal)}
+    .profit-positive{color:var(--teal);font-weight:900;white-space:nowrap}
+    .profit-negative{color:var(--danger);font-weight:900;white-space:nowrap}
+    .coverage-note{border-left:4px solid var(--blue);background:var(--blue-soft);padding:9px 11px;color:#244f82;font-size:12px;margin-top:12px}
     .roi{color:var(--teal);font-weight:900;white-space:nowrap}
     .warning{border-left:4px solid var(--gold);background:var(--gold-soft);padding:9px 11px;color:#67490d;font-size:12px;margin-top:12px}
     .loading{display:flex;align-items:center;justify-content:center;min-height:260px;color:var(--muted);font-weight:800}
@@ -142,7 +152,7 @@
       .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi:nth-child(2){border-right:0}.kpi:nth-child(-n+2){border-bottom:1px solid var(--line)}
       .signal-summary{grid-template-columns:1fr}.result-box{text-align:left;min-width:0}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.fact:nth-child(2){border-right:0}.fact:nth-child(-n+2){border-bottom:1px solid var(--line)}
       .detail-grid{grid-template-columns:1fr}.model-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.model-metric:nth-child(2){border-right:0}.model-metric:nth-child(-n+2){border-bottom:1px solid var(--line)}
-      .pipeline{grid-template-columns:1fr}.monitor-table thead,.rules-table thead{display:none}.monitor-table,.rules-table,.monitor-table tbody,.rules-table tbody,.monitor-table tr,.rules-table tr,.monitor-table td,.rules-table td{display:block;width:100%}.monitor-table tr,.rules-table tr{padding:9px 10px;border-bottom:1px solid var(--line)}.monitor-table td,.rules-table td{padding:3px 0;border:0}.monitor-table td:before,.rules-table td:before{content:attr(data-label);display:inline-block;width:84px;color:var(--muted);font-size:10px;font-weight:800;vertical-align:top}
+      .pipeline{grid-template-columns:1fr}.monitor-table thead,.rules-table thead,.history-table thead{display:none}.monitor-table,.rules-table,.history-table,.monitor-table tbody,.rules-table tbody,.history-table tbody,.monitor-table tr,.rules-table tr,.history-table tr,.monitor-table td,.rules-table td,.history-table td{display:block;width:100%}.monitor-table tr,.rules-table tr,.history-table tr{padding:9px 10px;border-bottom:1px solid var(--line)}.monitor-table td,.rules-table td,.history-table td{padding:3px 0;border:0}.monitor-table td:before,.rules-table td:before,.history-table td:before{content:attr(data-label);display:inline-block;width:84px;color:var(--muted);font-size:10px;font-weight:800;vertical-align:top}
     }
     @media(max-width:420px){
       .status-strip{align-items:flex-start}.kpi{padding:10px}.kpi-value{font-size:20px}.signal-card{border-left-width:4px}.signal-summary,.signal-body{padding:11px}.race-name{font-size:18px}.role-line{gap:8px}.ticket{padding:5px}.date-tools input{flex:1;max-width:none}
@@ -165,12 +175,15 @@
     <div class="toolbar">
       <nav class="tabs" aria-label="表示切り替え">
         <button class="tab active" type="button" data-view="signals">本日のサイン<span class="tab-count" id="signal-count-tab">0</span></button>
+        <button class="tab" type="button" data-view="history">過去データ<span class="tab-count" id="history-count-tab">0</span></button>
         <button class="tab" type="button" data-view="monitor">監視状況<span class="tab-count" id="monitor-count-tab">0</span></button>
         <button class="tab" type="button" data-view="model">検証実績</button>
         <button class="tab" type="button" data-view="rules">24場ルール<span class="tab-count" id="rule-count-tab">24</span></button>
       </nav>
       <div class="date-tools">
+        <button class="date-step" id="date-prev" type="button" title="前の日" aria-label="前の日">‹</button>
         <input id="date-input" type="date" aria-label="表示日">
+        <button class="date-step" id="date-next" type="button" title="次の日" aria-label="次の日">›</button>
         <button id="date-btn" type="button">表示</button>
       </div>
     </div>
@@ -181,10 +194,10 @@
     </div>
 
     <section class="kpis" aria-label="本日の監視概要">
-      <div class="kpi"><span class="kpi-label">本日の24場サイン</span><b class="kpi-value signal" id="kpi-signals">-</b><span class="kpi-note" id="kpi-signals-note">-</span></div>
-      <div class="kpi"><span class="kpi-label">監視対象</span><b class="kpi-value" id="kpi-monitored">-</b><span class="kpi-note" id="kpi-monitored-note">-</span></div>
-      <div class="kpi"><span class="kpi-label">通知成功</span><b class="kpi-value" id="kpi-notified">-</b><span class="kpi-note" id="kpi-notified-note">-</span></div>
-      <div class="kpi"><span class="kpi-label">フォワード蓄積</span><b class="kpi-value" id="kpi-forward">-</b><span class="kpi-note" id="kpi-forward-note">目標100件</span></div>
+      <div class="kpi"><span class="kpi-label" id="kpi-signals-label">本日の24場サイン</span><b class="kpi-value signal" id="kpi-signals">-</b><span class="kpi-note" id="kpi-signals-note">-</span></div>
+      <div class="kpi"><span class="kpi-label" id="kpi-monitored-label">監視対象</span><b class="kpi-value" id="kpi-monitored">-</b><span class="kpi-note" id="kpi-monitored-note">-</span></div>
+      <div class="kpi"><span class="kpi-label" id="kpi-notified-label">通知成功</span><b class="kpi-value" id="kpi-notified">-</b><span class="kpi-note" id="kpi-notified-note">-</span></div>
+      <div class="kpi"><span class="kpi-label" id="kpi-forward-label">フォワード蓄積</span><b class="kpi-value" id="kpi-forward">-</b><span class="kpi-note" id="kpi-forward-note">目標100件</span></div>
     </section>
 
     <div id="loading" class="loading">24場サインを読み込んでいます</div>
@@ -193,6 +206,11 @@
     <section id="view-signals" class="view active">
       <div class="section-head"><div><h2>本日のサイン</h2><p>展示後に条件が確定し、通知対象になったレース</p></div></div>
       <div id="signal-list" class="signal-list"></div>
+    </section>
+
+    <section id="view-history" class="view">
+      <div class="section-head"><div><h2>2026年の過去データ</h2><p>日別の買い目・結果と月別の回収率</p></div></div>
+      <div id="history-content"></div>
     </section>
 
     <section id="view-monitor" class="view">
@@ -216,7 +234,7 @@
 
   <script>
     "use strict";
-    var STATE={data:null,view:"signals",resultMap:{},date:"",loading:false};
+    var STATE={data:null,latest:null,history:null,historyMonth:"",view:"signals",resultMap:{},date:"",loading:false};
     var VENUE_CODES={"桐生":1,"戸田":2,"江戸川":3,"平和島":4,"多摩川":5,"浜名湖":6,"蒲郡":7,"常滑":8,"津":9,"三国":10,"びわこ":11,"住之江":12,"尼崎":13,"鳴門":14,"丸亀":15,"児島":16,"宮島":17,"徳山":18,"下関":19,"若松":20,"芦屋":21,"福岡":22,"唐津":23,"大村":24};
     function esc(value){return String(value==null?"":value).replace(/[&<>"']/g,function(ch){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch];});}
     function num(value,digits){var n=Number(value);return Number.isFinite(n)?n.toLocaleString("ja-JP",{minimumFractionDigits:digits||0,maximumFractionDigits:digits||0}):"-";}
@@ -225,6 +243,7 @@
     function query(name){return new URLSearchParams(location.search).get(name)||"";}
     function todayJst(){return new Intl.DateTimeFormat("sv-SE",{timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());}
     function dateKey(value){return String(value||"").replace(/-/g,"");}
+    function shiftDate(value,days){var parts=String(value||todayJst()).split("-").map(Number),d=new Date(Date.UTC(parts[0],parts[1]-1,parts[2]));d.setUTCDate(d.getUTCDate()+days);return d.toISOString().slice(0,10);}
     function clock(value){if(!value)return "-";var d=new Date(value);if(Number.isNaN(d.getTime()))return "-";return new Intl.DateTimeFormat("ja-JP",{timeZone:"Asia/Tokyo",hour:"2-digit",minute:"2-digit",hour12:false}).format(d);}
     function ageMinutes(value){var d=new Date(value);return Number.isNaN(d.getTime())?null:Math.max(0,(Date.now()-d.getTime())/60000);}
     function lane(n){var v=Number(n);return v>=1&&v<=6?'<span class="lane lane-'+v+'">'+v+'</span>':"";}
@@ -232,7 +251,8 @@
     function ticket(value){var boats=String(value||"").match(/[1-6]/g)||[];return '<span class="ticket">'+boats.map(function(n,i){return (i?'<span class="arrow">›</span>':"")+lane(n);}).join("")+'</span>';}
     function resultFromApi(signal){var key=Number(VENUE_CODES[signal.venue])+"-"+Number(signal.round);return STATE.resultMap[key]||signal.result||{};}
     function isHit(signal,result){var combo=String(result.trifecta||"").replace(/\D/g,"");return combo&&signal.tickets.some(function(value){return String(value).replace(/\D/g,"")===combo;});}
-    function fetchUrl(){if(STATE.date&&STATE.date!==todayJst())return "data/output/manshu_system_dashboard_"+dateKey(STATE.date)+".json";return "data/output/manshu_system_dashboard_latest.json";}
+    function fetchUrl(){return "data/output/manshu_system_dashboard_latest.json";}
+    function historyUrl(){return "data/output/manshu_system_history_2026.json";}
     function resultUrl(date){var key=dateKey(date);return "https://boatraceopenapi.github.io/results/v2/"+key.slice(0,4)+"/"+key+".json";}
     function resultOf(row){
       var trifecta=null,payout=null;
@@ -242,7 +262,7 @@
       return {trifecta:trifecta,payout_yen:Number.isFinite(payout)?payout:null,manshu:Number.isFinite(payout)&&payout>=10000};
     }
     async function loadResults(){
-      try{var response=await fetch(resultUrl(STATE.data.date),{cache:"no-store"});if(!response.ok)return;var payload=await response.json();var map={};(payload.results||[]).forEach(function(row){map[Number(row.race_stadium_number)+"-"+Number(row.race_number)]=resultOf(row);});STATE.resultMap=map;renderSignals();}
+      try{var response=await fetch(resultUrl(STATE.data.date),{cache:"no-store"});if(!response.ok)return;var payload=await response.json();var map={};(payload.results||[]).forEach(function(row){map[Number(row.race_stadium_number)+"-"+Number(row.race_number)]=resultOf(row);});STATE.resultMap=map;renderSignals();renderHeader();renderHistory();}
       catch(error){}
     }
     function statusLabel(signal,result){
@@ -258,21 +278,26 @@
       return '<div><div class="detail-title">'+esc(label)+'</div>'+detailLine("T-10期待回収",t10.available?pct(t10.expected_roi_pct,1):"未取得")+detailLine("T-5期待回収",t5.available?pct(t5.expected_roi_pct,1):"未取得")+detailLine("T-5合成オッズ",t5.available?num(t5.synthetic_odds,1)+"倍":"未取得")+'</div>';
     }
     function signalHtml(signal){
-      var result=resultFromApi(signal),status=statusLabel(signal,result),hit=result&&result.trifecta&&isHit(signal,result),cardClass=hit?" hit":(result&&result.trifecta?" miss":"");
+      var archived=signal.record_kind==="historical_backtest",result=resultFromApi(signal),status=statusLabel(signal,result),hit=result&&result.trifecta&&isHit(signal,result),cardClass=hit?" hit":(result&&result.trifecta?" miss":"");
       var resultMain=result&&result.trifecta?esc(result.trifecta):"結果待ち";
       var resultSub=result&&result.payout_yen!=null?yen(result.payout_yen)+(hit?" / 買い目的中":" / 買い目外"):"通知 "+esc(signal.notification_status||"未確認");
-      var h=signal.historical||{},c=signal.conditions||{};
+      var h=signal.historical||{},c=signal.conditions||{},timeText=archived?esc(signal.date)+" / "+esc(signal.source_label||"過去検証"):'締切 '+clock(signal.deadline_time)+' / 検知 '+clock(signal.detected_at)+' / 締切'+num(signal.first_minutes_to_deadline,1)+'分前';
+      var analysisDetails=archived?'<div><div class="detail-title">このレースの収支（100円/点）</div>'+detailLine("購入",yen(signal.investment_yen))+detailLine("払戻",yen(signal.payback_yen))+detailLine("収支",yen(signal.profit_yen))+'</div>':evBlock("既存AI1/AI3期待値",signal.legacy_ev)+evBlock("場別確率補正（影）",signal.probability_overlay_ev);
       return '<article class="signal-card'+cardClass+'">'+
-        '<div class="signal-summary"><div><div class="race-line"><span class="race-name">'+esc(signal.venue)+Number(signal.round)+'R</span><span class="tag signal">24場サイン</span><span class="tag '+esc(status.className)+'">'+esc(status.text)+'</span><span class="tag">'+esc(signal.data_mode==="full"?"展示完備":"展示限定")+'</span></div><div class="signal-time">締切 '+clock(signal.deadline_time)+' / 検知 '+clock(signal.detected_at)+' / 締切'+num(signal.first_minutes_to_deadline,1)+'分前</div></div><div class="result-box"><div class="result-main">'+resultMain+'</div><span class="result-sub">'+resultSub+'</span></div></div>'+
+        '<div class="signal-summary"><div><div class="race-line"><span class="race-name">'+esc(signal.venue)+Number(signal.round)+'R</span><span class="tag signal">'+(archived?'過去サイン':'24場サイン')+'</span><span class="tag '+esc(status.className)+'">'+esc(status.text)+'</span><span class="tag">'+esc(signal.data_mode==="full"?"展示完備":"展示限定")+'</span></div><div class="signal-time">'+timeText+'</div></div><div class="result-box"><div class="result-main">'+resultMain+'</div><span class="result-sub">'+resultSub+'</span></div></div>'+
         '<div class="signal-body"><p class="condition">'+esc(signal.condition||"条件記録なし")+'</p><p class="buy-method">'+esc(signal.buy_method||"")+'</p>'+
         '<div class="role-line"><span class="role-item">頭 <b>'+lanes(signal.heads)+'</b></span><span class="role-item">相手 <b>'+lanes(signal.axes)+'</b></span><span class="role-item">消し <b>'+lane(signal.keshi)+'</b></span><span class="role-item">点数 <b>'+num(signal.points,0)+'点</b></span></div>'+
         '<div class="tickets">'+(signal.tickets||[]).map(ticket).join("")+'</div>'+
         '<div class="facts">'+fact("過去回収率",pct(h.roi_pct,1))+fact("過去該当",num(h.races,0)+"R")+fact("1号艇AI1着",pct(c.boat1_ai_win_pct,1))+fact("1号艇周回順位",c.boat1_lap_rank?num(c.boat1_lap_rank,0)+"位":"-")+'</div>'+
-        '<details class="more"><summary>条件・期待値の詳細</summary><div class="detail-grid"><div><div class="detail-title">展示・水面</div>'+detailLine("風 / 波",num(c.wind_speed,1)+"m / "+num(c.wave_height,1)+"cm")+detailLine("1号艇人気",pct(c.boat1_popularity_pct,1))+detailLine("1号艇逃げ率",pct(c.boat1_escape_pct,1))+detailLine("1号艇平均との差",c.boat1_average_diff==null?"-":num(c.boat1_average_diff,3))+detailLine("5/6号艇平均との差",c.outer56_average_diff==null?"-":num(c.outer56_average_diff,3))+'</div>'+evBlock("既存AI1/AI3期待値",signal.legacy_ev)+evBlock("場別確率補正（影）",signal.probability_overlay_ev)+'</div></details></div></article>';
+        '<details class="more"><summary>条件・期待値の詳細</summary><div class="detail-grid"><div><div class="detail-title">展示・水面</div>'+detailLine("風 / 波",num(c.wind_speed,1)+"m / "+num(c.wave_height,1)+"cm")+detailLine("1号艇人気",pct(c.boat1_popularity_pct,1))+detailLine("1号艇逃げ率",pct(c.boat1_escape_pct,1))+detailLine("1号艇平均との差",c.boat1_average_diff==null?"-":num(c.boat1_average_diff,3))+detailLine("5/6号艇平均との差",c.outer56_average_diff==null?"-":num(c.outer56_average_diff,3))+'</div>'+analysisDetails+'</div></details></div></article>';
     }
     function renderSignals(){
-      if(!STATE.data)return;var list=document.getElementById("signal-list"),signals=STATE.data.signals||[];
-      list.innerHTML=signals.length?signals.map(signalHtml).join(""):'<div class="empty"><b>本日の24場サインはまだありません</b><span>条件がそろったレースだけ、ここに追加されます。</span></div>';
+      if(!STATE.data)return;var list=document.getElementById("signal-list"),signals=STATE.data.signals||[],historical=(STATE.data.system||{}).mode==="history",day=STATE.data.history_day||{};
+      document.querySelector("#view-signals h2").textContent=historical?STATE.data.date+"のサイン":"本日のサイン";
+      document.querySelector("#view-signals .section-head p").textContent=historical?"その日に条件が成立した全買い目と結果":"展示後に条件が確定し、通知対象になったレース";
+      if(signals.length){list.innerHTML=signals.map(signalHtml).join("");return;}
+      if(historical&&day.status==="unavailable"){list.innerHTML='<div class="empty"><b>この日は元データがありません</b><span>未収集日として区別しています。該当なしとは数えていません。</span></div>';return;}
+      list.innerHTML='<div class="empty"><b>'+esc(historical?"この日の24場サインは0件です":"本日の24場サインはまだありません")+'</b><span>'+esc(historical?"検証済みデータ上で条件成立レースはありません。":"条件がそろったレースだけ、ここに追加されます。")+'</span></div>';
     }
     function renderMonitor(){
       var rows=STATE.data.monitor||[],content=document.getElementById("monitor-content");
@@ -289,28 +314,75 @@
         '<section class="model-band"><h3>場別確率補正</h3><p>場×艇番、展示、風・波、潮・潮流、平均との差、スリットを2着率・3着率へ反映する影モデルです。</p><div class="model-metrics">'+metric("120通りlog loss",num(base.trifecta_log_loss,6)+" → "+num(overlay.trifecta_log_loss,6))+metric("上位6点内包",pct(overlay.top6_hit_pct,3))+metric("上位12点内包",pct(overlay.top12_hit_pct,3))+metric("上位12点改善",(delta12>=0?"+":"")+num(delta12,3)+"pt")+'</div><div class="pipeline"><div class="pipeline-step"><span>1</span><b>BOATERS基準確率</b><p>AI1着率・AI3連対率を着順別へ分解</p></div><div class="pipeline-step"><span>2</span><b>場別バフ・デバフ</b><p>1着×0 / 2着×'+num(scales["2"]*100,0)+'% / 3着×'+num(scales["3"]*100,0)+'%</p></div><div class="pipeline-step"><span>3</span><b>未来比較</b><p>本番買い目を変えずT-10/T-5期待値を保存</p></div></div></section>'+
         '<section class="model-band"><h3>フォワード検証</h3><p>実運用で出たサインだけを結果確定後に集計します。</p><div class="model-metrics">'+metric("蓄積",num(progress.entry_count,0)+" / 100")+metric("通知成功",num(forward.notification_sent_count,0)+"件")+metric("結果確定",num(forward.settled_count,0)+"件")+metric("現在の収支",forward.profit_yen==null?"集計待ち":yen(forward.profit_yen))+'</div><div class="progress-line"><div class="progress-fill" style="width:'+Math.min(100,progressPct)+'%"></div></div></section>';
     }
+    function historyResult(row){return row.date===STATE.data.date?resultFromApi(row):(row.result||{});}
+    function historyMonthLabel(value){var parts=String(value||"").split("-");return Number(parts[0])+"年"+Number(parts[1])+"月";}
+    function activateView(name){STATE.view=name;document.querySelectorAll(".tab").forEach(function(item){item.classList.toggle("active",item.dataset.view===name);});document.querySelectorAll(".view").forEach(function(view){view.classList.toggle("active",view.id==="view-"+name);});}
+    function openHistoryDate(value){STATE.date=value;document.getElementById("date-input").value=value;activateView("signals");load();}
+    function renderHistory(){
+      var archive=STATE.history,content=document.getElementById("history-content");
+      if(!archive){content.innerHTML='<div class="empty"><b>過去データを読み込んでいます</b></div>';return;}
+      var total=(archive.totals||{}).historical_backtest||{},months=archive.months||[];
+      if(!STATE.historyMonth)STATE.historyMonth=(STATE.date||archive.period.end).slice(0,7);
+      var selected=STATE.historyMonth,rows=(archive.signals||[]).filter(function(row){return String(row.date||"").slice(0,7)===selected;});
+      var gaps=((archive.coverage||{}).unavailable_dates||[]).join("、");
+      var monthOptions=months.map(function(row){return '<option value="'+esc(row.month)+'"'+(row.month===selected?' selected':'')+'>'+esc(historyMonthLabel(row.month))+'</option>';}).join("");
+      var monthTable='<table class="history-table"><thead><tr><th>月</th><th>サイン</th><th>的中</th><th>回収率</th><th>収支</th><th></th></tr></thead><tbody>'+months.map(function(row){var profit=Number(row.profit_yen),cls=profit>=0?'profit-positive':'profit-negative';return '<tr><td data-label="月"><span class="history-month">'+esc(historyMonthLabel(row.month))+'</span></td><td data-label="サイン">'+num(row.signals,0)+'R</td><td data-label="的中">'+num(row.hits,0)+'件</td><td data-label="回収率"><span class="roi">'+pct(row.roi_pct,1)+'</span></td><td data-label="収支"><span class="'+cls+'">'+(profit>=0?'+':'')+yen(profit)+'</span></td><td data-label="表示"><button class="history-open" type="button" data-history-month="'+esc(row.month)+'">見る</button></td></tr>';}).join("")+'</tbody></table>';
+      var raceTable='<table class="history-table"><thead><tr><th>日付</th><th>レース</th><th>点数</th><th>結果</th><th>配当</th><th>判定</th><th></th></tr></thead><tbody>'+rows.map(function(row){var result=historyResult(row),settled=Boolean(result&&result.trifecta),hit=settled&&isHit(row,result);return '<tr><td data-label="日付">'+esc(row.date)+'</td><td data-label="レース"><span class="table-race">'+esc(row.venue)+num(row.round,0)+'R</span></td><td data-label="点数">'+num(row.points,0)+'点</td><td data-label="結果"><span class="history-result'+(hit?' hit':'')+'">'+esc(settled?result.trifecta:"結果待ち")+'</span></td><td data-label="配当">'+(result&&result.payout_yen!=null?yen(result.payout_yen):"-")+'</td><td data-label="判定">'+(settled?(hit?'<span class="tag ok">的中</span>':'<span class="tag">外れ</span>'):'<span class="tag warn">未確定</span>')+'</td><td data-label="詳細"><button class="history-open" type="button" data-history-date="'+esc(row.date)+'">詳細</button></td></tr>';}).join("")+'</tbody></table>';
+      content.innerHTML='<section class="model-band"><h3>2026年1月1日からの保存データ</h3><p>過去検証と実運用ログを区別して保存しています。</p><div class="model-metrics">'+metric("検証済み",num(total.signals,0)+"R")+metric("的中",num(total.hits,0)+"件")+metric("回収率",pct(total.roi_pct,1))+metric("収支（100円/点）",(Number(total.profit_yen)>=0?"+":"")+yen(total.profit_yen))+'</div><div class="coverage-note">2026-01-01〜'+esc((archive.coverage||{}).historical_complete_through||"-")+'は過去検証済み。未収集日は該当なしに混ぜません。'+(gaps?' 未収集: '+esc(gaps):'')+'</div></section><div class="section-head"><div><h2>月別成績</h2><p>月ごとの波を確認できます</p></div></div>'+monthTable+'<div class="history-controls"><div><b>'+esc(historyMonthLabel(selected))+'の全レース</b><div class="status-sub">'+num(rows.length,0)+'件</div></div><select id="history-month" aria-label="表示月">'+monthOptions+'</select></div>'+raceTable;
+      document.getElementById("history-month").addEventListener("change",function(event){STATE.historyMonth=event.target.value;renderHistory();});
+      content.querySelectorAll("[data-history-month]").forEach(function(button){button.addEventListener("click",function(){STATE.historyMonth=button.dataset.historyMonth;renderHistory();});});
+      content.querySelectorAll("[data-history-date]").forEach(function(button){button.addEventListener("click",function(){openHistoryDate(button.dataset.historyDate);});});
+    }
     function renderRules(){
       var q=document.getElementById("rule-search").value.trim(),rules=(STATE.data.rules||[]).filter(function(rule){return !q||String(rule.venue||"").indexOf(q)>=0;}),content=document.getElementById("rules-content");document.getElementById("rule-filter-count").textContent=rules.length+"場";
       content.innerHTML='<table class="rules-table"><thead><tr><th>場</th><th>買う条件</th><th>買い方</th><th>過去件数</th><th>過去回収率</th></tr></thead><tbody>'+rules.map(function(rule){var h=rule.historical||{};return '<tr><td data-label="場"><span class="table-race">'+esc(rule.venue)+'</span><div class="table-note">評価 '+esc(rule.status||"-")+'</div></td><td data-label="買う条件">'+esc(rule.condition||"-")+'</td><td data-label="買い方">'+esc(rule.buy_method||"-")+'</td><td data-label="過去件数">'+num(h.races,0)+'R</td><td data-label="過去回収率"><span class="roi">'+pct(h.roi_pct,1)+'</span></td></tr>';}).join("")+'</tbody></table>';
     }
-    function renderHeader(){
-      var d=STATE.data,s=d.system||{},age=ageMinutes(d.source_generated_at),stale=age!=null&&age>20,forward=(d.validation||{}).forward||{},progress=(d.validation||{}).progress||{};
-      document.getElementById("live-dot").className="live-dot"+(stale?" stale":"");document.getElementById("system-status").textContent=stale?"更新待ち":"監視データ正常";
-      document.getElementById("mast-meta").textContent=d.date+" / 最終更新 "+clock(d.source_generated_at)+" / 24場サインのみ通知";
-      var badge=document.querySelector("#status-strip .status-badge");document.querySelector("#status-strip .status-main").textContent=stale?"最終更新から20分以上経過しています":"24場サイン監視データを表示中";document.querySelector("#status-strip .status-sub").textContent="取得元 "+(s.live_source||"不明")+" / 監視 "+num(s.monitored_count,0)+"R / 取得失敗 "+num(s.fetch_failed_count,0)+"R";badge.textContent=stale?"更新待ち":"正常";badge.className="status-badge"+(stale?" warn":"");
-      document.getElementById("kpi-signals").textContent=num(s.signal_count,0)+"R";document.getElementById("kpi-signals-note").textContent="条件確定・買い目あり";document.getElementById("kpi-monitored").textContent=num(s.monitored_count,0)+"R";document.getElementById("kpi-monitored-note").textContent="直前確認 "+num(s.checked_count,0)+"R";document.getElementById("kpi-notified").textContent=num(forward.notification_sent_count,0)+"件";document.getElementById("kpi-notified-note").textContent="失敗 "+num(forward.notification_failed_count,0)+"件";document.getElementById("kpi-forward").textContent=num(progress.entry_count,0)+"件";document.getElementById("kpi-forward-note").textContent="目標100件まで "+num(progress.remaining_to_minimum,0)+"件";
-      document.getElementById("signal-count-tab").textContent=num((d.signals||[]).length,0);document.getElementById("monitor-count-tab").textContent=num((d.monitor||[]).length,0);document.getElementById("rule-count-tab").textContent=num((d.rules||[]).length,0);
+    function buildHistoryData(value){
+      var latest=STATE.latest,archive=STATE.history,rows=(archive.signals||[]).filter(function(row){return row.date===value;}),day=(archive.days||{})[value]||{status:"unavailable",signals:0};
+      var data=Object.assign({},latest,{date:value,source_generated_at:archive.generated_at,signals:rows,monitor:[],history_day:day});
+      data.system=Object.assign({},latest.system||{},{mode:"history",live_source:day.status==="historical_complete"?"historical_backtest":"forward_log",signal_count:rows.length,monitored_count:0,checked_count:0,preview_ready_count:0,fetch_failed_count:0,notifications_sent:0,notifications_failed:0,status_counts:{}});
+      return data;
     }
-    function render(){document.getElementById("loading").hidden=true;document.getElementById("error").hidden=true;renderHeader();renderSignals();renderMonitor();renderModel();renderRules();document.title="24場サイン管制盤 "+STATE.data.date;}
+    function activeDaySummary(){
+      var rows=(STATE.data&&STATE.data.signals)||[],settled=0,hits=0,points=0,investment=0,payback=0;
+      rows.forEach(function(row){var result=resultFromApi(row),isSettled=Boolean(result&&result.trifecta),planned=Number(row.investment_yen);points+=Number(row.points)||0;if(!isSettled)return;settled+=1;if(!(planned>0))planned=(Number(row.points)||0)*100;investment+=planned;if(isHit(row,result)){hits+=1;payback+=Number(result.payout_yen)||0;}});
+      return {signals:rows.length,settled:settled,hits:hits,points:points,investment_yen:investment,payback_yen:payback,profit_yen:settled?payback-investment:null,roi_pct:investment?payback/investment*100:null};
+    }
+    function renderHeader(){
+      var d=STATE.data,s=d.system||{},historical=s.mode==="history",age=ageMinutes(d.source_generated_at),stale=!historical&&age!=null&&age>20,forward=(d.validation||{}).forward||{},progress=(d.validation||{}).progress||{},badge=document.querySelector("#status-strip .status-badge");
+      if(historical){
+        var day=d.history_day||{},missing=day.status==="unavailable",summary=activeDaySummary(),statusName=day.status==="historical_complete"?"過去検証":(day.status==="forward_complete"?"実運用ログ":"未収集");
+        document.getElementById("live-dot").className="live-dot"+(missing?" stale":"");document.getElementById("system-status").textContent=missing?"元データなし":"過去データ";
+        document.getElementById("mast-meta").textContent=d.date+" / "+statusName+" / 24場サイン履歴";
+        document.querySelector("#status-strip .status-main").textContent=missing?"この日は元データがありません":(summary.signals?"過去の24場サインを表示中":"検証済み・該当0件");
+        document.querySelector("#status-strip .status-sub").textContent=statusName+" / サイン "+num(summary.signals,0)+"R / 結果確定 "+num(summary.settled,0)+"R";badge.textContent=missing?"未収集":"記録済み";badge.className="status-badge"+(missing?" warn":"");
+        document.getElementById("kpi-signals-label").textContent="この日の24場サイン";document.getElementById("kpi-signals").textContent=num(summary.signals,0)+"R";document.getElementById("kpi-signals-note").textContent=missing?"未収集日":"条件成立レース";
+        document.getElementById("kpi-monitored-label").textContent="買い目合計";document.getElementById("kpi-monitored").textContent=num(summary.points,0)+"点";document.getElementById("kpi-monitored-note").textContent="100円/点なら "+yen(summary.points*100);
+        document.getElementById("kpi-notified-label").textContent="的中";document.getElementById("kpi-notified").textContent=num(summary.hits,0)+"件";document.getElementById("kpi-notified-note").textContent="結果確定 "+num(summary.settled,0)+"R";
+        document.getElementById("kpi-forward-label").textContent="日別収支";document.getElementById("kpi-forward").textContent=summary.profit_yen==null?"-":(summary.profit_yen>=0?"+":"")+yen(summary.profit_yen);document.getElementById("kpi-forward-note").textContent=summary.roi_pct==null?"集計対象なし":"回収率 "+pct(summary.roi_pct,1);
+      }else{
+        document.getElementById("live-dot").className="live-dot"+(stale?" stale":"");document.getElementById("system-status").textContent=stale?"更新待ち":"監視データ正常";
+        document.getElementById("mast-meta").textContent=d.date+" / 最終更新 "+clock(d.source_generated_at)+" / 24場サインのみ通知";
+        document.querySelector("#status-strip .status-main").textContent=stale?"最終更新から20分以上経過しています":"24場サイン監視データを表示中";document.querySelector("#status-strip .status-sub").textContent="取得元 "+(s.live_source||"不明")+" / 監視 "+num(s.monitored_count,0)+"R / 取得失敗 "+num(s.fetch_failed_count,0)+"R";badge.textContent=stale?"更新待ち":"正常";badge.className="status-badge"+(stale?" warn":"");
+        document.getElementById("kpi-signals-label").textContent="本日の24場サイン";document.getElementById("kpi-signals").textContent=num(s.signal_count,0)+"R";document.getElementById("kpi-signals-note").textContent="条件確定・買い目あり";
+        document.getElementById("kpi-monitored-label").textContent="監視対象";document.getElementById("kpi-monitored").textContent=num(s.monitored_count,0)+"R";document.getElementById("kpi-monitored-note").textContent="直前確認 "+num(s.checked_count,0)+"R";
+        document.getElementById("kpi-notified-label").textContent="通知成功";document.getElementById("kpi-notified").textContent=num(forward.notification_sent_count,0)+"件";document.getElementById("kpi-notified-note").textContent="失敗 "+num(forward.notification_failed_count,0)+"件";
+        document.getElementById("kpi-forward-label").textContent="フォワード蓄積";document.getElementById("kpi-forward").textContent=num(progress.entry_count,0)+"件";document.getElementById("kpi-forward-note").textContent="目標100件まで "+num(progress.remaining_to_minimum,0)+"件";
+      }
+      document.getElementById("signal-count-tab").textContent=num((d.signals||[]).length,0);document.getElementById("history-count-tab").textContent=num((((STATE.history||{}).totals||{}).all||{}).signals,0);document.getElementById("monitor-count-tab").textContent=num((d.monitor||[]).length,0);document.getElementById("rule-count-tab").textContent=num((d.rules||[]).length,0);
+    }
+    function render(){document.getElementById("loading").hidden=true;document.getElementById("error").hidden=true;renderHeader();renderSignals();renderHistory();renderMonitor();renderModel();renderRules();document.title="24場サイン管制盤 "+STATE.data.date;}
     async function load(){
       if(STATE.loading)return;STATE.loading=true;document.getElementById("loading").hidden=false;document.getElementById("error").hidden=true;
-      try{var response=await fetch(fetchUrl()+"?t="+Date.now(),{cache:"no-store"});if(!response.ok)throw new Error("表示用JSONが見つかりません");STATE.data=await response.json();STATE.date=STATE.data.date;document.getElementById("date-input").value=STATE.date;history.replaceState(null,"",STATE.date===todayJst()?location.pathname:location.pathname+"?date="+STATE.date);render();loadResults();}
+      try{var stamp=Date.now(),latestResponse=await fetch(fetchUrl()+"?t="+stamp,{cache:"no-store"});if(!latestResponse.ok)throw new Error("表示用JSONが見つかりません");STATE.latest=await latestResponse.json();if(!STATE.history){var historyResponse=await fetch(historyUrl()+"?t="+stamp,{cache:"no-store"});if(!historyResponse.ok)throw new Error("過去データJSONが見つかりません");STATE.history=await historyResponse.json();}var target=STATE.date||STATE.latest.date;STATE.data=target===STATE.latest.date?STATE.latest:buildHistoryData(target);STATE.date=STATE.data.date;STATE.resultMap={};var input=document.getElementById("date-input");input.min=STATE.history.period.start;input.max=STATE.latest.date;input.value=STATE.date;history.replaceState(null,"",STATE.date===STATE.latest.date?location.pathname:location.pathname+"?date="+STATE.date);render();loadResults();}
       catch(error){document.getElementById("loading").hidden=true;var box=document.getElementById("error");box.hidden=false;box.textContent="データを表示できませんでした: "+String(error&&error.message?error.message:error);}
       finally{STATE.loading=false;}
     }
-    document.querySelectorAll(".tab").forEach(function(button){button.addEventListener("click",function(){STATE.view=button.dataset.view;document.querySelectorAll(".tab").forEach(function(item){item.classList.toggle("active",item===button);});document.querySelectorAll(".view").forEach(function(view){view.classList.toggle("active",view.id==="view-"+STATE.view);});});});
+    document.querySelectorAll(".tab").forEach(function(button){button.addEventListener("click",function(){activateView(button.dataset.view);if(button.dataset.view==="history")renderHistory();});});
     document.getElementById("refresh-btn").addEventListener("click",load);
-    document.getElementById("date-btn").addEventListener("click",function(){STATE.date=document.getElementById("date-input").value||todayJst();load();});
+    document.getElementById("date-btn").addEventListener("click",function(){STATE.date=document.getElementById("date-input").value||todayJst();activateView("signals");load();});
+    document.getElementById("date-prev").addEventListener("click",function(){var value=shiftDate(STATE.date,-1),input=document.getElementById("date-input");if(input.min&&value<input.min)return;STATE.date=value;input.value=value;activateView("signals");load();});
+    document.getElementById("date-next").addEventListener("click",function(){var value=shiftDate(STATE.date,1),input=document.getElementById("date-input");if(input.max&&value>input.max)return;STATE.date=value;input.value=value;activateView("signals");load();});
     document.getElementById("rule-search").addEventListener("input",renderRules);
     STATE.date=query("date")||todayJst();document.getElementById("date-input").value=STATE.date;load();
   </script>
