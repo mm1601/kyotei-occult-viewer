@@ -79,7 +79,9 @@ def snapshot_summary(shadow: dict[str, Any], target: str) -> dict[str, Any]:
     }
 
 
-def probability_rows(boats: Any) -> list[dict[str, Any]]:
+def probability_rows(
+    boats: Any, *, allow_compact_independent: bool = False
+) -> list[dict[str, Any]]:
     if isinstance(boats, dict):
         boat_items = []
         for boat_number, values in boats.items():
@@ -94,15 +96,20 @@ def probability_rows(boats: Any) -> list[dict[str, Any]]:
         boat_number = as_int(boat.get("boat_number"))
         if boat_number is None:
             continue
+        win_pct = as_num(boat.get("self_ai_win_pct"))
+        top3_pct = as_num(boat.get("self_ai_top3_pct"))
+        if allow_compact_independent:
+            win_pct = win_pct if win_pct is not None else as_num(boat.get("win_pct"))
+            top3_pct = top3_pct if top3_pct is not None else as_num(boat.get("top3_pct"))
+        if win_pct is None or top3_pct is None:
+            continue
         rows.append(
             {
                 "boat": boat_number,
-                "win_pct": as_num(
-                    boat.get("ai_prediction_pct", boat.get("win_pct"))
-                ),
-                "top3_pct": as_num(boat.get("ai_3ren_pct", boat.get("top3_pct"))),
+                "win_pct": win_pct,
+                "top3_pct": top3_pct,
                 "general_top3_pct": as_num(boat.get("general_3ren_pct")),
-                "source": "original_boaters",
+                "source": "independent_composite",
             }
         )
     return sorted(rows, key=lambda row: row["boat"])
@@ -137,6 +144,12 @@ def approved_probability_map(
 def probabilities_for_entry(
     probabilities: dict[str, list[dict[str, Any]]], entry: dict[str, Any]
 ) -> list[dict[str, Any]]:
+    frozen = probability_rows(
+        entry.get("independent_probabilities") or [],
+        allow_compact_independent=True,
+    )
+    if len(frozen) == 6:
+        return frozen
     race_id = str(entry.get("race_id") or "")
     venue_key = venue_round_key(entry.get("place_name"), entry.get("round"))
     return probabilities.get(race_id) or probabilities.get(venue_key) or []
@@ -306,6 +319,12 @@ def build_payload(source_root: Path, date_text: str) -> dict[str, Any]:
         list((source_root / "reports" / "venue_probability_overlay").glob("*.json"))
     )
     probability_report = read_json(probability_report_path, {}) if probability_report_path else {}
+    independent_report_path = newest(
+        list((source_root / "reports" / "independent_probability").glob("*.json"))
+    )
+    independent_report = (
+        read_json(independent_report_path, {}) if independent_report_path else {}
+    )
 
     inspected = monitor.get("inspected") or []
     status_counts: dict[str, int] = {}
@@ -367,6 +386,14 @@ def build_payload(source_root: Path, date_text: str) -> dict[str, Any]:
             "status_counts": status_counts,
         },
         "models": {
+            "independent_probability": {
+                "available": bool(independent_report),
+                "version": independent_report.get("version"),
+                "generated_at": independent_report.get("generated_at"),
+                "selected_candidate": independent_report.get("selected_candidate"),
+                "feature_count": as_int(independent_report.get("feature_count")),
+                "source_policy": independent_report.get("source_policy") or {},
+            },
             "probability_overlay": public_paths(
                 monitor.get("venue_probability_overlay") or {}, source_root
             ),
@@ -392,10 +419,19 @@ def build_payload(source_root: Path, date_text: str) -> dict[str, Any]:
                 if probability_report_path
                 else ""
             ),
+            "independent_probability": (
+                independent_report.get("test_metrics") or {}
+            ),
+            "independent_probability_report": (
+                str(independent_report_path.relative_to(source_root))
+                if independent_report_path
+                else ""
+            ),
         },
         "rules": [rule_row(rule) for rule in rules.get("rules") or []],
         "notes": [
             "24場サインの条件と買い目は現行のままです。",
+            "1着率・3着内率はBOATERS値ではなく、独自複合モデルの確率です。",
             "場別確率補正は影運用で、本番買い目と通知を変更しません。",
             "過去回収率は将来の利益を保証しません。",
         ],

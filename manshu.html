@@ -292,7 +292,7 @@
     function probabilityHtml(signal){
       var rows=(signal.probabilities||[]).slice().sort(function(a,b){return Number(a.boat)-Number(b.boat);});
       if(rows.length!==6)return "";
-      return '<div class="boat-probabilities"><div class="boat-probability-head"><span class="boat-probability-title">1〜6号艇のBOATERS AI確率</span><span class="boat-probability-note">予想時に保存</span></div><div class="boat-probability-grid">'+rows.map(function(row){return '<div class="boat-probability"><div class="boat-probability-lane">'+lane(row.boat)+'<span>'+num(row.boat,0)+'号艇</span></div><div class="boat-probability-value"><span>1着</span><b>'+pct(row.win_pct,1)+'</b></div><div class="boat-probability-value"><span>3着内</span><b>'+pct(row.top3_pct,1)+'</b></div></div>';}).join("")+'</div></div>';
+      return '<div class="boat-probabilities"><div class="boat-probability-head"><span class="boat-probability-title">1〜6号艇の独自AI確率</span><span class="boat-probability-note">複合モデル・予想時保存</span></div><div class="boat-probability-grid">'+rows.map(function(row){return '<div class="boat-probability"><div class="boat-probability-lane">'+lane(row.boat)+'<span>'+num(row.boat,0)+'号艇</span></div><div class="boat-probability-value"><span>1着</span><b>'+pct(row.win_pct,1)+'</b></div><div class="boat-probability-value"><span>3着内</span><b>'+pct(row.top3_pct,1)+'</b></div></div>';}).join("")+'</div></div>';
     }
     function signalHtml(signal){
       var archived=signal.record_kind==="historical_backtest",result=resultFromApi(signal),status=statusLabel(signal,result),hit=result&&result.trifecta&&isHit(signal,result),cardClass=hit?" hit":(result&&result.trifecta?" miss":"");

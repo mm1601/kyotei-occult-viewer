@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gzip
 import json
 import math
 import re
@@ -23,6 +24,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--details-csv", required=True)
     parser.add_argument("--rules", required=True)
     parser.add_argument("--db", required=True)
+    parser.add_argument(
+        "--independent-predictions",
+        required=True,
+        help="CSV or CSV.GZ containing frozen independent probabilities by race/boat.",
+    )
     parser.add_argument("--forward-dir", default="")
     parser.add_argument("--live-ranking-dir", default="")
     parser.add_argument("--approved-root", default="")
@@ -146,7 +152,9 @@ def chunks(values: list[str], size: int = 400) -> list[list[str]]:
     return [values[start : start + size] for start in range(0, len(values), size)]
 
 
-def probability_rows(boats: Any) -> list[dict[str, Any]]:
+def probability_rows(
+    boats: Any, *, allow_compact_independent: bool = False
+) -> list[dict[str, Any]]:
     if isinstance(boats, dict):
         boat_items = []
         for boat_number, values in boats.items():
@@ -161,15 +169,20 @@ def probability_rows(boats: Any) -> list[dict[str, Any]]:
         boat_number = as_int(boat.get("boat_number"))
         if boat_number is None:
             continue
+        win_pct = as_num(boat.get("self_ai_win_pct"))
+        top3_pct = as_num(boat.get("self_ai_top3_pct"))
+        if allow_compact_independent:
+            win_pct = win_pct if win_pct is not None else as_num(boat.get("win_pct"))
+            top3_pct = top3_pct if top3_pct is not None else as_num(boat.get("top3_pct"))
+        if win_pct is None or top3_pct is None:
+            continue
         rows.append(
             {
                 "boat": boat_number,
-                "win_pct": as_num(
-                    boat.get("ai_prediction_pct", boat.get("win_pct"))
-                ),
-                "top3_pct": as_num(boat.get("ai_3ren_pct", boat.get("top3_pct"))),
+                "win_pct": win_pct,
+                "top3_pct": top3_pct,
                 "general_top3_pct": as_num(boat.get("general_3ren_pct")),
-                "source": "original_boaters",
+                "source": "independent_composite",
             }
         )
     return sorted(rows, key=lambda row: row["boat"])
@@ -183,9 +196,40 @@ def venue_round_key(venue: Any, round_number: Any) -> str:
 def probabilities_for_entry(
     probabilities: dict[str, list[dict[str, Any]]], entry: dict[str, Any]
 ) -> list[dict[str, Any]]:
+    frozen = probability_rows(
+        entry.get("independent_probabilities") or [],
+        allow_compact_independent=True,
+    )
+    if len(frozen) == 6:
+        return frozen
     race_id = str(entry.get("race_id") or "")
     venue_key = venue_round_key(entry.get("place_name"), entry.get("round"))
     return probabilities.get(race_id) or probabilities.get(venue_key) or []
+
+
+def independent_prediction_map(
+    path: Path, race_ids: list[str] | None = None
+) -> dict[str, list[dict[str, Any]]]:
+    wanted = set(race_ids or [])
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    opener = gzip.open if path.suffix.lower() == ".gz" else open
+    with opener(path, mode="rt", encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            race_id = str(row.get("race_id") or "")
+            if not race_id or (wanted and race_id not in wanted):
+                continue
+            grouped[race_id].append(
+                {
+                    "boat_number": row.get("boat_number"),
+                    "self_ai_win_pct": row.get("self_ai_win_pct"),
+                    "self_ai_top3_pct": row.get("self_ai_top3_pct"),
+                }
+            )
+    return {
+        race_id: probability_rows(boats)
+        for race_id, boats in grouped.items()
+        if len(boats) == 6
+    }
 
 
 def database_probability_map(
@@ -398,14 +442,15 @@ def main() -> int:
             if args.start_date <= row_date <= args.end_date:
                 source_rows.append(row)
 
-    database_probabilities = database_probability_map(
-        Path(args.db), [str(row.get("race_id") or "") for row in source_rows]
+    independent_probabilities = independent_prediction_map(
+        Path(args.independent_predictions),
+        [str(row.get("race_id") or "") for row in source_rows],
     )
     historical = [
         historical_signal(
             row,
             rules,
-            database_probabilities.get(str(row.get("race_id") or ""), []),
+            independent_probabilities.get(str(row.get("race_id") or ""), []),
         )
         for row in source_rows
     ]
@@ -487,13 +532,17 @@ def main() -> int:
             month_cursor = month_cursor.replace(month=month_cursor.month + 1)
 
     payload = {
-        "version": "manshu-system-history-v1",
+        "version": "manshu-system-history-v2",
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "period": {"start": args.start_date, "end": args.end_date},
         "coverage": {
             "historical_complete_through": complete_through,
             "forward_logged_dates": sorted(forward_dates),
             "unavailable_dates": unavailable_dates,
+            "independent_probability_source": Path(
+                args.independent_predictions
+            ).name,
+            "historical_probability_races": len(independent_probabilities),
         },
         "totals": {
             "all": summarize(signals),
