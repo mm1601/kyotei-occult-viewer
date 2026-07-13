@@ -74,6 +74,7 @@ SUPER_SLIT_EFFECT_PROFILE = PUBLIC_OUT / "super_slit_place_boat_effects.json"
 AVG_DIFF_THRESHOLD_EFFECT_PROFILE = PUBLIC_OUT / "avg_diff_threshold_effect_profile.json"
 OFFICIAL_BEFOREINFO_URL = "https://www.boatrace.jp/owpc/pc/race/beforeinfo?rno={rno}&jcd={jcd}&hd={hd}"
 OFFICIAL_TRIFECTA_ODDS_URL = "https://www.boatrace.jp/owpc/pc/race/odds3t?rno={rno}&jcd={jcd}&hd={hd}"
+OFFICIAL_RACE_RESULT_URL = "https://www.boatrace.jp/owpc/pc/race/raceresult?rno={rno}&jcd={jcd}&hd={hd}"
 OFFICIAL_BEFOREINFO_PARSER_VERSION = 3
 BOATERS_IMITATION_MODEL_CACHE = {}
 SELF_AI_MODEL_CACHE = {}
@@ -1659,6 +1660,92 @@ def forward_result_from_db(race_id):
             con.close()
 
 
+def parse_official_race_result_html(text):
+    match = re.search(
+        r"<td[^>]*>\s*3連単\s*</td>(.*?)(?:</tbody>|<td[^>]*>\s*3連複\s*</td>)",
+        str(text or ""),
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    if not match:
+        return None
+    section = match.group(1)
+    boats = re.findall(
+        r'class=["\'][^"\']*\bnumberSet1_number\b[^"\']*["\'][^>]*>\s*([1-6])\s*</span>',
+        section,
+        flags=re.IGNORECASE,
+    )
+    payout_match = re.search(
+        r'class=["\'][^"\']*\bis-payout1\b[^"\']*["\'][^>]*>\s*(?:&yen;|&#165;|¥|￥)?\s*([0-9,]+)',
+        section,
+        flags=re.IGNORECASE,
+    )
+    if len(boats) < 3 or not payout_match:
+        return None
+    return result_payload_from_race(
+        {
+            "winning_number3t1": "".join(boats[:3]),
+            "result_payout3t1": payout_match.group(1).replace(",", ""),
+        }
+    )
+
+
+def official_result_url_from_entry(entry):
+    race_id_digits = norm_combo((entry or {}).get("race_id"))
+    if len(race_id_digits) >= 12:
+        hd = race_id_digits[:8]
+        jcd = race_id_digits[-4:-2]
+        rno = int(race_id_digits[-2:])
+    else:
+        hd = str((entry or {}).get("date") or "").replace("-", "")
+        jcd = official_venue_code(entry)
+        rno = int(as_num((entry or {}).get("round")) or 0)
+    if len(hd) != 8 or not jcd or not (1 <= rno <= 12):
+        return ""
+    return OFFICIAL_RACE_RESULT_URL.format(rno=rno, jcd=jcd, hd=hd)
+
+
+def forward_result_from_official(entry, now=None, grace_minutes=5):
+    deadline = parse_dt((entry or {}).get("deadline_time"))
+    if deadline is None:
+        return None
+    checked_at = now.astimezone(JST) if isinstance(now, datetime) else datetime.now(JST)
+    if checked_at < deadline + timedelta(minutes=max(0, grace_minutes)):
+        return None
+    url = official_result_url_from_entry(entry)
+    if not url:
+        return None
+    request = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Codex BOATERS monitor)",
+            "Accept-Language": "ja,en-US;q=0.8,en;q=0.6",
+        },
+    )
+    try:
+        import certifi
+
+        context = ssl.create_default_context(cafile=certifi.where())
+    except Exception:
+        context = ssl.create_default_context()
+    try:
+        with urllib.request.urlopen(request, timeout=12, context=context) as response:
+            text = response.read().decode("utf-8", errors="replace")
+    except Exception:
+        return None
+    return parse_official_race_result_html(text)
+
+
+def resolve_forward_result(entry, result_index, now, official_cache=None):
+    race_id = str((entry or {}).get("race_id") or "")
+    result = forward_result_from_db(race_id) or (result_index or {}).get(race_id)
+    if result is not None:
+        return result
+    cache = official_cache if official_cache is not None else {}
+    if race_id not in cache:
+        cache[race_id] = forward_result_from_official(entry, now=now)
+    return cache.get(race_id)
+
+
 def forward_entry_key(race_id, rule_id):
     return f"{race_id}:{rule_id or 'unknown'}"
 
@@ -2408,9 +2495,14 @@ def update_forward_validation_log(date_text, monitor_payload, now):
         changed = changed or before != json.dumps(entry, sort_keys=True, ensure_ascii=False)
 
     result_index = forward_result_index_from_rankings(date_text)
+    official_result_cache = {}
     for entry in entries:
-        race_id = str(entry.get("race_id") or "")
-        result = forward_result_from_db(race_id) or result_index.get(race_id)
+        result = resolve_forward_result(
+            entry,
+            result_index,
+            now,
+            official_cache=official_result_cache,
+        )
         changed = update_forward_entry_result(entry, result, now.isoformat(timespec="seconds")) or changed
 
     changed = apply_forward_notification_status(entries, monitor_payload, now) or changed
@@ -3148,6 +3240,7 @@ def update_original_boaters_shadow_log(date_text, signs, now, monitor_payload=No
             entry["notification_status"] = "pending"
 
     result_index = forward_result_index_from_rankings(date_text)
+    official_result_cache = {}
     for entry in entries:
         update_original_boaters_ticket_ev_from_target_odds(entry)
         update_original_boaters_ticket_ev_from_target_odds(
@@ -3159,8 +3252,12 @@ def update_original_boaters_shadow_log(date_text, signs, now, monitor_payload=No
             shadow_key="ticket_venue_probability_shadow",
         )
         update_original_boaters_low_confidence_odds(entry)
-        race_id = str(entry.get("race_id") or "")
-        result = forward_result_from_db(race_id) or result_index.get(race_id)
+        result = resolve_forward_result(
+            entry,
+            result_index,
+            now,
+            official_cache=official_result_cache,
+        )
         update_forward_entry_result(entry, result, now.isoformat(timespec="seconds"))
 
     if monitor_payload is not None:
@@ -14356,6 +14453,26 @@ def fetch_live_race(race, refresh=True):
     return by_boat
 
 
+def original_boaters_ev_risk_note(evaluation):
+    evidence = (
+        ((evaluation or {}).get("low_confidence_shadow") or {}).get("odds_evidence")
+        or {}
+    )
+    for target, label in (("t5", "T-5"), ("t10", "T-10")):
+        legacy = as_num(evidence.get(f"legacy_{target}_expected_roi_pct"))
+        position = as_num(evidence.get(f"position_{target}_expected_roi_pct"))
+        if legacy is None or position is None:
+            continue
+        if legacy < 100.0 and position < 100.0:
+            level = "強" if legacy < 80.0 and position < 80.0 else "あり"
+            return (
+                f"期待値警戒{level}({label}): 旧{legacy:.1f}% / 着順{position:.1f}% "
+                "（検証中・自動見送りには未使用）"
+            )
+        return ""
+    return ""
+
+
 def make_original_boaters_24_message(race, evaluation, minutes_to_deadline):
     snapshot = evaluation.get("condition_snapshot") or {}
     historical = evaluation.get("historical") or {}
@@ -14364,6 +14481,7 @@ def make_original_boaters_24_message(race, evaluation, minutes_to_deadline):
     rank = snapshot.get("b1_odds_rank")
     rank_text = f"{int(rank)}位" if rank is not None else "-"
     mode_text = "展示+一周/半周" if evaluation.get("data_mode") == "full" else "展示タイム"
+    ev_risk_note = original_boaters_ev_risk_note(evaluation)
     return (
         f"【新24場サイン】{evaluation.get('venue')}{race.get('round')}R\n"
         f"締切{deadline_text} / 残り{minutes_to_deadline:.1f}分 / 判定データ: {mode_text}\n"
@@ -14377,6 +14495,7 @@ def make_original_boaters_24_message(race, evaluation, minutes_to_deadline):
         f"風{fmt_time(snapshot.get('wind_speed'))}m 波{fmt_time(snapshot.get('wave_height'))}cm\n"
         f"買い方: {evaluation.get('buy_method')} / {evaluation.get('points')}点\n"
         f"買い目: {' '.join(evaluation.get('tickets') or [])}\n"
+        f"{ev_risk_note + chr(10) if ev_risk_note else ''}"
         f"過去探索値: {historical.get('races', '-')}R / "
         f"的中率{fmt_pct(historical.get('hit_rate_pct'))} / "
         f"回収率{fmt_pct(historical.get('roi_pct'))}\n"
@@ -14884,6 +15003,15 @@ def monitor(args):
                             ),
                         },
                     }
+                    update_original_boaters_ticket_ev_from_target_odds(frozen_sign)
+                    update_original_boaters_ticket_ev_from_target_odds(
+                        frozen_sign,
+                        shadow_key="ticket_position_shadow",
+                    )
+                    update_original_boaters_low_confidence_odds(frozen_sign)
+                    frozen_sign["ev_risk_note"] = original_boaters_ev_risk_note(
+                        frozen_sign
+                    )
                     # Existing entries still receive refreshed independent
                     # probabilities. The seen gate below only suppresses a
                     # duplicate notification.
@@ -14921,6 +15049,7 @@ def monitor(args):
                                 "manshu_rate_pct": race.get("manshu_rate_pct"),
                                 "recent_rate_pct": race.get("recent_rate_pct"),
                                 "condition": shadow_evaluation.get("condition"),
+                                "ev_risk_note": frozen_sign.get("ev_risk_note"),
                                 "checks": [shadow_evaluation.get("condition")],
                                 "metrics": metrics,
                                 "selection": frozen_strategy,
@@ -14932,7 +15061,7 @@ def monitor(args):
                                 "strategies": [frozen_strategy],
                                 "message": make_original_boaters_24_message(
                                     race,
-                                    shadow_evaluation,
+                                    frozen_sign,
                                     minutes_to_deadline,
                                 ),
                             }
