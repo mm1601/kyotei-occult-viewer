@@ -1056,7 +1056,7 @@ def build_live_ranking(date_text, top_n=10, threshold=27.0):
         ],
         ROOT,
     )
-    return rank_json
+    return out_json
 
 
 def existing_live_ranking_path(date_text):

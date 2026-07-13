@@ -201,10 +201,22 @@ def live_probability_map(
     candidates.append(
         source_root / "data" / "output" / f"boaters_manshu_live_ranking_{date_key}.json"
     )
-    path = next((candidate for candidate in candidates if candidate.exists()), None)
-    payload = read_json(path, {}) if path else {}
+    race_rows = []
+    for candidate in candidates:
+        if not candidate.exists():
+            continue
+        payload = read_json(candidate, {})
+        if not isinstance(payload, dict):
+            continue
+        for key in ("races", "strict_races", "actual_rank_top", "unified_rank_top"):
+            rows = payload.get(key)
+            if isinstance(rows, list) and rows:
+                race_rows = rows
+                break
+        if race_rows:
+            break
     result = {}
-    for race in payload.get("races") or []:
+    for race in race_rows:
         rows = probability_rows(((race.get("metrics") or {}).get("boats") or []))
         if len(rows) == 6:
             race_id = str(race.get("race_id") or "")
