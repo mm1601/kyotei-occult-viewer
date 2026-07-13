@@ -3312,6 +3312,7 @@ def update_original_boaters_shadow_log(date_text, signs, now, monitor_payload=No
                 )
                 or {},
                 "new_buff_debuff_shadow": sign.get("new_buff_debuff_shadow") or {},
+                "ev_risk_note_at_notification": sign.get("ev_risk_note") or "",
                 "push_key": sign.get("push_key"),
             }
             entries.append(entry)
@@ -3357,16 +3358,9 @@ def update_original_boaters_shadow_log(date_text, signs, now, monitor_payload=No
     result_index = forward_result_index_from_rankings(date_text)
     official_result_cache = {}
     for entry in entries:
-        update_original_boaters_ticket_ev_from_target_odds(entry)
-        update_original_boaters_ticket_ev_from_target_odds(
-            entry,
-            shadow_key="ticket_position_shadow",
-        )
-        update_original_boaters_ticket_ev_from_target_odds(
-            entry,
-            shadow_key="ticket_venue_probability_shadow",
-        )
+        refresh_ticket_ev_shadows(entry)
         update_original_boaters_low_confidence_odds(entry)
+        entry["ev_risk_note"] = original_boaters_ev_risk_note(entry)
         result = resolve_forward_result(
             entry,
             result_index,
