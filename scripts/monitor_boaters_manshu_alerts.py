@@ -1896,6 +1896,89 @@ def update_original_boaters_ticket_ev_from_target_odds(
     return before != json.dumps(shadow, sort_keys=True, ensure_ascii=False)
 
 
+TICKET_EV_SHADOW_KEYS = (
+    "ticket_ev_shadow",
+    "ticket_position_shadow",
+    "ticket_venue_probability_shadow",
+)
+
+
+def build_ticket_ev_shadows(rows, tickets):
+    """Freeze the three pre-race ticket models used by every 24-venue sign."""
+    shadows = {
+        "ticket_ev_shadow": original_boaters_forward.evaluate_ticket_ev_shadow(
+            rows,
+            tickets,
+        ),
+        "ticket_position_shadow": (
+            original_boaters_forward.evaluate_ticket_position_shadow(rows, tickets)
+        ),
+        "ticket_venue_probability_shadow": (
+            original_boaters_forward.evaluate_ticket_venue_probability_shadow(
+                rows,
+                tickets,
+            )
+        ),
+    }
+    labels = {
+        "ticket_ev_shadow": "基礎AI",
+        "ticket_position_shadow": "着順AI",
+        "ticket_venue_probability_shadow": "場別補正AI",
+    }
+    for key, shadow in shadows.items():
+        if isinstance(shadow, dict):
+            shadow["model_label"] = labels[key]
+    return shadows
+
+
+def refresh_ticket_ev_shadows(entry, odds_db=None):
+    changed = False
+    for shadow_key in TICKET_EV_SHADOW_KEYS:
+        changed = (
+            update_original_boaters_ticket_ev_from_target_odds(
+                entry,
+                odds_db=odds_db,
+                shadow_key=shadow_key,
+            )
+            or changed
+        )
+    return changed
+
+
+def backfill_ticket_ev_shadow_from_self_ai(entry):
+    """Recover the base ticket model for older core entries with a frozen self-AI snapshot."""
+    if isinstance(entry.get("ticket_ev_shadow"), dict):
+        return False
+    snapshot = entry.get("self_ai_snapshot") or {}
+    per_boat = snapshot.get("per_boat") or []
+    rows = []
+    for item in per_boat:
+        boat = int(as_num(item.get("boat_number")) or 0)
+        win_pct = as_num(item.get("win_pct"))
+        top3_pct = as_num(item.get("top3_pct"))
+        if boat not in range(1, 7) or win_pct is None or top3_pct is None:
+            continue
+        rows.append(
+            {
+                "boat_number": boat,
+                "ai_prediction_pct": win_pct,
+                "ai_3ren_pct": top3_pct,
+            }
+        )
+    if {row["boat_number"] for row in rows} != set(range(1, 7)):
+        return False
+    shadow = original_boaters_forward.evaluate_ticket_ev_shadow(
+        rows,
+        entry.get("tickets") or [],
+    )
+    if shadow.get("status") == "unavailable":
+        return False
+    shadow["model_label"] = "独自AI"
+    shadow["probability_source"] = "frozen_self_ai_snapshot"
+    entry["ticket_ev_shadow"] = shadow
+    return True
+
+
 def update_original_boaters_low_confidence_odds(entry):
     shadow = entry.get("low_confidence_shadow")
     if (
@@ -2492,7 +2575,26 @@ def update_forward_validation_log(date_text, monitor_payload, now):
                 "self_ai_snapshot": (alert.get("metrics") or {}).get("self_ai"),
             }
         )
+        for shadow_key in TICKET_EV_SHADOW_KEYS:
+            incoming_shadow = alert.get(shadow_key)
+            if (
+                not isinstance(entry.get(shadow_key), dict)
+                and isinstance(incoming_shadow, dict)
+            ):
+                entry[shadow_key] = json.loads(
+                    json.dumps(incoming_shadow, ensure_ascii=False)
+                )
+        if alert.get("ev_risk_note"):
+            entry["ev_risk_note_at_notification"] = alert.get("ev_risk_note")
         changed = changed or before != json.dumps(entry, sort_keys=True, ensure_ascii=False)
+
+    for entry in entries:
+        changed = backfill_ticket_ev_shadow_from_self_ai(entry) or changed
+        changed = refresh_ticket_ev_shadows(entry) or changed
+        risk_note = original_boaters_ev_risk_note(entry)
+        if entry.get("ev_risk_note") != risk_note:
+            entry["ev_risk_note"] = risk_note
+            changed = True
 
     result_index = forward_result_index_from_rankings(date_text)
     official_result_cache = {}
@@ -2509,7 +2611,20 @@ def update_forward_validation_log(date_text, monitor_payload, now):
 
     log_payload["updated_at"] = now.isoformat(timespec="seconds")
     log_payload["entry_count"] = len(entries)
-    log_payload["summary"] = forward_validation_summary(entries)
+    summary = forward_validation_summary(entries)
+    summary["ev_risk_note_count"] = sum(
+        bool(entry.get("ev_risk_note")) for entry in entries
+    )
+    summary["ticket_ev_shadow"] = original_boaters_ticket_ev_shadow_performance(
+        entries
+    )
+    summary["ticket_position_shadow"] = (
+        original_boaters_ticket_position_shadow_performance(entries)
+    )
+    summary["ticket_venue_probability_shadow"] = (
+        original_boaters_ticket_venue_probability_shadow_performance(entries)
+    )
+    log_payload["summary"] = summary
     save_json(path, log_payload)
     return str(path)
 
@@ -14459,14 +14574,45 @@ def original_boaters_ev_risk_note(evaluation):
         or {}
     )
     for target, label in (("t5", "T-5"), ("t10", "T-10")):
+        legacy_shadow = (evaluation or {}).get("ticket_ev_shadow") or {}
+        position_shadow = (evaluation or {}).get("ticket_position_shadow") or {}
+        venue_shadow = (
+            (evaluation or {}).get("ticket_venue_probability_shadow") or {}
+        )
         legacy = as_num(evidence.get(f"legacy_{target}_expected_roi_pct"))
+        if legacy is None:
+            legacy = as_num(
+                ((legacy_shadow.get("snapshots") or {}).get(target) or {}).get(
+                    "portfolio_expected_roi_pct"
+                )
+            )
         position = as_num(evidence.get(f"position_{target}_expected_roi_pct"))
+        if position is None:
+            position = as_num(
+                ((position_shadow.get("snapshots") or {}).get(target) or {}).get(
+                    "portfolio_expected_roi_pct"
+                )
+            )
+        venue = as_num(
+            ((venue_shadow.get("snapshots") or {}).get(target) or {}).get(
+                "portfolio_expected_roi_pct"
+            )
+        )
         if legacy is None or position is None:
             continue
         if legacy < 100.0 and position < 100.0:
             level = "強" if legacy < 80.0 and position < 80.0 else "あり"
+            legacy_label = legacy_shadow.get("model_label") or "旧"
+            position_label = position_shadow.get("model_label") or "着順"
+            venue_text = (
+                f" / {venue_shadow.get('model_label') or '場別補正'}{venue:.1f}%"
+                if venue is not None
+                else ""
+            )
             return (
-                f"期待値警戒{level}({label}): 旧{legacy:.1f}% / 着順{position:.1f}% "
+                f"期待値警戒{level}({label}): "
+                f"{legacy_label}{legacy:.1f}% / {position_label}{position:.1f}%"
+                f"{venue_text} "
                 "（検証中・自動見送りには未使用）"
             )
         return ""
@@ -14503,7 +14649,7 @@ def make_original_boaters_24_message(race, evaluation, minutes_to_deadline):
     )
 
 
-def make_message(race, alert_type, metrics, checks, strategies):
+def make_message(race, alert_type, metrics, checks, strategies, ev_risk_note=""):
     base = (
         f"{race.get('place_name')}{race.get('round')}R "
         f"万舟率{fmt_pct(race.get('manshu_rate_pct'))}"
@@ -14584,6 +14730,7 @@ def make_message(race, alert_type, metrics, checks, strategies):
             f"{split_text}"
             f"{revival_text}"
             f"荒れた時はこの買い目: {' '.join(s['tickets'])}\n"
+            f"{ev_risk_note + chr(10) if ev_risk_note else ''}"
             f"根拠: {s.get('role_note') or '本命絞り'} / 消し理由: {s.get('keshi_reason') or '-'}"
             f"{handling_text}"
         )
@@ -15003,11 +15150,7 @@ def monitor(args):
                             ),
                         },
                     }
-                    update_original_boaters_ticket_ev_from_target_odds(frozen_sign)
-                    update_original_boaters_ticket_ev_from_target_odds(
-                        frozen_sign,
-                        shadow_key="ticket_position_shadow",
-                    )
+                    refresh_ticket_ev_shadows(frozen_sign)
                     update_original_boaters_low_confidence_odds(frozen_sign)
                     frozen_sign["ev_risk_note"] = original_boaters_ev_risk_note(
                         frozen_sign
@@ -15099,6 +15242,21 @@ def monitor(args):
                 and (core_rate_ready or strategy.get("rate_gate_exempt"))
                 for strategy in buy_strategies
             )
+            core_ev_evaluation = {}
+            core_ev_risk_note = ""
+            if preview_ready and venue_sign_buy_ready and selection.get("tickets"):
+                core_ev_evaluation = {
+                    "date": race.get("date") or date_text,
+                    "race_id": race.get("race_id"),
+                    "place_name": race.get("place_name"),
+                    "round": race.get("round"),
+                    "deadline_time": race.get("deadline_time"),
+                    **build_ticket_ev_shadows(rows, selection.get("tickets") or []),
+                }
+                refresh_ticket_ev_shadows(core_ev_evaluation)
+                core_ev_risk_note = original_boaters_ev_risk_note(
+                    core_ev_evaluation
+                )
             alert_rate_ready = core_buy_ready or subcore_buy_ready
             can_send_alert = preview_ready and alert_rate_ready
             if args.venue_sign_only:
@@ -15159,6 +15317,7 @@ def monitor(args):
                 "core_buy_ready": core_buy_ready,
                 "subcore_buy_ready": subcore_buy_ready,
                 "venue_sign_buy_ready": venue_sign_buy_ready,
+                "ev_risk_note": core_ev_risk_note,
                 "original_boaters_24_shadow_status": (
                     shadow_evaluation.get("status") if shadow_evaluation else "outside_forward_window"
                 ),
@@ -15211,6 +15370,7 @@ def monitor(args):
                     "core_buy_ready": core_buy_ready,
                     "subcore_buy_ready": subcore_buy_ready,
                     "venue_sign_buy_ready": venue_sign_buy_ready,
+                    "ev_risk_note": core_ev_risk_note,
                     "original_boaters_24_shadow_status": (
                         shadow_evaluation.get("status") if shadow_evaluation else "outside_forward_window"
                     ),
@@ -15274,7 +15434,19 @@ def monitor(args):
                 "sign_label": sign_label_for_strategies(alert_strategies) if sign_strategy_ids else "",
                 "sign_strategy_ids": sign_strategy_ids,
                 "strategies": alert_strategies,
-                "message": make_message(message_race, alert_type, metrics, checks, alert_strategies),
+                "ev_risk_note": core_ev_risk_note,
+                **{
+                    key: core_ev_evaluation.get(key) or {}
+                    for key in TICKET_EV_SHADOW_KEYS
+                },
+                "message": make_message(
+                    message_race,
+                    alert_type,
+                    metrics,
+                    checks,
+                    alert_strategies,
+                    ev_risk_note=core_ev_risk_note,
+                ),
             }
             alerts.append(alert)
         except Exception as exc:
