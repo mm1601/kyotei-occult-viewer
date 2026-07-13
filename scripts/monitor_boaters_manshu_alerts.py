@@ -1071,7 +1071,12 @@ def send_ntfy(config, title, message, tags="rotating_light", priority=None):
 
 def push_notifications(payload, state, now):
     config = load_push_config()
-    expected_attempts = len(payload.get("alerts") or []) + sum(1 for item in payload.get("inspected") or [] if item.get("status") == "fetch_failed")
+    alerts = [
+        alert
+        for alert in payload.get("alerts") or []
+        if alert.get("alert_type") == "venue_sign"
+    ]
+    expected_attempts = len(alerts)
     if not ntfy_url(config):
         return {
             "enabled": False,
@@ -1084,7 +1089,7 @@ def push_notifications(payload, state, now):
     results = []
     errors = []
 
-    for alert in payload.get("alerts") or []:
+    for alert in alerts:
         key = f"alert:{alert.get('race_id')}:{alert.get('alert_type')}"
         if pushed.get(key):
             continue
@@ -1099,25 +1104,6 @@ def push_notifications(payload, state, now):
         else:
             title = "BOATERS万舟率上昇"
         result = send_ntfy(config, title, alert.get("message") or "", tags="moneybag,boat")
-        results.append({"key": key, **result})
-        if result.get("ok"):
-            pushed[key] = now.isoformat(timespec="seconds")
-        elif result.get("enabled"):
-            errors.append({"key": key, "error": result.get("error"), "status": result.get("status")})
-
-    for item in payload.get("inspected") or []:
-        if item.get("status") != "fetch_failed":
-            continue
-        key = f"fetch_failed:{item.get('race_id')}"
-        if pushed.get(key):
-            continue
-        race_text = f"{item.get('place_name')}{item.get('round')}R"
-        message = (
-            f"{race_text}のBOATERS直前データ取得に失敗しました。\n"
-            f"締切まで約{item.get('minutes_to_deadline')}分\n"
-            f"error: {item.get('error')}"
-        )
-        result = send_ntfy(config, "BOATERS取得失敗", message, tags="warning,boat", priority="urgent")
         results.append({"key": key, **result})
         if result.get("ok"):
             pushed[key] = now.isoformat(timespec="seconds")

@@ -1,0 +1,2481 @@
+{
+  "version": "independent-composite-probability-v1",
+  "generated_at": "2026-07-12T23:58:45+09:00",
+  "periods": {
+    "train": {
+      "start": "2024-01-01",
+      "end": "2025-06-30",
+      "races": 82127
+    },
+    "calibration": {
+      "start": "2025-07-01",
+      "end": "2025-12-31",
+      "races": 26969
+    },
+    "test": {
+      "start": "2026-01-01",
+      "end": "2026-07-08",
+      "races": 28682
+    }
+  },
+  "source_policy": {
+    "independent": true,
+    "boaters_ai_used_as_feature": false,
+    "boaters_ai_used_as_benchmark_only": true,
+    "result_fields_used_as_feature": false,
+    "probability_constraints": [
+      "win sum = 100%",
+      "top3 sum = 300%",
+      "top3 >= win"
+    ]
+  },
+  "selected_candidate": "depth6_conservative",
+  "candidate_metrics": [
+    {
+      "name": "depth4_regularized",
+      "params": {
+        "n_estimators": 480,
+        "learning_rate": 0.035,
+        "max_depth": 4,
+        "min_child_weight": 24,
+        "subsample": 0.88,
+        "colsample_bytree": 0.86,
+        "reg_alpha": 0.08,
+        "reg_lambda": 6.0,
+        "gamma": 0.01
+      },
+      "temperatures": {
+        "win": 0.95,
+        "top3": 0.95,
+        "win_candidates": [
+          {
+            "temperature": 0.75,
+            "log_loss": 0.336543
+          },
+          {
+            "temperature": 0.85,
+            "log_loss": 0.331406
+          },
+          {
+            "temperature": 0.95,
+            "log_loss": 0.330854
+          },
+          {
+            "temperature": 1.0,
+            "log_loss": 0.331617
+          },
+          {
+            "temperature": 1.05,
+            "log_loss": 0.332835
+          },
+          {
+            "temperature": 1.15,
+            "log_loss": 0.336158
+          },
+          {
+            "temperature": 1.25,
+            "log_loss": 0.340135
+          }
+        ],
+        "top3_candidates": [
+          {
+            "temperature": 0.75,
+            "log_loss": 0.571974
+          },
+          {
+            "temperature": 0.85,
+            "log_loss": 0.568247
+          },
+          {
+            "temperature": 0.95,
+            "log_loss": 0.567377
+          },
+          {
+            "temperature": 1.0,
+            "log_loss": 0.567657
+          },
+          {
+            "temperature": 1.05,
+            "log_loss": 0.56828
+          },
+          {
+            "temperature": 1.15,
+            "log_loss": 0.570271
+          },
+          {
+            "temperature": 1.25,
+            "log_loss": 0.572914
+          }
+        ]
+      },
+      "calibration_score": 0.89823,
+      "metrics": {
+        "race": {
+          "race_count": 26969,
+          "boat_rows": 161814,
+          "top_win_accuracy_pct": 56.11,
+          "baseline_general_3ren_top_win_accuracy_pct": 52.12,
+          "top3_predicted_avg_actual_top3_boats": 2.083,
+          "top3_exact_unordered_pct": 24.34,
+          "b1_no_win_auc": 0.70817,
+          "b1_fly_auc": 0.70817,
+          "b1_outside_top3_auc": 0.72131
+        },
+        "win": {
+          "auc": 0.84533,
+          "log_loss": 0.33085,
+          "brier": 0.09968,
+          "positive_rate_pct": 16.667
+        },
+        "top3": {
+          "auc": 0.77477,
+          "log_loss": 0.56738,
+          "brier": 0.19323,
+          "positive_rate_pct": 50.0
+        },
+        "calibration": {
+          "win": {
+            "expected_calibration_error_pct": 1.894,
+            "max_calibration_error_pct": 5.723,
+            "buckets": [
+              {
+                "from_pct": 0.0,
+                "to_pct": 10.0,
+                "count": 101079,
+                "predicted_pct": 6.16,
+                "actual_pct": 5.05,
+                "absolute_error_pct": 1.11
+              },
+              {
+                "from_pct": 10.0,
+                "to_pct": 20.0,
+                "count": 26292,
+                "predicted_pct": 13.57,
+                "actual_pct": 17.26,
+                "absolute_error_pct": 3.69
+              },
+              {
+                "from_pct": 20.0,
+                "to_pct": 30.0,
+                "count": 7428,
+                "predicted_pct": 24.4,
+                "actual_pct": 28.1,
+                "absolute_error_pct": 3.69
+              },
+              {
+                "from_pct": 30.0,
+                "to_pct": 40.0,
+                "count": 4458,
+                "predicted_pct": 34.82,
+                "actual_pct": 35.04,
+                "absolute_error_pct": 0.21
+              },
+              {
+                "from_pct": 40.0,
+                "to_pct": 50.0,
+                "count": 3944,
+                "predicted_pct": 45.08,
+                "actual_pct": 42.9,
+                "absolute_error_pct": 2.18
+              },
+              {
+                "from_pct": 50.0,
+                "to_pct": 60.0,
+                "count": 4984,
+                "predicted_pct": 55.38,
+                "actual_pct": 51.28,
+                "absolute_error_pct": 4.09
+              },
+              {
+                "from_pct": 60.0,
+                "to_pct": 70.0,
+                "count": 8763,
+                "predicted_pct": 65.54,
+                "actual_pct": 64.19,
+                "absolute_error_pct": 1.35
+              },
+              {
+                "from_pct": 70.0,
+                "to_pct": 80.0,
+                "count": 4866,
+                "predicted_pct": 72.43,
+                "actual_pct": 78.15,
+                "absolute_error_pct": 5.72
+              }
+            ]
+          },
+          "top3": {
+            "expected_calibration_error_pct": 1.123,
+            "max_calibration_error_pct": 5.087,
+            "buckets": [
+              {
+                "from_pct": 0.0,
+                "to_pct": 10.0,
+                "count": 3708,
+                "predicted_pct": 8.32,
+                "actual_pct": 3.24,
+                "absolute_error_pct": 5.09
+              },
+              {
+                "from_pct": 10.0,
+                "to_pct": 20.0,
+                "count": 16309,
+                "predicted_pct": 15.49,
+                "actual_pct": 14.13,
+                "absolute_error_pct": 1.37
+              },
+              {
+                "from_pct": 20.0,
+                "to_pct": 30.0,
+                "count": 20909,
+                "predicted_pct": 25.06,
+                "actual_pct": 26.0,
+                "absolute_error_pct": 0.94
+              },
+              {
+                "from_pct": 30.0,
+                "to_pct": 40.0,
+                "count": 20798,
+                "predicted_pct": 34.98,
+                "actual_pct": 36.91,
+                "absolute_error_pct": 1.93
+              },
+              {
+                "from_pct": 40.0,
+                "to_pct": 50.0,
+                "count": 20352,
+                "predicted_pct": 45.0,
+                "actual_pct": 45.73,
+                "absolute_error_pct": 0.73
+              },
+              {
+                "from_pct": 50.0,
+                "to_pct": 60.0,
+                "count": 20285,
+                "predicted_pct": 54.99,
+                "actual_pct": 54.61,
+                "absolute_error_pct": 0.38
+              },
+              {
+                "from_pct": 60.0,
+                "to_pct": 70.0,
+                "count": 19374,
+                "predicted_pct": 64.96,
+                "actual_pct": 63.92,
+                "absolute_error_pct": 1.05
+              },
+              {
+                "from_pct": 70.0,
+                "to_pct": 80.0,
+                "count": 17058,
+                "predicted_pct": 74.86,
+                "actual_pct": 73.59,
+                "absolute_error_pct": 1.27
+              },
+              {
+                "from_pct": 80.0,
+                "to_pct": 90.0,
+                "count": 19388,
+                "predicted_pct": 85.56,
+                "actual_pct": 85.73,
+                "absolute_error_pct": 0.18
+              },
+              {
+                "from_pct": 90.0,
+                "to_pct": 100.0,
+                "count": 3633,
+                "predicted_pct": 90.87,
+                "actual_pct": 94.36,
+                "absolute_error_pct": 3.48
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "depth6_conservative",
+      "params": {
+        "n_estimators": 360,
+        "learning_rate": 0.035,
+        "max_depth": 6,
+        "min_child_weight": 36,
+        "subsample": 0.88,
+        "colsample_bytree": 0.82,
+        "reg_alpha": 0.12,
+        "reg_lambda": 8.0,
+        "gamma": 0.02
+      },
+      "temperatures": {
+        "win": 0.95,
+        "top3": 0.95,
+        "win_candidates": [
+          {
+            "temperature": 0.75,
+            "log_loss": 0.336345
+          },
+          {
+            "temperature": 0.85,
+            "log_loss": 0.331133
+          },
+          {
+            "temperature": 0.95,
+            "log_loss": 0.330529
+          },
+          {
+            "temperature": 1.0,
+            "log_loss": 0.331274
+          },
+          {
+            "temperature": 1.05,
+            "log_loss": 0.332477
+          },
+          {
+            "temperature": 1.15,
+            "log_loss": 0.335782
+          },
+          {
+            "temperature": 1.25,
+            "log_loss": 0.33975
+          }
+        ],
+        "top3_candidates": [
+          {
+            "temperature": 0.75,
+            "log_loss": 0.571299
+          },
+          {
+            "temperature": 0.85,
+            "log_loss": 0.567628
+          },
+          {
+            "temperature": 0.95,
+            "log_loss": 0.566794
+          },
+          {
+            "temperature": 1.0,
+            "log_loss": 0.567087
+          },
+          {
+            "temperature": 1.05,
+            "log_loss": 0.567722
+          },
+          {
+            "temperature": 1.15,
+            "log_loss": 0.569732
+          },
+          {
+            "temperature": 1.25,
+            "log_loss": 0.572391
+          }
+        ]
+      },
+      "calibration_score": 0.89732,
+      "metrics": {
+        "race": {
+          "race_count": 26969,
+          "boat_rows": 161814,
+          "top_win_accuracy_pct": 56.15,
+          "baseline_general_3ren_top_win_accuracy_pct": 52.12,
+          "top3_predicted_avg_actual_top3_boats": 2.087,
+          "top3_exact_unordered_pct": 24.54,
+          "b1_no_win_auc": 0.70878,
+          "b1_fly_auc": 0.70878,
+          "b1_outside_top3_auc": 0.72358
+        },
+        "win": {
+          "auc": 0.8457,
+          "log_loss": 0.33053,
+          "brier": 0.09959,
+          "positive_rate_pct": 16.667
+        },
+        "top3": {
+          "auc": 0.77536,
+          "log_loss": 0.56679,
+          "brier": 0.19298,
+          "positive_rate_pct": 50.0
+        },
+        "calibration": {
+          "win": {
+            "expected_calibration_error_pct": 1.835,
+            "max_calibration_error_pct": 5.064,
+            "buckets": [
+              {
+                "from_pct": 0.0,
+                "to_pct": 10.0,
+                "count": 101191,
+                "predicted_pct": 6.13,
+                "actual_pct": 5.06,
+                "absolute_error_pct": 1.07
+              },
+              {
+                "from_pct": 10.0,
+                "to_pct": 20.0,
+                "count": 26120,
+                "predicted_pct": 13.59,
+                "actual_pct": 17.21,
+                "absolute_error_pct": 3.61
+              },
+              {
+                "from_pct": 20.0,
+                "to_pct": 30.0,
+                "count": 7382,
+                "predicted_pct": 24.37,
+                "actual_pct": 28.01,
+                "absolute_error_pct": 3.64
+              },
+              {
+                "from_pct": 30.0,
+                "to_pct": 40.0,
+                "count": 4541,
+                "predicted_pct": 34.76,
+                "actual_pct": 34.97,
+                "absolute_error_pct": 0.21
+              },
+              {
+                "from_pct": 40.0,
+                "to_pct": 50.0,
+                "count": 4012,
+                "predicted_pct": 45.02,
+                "actual_pct": 43.37,
+                "absolute_error_pct": 1.65
+              },
+              {
+                "from_pct": 50.0,
+                "to_pct": 60.0,
+                "count": 4972,
+                "predicted_pct": 55.39,
+                "actual_pct": 51.27,
+                "absolute_error_pct": 4.13
+              },
+              {
+                "from_pct": 60.0,
+                "to_pct": 70.0,
+                "count": 8390,
+                "predicted_pct": 65.5,
+                "actual_pct": 63.96,
+                "absolute_error_pct": 1.55
+              },
+              {
+                "from_pct": 70.0,
+                "to_pct": 80.0,
+                "count": 5206,
+                "predicted_pct": 72.6,
+                "actual_pct": 77.66,
+                "absolute_error_pct": 5.06
+              }
+            ]
+          },
+          "top3": {
+            "expected_calibration_error_pct": 1.06,
+            "max_calibration_error_pct": 4.914,
+            "buckets": [
+              {
+                "from_pct": 0.0,
+                "to_pct": 10.0,
+                "count": 3878,
+                "predicted_pct": 8.32,
+                "actual_pct": 3.4,
+                "absolute_error_pct": 4.91
+              },
+              {
+                "from_pct": 10.0,
+                "to_pct": 20.0,
+                "count": 16145,
+                "predicted_pct": 15.47,
+                "actual_pct": 14.21,
+                "absolute_error_pct": 1.26
+              },
+              {
+                "from_pct": 20.0,
+                "to_pct": 30.0,
+                "count": 20794,
+                "predicted_pct": 25.1,
+                "actual_pct": 25.92,
+                "absolute_error_pct": 0.82
+              },
+              {
+                "from_pct": 30.0,
+                "to_pct": 40.0,
+                "count": 20837,
+                "predicted_pct": 34.99,
+                "actual_pct": 36.46,
+                "absolute_error_pct": 1.47
+              },
+              {
+                "from_pct": 40.0,
+                "to_pct": 50.0,
+                "count": 20552,
+                "predicted_pct": 44.98,
+                "actual_pct": 46.12,
+                "absolute_error_pct": 1.14
+              },
+              {
+                "from_pct": 50.0,
+                "to_pct": 60.0,
+                "count": 20261,
+                "predicted_pct": 54.97,
+                "actual_pct": 54.71,
+                "absolute_error_pct": 0.26
+              },
+              {
+                "from_pct": 60.0,
+                "to_pct": 70.0,
+                "count": 19307,
+                "predicted_pct": 64.99,
+                "actual_pct": 63.78,
+                "absolute_error_pct": 1.21
+              },
+              {
+                "from_pct": 70.0,
+                "to_pct": 80.0,
+                "count": 16889,
+                "predicted_pct": 74.86,
+                "actual_pct": 73.81,
+                "absolute_error_pct": 1.05
+              },
+              {
+                "from_pct": 80.0,
+                "to_pct": 90.0,
+                "count": 19461,
+                "predicted_pct": 85.55,
+                "actual_pct": 85.65,
+                "absolute_error_pct": 0.1
+              },
+              {
+                "from_pct": 90.0,
+                "to_pct": 100.0,
+                "count": 3690,
+                "predicted_pct": 90.92,
+                "actual_pct": 94.36,
+                "absolute_error_pct": 3.44
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "test_metrics": {
+    "independent": {
+      "race": {
+        "race_count": 28682,
+        "boat_rows": 172092,
+        "top_win_accuracy_pct": 57.54,
+        "baseline_general_3ren_top_win_accuracy_pct": 53.23,
+        "top3_predicted_avg_actual_top3_boats": 2.102,
+        "top3_exact_unordered_pct": 25.32,
+        "b1_no_win_auc": 0.72151,
+        "b1_fly_auc": 0.72151,
+        "b1_outside_top3_auc": 0.73412
+      },
+      "win": {
+        "auc": 0.85454,
+        "log_loss": 0.3234,
+        "brier": 0.09707,
+        "positive_rate_pct": 16.667
+      },
+      "top3": {
+        "auc": 0.78172,
+        "log_loss": 0.56065,
+        "brier": 0.19039,
+        "positive_rate_pct": 50.0
+      },
+      "calibration": {
+        "win": {
+          "expected_calibration_error_pct": 2.06,
+          "max_calibration_error_pct": 7.236,
+          "buckets": [
+            {
+              "from_pct": 0.0,
+              "to_pct": 10.0,
+              "count": 107589,
+              "predicted_pct": 6.14,
+              "actual_pct": 4.71,
+              "absolute_error_pct": 1.43
+            },
+            {
+              "from_pct": 10.0,
+              "to_pct": 20.0,
+              "count": 27882,
+              "predicted_pct": 13.58,
+              "actual_pct": 17.26,
+              "absolute_error_pct": 3.68
+            },
+            {
+              "from_pct": 20.0,
+              "to_pct": 30.0,
+              "count": 7739,
+              "predicted_pct": 24.41,
+              "actual_pct": 27.88,
+              "absolute_error_pct": 3.48
+            },
+            {
+              "from_pct": 30.0,
+              "to_pct": 40.0,
+              "count": 4782,
+              "predicted_pct": 34.76,
+              "actual_pct": 35.78,
+              "absolute_error_pct": 1.02
+            },
+            {
+              "from_pct": 40.0,
+              "to_pct": 50.0,
+              "count": 4394,
+              "predicted_pct": 45.09,
+              "actual_pct": 42.85,
+              "absolute_error_pct": 2.24
+            },
+            {
+              "from_pct": 50.0,
+              "to_pct": 60.0,
+              "count": 5365,
+              "predicted_pct": 55.35,
+              "actual_pct": 52.88,
+              "absolute_error_pct": 2.47
+            },
+            {
+              "from_pct": 60.0,
+              "to_pct": 70.0,
+              "count": 8852,
+              "predicted_pct": 65.48,
+              "actual_pct": 65.83,
+              "absolute_error_pct": 0.35
+            },
+            {
+              "from_pct": 70.0,
+              "to_pct": 80.0,
+              "count": 5489,
+              "predicted_pct": 72.65,
+              "actual_pct": 79.89,
+              "absolute_error_pct": 7.24
+            }
+          ]
+        },
+        "top3": {
+          "expected_calibration_error_pct": 1.2,
+          "max_calibration_error_pct": 5.253,
+          "buckets": [
+            {
+              "from_pct": 0.0,
+              "to_pct": 10.0,
+              "count": 3904,
+              "predicted_pct": 8.38,
+              "actual_pct": 3.12,
+              "absolute_error_pct": 5.25
+            },
+            {
+              "from_pct": 10.0,
+              "to_pct": 20.0,
+              "count": 17111,
+              "predicted_pct": 15.47,
+              "actual_pct": 13.58,
+              "absolute_error_pct": 1.89
+            },
+            {
+              "from_pct": 20.0,
+              "to_pct": 30.0,
+              "count": 22119,
+              "predicted_pct": 25.04,
+              "actual_pct": 24.54,
+              "absolute_error_pct": 0.5
+            },
+            {
+              "from_pct": 30.0,
+              "to_pct": 40.0,
+              "count": 22576,
+              "predicted_pct": 35.02,
+              "actual_pct": 36.0,
+              "absolute_error_pct": 0.99
+            },
+            {
+              "from_pct": 40.0,
+              "to_pct": 50.0,
+              "count": 22112,
+              "predicted_pct": 44.96,
+              "actual_pct": 46.05,
+              "absolute_error_pct": 1.09
+            },
+            {
+              "from_pct": 50.0,
+              "to_pct": 60.0,
+              "count": 21275,
+              "predicted_pct": 54.93,
+              "actual_pct": 55.7,
+              "absolute_error_pct": 0.77
+            },
+            {
+              "from_pct": 60.0,
+              "to_pct": 70.0,
+              "count": 20251,
+              "predicted_pct": 64.94,
+              "actual_pct": 63.73,
+              "absolute_error_pct": 1.21
+            },
+            {
+              "from_pct": 70.0,
+              "to_pct": 80.0,
+              "count": 17990,
+              "predicted_pct": 74.84,
+              "actual_pct": 74.02,
+              "absolute_error_pct": 0.82
+            },
+            {
+              "from_pct": 80.0,
+              "to_pct": 90.0,
+              "count": 20793,
+              "predicted_pct": 85.52,
+              "actual_pct": 86.62,
+              "absolute_error_pct": 1.1
+            },
+            {
+              "from_pct": 90.0,
+              "to_pct": 100.0,
+              "count": 3961,
+              "predicted_pct": 90.92,
+              "actual_pct": 95.41,
+              "absolute_error_pct": 4.49
+            }
+          ]
+        }
+      },
+      "b1_no_win": {
+        "auc": 0.71701,
+        "log_loss": 0.61266,
+        "brier": 0.21201,
+        "positive_rate_pct": 44.69
+      },
+      "b1_outside_top3": {
+        "auc": 0.73112,
+        "log_loss": 0.43196,
+        "brier": 0.13551,
+        "positive_rate_pct": 18.789
+      }
+    },
+    "boaters_benchmark": {
+      "race": {
+        "race_count": 28681,
+        "boat_rows": 172086,
+        "top_win_accuracy_pct": 58.12,
+        "baseline_general_3ren_top_win_accuracy_pct": 53.22,
+        "top3_predicted_avg_actual_top3_boats": 2.117,
+        "top3_exact_unordered_pct": 26.34,
+        "b1_no_win_auc": 0.73434,
+        "b1_fly_auc": 0.73434,
+        "b1_outside_top3_auc": 0.75156
+      },
+      "win": {
+        "auc": 0.86376,
+        "log_loss": 0.31118,
+        "brier": 0.09463,
+        "positive_rate_pct": 16.667
+      },
+      "top3": {
+        "auc": 0.78818,
+        "log_loss": 0.55215,
+        "brier": 0.18744,
+        "positive_rate_pct": 50.0
+      },
+      "calibration": {
+        "win": {
+          "expected_calibration_error_pct": 0.694,
+          "max_calibration_error_pct": 3.076,
+          "buckets": [
+            {
+              "from_pct": 0.0,
+              "to_pct": 10.0,
+              "count": 102018,
+              "predicted_pct": 3.66,
+              "actual_pct": 4.05,
+              "absolute_error_pct": 0.39
+            },
+            {
+              "from_pct": 10.0,
+              "to_pct": 20.0,
+              "count": 26588,
+              "predicted_pct": 14.17,
+              "actual_pct": 14.91,
+              "absolute_error_pct": 0.74
+            },
+            {
+              "from_pct": 20.0,
+              "to_pct": 30.0,
+              "count": 11621,
+              "predicted_pct": 24.49,
+              "actual_pct": 24.22,
+              "absolute_error_pct": 0.27
+            },
+            {
+              "from_pct": 30.0,
+              "to_pct": 40.0,
+              "count": 6783,
+              "predicted_pct": 34.73,
+              "actual_pct": 33.92,
+              "absolute_error_pct": 0.81
+            },
+            {
+              "from_pct": 40.0,
+              "to_pct": 50.0,
+              "count": 5457,
+              "predicted_pct": 44.88,
+              "actual_pct": 42.48,
+              "absolute_error_pct": 2.4
+            },
+            {
+              "from_pct": 50.0,
+              "to_pct": 60.0,
+              "count": 5080,
+              "predicted_pct": 55.06,
+              "actual_pct": 51.99,
+              "absolute_error_pct": 3.08
+            },
+            {
+              "from_pct": 60.0,
+              "to_pct": 70.0,
+              "count": 5237,
+              "predicted_pct": 65.08,
+              "actual_pct": 62.31,
+              "absolute_error_pct": 2.78
+            },
+            {
+              "from_pct": 70.0,
+              "to_pct": 80.0,
+              "count": 5625,
+              "predicted_pct": 74.89,
+              "actual_pct": 74.52,
+              "absolute_error_pct": 0.36
+            },
+            {
+              "from_pct": 80.0,
+              "to_pct": 90.0,
+              "count": 3431,
+              "predicted_pct": 84.04,
+              "actual_pct": 82.37,
+              "absolute_error_pct": 1.67
+            },
+            {
+              "from_pct": 90.0,
+              "to_pct": 100.0,
+              "count": 246,
+              "predicted_pct": 91.48,
+              "actual_pct": 91.06,
+              "absolute_error_pct": 0.43
+            }
+          ]
+        },
+        "top3": {
+          "expected_calibration_error_pct": 0.626,
+          "max_calibration_error_pct": 1.416,
+          "buckets": [
+            {
+              "from_pct": 0.0,
+              "to_pct": 10.0,
+              "count": 9982,
+              "predicted_pct": 5.49,
+              "actual_pct": 5.65,
+              "absolute_error_pct": 0.16
+            },
+            {
+              "from_pct": 10.0,
+              "to_pct": 20.0,
+              "count": 15003,
+              "predicted_pct": 15.28,
+              "actual_pct": 16.4,
+              "absolute_error_pct": 1.12
+            },
+            {
+              "from_pct": 20.0,
+              "to_pct": 30.0,
+              "count": 19386,
+              "predicted_pct": 25.11,
+              "actual_pct": 25.64,
+              "absolute_error_pct": 0.53
+            },
+            {
+              "from_pct": 30.0,
+              "to_pct": 40.0,
+              "count": 20983,
+              "predicted_pct": 35.05,
+              "actual_pct": 35.81,
+              "absolute_error_pct": 0.76
+            },
+            {
+              "from_pct": 40.0,
+              "to_pct": 50.0,
+              "count": 21533,
+              "predicted_pct": 45.02,
+              "actual_pct": 45.45,
+              "absolute_error_pct": 0.43
+            },
+            {
+              "from_pct": 50.0,
+              "to_pct": 60.0,
+              "count": 21543,
+              "predicted_pct": 55.0,
+              "actual_pct": 54.82,
+              "absolute_error_pct": 0.19
+            },
+            {
+              "from_pct": 60.0,
+              "to_pct": 70.0,
+              "count": 20039,
+              "predicted_pct": 64.86,
+              "actual_pct": 64.69,
+              "absolute_error_pct": 0.16
+            },
+            {
+              "from_pct": 70.0,
+              "to_pct": 80.0,
+              "count": 16797,
+              "predicted_pct": 74.88,
+              "actual_pct": 73.46,
+              "absolute_error_pct": 1.42
+            },
+            {
+              "from_pct": 80.0,
+              "to_pct": 90.0,
+              "count": 14792,
+              "predicted_pct": 85.03,
+              "actual_pct": 83.92,
+              "absolute_error_pct": 1.11
+            },
+            {
+              "from_pct": 90.0,
+              "to_pct": 100.0,
+              "count": 12028,
+              "predicted_pct": 93.82,
+              "actual_pct": 93.29,
+              "absolute_error_pct": 0.53
+            }
+          ]
+        }
+      },
+      "coverage": {
+        "races": 28681,
+        "all_test_races": 28682
+      }
+    }
+  },
+  "feature_importance": [
+    {
+      "feature": "nige_pct_year",
+      "win_gain_pct": 41.9908,
+      "top3_gain_pct": 6.1624,
+      "combined_gain_pct": 24.0766
+    },
+    {
+      "feature": "general_3ren_vs_race_avg",
+      "win_gain_pct": 5.9574,
+      "top3_gain_pct": 27.1744,
+      "combined_gain_pct": 16.5659
+    },
+    {
+      "feature": "place_boat",
+      "win_gain_pct": 7.7008,
+      "top3_gain_pct": 13.5455,
+      "combined_gain_pct": 10.6231
+    },
+    {
+      "feature": "before_start_sinnyu",
+      "win_gain_pct": 8.2931,
+      "top3_gain_pct": 3.0496,
+      "combined_gain_pct": 5.6713
+    },
+    {
+      "feature": "boat_number",
+      "win_gain_pct": 6.8055,
+      "top3_gain_pct": 0.6545,
+      "combined_gain_pct": 3.73
+    },
+    {
+      "feature": "place_id",
+      "win_gain_pct": 3.3953,
+      "top3_gain_pct": 4.0368,
+      "combined_gain_pct": 3.716
+    },
+    {
+      "feature": "rank",
+      "win_gain_pct": 3.0594,
+      "top3_gain_pct": 4.1918,
+      "combined_gain_pct": 3.6256
+    },
+    {
+      "feature": "wind_direction",
+      "win_gain_pct": 1.827,
+      "top3_gain_pct": 3.3418,
+      "combined_gain_pct": 2.5844
+    },
+    {
+      "feature": "general_3ren_pct",
+      "win_gain_pct": 0.4748,
+      "top3_gain_pct": 3.2786,
+      "combined_gain_pct": 1.8767
+    },
+    {
+      "feature": "national_course_top3_pct",
+      "win_gain_pct": 0.1097,
+      "top3_gain_pct": 3.4144,
+      "combined_gain_pct": 1.762
+    },
+    {
+      "feature": "race_grade",
+      "win_gain_pct": 0.8087,
+      "top3_gain_pct": 1.7555,
+      "combined_gain_pct": 1.2821
+    },
+    {
+      "feature": "tenji_rank_in_race",
+      "win_gain_pct": 0.6984,
+      "top3_gain_pct": 1.3679,
+      "combined_gain_pct": 1.0331
+    },
+    {
+      "feature": "round_band",
+      "win_gain_pct": 0.8342,
+      "top3_gain_pct": 1.1187,
+      "combined_gain_pct": 0.9764
+    },
+    {
+      "feature": "tenji_vs_race_avg",
+      "win_gain_pct": 0.635,
+      "top3_gain_pct": 1.187,
+      "combined_gain_pct": 0.911
+    },
+    {
+      "feature": "national_total_top3_pct",
+      "win_gain_pct": 0.5791,
+      "top3_gain_pct": 1.0398,
+      "combined_gain_pct": 0.8095
+    },
+    {
+      "feature": "water_source_quality",
+      "win_gain_pct": 0.5974,
+      "top3_gain_pct": 0.9412,
+      "combined_gain_pct": 0.7693
+    },
+    {
+      "feature": "is_outer",
+      "win_gain_pct": 1.0435,
+      "top3_gain_pct": 0.4913,
+      "combined_gain_pct": 0.7674
+    },
+    {
+      "feature": "lap_vs_race_avg",
+      "win_gain_pct": 0.3648,
+      "top3_gain_pct": 1.111,
+      "combined_gain_pct": 0.7379
+    },
+    {
+      "feature": "lap_rank_in_race",
+      "win_gain_pct": 0.5765,
+      "top3_gain_pct": 0.8022,
+      "combined_gain_pct": 0.6894
+    },
+    {
+      "feature": "national_total_win_pct",
+      "win_gain_pct": 0.8432,
+      "top3_gain_pct": 0.4714,
+      "combined_gain_pct": 0.6573
+    },
+    {
+      "feature": "national_course_win_pct",
+      "win_gain_pct": 0.7807,
+      "top3_gain_pct": 0.3508,
+      "combined_gain_pct": 0.5658
+    },
+    {
+      "feature": "is_inner",
+      "win_gain_pct": 0.4464,
+      "top3_gain_pct": 0.6524,
+      "combined_gain_pct": 0.5494
+    },
+    {
+      "feature": "tenji_rank",
+      "win_gain_pct": 0.4348,
+      "top3_gain_pct": 0.644,
+      "combined_gain_pct": 0.5394
+    },
+    {
+      "feature": "weather",
+      "win_gain_pct": 0.3812,
+      "top3_gain_pct": 0.6349,
+      "combined_gain_pct": 0.508
+    },
+    {
+      "feature": "round",
+      "win_gain_pct": 0.4109,
+      "top3_gain_pct": 0.5644,
+      "combined_gain_pct": 0.4876
+    },
+    {
+      "feature": "local_total_top3_pct",
+      "win_gain_pct": 0.2504,
+      "top3_gain_pct": 0.5976,
+      "combined_gain_pct": 0.424
+    },
+    {
+      "feature": "next_extreme_type",
+      "win_gain_pct": 0.1958,
+      "top3_gain_pct": 0.5399,
+      "combined_gain_pct": 0.3679
+    },
+    {
+      "feature": "makurizasare_pct_year",
+      "win_gain_pct": 0.3502,
+      "top3_gain_pct": 0.3289,
+      "combined_gain_pct": 0.3395
+    },
+    {
+      "feature": "avg_isshu_diff",
+      "win_gain_pct": 0.1841,
+      "top3_gain_pct": 0.4815,
+      "combined_gain_pct": 0.3328
+    },
+    {
+      "feature": "current_quality",
+      "win_gain_pct": 0.2448,
+      "top3_gain_pct": 0.4032,
+      "combined_gain_pct": 0.324
+    },
+    {
+      "feature": "chokusen_rank_in_race",
+      "win_gain_pct": 0.2078,
+      "top3_gain_pct": 0.4396,
+      "combined_gain_pct": 0.3237
+    },
+    {
+      "feature": "current_direction_text",
+      "win_gain_pct": 0.0,
+      "top3_gain_pct": 0.6021,
+      "combined_gain_pct": 0.301
+    },
+    {
+      "feature": "local_total_win_pct",
+      "win_gain_pct": 0.222,
+      "top3_gain_pct": 0.349,
+      "combined_gain_pct": 0.2855
+    },
+    {
+      "feature": "course_change",
+      "win_gain_pct": 0.2293,
+      "top3_gain_pct": 0.3399,
+      "combined_gain_pct": 0.2846
+    },
+    {
+      "feature": "weight_vs_race_avg",
+      "win_gain_pct": 0.1564,
+      "top3_gain_pct": 0.3908,
+      "combined_gain_pct": 0.2736
+    },
+    {
+      "feature": "start_tenji_rank_in_race",
+      "win_gain_pct": 0.1628,
+      "top3_gain_pct": 0.3614,
+      "combined_gain_pct": 0.2621
+    },
+    {
+      "feature": "start_tenji_vs_race_avg",
+      "win_gain_pct": 0.1917,
+      "top3_gain_pct": 0.3027,
+      "combined_gain_pct": 0.2472
+    },
+    {
+      "feature": "chokusen_vs_race_avg",
+      "win_gain_pct": 0.1888,
+      "top3_gain_pct": 0.3048,
+      "combined_gain_pct": 0.2468
+    },
+    {
+      "feature": "wave_height",
+      "win_gain_pct": 0.2693,
+      "top3_gain_pct": 0.2162,
+      "combined_gain_pct": 0.2427
+    },
+    {
+      "feature": "win_method_race_count_year",
+      "win_gain_pct": 0.124,
+      "top3_gain_pct": 0.3613,
+      "combined_gain_pct": 0.2427
+    },
+    {
+      "feature": "general_3ren_count",
+      "win_gain_pct": 0.166,
+      "top3_gain_pct": 0.3193,
+      "combined_gain_pct": 0.2426
+    },
+    {
+      "feature": "mawariashi_rank_in_race",
+      "win_gain_pct": 0.1799,
+      "top3_gain_pct": 0.3046,
+      "combined_gain_pct": 0.2423
+    },
+    {
+      "feature": "sasare_pct_year",
+      "win_gain_pct": 0.1448,
+      "top3_gain_pct": 0.3271,
+      "combined_gain_pct": 0.2359
+    },
+    {
+      "feature": "mawariashi_vs_race_avg",
+      "win_gain_pct": 0.1586,
+      "top3_gain_pct": 0.3038,
+      "combined_gain_pct": 0.2312
+    },
+    {
+      "feature": "national_total_avg_start_time",
+      "win_gain_pct": 0.2178,
+      "top3_gain_pct": 0.2434,
+      "combined_gain_pct": 0.2306
+    },
+    {
+      "feature": "st_time_vs_race_avg",
+      "win_gain_pct": 0.1877,
+      "top3_gain_pct": 0.2601,
+      "combined_gain_pct": 0.2239
+    },
+    {
+      "feature": "makuri_pct_year",
+      "win_gain_pct": 0.2389,
+      "top3_gain_pct": 0.2074,
+      "combined_gain_pct": 0.2232
+    },
+    {
+      "feature": "makurare_pct_year",
+      "win_gain_pct": 0.1831,
+      "top3_gain_pct": 0.2468,
+      "combined_gain_pct": 0.215
+    },
+    {
+      "feature": "water_applicability",
+      "win_gain_pct": 0.2285,
+      "top3_gain_pct": 0.2,
+      "combined_gain_pct": 0.2142
+    },
+    {
+      "feature": "wind_speed",
+      "win_gain_pct": 0.2039,
+      "top3_gain_pct": 0.2229,
+      "combined_gain_pct": 0.2134
+    },
+    {
+      "feature": "observed_prediction_anomaly_cm",
+      "win_gain_pct": 0.1492,
+      "top3_gain_pct": 0.2561,
+      "combined_gain_pct": 0.2027
+    },
+    {
+      "feature": "current_direction_deg",
+      "win_gain_pct": 0.1186,
+      "top3_gain_pct": 0.285,
+      "combined_gain_pct": 0.2018
+    },
+    {
+      "feature": "tilt",
+      "win_gain_pct": 0.2159,
+      "top3_gain_pct": 0.1874,
+      "combined_gain_pct": 0.2017
+    },
+    {
+      "feature": "weight",
+      "win_gain_pct": 0.1284,
+      "top3_gain_pct": 0.2627,
+      "combined_gain_pct": 0.1956
+    },
+    {
+      "feature": "local_total_avg_start_time",
+      "win_gain_pct": 0.136,
+      "top3_gain_pct": 0.2389,
+      "combined_gain_pct": 0.1874
+    },
+    {
+      "feature": "is_center",
+      "win_gain_pct": 0.2238,
+      "top3_gain_pct": 0.1501,
+      "combined_gain_pct": 0.1869
+    },
+    {
+      "feature": "observed_tide_tp_cm",
+      "win_gain_pct": 0.1437,
+      "top3_gain_pct": 0.2285,
+      "combined_gain_pct": 0.1861
+    },
+    {
+      "feature": "local_course_win_pct",
+      "win_gain_pct": 0.1653,
+      "top3_gain_pct": 0.2063,
+      "combined_gain_pct": 0.1858
+    },
+    {
+      "feature": "tenji_time",
+      "win_gain_pct": 0.144,
+      "top3_gain_pct": 0.2267,
+      "combined_gain_pct": 0.1853
+    },
+    {
+      "feature": "observed_age_minutes",
+      "win_gain_pct": 0.1571,
+      "top3_gain_pct": 0.2125,
+      "combined_gain_pct": 0.1848
+    },
+    {
+      "feature": "observed_tide_cm",
+      "win_gain_pct": 0.1417,
+      "top3_gain_pct": 0.2267,
+      "combined_gain_pct": 0.1842
+    },
+    {
+      "feature": "st_rank_vs_race_avg",
+      "win_gain_pct": 0.1776,
+      "top3_gain_pct": 0.1879,
+      "combined_gain_pct": 0.1828
+    },
+    {
+      "feature": "current_signed_knots",
+      "win_gain_pct": 0.1488,
+      "top3_gain_pct": 0.2116,
+      "combined_gain_pct": 0.1802
+    },
+    {
+      "feature": "start_tenji_time",
+      "win_gain_pct": 0.1426,
+      "top3_gain_pct": 0.2167,
+      "combined_gain_pct": 0.1796
+    },
+    {
+      "feature": "current_speed_mps",
+      "win_gain_pct": 0.1318,
+      "top3_gain_pct": 0.2206,
+      "combined_gain_pct": 0.1762
+    },
+    {
+      "feature": "national_course_avg_start_time",
+      "win_gain_pct": 0.1386,
+      "top3_gain_pct": 0.2137,
+      "combined_gain_pct": 0.1761
+    },
+    {
+      "feature": "observed_lead_to_race_minutes",
+      "win_gain_pct": 0.1535,
+      "top3_gain_pct": 0.1958,
+      "combined_gain_pct": 0.1747
+    },
+    {
+      "feature": "tenji_race_spread",
+      "win_gain_pct": 0.1598,
+      "top3_gain_pct": 0.1847,
+      "combined_gain_pct": 0.1723
+    },
+    {
+      "feature": "sashi_pct_year",
+      "win_gain_pct": 0.1338,
+      "top3_gain_pct": 0.2045,
+      "combined_gain_pct": 0.1692
+    },
+    {
+      "feature": "nigashi_pct_year",
+      "win_gain_pct": 0.1398,
+      "top3_gain_pct": 0.1924,
+      "combined_gain_pct": 0.1661
+    },
+    {
+      "feature": "mawariashi_time",
+      "win_gain_pct": 0.1251,
+      "top3_gain_pct": 0.2017,
+      "combined_gain_pct": 0.1634
+    },
+    {
+      "feature": "lap_race_spread",
+      "win_gain_pct": 0.1407,
+      "top3_gain_pct": 0.182,
+      "combined_gain_pct": 0.1613
+    },
+    {
+      "feature": "chokusen_time",
+      "win_gain_pct": 0.1302,
+      "top3_gain_pct": 0.1873,
+      "combined_gain_pct": 0.1588
+    },
+    {
+      "feature": "local_total_starts",
+      "win_gain_pct": 0.1113,
+      "top3_gain_pct": 0.206,
+      "combined_gain_pct": 0.1587
+    },
+    {
+      "feature": "effective_lap_time",
+      "win_gain_pct": 0.1297,
+      "top3_gain_pct": 0.1813,
+      "combined_gain_pct": 0.1555
+    },
+    {
+      "feature": "local_course_top3_pct",
+      "win_gain_pct": 0.1183,
+      "top3_gain_pct": 0.1893,
+      "combined_gain_pct": 0.1538
+    },
+    {
+      "feature": "predicted_tide_tp_cm",
+      "win_gain_pct": 0.1248,
+      "top3_gain_pct": 0.1819,
+      "combined_gain_pct": 0.1534
+    },
+    {
+      "feature": "st_time_avg_general",
+      "win_gain_pct": 0.1152,
+      "top3_gain_pct": 0.1913,
+      "combined_gain_pct": 0.1532
+    },
+    {
+      "feature": "local_course_avg_start_time",
+      "win_gain_pct": 0.1095,
+      "top3_gain_pct": 0.1936,
+      "combined_gain_pct": 0.1515
+    },
+    {
+      "feature": "local_course_starts",
+      "win_gain_pct": 0.1178,
+      "top3_gain_pct": 0.1851,
+      "combined_gain_pct": 0.1515
+    },
+    {
+      "feature": "st_rank_general",
+      "win_gain_pct": 0.1086,
+      "top3_gain_pct": 0.1904,
+      "combined_gain_pct": 0.1495
+    },
+    {
+      "feature": "start_tenji_race_spread",
+      "win_gain_pct": 0.1085,
+      "top3_gain_pct": 0.1877,
+      "combined_gain_pct": 0.1481
+    },
+    {
+      "feature": "national_total_starts",
+      "win_gain_pct": 0.1038,
+      "top3_gain_pct": 0.1922,
+      "combined_gain_pct": 0.148
+    },
+    {
+      "feature": "makurizashi_pct_year",
+      "win_gain_pct": 0.1006,
+      "top3_gain_pct": 0.1953,
+      "combined_gain_pct": 0.1479
+    },
+    {
+      "feature": "start_tenji_rank",
+      "win_gain_pct": 0.1091,
+      "top3_gain_pct": 0.1866,
+      "combined_gain_pct": 0.1478
+    },
+    {
+      "feature": "weight_adjust",
+      "win_gain_pct": 0.1092,
+      "top3_gain_pct": 0.1828,
+      "combined_gain_pct": 0.146
+    },
+    {
+      "feature": "national_course_starts",
+      "win_gain_pct": 0.096,
+      "top3_gain_pct": 0.1861,
+      "combined_gain_pct": 0.141
+    },
+    {
+      "feature": "is_summer",
+      "win_gain_pct": 0.1058,
+      "top3_gain_pct": 0.1751,
+      "combined_gain_pct": 0.1405
+    },
+    {
+      "feature": "tide_range_position",
+      "win_gain_pct": 0.1086,
+      "top3_gain_pct": 0.1702,
+      "combined_gain_pct": 0.1394
+    },
+    {
+      "feature": "water_degree",
+      "win_gain_pct": 0.1037,
+      "top3_gain_pct": 0.1736,
+      "combined_gain_pct": 0.1386
+    },
+    {
+      "feature": "daily_tide_range_cm",
+      "win_gain_pct": 0.1014,
+      "top3_gain_pct": 0.1746,
+      "combined_gain_pct": 0.138
+    },
+    {
+      "feature": "mawariashi_race_spread",
+      "win_gain_pct": 0.1077,
+      "top3_gain_pct": 0.1631,
+      "combined_gain_pct": 0.1354
+    },
+    {
+      "feature": "chokusen_race_spread",
+      "win_gain_pct": 0.1084,
+      "top3_gain_pct": 0.1605,
+      "combined_gain_pct": 0.1344
+    },
+    {
+      "feature": "minutes_to_next_extreme",
+      "win_gain_pct": 0.1046,
+      "top3_gain_pct": 0.1628,
+      "combined_gain_pct": 0.1337
+    },
+    {
+      "feature": "tide_level_cm",
+      "win_gain_pct": 0.1007,
+      "top3_gain_pct": 0.1664,
+      "combined_gain_pct": 0.1336
+    },
+    {
+      "feature": "predicted_tide_cm",
+      "win_gain_pct": 0.1105,
+      "top3_gain_pct": 0.1558,
+      "combined_gain_pct": 0.1331
+    },
+    {
+      "feature": "tide_delta_cm_per_hour",
+      "win_gain_pct": 0.105,
+      "top3_gain_pct": 0.1605,
+      "combined_gain_pct": 0.1327
+    },
+    {
+      "feature": "tide_phase",
+      "win_gain_pct": 0.0,
+      "top3_gain_pct": 0.1718,
+      "combined_gain_pct": 0.0859
+    }
+  ],
+  "feature_coverage": [
+    {
+      "feature": "boat_number",
+      "coverage_pct": 100.0,
+      "distinct": 6
+    },
+    {
+      "feature": "round",
+      "coverage_pct": 100.0,
+      "distinct": 12
+    },
+    {
+      "feature": "weather_degree",
+      "coverage_pct": 100.0,
+      "distinct": 336
+    },
+    {
+      "feature": "wind_speed",
+      "coverage_pct": 100.0,
+      "distinct": 16
+    },
+    {
+      "feature": "water_degree",
+      "coverage_pct": 100.0,
+      "distinct": 274
+    },
+    {
+      "feature": "wave_height",
+      "coverage_pct": 99.999,
+      "distinct": 20
+    },
+    {
+      "feature": "general_3ren_pct",
+      "coverage_pct": 99.859,
+      "distinct": 2002
+    },
+    {
+      "feature": "general_3ren_count",
+      "coverage_pct": 99.859,
+      "distinct": 82
+    },
+    {
+      "feature": "st_rank_general",
+      "coverage_pct": 67.483,
+      "distinct": 6193
+    },
+    {
+      "feature": "st_time_avg_general",
+      "coverage_pct": 67.481,
+      "distinct": 2134
+    },
+    {
+      "feature": "tenji_time",
+      "coverage_pct": 100.0,
+      "distinct": 149
+    },
+    {
+      "feature": "tenji_rank",
+      "coverage_pct": 100.0,
+      "distinct": 6
+    },
+    {
+      "feature": "effective_lap_time",
+      "coverage_pct": 89.183,
+      "distinct": 809
+    },
+    {
+      "feature": "avg_isshu_diff",
+      "coverage_pct": 85.061,
+      "distinct": 2106
+    },
+    {
+      "feature": "chokusen_time",
+      "coverage_pct": 79.193,
+      "distinct": 340
+    },
+    {
+      "feature": "mawariashi_time",
+      "coverage_pct": 88.468,
+      "distinct": 747
+    },
+    {
+      "feature": "before_start_sinnyu",
+      "coverage_pct": 99.844,
+      "distinct": 6
+    },
+    {
+      "feature": "start_tenji_time",
+      "coverage_pct": 99.84,
+      "distinct": 148
+    },
+    {
+      "feature": "start_tenji_rank",
+      "coverage_pct": 98.751,
+      "distinct": 6
+    },
+    {
+      "feature": "tilt",
+      "coverage_pct": 100.0,
+      "distinct": 8
+    },
+    {
+      "feature": "weight",
+      "coverage_pct": 100.0,
+      "distinct": 206
+    },
+    {
+      "feature": "weight_adjust",
+      "coverage_pct": 100.0,
+      "distinct": 15
+    },
+    {
+      "feature": "nige_pct_year",
+      "coverage_pct": 99.869,
+      "distinct": 1165
+    },
+    {
+      "feature": "sasare_pct_year",
+      "coverage_pct": 99.869,
+      "distinct": 657
+    },
+    {
+      "feature": "makurare_pct_year",
+      "coverage_pct": 99.869,
+      "distinct": 695
+    },
+    {
+      "feature": "sashi_pct_year",
+      "coverage_pct": 99.869,
+      "distinct": 489
+    },
+    {
+      "feature": "makuri_pct_year",
+      "coverage_pct": 99.869,
+      "distinct": 528
+    },
+    {
+      "feature": "makurizashi_pct_year",
+      "coverage_pct": 99.869,
+      "distinct": 431
+    },
+    {
+      "feature": "makurizasare_pct_year",
+      "coverage_pct": 99.869,
+      "distinct": 569
+    },
+    {
+      "feature": "nigashi_pct_year",
+      "coverage_pct": 99.869,
+      "distinct": 603
+    },
+    {
+      "feature": "win_method_race_count_year",
+      "coverage_pct": 100.0,
+      "distinct": 162
+    },
+    {
+      "feature": "local_course_starts",
+      "coverage_pct": 67.854,
+      "distinct": 73
+    },
+    {
+      "feature": "local_course_win_pct",
+      "coverage_pct": 67.854,
+      "distinct": 308
+    },
+    {
+      "feature": "local_course_top3_pct",
+      "coverage_pct": 67.854,
+      "distinct": 393
+    },
+    {
+      "feature": "local_course_avg_start_time",
+      "coverage_pct": 67.852,
+      "distinct": 3943
+    },
+    {
+      "feature": "national_course_starts",
+      "coverage_pct": 98.005,
+      "distinct": 304
+    },
+    {
+      "feature": "national_course_win_pct",
+      "coverage_pct": 98.005,
+      "distinct": 3193
+    },
+    {
+      "feature": "national_course_top3_pct",
+      "coverage_pct": 98.005,
+      "distinct": 3963
+    },
+    {
+      "feature": "national_course_avg_start_time",
+      "coverage_pct": 98.004,
+      "distinct": 30104
+    },
+    {
+      "feature": "local_total_starts",
+      "coverage_pct": 91.028,
+      "distinct": 145
+    },
+    {
+      "feature": "local_total_win_pct",
+      "coverage_pct": 91.028,
+      "distinct": 1583
+    },
+    {
+      "feature": "local_total_top3_pct",
+      "coverage_pct": 91.028,
+      "distinct": 2085
+    },
+    {
+      "feature": "local_total_avg_start_time",
+      "coverage_pct": 91.027,
+      "distinct": 16595
+    },
+    {
+      "feature": "national_total_starts",
+      "coverage_pct": 99.478,
+      "distinct": 472
+    },
+    {
+      "feature": "national_total_win_pct",
+      "coverage_pct": 99.478,
+      "distinct": 17058
+    },
+    {
+      "feature": "national_total_top3_pct",
+      "coverage_pct": 99.478,
+      "distinct": 25478
+    },
+    {
+      "feature": "national_total_avg_start_time",
+      "coverage_pct": 99.478,
+      "distinct": 140797
+    },
+    {
+      "feature": "rank_score",
+      "coverage_pct": 100.0,
+      "distinct": 4
+    },
+    {
+      "feature": "is_inner",
+      "coverage_pct": 100.0,
+      "distinct": 2
+    },
+    {
+      "feature": "is_center",
+      "coverage_pct": 100.0,
+      "distinct": 2
+    },
+    {
+      "feature": "is_outer",
+      "coverage_pct": 100.0,
+      "distinct": 2
+    },
+    {
+      "feature": "is_summer",
+      "coverage_pct": 100.0,
+      "distinct": 2
+    },
+    {
+      "feature": "lap_is_half",
+      "coverage_pct": 100.0,
+      "distinct": 2
+    },
+    {
+      "feature": "course_change",
+      "coverage_pct": 99.844,
+      "distinct": 11
+    },
+    {
+      "feature": "tenji_vs_race_avg",
+      "coverage_pct": 100.0,
+      "distinct": 891
+    },
+    {
+      "feature": "lap_vs_race_avg",
+      "coverage_pct": 89.183,
+      "distinct": 5014
+    },
+    {
+      "feature": "chokusen_vs_race_avg",
+      "coverage_pct": 79.193,
+      "distinct": 1821
+    },
+    {
+      "feature": "mawariashi_vs_race_avg",
+      "coverage_pct": 88.468,
+      "distinct": 3946
+    },
+    {
+      "feature": "start_tenji_vs_race_avg",
+      "coverage_pct": 99.84,
+      "distinct": 2493
+    },
+    {
+      "feature": "general_3ren_vs_race_avg",
+      "coverage_pct": 99.859,
+      "distinct": 154678
+    },
+    {
+      "feature": "st_rank_vs_race_avg",
+      "coverage_pct": 67.483,
+      "distinct": 202142
+    },
+    {
+      "feature": "st_time_vs_race_avg",
+      "coverage_pct": 67.481,
+      "distinct": 27310
+    },
+    {
+      "feature": "rank_score_vs_race_avg",
+      "coverage_pct": 100.0,
+      "distinct": 41
+    },
+    {
+      "feature": "weight_vs_race_avg",
+      "coverage_pct": 100.0,
+      "distinct": 2498
+    },
+    {
+      "feature": "tenji_rank_in_race",
+      "coverage_pct": 100.0,
+      "distinct": 11
+    },
+    {
+      "feature": "lap_rank_in_race",
+      "coverage_pct": 89.183,
+      "distinct": 11
+    },
+    {
+      "feature": "chokusen_rank_in_race",
+      "coverage_pct": 79.193,
+      "distinct": 11
+    },
+    {
+      "feature": "mawariashi_rank_in_race",
+      "coverage_pct": 88.468,
+      "distinct": 11
+    },
+    {
+      "feature": "start_tenji_rank_in_race",
+      "coverage_pct": 99.84,
+      "distinct": 11
+    },
+    {
+      "feature": "tenji_race_spread",
+      "coverage_pct": 100.0,
+      "distinct": 104
+    },
+    {
+      "feature": "lap_race_spread",
+      "coverage_pct": 89.197,
+      "distinct": 674
+    },
+    {
+      "feature": "chokusen_race_spread",
+      "coverage_pct": 79.198,
+      "distinct": 263
+    },
+    {
+      "feature": "mawariashi_race_spread",
+      "coverage_pct": 88.478,
+      "distinct": 507
+    },
+    {
+      "feature": "start_tenji_race_spread",
+      "coverage_pct": 99.844,
+      "distinct": 236
+    },
+    {
+      "feature": "has_lap",
+      "coverage_pct": 100.0,
+      "distinct": 2
+    },
+    {
+      "feature": "has_chokusen",
+      "coverage_pct": 100.0,
+      "distinct": 2
+    },
+    {
+      "feature": "has_mawariashi",
+      "coverage_pct": 100.0,
+      "distinct": 2
+    },
+    {
+      "feature": "has_start_tenji",
+      "coverage_pct": 100.0,
+      "distinct": 2
+    },
+    {
+      "feature": "has_tide",
+      "coverage_pct": 100.0,
+      "distinct": 2
+    },
+    {
+      "feature": "has_current",
+      "coverage_pct": 100.0,
+      "distinct": 2
+    },
+    {
+      "feature": "tide_level_cm",
+      "coverage_pct": 62.168,
+      "distinct": 15156
+    },
+    {
+      "feature": "predicted_tide_cm",
+      "coverage_pct": 62.168,
+      "distinct": 15156
+    },
+    {
+      "feature": "predicted_tide_tp_cm",
+      "coverage_pct": 31.853,
+      "distinct": 14930
+    },
+    {
+      "feature": "observed_tide_cm",
+      "coverage_pct": 20.065,
+      "distinct": 257
+    },
+    {
+      "feature": "observed_tide_tp_cm",
+      "coverage_pct": 20.065,
+      "distinct": 649
+    },
+    {
+      "feature": "observed_age_minutes",
+      "coverage_pct": 20.065,
+      "distinct": 110
+    },
+    {
+      "feature": "observed_lead_to_race_minutes",
+      "coverage_pct": 20.065,
+      "distinct": 110
+    },
+    {
+      "feature": "observed_prediction_anomaly_cm",
+      "coverage_pct": 20.065,
+      "distinct": 61
+    },
+    {
+      "feature": "tide_delta_cm_per_hour",
+      "coverage_pct": 62.109,
+      "distinct": 170
+    },
+    {
+      "feature": "daily_tide_range_cm",
+      "coverage_pct": 62.168,
+      "distinct": 339
+    },
+    {
+      "feature": "tide_range_position",
+      "coverage_pct": 62.168,
+      "distinct": 45646
+    },
+    {
+      "feature": "minutes_to_next_extreme",
+      "coverage_pct": 60.266,
+      "distinct": 571
+    },
+    {
+      "feature": "current_speed_mps",
+      "coverage_pct": 9.773,
+      "distinct": 2617
+    },
+    {
+      "feature": "current_signed_knots",
+      "coverage_pct": 9.773,
+      "distinct": 3743
+    },
+    {
+      "feature": "current_direction_deg",
+      "coverage_pct": 9.608,
+      "distinct": 4
+    },
+    {
+      "feature": "air_pressure_hpa",
+      "coverage_pct": 0.0,
+      "distinct": 0
+    },
+    {
+      "feature": "precipitation_mm",
+      "coverage_pct": 0.0,
+      "distinct": 0
+    }
+  ],
+  "feature_count": 325,
+  "feature_columns": [
+    "boat_number",
+    "round",
+    "weather_degree",
+    "wind_speed",
+    "water_degree",
+    "wave_height",
+    "general_3ren_pct",
+    "general_3ren_count",
+    "st_rank_general",
+    "st_time_avg_general",
+    "tenji_time",
+    "tenji_rank",
+    "effective_lap_time",
+    "avg_isshu_diff",
+    "chokusen_time",
+    "mawariashi_time",
+    "before_start_sinnyu",
+    "start_tenji_time",
+    "start_tenji_rank",
+    "tilt",
+    "weight",
+    "weight_adjust",
+    "nige_pct_year",
+    "sasare_pct_year",
+    "makurare_pct_year",
+    "sashi_pct_year",
+    "makuri_pct_year",
+    "makurizashi_pct_year",
+    "makurizasare_pct_year",
+    "nigashi_pct_year",
+    "win_method_race_count_year",
+    "local_course_starts",
+    "local_course_win_pct",
+    "local_course_top3_pct",
+    "local_course_avg_start_time",
+    "national_course_starts",
+    "national_course_win_pct",
+    "national_course_top3_pct",
+    "national_course_avg_start_time",
+    "local_total_starts",
+    "local_total_win_pct",
+    "local_total_top3_pct",
+    "local_total_avg_start_time",
+    "national_total_starts",
+    "national_total_win_pct",
+    "national_total_top3_pct",
+    "national_total_avg_start_time",
+    "rank_score",
+    "is_inner",
+    "is_center",
+    "is_outer",
+    "is_summer",
+    "lap_is_half",
+    "course_change",
+    "tenji_vs_race_avg",
+    "lap_vs_race_avg",
+    "chokusen_vs_race_avg",
+    "mawariashi_vs_race_avg",
+    "start_tenji_vs_race_avg",
+    "general_3ren_vs_race_avg",
+    "st_rank_vs_race_avg",
+    "st_time_vs_race_avg",
+    "rank_score_vs_race_avg",
+    "weight_vs_race_avg",
+    "tenji_rank_in_race",
+    "lap_rank_in_race",
+    "chokusen_rank_in_race",
+    "mawariashi_rank_in_race",
+    "start_tenji_rank_in_race",
+    "tenji_race_spread",
+    "lap_race_spread",
+    "chokusen_race_spread",
+    "mawariashi_race_spread",
+    "start_tenji_race_spread",
+    "has_lap",
+    "has_chokusen",
+    "has_mawariashi",
+    "has_start_tenji",
+    "has_tide",
+    "has_current",
+    "tide_level_cm",
+    "predicted_tide_cm",
+    "predicted_tide_tp_cm",
+    "observed_tide_cm",
+    "observed_tide_tp_cm",
+    "observed_age_minutes",
+    "observed_lead_to_race_minutes",
+    "observed_prediction_anomaly_cm",
+    "tide_delta_cm_per_hour",
+    "daily_tide_range_cm",
+    "tide_range_position",
+    "minutes_to_next_extreme",
+    "current_speed_mps",
+    "current_signed_knots",
+    "current_direction_deg",
+    "place_id_1",
+    "place_id_10",
+    "place_id_11",
+    "place_id_12",
+    "place_id_13",
+    "place_id_14",
+    "place_id_15",
+    "place_id_16",
+    "place_id_17",
+    "place_id_18",
+    "place_id_19",
+    "place_id_2",
+    "place_id_20",
+    "place_id_21",
+    "place_id_22",
+    "place_id_23",
+    "place_id_24",
+    "place_id_3",
+    "place_id_4",
+    "place_id_5",
+    "place_id_6",
+    "place_id_7",
+    "place_id_8",
+    "place_id_9",
+    "place_boat_10_1",
+    "place_boat_10_2",
+    "place_boat_10_3",
+    "place_boat_10_4",
+    "place_boat_10_5",
+    "place_boat_10_6",
+    "place_boat_11_1",
+    "place_boat_11_2",
+    "place_boat_11_3",
+    "place_boat_11_4",
+    "place_boat_11_5",
+    "place_boat_11_6",
+    "place_boat_12_1",
+    "place_boat_12_2",
+    "place_boat_12_3",
+    "place_boat_12_4",
+    "place_boat_12_5",
+    "place_boat_12_6",
+    "place_boat_13_1",
+    "place_boat_13_2",
+    "place_boat_13_3",
+    "place_boat_13_4",
+    "place_boat_13_5",
+    "place_boat_13_6",
+    "place_boat_14_1",
+    "place_boat_14_2",
+    "place_boat_14_3",
+    "place_boat_14_4",
+    "place_boat_14_5",
+    "place_boat_14_6",
+    "place_boat_15_1",
+    "place_boat_15_2",
+    "place_boat_15_3",
+    "place_boat_15_4",
+    "place_boat_15_5",
+    "place_boat_15_6",
+    "place_boat_16_1",
+    "place_boat_16_2",
+    "place_boat_16_3",
+    "place_boat_16_4",
+    "place_boat_16_5",
+    "place_boat_16_6",
+    "place_boat_17_1",
+    "place_boat_17_2",
+    "place_boat_17_3",
+    "place_boat_17_4",
+    "place_boat_17_5",
+    "place_boat_17_6",
+    "place_boat_18_1",
+    "place_boat_18_2",
+    "place_boat_18_3",
+    "place_boat_18_4",
+    "place_boat_18_5",
+    "place_boat_18_6",
+    "place_boat_19_1",
+    "place_boat_19_2",
+    "place_boat_19_3",
+    "place_boat_19_4",
+    "place_boat_19_5",
+    "place_boat_19_6",
+    "place_boat_1_1",
+    "place_boat_1_2",
+    "place_boat_1_3",
+    "place_boat_1_4",
+    "place_boat_1_5",
+    "place_boat_1_6",
+    "place_boat_20_1",
+    "place_boat_20_2",
+    "place_boat_20_3",
+    "place_boat_20_4",
+    "place_boat_20_5",
+    "place_boat_20_6",
+    "place_boat_21_1",
+    "place_boat_21_2",
+    "place_boat_21_3",
+    "place_boat_21_4",
+    "place_boat_21_5",
+    "place_boat_21_6",
+    "place_boat_22_1",
+    "place_boat_22_2",
+    "place_boat_22_3",
+    "place_boat_22_4",
+    "place_boat_22_5",
+    "place_boat_22_6",
+    "place_boat_23_1",
+    "place_boat_23_2",
+    "place_boat_23_3",
+    "place_boat_23_4",
+    "place_boat_23_5",
+    "place_boat_23_6",
+    "place_boat_24_1",
+    "place_boat_24_2",
+    "place_boat_24_3",
+    "place_boat_24_4",
+    "place_boat_24_5",
+    "place_boat_24_6",
+    "place_boat_2_1",
+    "place_boat_2_2",
+    "place_boat_2_3",
+    "place_boat_2_4",
+    "place_boat_2_5",
+    "place_boat_2_6",
+    "place_boat_3_1",
+    "place_boat_3_2",
+    "place_boat_3_3",
+    "place_boat_3_4",
+    "place_boat_3_5",
+    "place_boat_3_6",
+    "place_boat_4_1",
+    "place_boat_4_2",
+    "place_boat_4_3",
+    "place_boat_4_4",
+    "place_boat_4_5",
+    "place_boat_4_6",
+    "place_boat_5_1",
+    "place_boat_5_2",
+    "place_boat_5_3",
+    "place_boat_5_4",
+    "place_boat_5_5",
+    "place_boat_5_6",
+    "place_boat_6_1",
+    "place_boat_6_2",
+    "place_boat_6_3",
+    "place_boat_6_4",
+    "place_boat_6_5",
+    "place_boat_6_6",
+    "place_boat_7_1",
+    "place_boat_7_2",
+    "place_boat_7_3",
+    "place_boat_7_4",
+    "place_boat_7_5",
+    "place_boat_7_6",
+    "place_boat_8_1",
+    "place_boat_8_2",
+    "place_boat_8_3",
+    "place_boat_8_4",
+    "place_boat_8_5",
+    "place_boat_8_6",
+    "place_boat_9_1",
+    "place_boat_9_2",
+    "place_boat_9_3",
+    "place_boat_9_4",
+    "place_boat_9_5",
+    "place_boat_9_6",
+    "round_band_early",
+    "round_band_late",
+    "round_band_middle",
+    "race_grade_G1a",
+    "race_grade_G1b",
+    "race_grade_G2b",
+    "race_grade_G3b",
+    "race_grade_Ippan",
+    "race_grade_SGa",
+    "weather_晴",
+    "weather_曇り",
+    "weather_雨",
+    "weather_雪",
+    "weather_霧",
+    "wind_direction_1",
+    "wind_direction_10",
+    "wind_direction_11",
+    "wind_direction_12",
+    "wind_direction_13",
+    "wind_direction_14",
+    "wind_direction_15",
+    "wind_direction_16",
+    "wind_direction_17",
+    "wind_direction_2",
+    "wind_direction_3",
+    "wind_direction_4",
+    "wind_direction_5",
+    "wind_direction_6",
+    "wind_direction_7",
+    "wind_direction_8",
+    "wind_direction_9",
+    "rank_A1",
+    "rank_A2",
+    "rank_B1",
+    "rank_B2",
+    "tide_phase_",
+    "tide_phase_missing",
+    "tide_phase_上げ",
+    "tide_phase_下げ",
+    "tide_phase_止まり付近",
+    "water_applicability_applicable",
+    "water_applicability_controlled",
+    "water_applicability_not_applicable",
+    "water_source_quality_direct",
+    "water_source_quality_direct_prediction",
+    "water_source_quality_nearby",
+    "water_source_quality_nearby_prediction",
+    "water_source_quality_nearby_proxy",
+    "water_source_quality_not_applicable",
+    "water_source_quality_regional_prediction",
+    "next_extreme_type_high",
+    "next_extreme_type_low",
+    "next_extreme_type_missing",
+    "current_direction_text_missing",
+    "current_direction_text_北流",
+    "current_direction_text_南流",
+    "current_direction_text_東流",
+    "current_direction_text_西流",
+    "current_direction_text_転流付近",
+    "current_quality_missing",
+    "current_quality_nearby_strait_proxy",
+    "current_quality_regional_proxy"
+  ],
+  "numeric_features": [
+    "boat_number",
+    "round",
+    "weather_degree",
+    "wind_speed",
+    "water_degree",
+    "wave_height",
+    "general_3ren_pct",
+    "general_3ren_count",
+    "st_rank_general",
+    "st_time_avg_general",
+    "tenji_time",
+    "tenji_rank",
+    "effective_lap_time",
+    "avg_isshu_diff",
+    "chokusen_time",
+    "mawariashi_time",
+    "before_start_sinnyu",
+    "start_tenji_time",
+    "start_tenji_rank",
+    "tilt",
+    "weight",
+    "weight_adjust",
+    "nige_pct_year",
+    "sasare_pct_year",
+    "makurare_pct_year",
+    "sashi_pct_year",
+    "makuri_pct_year",
+    "makurizashi_pct_year",
+    "makurizasare_pct_year",
+    "nigashi_pct_year",
+    "win_method_race_count_year",
+    "local_course_starts",
+    "local_course_win_pct",
+    "local_course_top3_pct",
+    "local_course_avg_start_time",
+    "national_course_starts",
+    "national_course_win_pct",
+    "national_course_top3_pct",
+    "national_course_avg_start_time",
+    "local_total_starts",
+    "local_total_win_pct",
+    "local_total_top3_pct",
+    "local_total_avg_start_time",
+    "national_total_starts",
+    "national_total_win_pct",
+    "national_total_top3_pct",
+    "national_total_avg_start_time",
+    "rank_score",
+    "is_inner",
+    "is_center",
+    "is_outer",
+    "is_summer",
+    "lap_is_half",
+    "course_change",
+    "tenji_vs_race_avg",
+    "lap_vs_race_avg",
+    "chokusen_vs_race_avg",
+    "mawariashi_vs_race_avg",
+    "start_tenji_vs_race_avg",
+    "general_3ren_vs_race_avg",
+    "st_rank_vs_race_avg",
+    "st_time_vs_race_avg",
+    "rank_score_vs_race_avg",
+    "weight_vs_race_avg",
+    "tenji_rank_in_race",
+    "lap_rank_in_race",
+    "chokusen_rank_in_race",
+    "mawariashi_rank_in_race",
+    "start_tenji_rank_in_race",
+    "tenji_race_spread",
+    "lap_race_spread",
+    "chokusen_race_spread",
+    "mawariashi_race_spread",
+    "start_tenji_race_spread",
+    "has_lap",
+    "has_chokusen",
+    "has_mawariashi",
+    "has_start_tenji",
+    "has_tide",
+    "has_current",
+    "tide_level_cm",
+    "predicted_tide_cm",
+    "predicted_tide_tp_cm",
+    "observed_tide_cm",
+    "observed_tide_tp_cm",
+    "observed_age_minutes",
+    "observed_lead_to_race_minutes",
+    "observed_prediction_anomaly_cm",
+    "tide_delta_cm_per_hour",
+    "daily_tide_range_cm",
+    "tide_range_position",
+    "minutes_to_next_extreme",
+    "current_speed_mps",
+    "current_signed_knots",
+    "current_direction_deg",
+    "air_pressure_hpa",
+    "precipitation_mm"
+  ],
+  "categorical_features": [
+    "place_id",
+    "place_boat",
+    "round_band",
+    "race_grade",
+    "weather",
+    "wind_direction",
+    "rank",
+    "tide_phase",
+    "water_applicability",
+    "water_source_quality",
+    "next_extreme_type",
+    "current_direction_text",
+    "current_quality"
+  ],
+  "model_path": "/private/tmp/kyotei-mm1601-reflect/data/output/self_ai_models/independent_probability_model_20260712_235842.joblib",
+  "current_model_path": "/private/tmp/kyotei-mm1601-reflect/data/output/self_ai_models/independent_probability_model_current.joblib",
+  "prediction_path": "/private/tmp/kyotei-mm1601-reflect/reports/independent_probability/independent_probability_test_20260712_235842.csv.gz"
+}

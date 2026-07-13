@@ -1,0 +1,260 @@
+{
+  "version": "original-boaters-24-rules-v1.1",
+  "rule_set_id": "original_boaters_24_v1",
+  "frozen_at": "2026-07-12T09:29:23+09:00",
+  "source_period": {
+    "start_date": "2024-01-01",
+    "end_date": "2026-07-08"
+  },
+  "source_report": "reports/venue_full_period_improvements/full_period_comparison.json",
+  "previous_source_report": "reports/all_venue_original_boaters_search/all_venue_stable_rules_20260711_141028.json",
+  "updated_venues": ["浜名湖", "宮島", "大村"],
+  "ai_source": "original_boaters",
+  "target_forward_entries": {
+    "minimum": 100,
+    "preferred": 200
+  },
+  "exploratory_warning": "These rules were selected on the full historical period. Keep them in shadow mode until forward validation is large enough.",
+  "rules": [
+    {
+      "venue": "尼崎",
+      "status": "A",
+      "base_id": "pop2_odds30_nige45",
+      "context_id": "early_b1tenji4",
+      "template_id": "outer_h2_no1_has56_top5",
+      "condition": "1号艇がBOATERS人気2位以内・支持率30%以上・逃げ率45%以下 / 1-6Rかつ1号艇展示4位以下",
+      "buy_method": "外艇頭2艇・1号艇消し・5/6絡み・予測順位上位5点",
+      "historical": {"races": 148, "hits": 15, "hit_rate_pct": 10.14, "avg_points": 5.0, "roi_pct": 230.64}
+    },
+    {
+      "venue": "芦屋",
+      "status": "A",
+      "base_id": "pop1_overbet5",
+      "context_id": "b1tenji4",
+      "template_id": "outer_h1_no1_top4",
+      "condition": "1号艇がBOATERS人気1位で市場支持がAI1着率より5pt以上高い / 1号艇の展示順位4位以下",
+      "buy_method": "3-6号艇の頭1艇・1号艇全消し・予測順位上位4点",
+      "historical": {"races": 82, "hits": 12, "hit_rate_pct": 14.63, "avg_points": 4.0, "roi_pct": 210.7}
+    },
+    {
+      "venue": "びわこ",
+      "status": "A",
+      "base_id": "pop1_overbet0",
+      "context_id": "b1lap3",
+      "template_id": "non1_h2_no1_has56_top6",
+      "condition": "1号艇がBOATERS人気1位で市場支持がAI1着率より0pt以上高い / 1号艇の一周/半周順位3位以下",
+      "buy_method": "非1号艇頭2艇・1号艇消し・5/6絡み・予測順位上位6点",
+      "historical": {"races": 149, "hits": 13, "hit_rate_pct": 8.72, "avg_points": 6.0, "roi_pct": 217.34}
+    },
+    {
+      "venue": "江戸川",
+      "status": "B",
+      "base_id": "pop1_overbet0",
+      "context_id": "outer56_ai12",
+      "template_id": "outer_box3_6",
+      "condition": "1号艇がBOATERS人気1位で市場支持がAI1着率より0pt以上高い / 5/6号艇のAI1着率最大12%以上",
+      "buy_method": "3-6号艇の複合上位3艇BOX6点",
+      "historical": {"races": 88, "hits": 8, "hit_rate_pct": 9.09, "avg_points": 6.0, "roi_pct": 204.09}
+    },
+    {
+      "venue": "福岡",
+      "status": "A",
+      "base_id": "pop2_odds25_nige55",
+      "context_id": "late_b1tenji4",
+      "template_id": "non1_h2_no1_has56_top5",
+      "condition": "1号艇がBOATERS人気2位以内・支持率25%以上・逃げ率55%以下 / 9-12Rかつ1号艇展示4位以下",
+      "buy_method": "非1号艇頭2艇・1号艇消し・5/6絡み・予測順位上位5点",
+      "historical": {"races": 109, "hits": 13, "hit_rate_pct": 11.93, "avg_points": 5.0, "roi_pct": 211.23}
+    },
+    {
+      "venue": "蒲郡",
+      "status": "A",
+      "base_id": "pop2_odds25_nige65",
+      "context_id": "wind5",
+      "template_id": "head56_h2_no1_top8",
+      "condition": "1号艇がBOATERS人気2位以内・支持率25%以上・逃げ率65%以下 / 風速5m以上",
+      "buy_method": "5/6号艇の2艇頭・1号艇全消し・予測順位上位8点",
+      "historical": {"races": 249, "hits": 12, "hit_rate_pct": 4.82, "avg_points": 8.0, "roi_pct": 224.64}
+    },
+    {
+      "venue": "浜名湖",
+      "status": "A",
+      "base_id": "pop2_odds25_nige55",
+      "context_id": "b1avg_m005",
+      "template_id": "head56_h1_b1place_top5",
+      "condition": "1号艇がBOATERS人気2位以内・支持率25%以上・逃げ率55%以下 / 1号艇の展示+周回平均との差-0.05以下",
+      "buy_method": "5/6号艇のうち評価上位1艇頭・1号艇は2/3着可・予測順位上位5点",
+      "historical": {"races": 214, "hits": 18, "hit_rate_pct": 8.41, "avg_points": 5.0, "roi_pct": 234.08}
+    },
+    {
+      "venue": "平和島",
+      "status": "A",
+      "base_id": "pop1_odds50_nige65",
+      "context_id": "round9_12",
+      "template_id": "non1_h2_no1_top4_plus5_outertop3_ge65",
+      "condition": "1号艇がBOATERS人気1位・支持率50%以上・逃げ率65%以下 / 9-12R",
+      "buy_method": "2-6号艇の頭2艇・1号艇全消し・基本4点、外艇AI3連対率65%以上なら5点",
+      "historical": {"races": 254, "hits": 10, "hit_rate_pct": 3.94, "avg_points": 4.26, "roi_pct": 223.97}
+    },
+    {
+      "venue": "唐津",
+      "status": "A",
+      "base_id": "pop1_odds50_nige60",
+      "context_id": "outer2_wind5",
+      "template_id": "outer_h1_b1place_top5",
+      "condition": "1号艇がBOATERS人気1位・支持率50%以上・逃げ率60%以下 / 外艇上位2艇以上かつ風速5m以上",
+      "buy_method": "3-6号艇の頭1艇・1号艇は2/3着可・予測順位上位5点",
+      "historical": {"races": 114, "hits": 13, "hit_rate_pct": 11.4, "avg_points": 5.0, "roi_pct": 202.96}
+    },
+    {
+      "venue": "桐生",
+      "status": "A",
+      "base_id": "pop2_odds25_nige35",
+      "context_id": "b1lap3",
+      "template_id": "head56_h2_no1_top6",
+      "condition": "1号艇がBOATERS人気2位以内・支持率25%以上・逃げ率35%以下 / 1号艇の一周/半周順位3位以下",
+      "buy_method": "5/6号艇の2艇頭・1号艇全消し・予測順位上位6点",
+      "historical": {"races": 149, "hits": 11, "hit_rate_pct": 7.38, "avg_points": 6.0, "roi_pct": 202.54}
+    },
+    {
+      "venue": "児島",
+      "status": "A",
+      "base_id": "pop1_odds50_nige50",
+      "context_id": "outer2_wind3",
+      "template_id": "non1_h1_b1place_top4",
+      "condition": "1号艇がBOATERS人気1位・支持率50%以上・逃げ率50%以下 / 外艇上位2艇以上かつ風速3m以上",
+      "buy_method": "2-6号艇の頭1艇・1号艇は2/3着可・予測順位上位4点",
+      "historical": {"races": 100, "hits": 16, "hit_rate_pct": 16.0, "avg_points": 4.0, "roi_pct": 220.6}
+    },
+    {
+      "venue": "丸亀",
+      "status": "A",
+      "base_id": "pop1_odds30_nige45",
+      "context_id": "round9_12",
+      "template_id": "non1_h1_no1_top4",
+      "condition": "1号艇がBOATERS人気1位・支持率30%以上・逃げ率45%以下 / 9-12R",
+      "buy_method": "2-6号艇の頭1艇・1号艇全消し・予測順位上位4点",
+      "historical": {"races": 111, "hits": 11, "hit_rate_pct": 9.91, "avg_points": 4.0, "roi_pct": 212.61}
+    },
+    {
+      "venue": "三国",
+      "status": "A",
+      "base_id": "pop1_overbet0",
+      "context_id": "b1lap3",
+      "template_id": "non1_h2_no1_top11",
+      "condition": "1号艇がBOATERS人気1位で市場支持がAI1着率より0pt以上高い / 1号艇の一周/半周順位3位以下",
+      "buy_method": "2-6号艇の頭2艇・1号艇全消し・予測順位上位11点",
+      "historical": {"races": 137, "hits": 28, "hit_rate_pct": 20.44, "avg_points": 11.0, "roi_pct": 218.75}
+    },
+    {
+      "venue": "宮島",
+      "status": "A",
+      "base_id": "pop1_odds30_nige40",
+      "context_id": "outer2_wave3",
+      "template_id": "head56_h2_b1place_top6",
+      "condition": "1号艇がBOATERS人気1位・支持率30%以上・逃げ率40%以下 / 外艇上位2艇以上かつ波高3cm以上",
+      "buy_method": "5/6号艇の2艇頭・1号艇は2/3着可・予測順位上位6点",
+      "historical": {"races": 180, "hits": 19, "hit_rate_pct": 10.56, "avg_points": 6.0, "roi_pct": 241.28}
+    },
+    {
+      "venue": "鳴門",
+      "status": "A",
+      "base_id": "pop1_odds30_nige40",
+      "context_id": "outer2_o56avg010",
+      "template_id": "outer_h1_no1_top4",
+      "condition": "1号艇がBOATERS人気1位・支持率30%以上・逃げ率40%以下 / 外艇上位2艇以上かつ5/6号艇平均との差+0.10以上",
+      "buy_method": "3-6号艇の頭1艇・1号艇全消し・予測順位上位4点",
+      "historical": {"races": 158, "hits": 14, "hit_rate_pct": 8.86, "avg_points": 4.0, "roi_pct": 207.74}
+    },
+    {
+      "venue": "大村",
+      "status": "A",
+      "base_id": "pop1_odds45_nige55",
+      "context_id": "b1lap4_outertop355",
+      "template_id": "non1_h1_b1place_top4",
+      "condition": "1号艇がBOATERS人気1位・支持率45%以上・逃げ率55%以下 / 1号艇周回4位以下かつ外艇AI3連対率55%以上",
+      "buy_method": "2-6号艇の頭1艇・1号艇は2/3着可・予測順位上位4点",
+      "historical": {"races": 191, "hits": 37, "hit_rate_pct": 19.37, "avg_points": 4.0, "roi_pct": 230.07}
+    },
+    {
+      "venue": "下関",
+      "status": "B",
+      "base_id": "pop1_odds30_nige35",
+      "context_id": "wind4_outer2",
+      "template_id": "head56_h1_b1place_top5",
+      "condition": "1号艇がBOATERS人気1位・支持率30%以上・逃げ率35%以下 / 風速4m以上かつ外艇上位2艇以上",
+      "buy_method": "5/6号艇のうち評価上位1艇頭・1号艇は2/3着可・予測順位上位5点",
+      "historical": {"races": 77, "hits": 9, "hit_rate_pct": 11.69, "avg_points": 5.0, "roi_pct": 222.05}
+    },
+    {
+      "venue": "住之江",
+      "status": "A",
+      "base_id": "pop1_odds50_nige70",
+      "context_id": "round1_3",
+      "template_id": "outer_h2_no1_top8",
+      "condition": "1号艇がBOATERS人気1位・支持率50%以上・逃げ率70%以下 / 1-3R",
+      "buy_method": "3-6号艇の頭2艇・1号艇全消し・予測順位上位8点",
+      "historical": {"races": 260, "hits": 13, "hit_rate_pct": 5.0, "avg_points": 8.0, "roi_pct": 208.29}
+    },
+    {
+      "venue": "多摩川",
+      "status": "A",
+      "base_id": "pop2_odds30_nige70",
+      "context_id": "b1avg000",
+      "template_id": "non1_h2_no1_top4_plus5_outertop3_ge70",
+      "condition": "1号艇がBOATERS人気2位以内・支持率30%以上・逃げ率70%以下 / 1号艇の展示+周回平均との差0以下",
+      "buy_method": "2-6号艇の頭2艇・1号艇全消し・基本4点、外艇AI3連対率70%以上なら5点",
+      "historical": {"races": 386, "hits": 29, "hit_rate_pct": 7.51, "avg_points": 4.34, "roi_pct": 203.04}
+    },
+    {
+      "venue": "戸田",
+      "status": "A",
+      "base_id": "pop1_odds35_nige65",
+      "context_id": "late_b1lap4",
+      "template_id": "outer_h2_no1_has56_top6",
+      "condition": "1号艇がBOATERS人気1位・支持率35%以上・逃げ率65%以下 / 9-12Rかつ1号艇周回4位以下",
+      "buy_method": "外艇頭2艇・1号艇消し・5/6絡み・予測順位上位6点",
+      "historical": {"races": 100, "hits": 10, "hit_rate_pct": 10.0, "avg_points": 6.0, "roi_pct": 220.68}
+    },
+    {
+      "venue": "常滑",
+      "status": "A",
+      "base_id": "pop1_aiwin50",
+      "context_id": "outer2_early",
+      "template_id": "head56_h2_no1_top6",
+      "condition": "1号艇がBOATERS人気1位だがAI1着率50%以下 / 1-6Rかつ外艇上位2艇以上",
+      "buy_method": "5/6号艇の2艇頭・1号艇全消し・予測順位上位6点",
+      "historical": {"races": 271, "hits": 19, "hit_rate_pct": 7.01, "avg_points": 6.0, "roi_pct": 211.38}
+    },
+    {
+      "venue": "徳山",
+      "status": "A",
+      "base_id": "pop1_odds50_nige65",
+      "context_id": "b1avg_m005",
+      "template_id": "outer_h1_b1place_top6",
+      "condition": "1号艇がBOATERS人気1位・支持率50%以上・逃げ率65%以下 / 1号艇の展示+周回平均との差-0.05以下",
+      "buy_method": "3-6号艇の頭1艇・1号艇は2/3着可・予測順位上位6点",
+      "historical": {"races": 115, "hits": 15, "hit_rate_pct": 13.04, "avg_points": 6.0, "roi_pct": 230.8}
+    },
+    {
+      "venue": "津",
+      "status": "A",
+      "base_id": "pop1_overbet0",
+      "context_id": "b1tenji5",
+      "template_id": "head56_h1_b1place_top5",
+      "condition": "1号艇がBOATERS人気1位で市場支持がAI1着率より0pt以上高い / 1号艇の展示順位5位以下",
+      "buy_method": "5/6号艇のうち評価上位1艇頭・1号艇は2/3着可・予測順位上位5点",
+      "historical": {"races": 109, "hits": 12, "hit_rate_pct": 11.01, "avg_points": 5.0, "roi_pct": 213.56}
+    },
+    {
+      "venue": "若松",
+      "status": "A",
+      "base_id": "pop1_odds30_nige35",
+      "context_id": "wind5",
+      "template_id": "head56_h1_no1_top7",
+      "condition": "1号艇がBOATERS人気1位・支持率30%以上・逃げ率35%以下 / 風速5m以上",
+      "buy_method": "5/6号艇のうち評価上位1艇頭・1号艇全消し・予測順位上位7点",
+      "historical": {"races": 78, "hits": 11, "hit_rate_pct": 14.1, "avg_points": 7.0, "roi_pct": 219.67}
+    }
+  ]
+}

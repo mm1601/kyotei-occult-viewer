@@ -1,0 +1,626 @@
+{
+  "version": "venue-probability-overlay-v1",
+  "policy_id": "venue_lane_probability_point_overlay_v1",
+  "generated_at": "2026-07-12T17:15:23+09:00",
+  "periods": {
+    "train": {
+      "start": "2024-01-01",
+      "end": "2024-12-31",
+      "races": 54591
+    },
+    "calibration": {
+      "start": "2025-01-01",
+      "end": "2025-12-31",
+      "races": 54493
+    },
+    "test": {
+      "start": "2026-01-01",
+      "end": "2026-07-08",
+      "races": 28681
+    }
+  },
+  "data_coverage_pct": {
+    "train": {
+      "ai1": 100.0,
+      "ai3": 100.0,
+      "tenji": 100.0,
+      "lap": 89.503,
+      "chokusen": 79.551,
+      "mawariashi": 87.293,
+      "wind": 100.0,
+      "wave": 99.998,
+      "tide": 62.448,
+      "current_speed": 8.591
+    },
+    "calibration": {
+      "ai1": 100.0,
+      "ai3": 100.0,
+      "tenji": 100.0,
+      "lap": 89.993,
+      "chokusen": 80.184,
+      "mawariashi": 91.974,
+      "wind": 100.0,
+      "wave": 100.0,
+      "tide": 61.714,
+      "current_speed": 11.919
+    },
+    "test": {
+      "ai1": 100.0,
+      "ai3": 100.0,
+      "tenji": 100.0,
+      "lap": 92.637,
+      "chokusen": 82.918,
+      "mawariashi": 96.452,
+      "wind": 100.0,
+      "wave": 100.0,
+      "tide": 62.578,
+      "current_speed": 12.545
+    }
+  },
+  "factor_families": [
+    "wind",
+    "wave",
+    "tide_phase",
+    "current_direction",
+    "tenji_rank",
+    "lap_rank",
+    "chokusen_rank",
+    "mawariashi_rank",
+    "start_rank",
+    "avg_combo_diff",
+    "tenji_diff",
+    "chokusen_diff",
+    "mawariashi_diff",
+    "start_diff",
+    "tide_level",
+    "tide_range_position",
+    "tide_change",
+    "current_speed",
+    "current_signed",
+    "super_slit"
+  ],
+  "factor_count_by_position": {
+    "1": 5974,
+    "2": 5974,
+    "3": 5974
+  },
+  "minimum_token_n": 80,
+  "prior_n": 150.0,
+  "selected_scales": {
+    "1": 0.0,
+    "2": 0.35,
+    "3": 0.2
+  },
+  "scale_diagnostics": {
+    "1": {
+      "selected": {
+        "scale": 0.0,
+        "row_log_loss": 0.31655866
+      },
+      "candidates": [
+        {
+          "scale": 0.0,
+          "row_log_loss": 0.31655866
+        },
+        {
+          "scale": 0.1,
+          "row_log_loss": 0.31657737
+        },
+        {
+          "scale": 0.2,
+          "row_log_loss": 0.31718874
+        },
+        {
+          "scale": 0.35,
+          "row_log_loss": 0.3197919
+        },
+        {
+          "scale": 0.5,
+          "row_log_loss": 0.32363868
+        },
+        {
+          "scale": 0.75,
+          "row_log_loss": 0.33198368
+        },
+        {
+          "scale": 1.0,
+          "row_log_loss": 0.34165914
+        }
+      ]
+    },
+    "2": {
+      "selected": {
+        "scale": 0.35,
+        "row_log_loss": 0.42208271
+      },
+      "candidates": [
+        {
+          "scale": 0.0,
+          "row_log_loss": 0.42377299
+        },
+        {
+          "scale": 0.1,
+          "row_log_loss": 0.4226963
+        },
+        {
+          "scale": 0.2,
+          "row_log_loss": 0.42209566
+        },
+        {
+          "scale": 0.35,
+          "row_log_loss": 0.42208271
+        },
+        {
+          "scale": 0.5,
+          "row_log_loss": 0.42292376
+        },
+        {
+          "scale": 0.75,
+          "row_log_loss": 0.42779325
+        },
+        {
+          "scale": 1.0,
+          "row_log_loss": 0.43778011
+        }
+      ]
+    },
+    "3": {
+      "selected": {
+        "scale": 0.2,
+        "row_log_loss": 0.43280772
+      },
+      "candidates": [
+        {
+          "scale": 0.0,
+          "row_log_loss": 0.43325128
+        },
+        {
+          "scale": 0.1,
+          "row_log_loss": 0.43289488
+        },
+        {
+          "scale": 0.2,
+          "row_log_loss": 0.43280772
+        },
+        {
+          "scale": 0.35,
+          "row_log_loss": 0.43317466
+        },
+        {
+          "scale": 0.5,
+          "row_log_loss": 0.43438222
+        },
+        {
+          "scale": 0.75,
+          "row_log_loss": 0.43856044
+        },
+        {
+          "scale": 1.0,
+          "row_log_loss": 0.44587838
+        }
+      ]
+    }
+  },
+  "calibration_metrics": {
+    "legacy_positions": {
+      "position1": {
+        "auc": 0.858397,
+        "brier": 0.096479,
+        "row_log_loss": 0.316559,
+        "calibration_error_pct": 0.9198,
+        "top_boat_accuracy_pct": 57.132
+      },
+      "position2": {
+        "auc": 0.67021,
+        "brier": 0.131995,
+        "row_log_loss": 0.423773,
+        "calibration_error_pct": 0.708,
+        "top_boat_accuracy_pct": 28.806
+      },
+      "position3": {
+        "auc": 0.632877,
+        "brier": 0.134646,
+        "row_log_loss": 0.433251,
+        "calibration_error_pct": 0.0564,
+        "top_boat_accuracy_pct": 24.341
+      }
+    },
+    "overlay_positions": {
+      "position1": {
+        "auc": 0.858397,
+        "brier": 0.096479,
+        "row_log_loss": 0.316559,
+        "calibration_error_pct": 0.9198,
+        "top_boat_accuracy_pct": 57.132
+      },
+      "position2": {
+        "auc": 0.676812,
+        "brier": 0.131404,
+        "row_log_loss": 0.422083,
+        "calibration_error_pct": 0.535,
+        "top_boat_accuracy_pct": 29.191
+      },
+      "position3": {
+        "auc": 0.635283,
+        "brier": 0.134503,
+        "row_log_loss": 0.432808,
+        "calibration_error_pct": 0.148,
+        "top_boat_accuracy_pct": 24.599
+      }
+    }
+  },
+  "test_metrics": {
+    "legacy_positions": {
+      "position1": {
+        "auc": 0.863758,
+        "brier": 0.094629,
+        "row_log_loss": 0.311182,
+        "calibration_error_pct": 0.6641,
+        "top_boat_accuracy_pct": 58.115
+      },
+      "position2": {
+        "auc": 0.677817,
+        "brier": 0.131446,
+        "row_log_loss": 0.421892,
+        "calibration_error_pct": 0.8711,
+        "top_boat_accuracy_pct": 29.528
+      },
+      "position3": {
+        "auc": 0.637217,
+        "brier": 0.134381,
+        "row_log_loss": 0.432247,
+        "calibration_error_pct": 0.1329,
+        "top_boat_accuracy_pct": 24.919
+      }
+    },
+    "overlay_positions": {
+      "position1": {
+        "auc": 0.863758,
+        "brier": 0.094629,
+        "row_log_loss": 0.311182,
+        "calibration_error_pct": 0.6641,
+        "top_boat_accuracy_pct": 58.115
+      },
+      "position2": {
+        "auc": 0.685344,
+        "brier": 0.130754,
+        "row_log_loss": 0.419535,
+        "calibration_error_pct": 0.8371,
+        "top_boat_accuracy_pct": 30.18
+      },
+      "position3": {
+        "auc": 0.639344,
+        "brier": 0.13424,
+        "row_log_loss": 0.43186,
+        "calibration_error_pct": 0.1351,
+        "top_boat_accuracy_pct": 25.285
+      }
+    },
+    "legacy": {
+      "race_count": 28681,
+      "trifecta_log_loss": 3.906452,
+      "multiclass_brier": 0.963092,
+      "mean_actual_combo_probability_pct": 3.43513,
+      "median_result_rank": 11.0,
+      "top1_hit_pct": 9.731,
+      "top3_hit_pct": 24.316,
+      "top6_hit_pct": 37.854,
+      "top12_hit_pct": 53.872,
+      "top20_hit_pct": 65.542
+    },
+    "overlay": {
+      "race_count": 28681,
+      "trifecta_log_loss": 3.884036,
+      "multiclass_brier": 0.961986,
+      "mean_actual_combo_probability_pct": 3.55907,
+      "median_result_rank": 10.0,
+      "top1_hit_pct": 9.975,
+      "top3_hit_pct": 24.581,
+      "top6_hit_pct": 38.384,
+      "top12_hit_pct": 54.384,
+      "top20_hit_pct": 66.242
+    }
+  },
+  "test_adjustment_summary": {
+    "position1": {
+      "mean_absolute_pp": 0.0,
+      "p95_absolute_pp": 0.0,
+      "max_absolute_pp": 0.0
+    },
+    "position2": {
+      "mean_absolute_pp": 1.6041,
+      "p95_absolute_pp": 3.8585,
+      "max_absolute_pp": 9.2526
+    },
+    "position3": {
+      "mean_absolute_pp": 0.7359,
+      "p95_absolute_pp": 1.8609,
+      "max_absolute_pp": 4.174
+    }
+  },
+  "sign_comparison": {
+    "race_count": 712,
+    "details_path": "/private/tmp/kyotei-mm1601-reflect/reports/original_boaters_24_miss_diagnostics/original_boaters_24_miss_diagnostics_20260711_final_details.csv",
+    "production": {
+      "stake": 420900,
+      "payback": 931910,
+      "hits": 78,
+      "profit_yen": 511010,
+      "roi_pct": 221.409,
+      "hit_rate_pct": 10.955
+    },
+    "legacy_top_same_points": {
+      "stake": 420900,
+      "payback": 312250,
+      "hits": 233,
+      "profit_yen": -108650,
+      "roi_pct": 74.186,
+      "hit_rate_pct": 32.725
+    },
+    "overlay_top_same_points": {
+      "stake": 420900,
+      "payback": 309950,
+      "hits": 216,
+      "profit_yen": -110950,
+      "roi_pct": 73.64,
+      "hit_rate_pct": 30.337
+    }
+  },
+  "top_absolute_effects": [
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "津|1",
+      "n": 2574,
+      "raw_pp": 7.272526,
+      "effect_pp": 6.872057
+    },
+    {
+      "position": 1,
+      "family": "venue_lane",
+      "token": "戸田|1",
+      "n": 2316,
+      "raw_pp": -7.314212,
+      "effect_pp": -6.869309
+    },
+    {
+      "position": 2,
+      "family": "lap_rank",
+      "token": "福岡|2|bottom2",
+      "n": 300,
+      "complement_n": 1979,
+      "raw_pp": -9.940327,
+      "effect_pp": -6.626885
+    },
+    {
+      "position": 1,
+      "family": "venue_lane",
+      "token": "平和島|1",
+      "n": 2145,
+      "raw_pp": -7.007896,
+      "effect_pp": -6.549864
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "唐津|1",
+      "n": 2391,
+      "raw_pp": 6.941382,
+      "effect_pp": 6.531619
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "丸亀|1",
+      "n": 2436,
+      "raw_pp": 6.563984,
+      "effect_pp": 6.183243
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "下関|1",
+      "n": 2352,
+      "raw_pp": 6.562241,
+      "effect_pp": 6.168821
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "児島|1",
+      "n": 2254,
+      "raw_pp": 6.306099,
+      "effect_pp": 5.912624
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "三国|1",
+      "n": 2259,
+      "raw_pp": 6.165871,
+      "effect_pp": 5.781944
+    },
+    {
+      "position": 2,
+      "family": "avg_combo_diff",
+      "token": "福岡|2|low",
+      "n": 528,
+      "complement_n": 1751,
+      "raw_pp": -7.409479,
+      "effect_pp": -5.770214
+    },
+    {
+      "position": 1,
+      "family": "wave",
+      "token": "尼崎|1|high",
+      "n": 249,
+      "complement_n": 2028,
+      "raw_pp": -9.175693,
+      "effect_pp": -5.726184
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "びわこ|1",
+      "n": 2241,
+      "raw_pp": 5.913515,
+      "effect_pp": 5.542529
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "戸田|1",
+      "n": 2316,
+      "raw_pp": 5.860736,
+      "effect_pp": 5.504244
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "鳴門|1",
+      "n": 2178,
+      "raw_pp": 5.682728,
+      "effect_pp": 5.316573
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "徳山|1",
+      "n": 1838,
+      "raw_pp": 5.617957,
+      "effect_pp": 5.194066
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "桐生|1",
+      "n": 2262,
+      "raw_pp": 5.390566,
+      "effect_pp": 5.055331
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "住之江|1",
+      "n": 2248,
+      "raw_pp": 5.389804,
+      "effect_pp": 5.05266
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "徳山|2",
+      "n": 1838,
+      "raw_pp": 5.451175,
+      "effect_pp": 5.039869
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "浜名湖|1",
+      "n": 2495,
+      "raw_pp": 5.310421,
+      "effect_pp": 5.009263
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "平和島|1",
+      "n": 2145,
+      "raw_pp": 5.343384,
+      "effect_pp": 4.994144
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "芦屋|6",
+      "n": 2282,
+      "raw_pp": -5.084127,
+      "effect_pp": -4.77055
+    },
+    {
+      "position": 2,
+      "family": "lap_rank",
+      "token": "徳山|3|top2",
+      "n": 418,
+      "complement_n": 1420,
+      "raw_pp": 6.415339,
+      "effect_pp": 4.721147
+    },
+    {
+      "position": 2,
+      "family": "mawariashi_rank",
+      "token": "徳山|2|bottom2",
+      "n": 425,
+      "complement_n": 1413,
+      "raw_pp": -6.35996,
+      "effect_pp": -4.70084
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "芦屋|1",
+      "n": 2282,
+      "raw_pp": 4.936742,
+      "effect_pp": 4.632255
+    },
+    {
+      "position": 2,
+      "family": "avg_combo_diff",
+      "token": "徳山|3|high",
+      "n": 462,
+      "complement_n": 1376,
+      "raw_pp": 6.099458,
+      "effect_pp": 4.604493
+    },
+    {
+      "position": 2,
+      "family": "mawariashi_rank",
+      "token": "徳山|3|top2",
+      "n": 436,
+      "complement_n": 1402,
+      "raw_pp": 6.148869,
+      "effect_pp": 4.574926
+    },
+    {
+      "position": 2,
+      "family": "wind",
+      "token": "蒲郡|3|high",
+      "n": 518,
+      "complement_n": 1769,
+      "raw_pp": 5.833162,
+      "effect_pp": 4.52332
+    },
+    {
+      "position": 2,
+      "family": "mawariashi_diff",
+      "token": "福岡|4|high",
+      "n": 532,
+      "complement_n": 1747,
+      "raw_pp": 5.767683,
+      "effect_pp": 4.499131
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "三国|6",
+      "n": 2259,
+      "raw_pp": -4.74768,
+      "effect_pp": -4.452059
+    },
+    {
+      "position": 2,
+      "family": "venue_lane",
+      "token": "福岡|6",
+      "n": 2279,
+      "raw_pp": -4.713509,
+      "effect_pp": -4.422432
+    }
+  ],
+  "model_path": "/private/tmp/kyotei-mm1601-reflect/data/output/self_ai_models/venue_probability_overlay_20260712_171523.joblib",
+  "current_model_path": "/private/tmp/kyotei-mm1601-reflect/data/output/self_ai_models/venue_probability_overlay_current.joblib",
+  "active": false,
+  "notification_enabled": false,
+  "recommendation": "2026年の確率品質は改善。買い目変更はせず、期待値比較の影モデルとして蓄積する",
+  "sign_overlay_vs_legacy_profit_delta_yen": -2300
+}
