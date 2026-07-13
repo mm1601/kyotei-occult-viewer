@@ -11,6 +11,7 @@ The betting flow is intentionally two-step:
 from __future__ import annotations
 
 import argparse
+import itertools
 import json
 import math
 import os
@@ -1902,6 +1903,519 @@ TICKET_EV_SHADOW_KEYS = (
     "ticket_venue_probability_shadow",
 )
 
+TICKET_STRATEGY_SHADOW_ID = "ticket_strategy_compare_v1"
+TICKET_STRATEGY_SHADOW_VERSION = "venue-sign-ticket-strategy-shadow-v1"
+TICKET_STRATEGY_MIN_EXPECTED_VALUE = 1.0
+TICKET_STRATEGY_MAX_RESCUE_POINTS = 12
+TICKET_STRATEGY_MIN_DECISION_SAMPLE = 100
+TICKET_STRATEGY_VARIANTS = (
+    ("baseline_current", "現行買い目"),
+    ("ev_pruned", "期待値100%未満を除外"),
+    ("rescue12", "高確率救済を最大12点まで追加"),
+)
+
+
+def ticket_strategy_shadow_policy():
+    return {
+        "version": TICKET_STRATEGY_SHADOW_VERSION,
+        "policy_id": TICKET_STRATEGY_SHADOW_ID,
+        "active": False,
+        "notification_enabled": False,
+        "production_action": "none",
+        "target_preference": ["t5", "t10"],
+        "minimum_ticket_expected_roi_pct": round(
+            TICKET_STRATEGY_MIN_EXPECTED_VALUE * 100.0,
+            1,
+        ),
+        "rescue_max_points": TICKET_STRATEGY_MAX_RESCUE_POINTS,
+        "minimum_forward_sample": TICKET_STRATEGY_MIN_DECISION_SAMPLE,
+        "description": (
+            "現行買い目は変えず、現行・期待値不足除外・最大12点救済の3案を"
+            "同じ締切前確率、T-10/T-5オッズ、実結果で比較する。"
+        ),
+    }
+
+
+def load_target_odds_snapshot(entry, target, odds_db=None):
+    """Load one complete pre-race 120-combination odds snapshot."""
+    odds_path = Path(odds_db) if odds_db else default_trifecta_odds_db()
+    if not odds_path.exists():
+        return None
+    date_text = str((entry or {}).get("date") or "")
+    round_no = int(as_num((entry or {}).get("round")) or 0)
+    if not date_text or round_no <= 0:
+        return None
+    try:
+        with closing(sqlite3.connect(f"file:{odds_path}?mode=ro", uri=True)) as con:
+            tables = {
+                str(row[0])
+                for row in con.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                ).fetchall()
+            }
+            if not {"odds_target_capture", "odds_trifecta"} <= tables:
+                return None
+            for venue_code in venue_code_candidates(entry):
+                capture = con.execute(
+                    """
+                    SELECT target_minutes, snapshot_at, minutes_to_deadline,
+                           absolute_target_error_minutes, combo_count, source
+                    FROM odds_target_capture
+                    WHERE date=? AND CAST(venue_code AS INTEGER)=? AND race_no=?
+                      AND CAST(target_minutes AS INTEGER)=?
+                      AND status='complete' AND combo_count>=120
+                    ORDER BY absolute_target_error_minutes ASC, snapshot_at DESC
+                    LIMIT 1
+                    """,
+                    (
+                        date_text,
+                        int(float(venue_code)),
+                        round_no,
+                        int(target),
+                    ),
+                ).fetchone()
+                if not capture:
+                    continue
+                target_minutes, snapshot_at, minutes_to_deadline, target_error, combo_count, source = capture
+                odds_rows = con.execute(
+                    """
+                    SELECT combo, odds FROM odds_trifecta
+                    WHERE date=? AND CAST(venue_code AS INTEGER)=? AND race_no=?
+                      AND snapshot_at=?
+                    """,
+                    (
+                        date_text,
+                        int(float(venue_code)),
+                        round_no,
+                        snapshot_at,
+                    ),
+                ).fetchall()
+                odds = {
+                    norm_combo(combo): float(value)
+                    for combo, value in odds_rows
+                    if len(norm_combo(combo)) == 3 and (as_num(value) or 0) > 0
+                }
+                if len(odds) < 120:
+                    continue
+                return {
+                    "target": f"t{int(target_minutes)}",
+                    "target_minutes": int(target_minutes),
+                    "snapshot_at": snapshot_at,
+                    "minutes_to_deadline": round(float(minutes_to_deadline), 4),
+                    "absolute_target_error_minutes": round(float(target_error), 4),
+                    "combo_count": int(combo_count),
+                    "source": source,
+                    "odds_db": str(odds_path),
+                    "complete_all_combos": True,
+                    "odds": odds,
+                }
+    except (sqlite3.Error, OSError, TypeError, ValueError):
+        return None
+    return None
+
+
+def target_ticket_odds_from_shadows(entry):
+    """Fallback to ticket-only odds already frozen in the forward log."""
+    for target in ("t5", "t10"):
+        odds = {}
+        snapshots = []
+        for shadow_key in TICKET_EV_SHADOW_KEYS:
+            snapshot = (
+                ((entry or {}).get(shadow_key) or {}).get("snapshots") or {}
+            ).get(target)
+            if not isinstance(snapshot, dict):
+                continue
+            snapshots.append(snapshot)
+            for item in snapshot.get("tickets") or []:
+                combo = norm_combo(item.get("ticket") or item.get("combo"))
+                value = as_num(item.get("odds"))
+                if len(combo) == 3 and value is not None and value > 0:
+                    odds[combo] = float(value)
+        if odds:
+            snapshot = snapshots[0]
+            return {
+                "target": target,
+                "target_minutes": int(target[1:]),
+                "snapshot_at": snapshot.get("snapshot_at"),
+                "minutes_to_deadline": snapshot.get("minutes_to_deadline"),
+                "absolute_target_error_minutes": snapshot.get(
+                    "absolute_target_error_minutes"
+                ),
+                "combo_count": len(odds),
+                "source": snapshot.get("source") or "frozen_ticket_snapshot",
+                "odds_db": None,
+                "complete_all_combos": len(odds) >= 120,
+                "odds": odds,
+            }
+    return None
+
+
+def all_ticket_probabilities_from_position_shadow(shadow):
+    """Rebuild the frozen role model's 120 sequential probabilities."""
+    position_values = (shadow or {}).get("position_probabilities_pct") or {}
+    roles = {}
+    for position in (1, 2, 3):
+        raw = position_values.get(f"position{position}") or {}
+        values = {
+            boat: float(as_num(raw.get(str(boat))) or 0.0) / 100.0
+            for boat in range(1, 7)
+        }
+        total = sum(values.values())
+        if total <= 0 or any(value <= 0 for value in values.values()):
+            return {}
+        roles[position] = {
+            boat: value / total for boat, value in values.items()
+        }
+    probabilities = {}
+    boats = tuple(range(1, 7))
+    for first, second, third in itertools.permutations(boats, 3):
+        second_total = sum(roles[2][boat] for boat in boats if boat != first)
+        third_total = sum(
+            roles[3][boat] for boat in boats if boat not in {first, second}
+        )
+        probabilities[f"{first}{second}{third}"] = (
+            roles[1][first]
+            * roles[2][second]
+            / second_total
+            * roles[3][third]
+            / third_total
+        )
+    total = sum(probabilities.values())
+    if total <= 0:
+        return {}
+    return {combo: value / total for combo, value in probabilities.items()}
+
+
+def ticket_probability_models(entry):
+    selected = {}
+    full = {}
+    model_labels = {
+        "ticket_ev_shadow": "base_ai",
+        "ticket_position_shadow": "position_ai",
+        "ticket_venue_probability_shadow": "venue_probability_ai",
+    }
+    for shadow_key, label in model_labels.items():
+        shadow = (entry or {}).get(shadow_key)
+        if not isinstance(shadow, dict) or shadow.get("status") == "unavailable":
+            continue
+        ticket_values = {
+            norm_combo(item.get("ticket") or item.get("combo")): float(
+                as_num(item.get("probability")) or 0.0
+            )
+            for item in shadow.get("tickets") or []
+            if len(norm_combo(item.get("ticket") or item.get("combo"))) == 3
+            and (as_num(item.get("probability")) or 0) > 0
+        }
+        if ticket_values:
+            selected[label] = ticket_values
+        if shadow_key != "ticket_ev_shadow":
+            all_values = all_ticket_probabilities_from_position_shadow(shadow)
+            if all_values:
+                full[label] = all_values
+                selected[label] = all_values
+    return selected, full
+
+
+def composite_ticket_probability(combo, probability_models):
+    values = [
+        float(model[combo])
+        for model in probability_models.values()
+        if combo in model and model[combo] > 0
+    ]
+    if not values:
+        return None
+    return sum(values) / len(values)
+
+
+def ticket_strategy_variant(variant_id, label, combos, probability_models, odds):
+    rows = []
+    for combo in combos:
+        probability = composite_ticket_probability(combo, probability_models)
+        value = odds.get(combo)
+        expected_value = probability * value if probability is not None and value else None
+        sources = [
+            model_id
+            for model_id, model in probability_models.items()
+            if combo in model and model[combo] > 0
+        ]
+        rows.append(
+            {
+                "ticket": fmt_ticket(combo),
+                "combo": combo,
+                "probability_pct": (
+                    round(probability * 100.0, 6)
+                    if probability is not None
+                    else None
+                ),
+                "odds": round(float(value), 2) if value else None,
+                "expected_value": (
+                    round(expected_value, 6)
+                    if expected_value is not None
+                    else None
+                ),
+                "expected_roi_pct": (
+                    round(expected_value * 100.0, 4)
+                    if expected_value is not None
+                    else None
+                ),
+                "probability_models": sources,
+                "probability_model_count": len(sources),
+            }
+        )
+    complete = [
+        row for row in rows if row.get("expected_value") is not None
+    ]
+    inverse_selected = sum(
+        1.0 / float(row["odds"])
+        for row in complete
+        if (row.get("odds") or 0) > 0
+    )
+    return {
+        "variant_id": variant_id,
+        "label": label,
+        "active": False,
+        "notification_enabled": False,
+        "production_action": "none",
+        "status": "ready" if combos else "skip",
+        "points": len(combos),
+        "tickets": [fmt_ticket(combo) for combo in combos],
+        "ticket_details": rows,
+        "complete_ticket_evidence": len(complete) == len(combos),
+        "selected_probability_pct": (
+            round(
+                sum(
+                    float(row["probability_pct"] or 0.0) for row in rows
+                ),
+                6,
+            )
+            if rows
+            else 0.0
+        ),
+        "portfolio_expected_roi_pct": (
+            round(
+                sum(float(row["expected_value"]) for row in complete)
+                / len(combos)
+                * 100.0,
+                4,
+            )
+            if combos and len(complete) == len(combos)
+            else None
+        ),
+        "synthetic_odds": (
+            round(1.0 / inverse_selected, 4) if inverse_selected > 0 else None
+        ),
+    }
+
+
+def update_ticket_strategy_shadow(entry, odds_db=None, updated_at=None):
+    """Freeze three ticket strategies without changing production tickets."""
+    current = entry.get("ticket_strategy_shadow")
+    if isinstance(current, dict) and current.get("status") == "settled":
+        return False
+    baseline_combos = [
+        combo
+        for combo in (norm_combo(ticket) for ticket in entry.get("tickets") or [])
+        if len(combo) == 3
+    ]
+    selected_models, full_models = ticket_probability_models(entry)
+    odds_snapshot = None
+    for target in (5, 10):
+        odds_snapshot = load_target_odds_snapshot(
+            entry,
+            target,
+            odds_db=odds_db,
+        )
+        if odds_snapshot:
+            break
+    if isinstance(current, dict) and current.get("status") == "ready":
+        current_target = current.get("selected_target")
+        candidate_target = (odds_snapshot or {}).get("target")
+        if (
+            odds_snapshot is None
+            or current_target == "t5"
+            or candidate_target == current_target
+        ):
+            return False
+    if odds_snapshot is None:
+        odds_snapshot = target_ticket_odds_from_shadows(entry)
+
+    policy = ticket_strategy_shadow_policy()
+    base_payload = {
+        **policy,
+        "baseline_tickets": [fmt_ticket(combo) for combo in baseline_combos],
+        "baseline_points": len(baseline_combos),
+        "pre_race_input_only": True,
+        "construction_mode": (
+            "pre_race_input_backfill"
+            if entry.get("status") in {"hit", "miss"}
+            else "live_pre_race"
+        ),
+        "constructed_at": (
+            (current or {}).get("constructed_at")
+            or updated_at
+        ),
+    }
+    if not selected_models:
+        proposed = {
+            **base_payload,
+            "status": "unavailable",
+            "reason": "frozen_probability_models_missing",
+            "variants": {},
+        }
+    elif not odds_snapshot:
+        proposed = {
+            **base_payload,
+            "status": "awaiting_target_odds",
+            "reason": "t10_t5_odds_missing",
+            "probability_models": sorted(selected_models),
+            "full_probability_models": sorted(full_models),
+            "variants": {},
+        }
+    else:
+        odds = odds_snapshot["odds"]
+        baseline_variant = ticket_strategy_variant(
+            "baseline_current",
+            "現行買い目",
+            baseline_combos,
+            selected_models,
+            odds,
+        )
+        retained = [
+            row["combo"]
+            for row in baseline_variant["ticket_details"]
+            if (as_num(row.get("expected_value")) or 0)
+            >= TICKET_STRATEGY_MIN_EXPECTED_VALUE
+        ]
+        pruned_variant = ticket_strategy_variant(
+            "ev_pruned",
+            "期待値100%未満を除外",
+            retained,
+            selected_models,
+            odds,
+        )
+        pruned_variant["removed_tickets"] = [
+            fmt_ticket(combo) for combo in baseline_combos if combo not in retained
+        ]
+        pruned_variant["removed_count"] = len(baseline_combos) - len(retained)
+
+        rescue_candidates = []
+        if odds_snapshot.get("complete_all_combos") and full_models:
+            for combo, value in odds.items():
+                if combo in baseline_combos:
+                    continue
+                probability = composite_ticket_probability(combo, full_models)
+                if probability is None:
+                    continue
+                expected_value = probability * float(value)
+                if expected_value < TICKET_STRATEGY_MIN_EXPECTED_VALUE:
+                    continue
+                rescue_candidates.append(
+                    {
+                        "combo": combo,
+                        "probability": probability,
+                        "expected_value": expected_value,
+                        "model_count": sum(
+                            combo in model for model in full_models.values()
+                        ),
+                    }
+                )
+        rescue_candidates.sort(
+            key=lambda item: (
+                -item["probability"],
+                -item["model_count"],
+                -item["expected_value"],
+                item["combo"],
+            )
+        )
+        add_count = max(
+            0,
+            TICKET_STRATEGY_MAX_RESCUE_POINTS - len(baseline_combos),
+        )
+        added = [item["combo"] for item in rescue_candidates[:add_count]]
+        rescue_variant = ticket_strategy_variant(
+            "rescue12",
+            "高確率救済を最大12点まで追加",
+            baseline_combos + added,
+            {**selected_models, **full_models},
+            odds,
+        )
+        rescue_variant["added_tickets"] = [fmt_ticket(combo) for combo in added]
+        rescue_variant["added_count"] = len(added)
+        rescue_variant["candidate_count"] = len(rescue_candidates)
+        rescue_variant["rescue_available"] = bool(
+            odds_snapshot.get("complete_all_combos") and full_models
+        )
+
+        proposed = {
+            **base_payload,
+            "status": "ready",
+            "selected_target": odds_snapshot.get("target"),
+            "odds_snapshot_at": odds_snapshot.get("snapshot_at"),
+            "minutes_to_deadline": odds_snapshot.get("minutes_to_deadline"),
+            "absolute_target_error_minutes": odds_snapshot.get(
+                "absolute_target_error_minutes"
+            ),
+            "odds_source": odds_snapshot.get("source"),
+            "complete_all_combo_odds": bool(
+                odds_snapshot.get("complete_all_combos")
+            ),
+            "probability_models": sorted(selected_models),
+            "full_probability_models": sorted(full_models),
+            "variants": {
+                "baseline_current": baseline_variant,
+                "ev_pruned": pruned_variant,
+                "rescue12": rescue_variant,
+            },
+        }
+    before = json.dumps(current or {}, sort_keys=True, ensure_ascii=False)
+    after = json.dumps(proposed, sort_keys=True, ensure_ascii=False)
+    if before == after:
+        return False
+    entry["ticket_strategy_shadow"] = proposed
+    return True
+
+
+def update_ticket_strategy_shadow_result(entry, result, settled_at):
+    shadow = entry.get("ticket_strategy_shadow")
+    if not isinstance(shadow, dict) or shadow.get("status") not in {"ready", "settled"}:
+        return False
+    result_combo = result.get("trifecta_norm") or norm_combo(result.get("trifecta"))
+    if len(result_combo) != 3:
+        return False
+    payout = int(as_num(result.get("payout_yen")) or 0)
+    before = json.dumps(shadow, sort_keys=True, ensure_ascii=False)
+    for variant in (shadow.get("variants") or {}).values():
+        tickets = {
+            norm_combo(ticket) for ticket in variant.get("tickets") or []
+        }
+        points = int(as_num(variant.get("points")) or len(tickets))
+        hit = bool(points and result_combo in tickets)
+        investment = points * 100
+        payback = payout if hit else 0
+        variant.update(
+            {
+                "status": "settled",
+                "settled_at": variant.get("settled_at") or settled_at,
+                "result_trifecta": result.get("trifecta") or fmt_ticket(result_combo),
+                "result_payout_yen": payout,
+                "bet": points > 0,
+                "hit": hit if points > 0 else None,
+                "outcome": "hit" if hit else ("miss" if points > 0 else "skip"),
+                "investment_yen": investment,
+                "payback_yen": payback,
+                "profit_yen": payback - investment,
+            }
+        )
+    shadow.update(
+        {
+            "status": "settled",
+            "settled_at": shadow.get("settled_at") or settled_at,
+            "result_trifecta": result.get("trifecta") or fmt_ticket(result_combo),
+            "result_payout_yen": payout,
+        }
+    )
+    return before != json.dumps(shadow, sort_keys=True, ensure_ascii=False)
+
 
 def build_ticket_ev_shadows(rows, tickets):
     """Freeze the three pre-race ticket models used by every 24-venue sign."""
@@ -2384,6 +2898,11 @@ def update_forward_entry_result(entry, result, settled_at):
         settled_at,
         shadow_key="ticket_venue_probability_shadow",
     )
+    ticket_strategy_shadow_changed = update_ticket_strategy_shadow_result(
+        entry,
+        result,
+        settled_at,
+    )
     low_confidence_shadow_changed = update_low_confidence_shadow_result(
         entry,
         result,
@@ -2408,6 +2927,7 @@ def update_forward_entry_result(entry, result, settled_at):
         or ticket_ev_shadow_changed
         or ticket_position_shadow_changed
         or ticket_venue_probability_shadow_changed
+        or ticket_strategy_shadow_changed
         or low_confidence_shadow_changed
     )
 
@@ -2511,6 +3031,7 @@ def update_forward_validation_log(date_text, monitor_payload, now):
     )
     log_payload["version"] = "venue-sign-forward-v2"
     log_payload["rule_id"] = "venue_sign_24"
+    log_payload["ticket_strategy_shadow_policy"] = ticket_strategy_shadow_policy()
     entries = log_payload.setdefault("entries", [])
     by_key = {forward_entry_key(entry.get("race_id"), entry.get("rule_id") or log_payload.get("rule_id")): entry for entry in entries}
     changed = False
@@ -2591,6 +3112,10 @@ def update_forward_validation_log(date_text, monitor_payload, now):
     for entry in entries:
         changed = backfill_ticket_ev_shadow_from_self_ai(entry) or changed
         changed = refresh_ticket_ev_shadows(entry) or changed
+        changed = update_ticket_strategy_shadow(
+            entry,
+            updated_at=now.isoformat(timespec="seconds"),
+        ) or changed
         risk_note = original_boaters_ev_risk_note(entry)
         if entry.get("ev_risk_note") != risk_note:
             entry["ev_risk_note"] = risk_note
@@ -2624,6 +3149,7 @@ def update_forward_validation_log(date_text, monitor_payload, now):
     summary["ticket_venue_probability_shadow"] = (
         original_boaters_ticket_venue_probability_shadow_performance(entries)
     )
+    summary["ticket_strategy_shadow"] = ticket_strategy_shadow_performance(entries)
     log_payload["summary"] = summary
     save_json(path, log_payload)
     return str(path)
@@ -2682,6 +3208,7 @@ def original_boaters_shadow_performance(entries, include_by_venue=True):
     summary["ticket_venue_probability_shadow"] = (
         original_boaters_ticket_venue_probability_shadow_performance(ordered)
     )
+    summary["ticket_strategy_shadow"] = ticket_strategy_shadow_performance(ordered)
     if include_by_venue:
         venues = sorted({str(entry.get("place_name") or "") for entry in ordered if entry.get("place_name")})
         summary["by_venue"] = {
@@ -3053,6 +3580,135 @@ def original_boaters_ticket_venue_probability_shadow_performance(entries):
     )
 
 
+def ticket_strategy_shadow_performance(entries):
+    eligible = sorted(
+        [
+            entry
+            for entry in entries
+            if isinstance(entry.get("ticket_strategy_shadow"), dict)
+            and entry["ticket_strategy_shadow"].get("policy_id")
+            == TICKET_STRATEGY_SHADOW_ID
+        ],
+        key=lambda entry: (
+            str(entry.get("date") or ""),
+            str(entry.get("deadline_time") or ""),
+            str(entry.get("race_id") or ""),
+        ),
+    )
+    payload = {
+        **ticket_strategy_shadow_policy(),
+        "entry_count": len(eligible),
+        "ready_count": sum(
+            entry["ticket_strategy_shadow"].get("status") == "ready"
+            for entry in eligible
+        ),
+        "settled_count": sum(
+            entry["ticket_strategy_shadow"].get("status") == "settled"
+            for entry in eligible
+        ),
+        "target_t5_count": sum(
+            entry["ticket_strategy_shadow"].get("selected_target") == "t5"
+            for entry in eligible
+        ),
+        "target_t10_count": sum(
+            entry["ticket_strategy_shadow"].get("selected_target") == "t10"
+            for entry in eligible
+        ),
+        "variants": {},
+    }
+    for variant_id, label in TICKET_STRATEGY_VARIANTS:
+        variants = [
+            entry["ticket_strategy_shadow"].get("variants", {}).get(variant_id)
+            for entry in eligible
+        ]
+        variants = [variant for variant in variants if isinstance(variant, dict)]
+        settled = [
+            variant for variant in variants if variant.get("status") == "settled"
+        ]
+        bets = [variant for variant in settled if variant.get("bet")]
+        points = sum(int(as_num(variant.get("points")) or 0) for variant in settled)
+        investment = sum(
+            int(as_num(variant.get("investment_yen")) or 0) for variant in settled
+        )
+        payback = sum(
+            int(as_num(variant.get("payback_yen")) or 0) for variant in settled
+        )
+        hits = sum(bool(variant.get("hit")) for variant in bets)
+        current_losing = 0
+        max_losing = 0
+        for variant in settled:
+            if not variant.get("bet"):
+                continue
+            if variant.get("hit"):
+                current_losing = 0
+            else:
+                current_losing += 1
+                max_losing = max(max_losing, current_losing)
+        expected_rois = [
+            float(value)
+            for value in (
+                as_num(variant.get("portfolio_expected_roi_pct"))
+                for variant in variants
+            )
+            if value is not None
+        ]
+        payload["variants"][variant_id] = {
+            "label": label,
+            "entry_count": len(variants),
+            "settled_count": len(settled),
+            "bet_count": len(bets),
+            "skip_count": len(settled) - len(bets),
+            "hit_count": hits,
+            "miss_count": len(bets) - hits,
+            "hit_rate_pct": (
+                round(hits / len(bets) * 100.0, 2) if bets else None
+            ),
+            "total_points": points,
+            "avg_points_per_signal": (
+                round(points / len(settled), 2) if settled else None
+            ),
+            "avg_points_per_bet": (
+                round(points / len(bets), 2) if bets else None
+            ),
+            "investment_yen": investment,
+            "payback_yen": payback,
+            "profit_yen": payback - investment if settled else None,
+            "roi_pct": (
+                round(payback / investment * 100.0, 2) if investment else None
+            ),
+            "avg_expected_roi_pct": (
+                round(sum(expected_rois) / len(expected_rois), 2)
+                if expected_rois
+                else None
+            ),
+            "max_losing_streak": max_losing if bets else None,
+            "current_losing_streak": current_losing if bets else None,
+        }
+    baseline = payload["variants"].get("baseline_current") or {}
+    for variant_id in ("ev_pruned", "rescue12"):
+        variant = payload["variants"].get(variant_id) or {}
+        if variant.get("roi_pct") is not None and baseline.get("roi_pct") is not None:
+            variant["roi_delta_pp_vs_baseline"] = round(
+                variant["roi_pct"] - baseline["roi_pct"],
+                2,
+            )
+        else:
+            variant["roi_delta_pp_vs_baseline"] = None
+        if variant.get("profit_yen") is not None and baseline.get("profit_yen") is not None:
+            variant["profit_delta_yen_vs_baseline"] = (
+                variant["profit_yen"] - baseline["profit_yen"]
+            )
+        else:
+            variant["profit_delta_yen_vs_baseline"] = None
+    settled_count = payload["settled_count"]
+    payload["decision_ready"] = settled_count >= TICKET_STRATEGY_MIN_DECISION_SAMPLE
+    payload["remaining_to_decision"] = max(
+        0,
+        TICKET_STRATEGY_MIN_DECISION_SAMPLE - settled_count,
+    )
+    return payload
+
+
 def refresh_original_boaters_shadow_summary(now):
     directory = original_boaters_shadow_summary_path().parent
     aggregate = {}
@@ -3067,6 +3723,15 @@ def refresh_original_boaters_shadow_summary(now):
         changed = False
         for entry in entries:
             race_id = str(entry.get("race_id") or "")
+            strategy_status = (
+                (entry.get("ticket_strategy_shadow") or {}).get("status")
+            )
+            if strategy_status not in {"ready", "settled"}:
+                changed = refresh_ticket_ev_shadows(entry) or changed
+                changed = update_ticket_strategy_shadow(
+                    entry,
+                    updated_at=now.isoformat(timespec="seconds"),
+                ) or changed
             result = forward_result_from_db(race_id) or result_index.get(race_id)
             changed = update_forward_entry_result(
                 entry,
@@ -3173,6 +3838,7 @@ def refresh_original_boaters_shadow_summary(now):
                 "同じ買い目・同じオッズで既存方式と比較する。"
             ),
         },
+        "ticket_strategy_shadow_policy": ticket_strategy_shadow_policy(),
         "forward_validation_warning": (
             "過去全期間で選んだ探索ルールのため、ここに記録する未来データ100〜200件で別評価する。"
         ),
@@ -3249,6 +3915,7 @@ def update_original_boaters_shadow_log(date_text, signs, now, monitor_payload=No
         "target_minutes": [10, 5],
         "comparison_baseline": original_boaters_forward.TICKET_EV_SHADOW_ID,
     }
+    payload["ticket_strategy_shadow_policy"] = ticket_strategy_shadow_policy()
     entries = payload.setdefault("entries", [])
     by_key = {
         forward_entry_key(entry.get("race_id"), entry.get("rule_id")): entry
@@ -3359,6 +4026,10 @@ def update_original_boaters_shadow_log(date_text, signs, now, monitor_payload=No
     official_result_cache = {}
     for entry in entries:
         refresh_ticket_ev_shadows(entry)
+        update_ticket_strategy_shadow(
+            entry,
+            updated_at=now.isoformat(timespec="seconds"),
+        )
         update_original_boaters_low_confidence_odds(entry)
         entry["ev_risk_note"] = original_boaters_ev_risk_note(entry)
         result = resolve_forward_result(

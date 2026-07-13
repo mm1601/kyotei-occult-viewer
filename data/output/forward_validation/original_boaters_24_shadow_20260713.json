@@ -448,7 +448,7 @@
           "legacy_ev_change_t5_minus_t10_pp": -10.1655,
           "synthetic_odds_change_pct": -9.8435
         },
-        "settled_at": "2026-07-13T16:47:15+09:00",
+        "settled_at": "2026-07-13T18:54:33+09:00",
         "result_trifecta": "1-3-5",
         "result_payout_yen": 2260,
         "baseline_hit": false
@@ -458,7 +458,7 @@
         "policy_id": "aiwin_top3_sequential_v1",
         "active": false,
         "notification_enabled": false,
-        "status": "settled",
+        "status": "odds_ready",
         "probability_method": "AI1着率を1着重み、(AI3連対率-AI1着率)/(1-AI1着率)を2・3着重みにした逐次条件付きモデル",
         "probability_sum_all_combos": 1.0,
         "selected_probability_pct": 8.161842,
@@ -613,7 +613,7 @@
           "t5"
         ],
         "odds_db": "/private/tmp/kyotei-mm1601-reflect/data/live_odds.db",
-        "settled_at": "2026-07-13T16:47:15+09:00",
+        "settled_at": "2026-07-13T18:54:33+09:00",
         "result_trifecta": "1-3-5",
         "result_payout_yen": 2260,
         "baseline_hit": false,
@@ -624,7 +624,7 @@
         "policy_id": "position123_hgb_calibrated_v1",
         "active": false,
         "notification_enabled": false,
-        "status": "settled",
+        "status": "odds_ready",
         "probability_method": "1着・2着・3着の専用モデルを逐次条件付きで120通りへ変換",
         "model_path": "/private/tmp/kyotei-mm1601-reflect/data/output/self_ai_models/trifecta_position_model_current.joblib",
         "model_version": "trifecta-position-model-v1",
@@ -807,7 +807,7 @@
           "t5"
         ],
         "odds_db": "/private/tmp/kyotei-mm1601-reflect/data/live_odds.db",
-        "settled_at": "2026-07-13T16:47:15+09:00",
+        "settled_at": "2026-07-13T18:54:33+09:00",
         "result_trifecta": "1-3-5",
         "result_payout_yen": 2260,
         "baseline_hit": false,
@@ -818,7 +818,7 @@
         "policy_id": "venue_lane_probability_point_overlay_v1",
         "active": false,
         "notification_enabled": false,
-        "status": "settled",
+        "status": "odds_ready",
         "probability_method": "BOATERS AI1/AI3を基準に、場×艇番・展示・気象・水面・スリットを着順別の確率ポイントとして補正し120通りへ変換",
         "model_path": "/private/tmp/kyotei-mm1601-reflect/data/output/self_ai_models/venue_probability_overlay_current.joblib",
         "model_version": "venue-probability-overlay-v1",
@@ -1001,7 +1001,7 @@
           "t5"
         ],
         "odds_db": "/private/tmp/kyotei-mm1601-reflect/data/live_odds.db",
-        "settled_at": "2026-07-13T16:47:15+09:00",
+        "settled_at": "2026-07-13T18:54:33+09:00",
         "result_trifecta": "1-3-5",
         "result_payout_yen": 2260,
         "baseline_hit": false,
@@ -1022,7 +1022,7 @@
         "matched_factor_count": 0,
         "head_debuffs": [],
         "reason": "no_s_head_debuff_on_current_head",
-        "settled_at": "2026-07-13T16:47:15+09:00",
+        "settled_at": "2026-07-13T18:54:33+09:00",
         "result_trifecta": "1-3-5",
         "result_payout_yen": 2260,
         "baseline_hit": false,
@@ -1043,14 +1043,3224 @@
       "notification_http_status": null,
       "notification_sent_at": "2026-07-13T11:36:34+09:00",
       "notification_error": null,
-      "settled_at": "2026-07-13T16:47:15+09:00",
+      "settled_at": "2026-07-13T18:54:33+09:00",
       "result_trifecta": "1-3-5",
       "result_payout_yen": 2260,
       "result_manshu": false,
       "hit": false,
       "payback_yen": 0,
       "investment_yen": 500,
-      "profit_yen": -500
+      "profit_yen": -500,
+      "ev_risk_note": "期待値警戒あり(T-5): 旧59.4% / 着順80.6% / 場別補正50.7% （検証中・自動見送りには未使用）",
+      "ticket_strategy_shadow": {
+        "version": "venue-sign-ticket-strategy-shadow-v1",
+        "policy_id": "ticket_strategy_compare_v1",
+        "active": false,
+        "notification_enabled": false,
+        "production_action": "none",
+        "target_preference": [
+          "t5",
+          "t10"
+        ],
+        "minimum_ticket_expected_roi_pct": 100.0,
+        "rescue_max_points": 12,
+        "minimum_forward_sample": 100,
+        "description": "現行買い目は変えず、現行・期待値不足除外・最大12点救済の3案を同じ締切前確率、T-10/T-5オッズ、実結果で比較する。",
+        "baseline_tickets": [
+          "5-2-1",
+          "5-1-2",
+          "5-2-3",
+          "5-1-3",
+          "5-3-2"
+        ],
+        "baseline_points": 5,
+        "pre_race_input_only": true,
+        "construction_mode": "pre_race_input_backfill",
+        "constructed_at": "2026-07-13T18:53:34+09:00",
+        "status": "settled",
+        "selected_target": "t5",
+        "odds_snapshot_at": "2026-07-13T11:38:21",
+        "minutes_to_deadline": 6.65,
+        "absolute_target_error_minutes": 1.65,
+        "odds_source": "targeted_fetch",
+        "complete_all_combo_odds": true,
+        "probability_models": [
+          "base_ai",
+          "position_ai",
+          "venue_probability_ai"
+        ],
+        "full_probability_models": [
+          "position_ai",
+          "venue_probability_ai"
+        ],
+        "variants": {
+          "baseline_current": {
+            "variant_id": "baseline_current",
+            "label": "現行買い目",
+            "active": false,
+            "notification_enabled": false,
+            "production_action": "none",
+            "status": "settled",
+            "points": 5,
+            "tickets": [
+              "5-2-1",
+              "5-1-2",
+              "5-2-3",
+              "5-1-3",
+              "5-3-2"
+            ],
+            "ticket_details": [
+              {
+                "ticket": "5-2-1",
+                "combo": "521",
+                "probability_pct": 1.713479,
+                "odds": 22.2,
+                "expected_value": 0.380392,
+                "expected_roi_pct": 38.0392,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-1-2",
+                "combo": "512",
+                "probability_pct": 1.624762,
+                "odds": 21.8,
+                "expected_value": 0.354198,
+                "expected_roi_pct": 35.4198,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-2-3",
+                "combo": "523",
+                "probability_pct": 1.948614,
+                "odds": 37.7,
+                "expected_value": 0.734628,
+                "expected_roi_pct": 73.4628,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-1-3",
+                "combo": "513",
+                "probability_pct": 1.471158,
+                "odds": 55.3,
+                "expected_value": 0.81355,
+                "expected_roi_pct": 81.355,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-3-2",
+                "combo": "532",
+                "probability_pct": 1.426922,
+                "odds": 62.7,
+                "expected_value": 0.89468,
+                "expected_roi_pct": 89.468,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              }
+            ],
+            "complete_ticket_evidence": true,
+            "selected_probability_pct": 8.184935,
+            "portfolio_expected_roi_pct": 63.549,
+            "synthetic_odds": 6.6018,
+            "settled_at": "2026-07-13T18:49:23+09:00",
+            "result_trifecta": "1-3-5",
+            "result_payout_yen": 2260,
+            "bet": true,
+            "hit": false,
+            "outcome": "miss",
+            "investment_yen": 500,
+            "payback_yen": 0,
+            "profit_yen": -500
+          },
+          "ev_pruned": {
+            "variant_id": "ev_pruned",
+            "label": "期待値100%未満を除外",
+            "active": false,
+            "notification_enabled": false,
+            "production_action": "none",
+            "status": "settled",
+            "points": 0,
+            "tickets": [],
+            "ticket_details": [],
+            "complete_ticket_evidence": true,
+            "selected_probability_pct": 0.0,
+            "portfolio_expected_roi_pct": null,
+            "synthetic_odds": null,
+            "removed_tickets": [
+              "5-2-1",
+              "5-1-2",
+              "5-2-3",
+              "5-1-3",
+              "5-3-2"
+            ],
+            "removed_count": 5,
+            "settled_at": "2026-07-13T18:49:23+09:00",
+            "result_trifecta": "1-3-5",
+            "result_payout_yen": 2260,
+            "bet": false,
+            "hit": null,
+            "outcome": "skip",
+            "investment_yen": 0,
+            "payback_yen": 0,
+            "profit_yen": 0
+          },
+          "rescue12": {
+            "variant_id": "rescue12",
+            "label": "高確率救済を最大12点まで追加",
+            "active": false,
+            "notification_enabled": false,
+            "production_action": "none",
+            "status": "settled",
+            "points": 12,
+            "tickets": [
+              "5-2-1",
+              "5-1-2",
+              "5-2-3",
+              "5-1-3",
+              "5-3-2",
+              "1-5-3",
+              "2-5-3",
+              "1-3-5",
+              "1-3-2",
+              "1-5-4",
+              "2-5-4",
+              "2-3-1"
+            ],
+            "ticket_details": [
+              {
+                "ticket": "5-2-1",
+                "combo": "521",
+                "probability_pct": 1.713479,
+                "odds": 22.2,
+                "expected_value": 0.380392,
+                "expected_roi_pct": 38.0392,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-1-2",
+                "combo": "512",
+                "probability_pct": 1.624762,
+                "odds": 21.8,
+                "expected_value": 0.354198,
+                "expected_roi_pct": 35.4198,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-2-3",
+                "combo": "523",
+                "probability_pct": 1.948614,
+                "odds": 37.7,
+                "expected_value": 0.734628,
+                "expected_roi_pct": 73.4628,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-1-3",
+                "combo": "513",
+                "probability_pct": 1.471158,
+                "odds": 55.3,
+                "expected_value": 0.81355,
+                "expected_roi_pct": 81.355,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-3-2",
+                "combo": "532",
+                "probability_pct": 1.426922,
+                "odds": 62.7,
+                "expected_value": 0.89468,
+                "expected_roi_pct": 89.468,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "1-5-3",
+                "combo": "153",
+                "probability_pct": 4.193494,
+                "odds": 38.3,
+                "expected_value": 1.606108,
+                "expected_roi_pct": 160.6108,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "2-5-3",
+                "combo": "253",
+                "probability_pct": 3.655396,
+                "odds": 29.8,
+                "expected_value": 1.089308,
+                "expected_roi_pct": 108.9308,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "1-3-5",
+                "combo": "135",
+                "probability_pct": 3.316717,
+                "odds": 43.1,
+                "expected_value": 1.429505,
+                "expected_roi_pct": 142.9505,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "1-3-2",
+                "combo": "132",
+                "probability_pct": 2.383545,
+                "odds": 43.7,
+                "expected_value": 1.041609,
+                "expected_roi_pct": 104.1609,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "1-5-4",
+                "combo": "154",
+                "probability_pct": 2.110972,
+                "odds": 82.9,
+                "expected_value": 1.749995,
+                "expected_roi_pct": 174.9995,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "2-5-4",
+                "combo": "254",
+                "probability_pct": 1.765929,
+                "odds": 82.1,
+                "expected_value": 1.449828,
+                "expected_roi_pct": 144.9828,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "2-3-1",
+                "combo": "231",
+                "probability_pct": 1.594358,
+                "odds": 67.7,
+                "expected_value": 1.07938,
+                "expected_roi_pct": 107.938,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              }
+            ],
+            "complete_ticket_evidence": true,
+            "selected_probability_pct": 27.205346,
+            "portfolio_expected_roi_pct": 105.1932,
+            "synthetic_odds": 3.3756,
+            "added_tickets": [
+              "1-5-3",
+              "2-5-3",
+              "1-3-5",
+              "1-3-2",
+              "1-5-4",
+              "2-5-4",
+              "2-3-1"
+            ],
+            "added_count": 7,
+            "candidate_count": 36,
+            "rescue_available": true,
+            "settled_at": "2026-07-13T18:49:23+09:00",
+            "result_trifecta": "1-3-5",
+            "result_payout_yen": 2260,
+            "bet": true,
+            "hit": true,
+            "outcome": "hit",
+            "investment_yen": 1200,
+            "payback_yen": 2260,
+            "profit_yen": 1060
+          }
+        },
+        "settled_at": "2026-07-13T18:49:23+09:00",
+        "result_trifecta": "1-3-5",
+        "result_payout_yen": 2260
+      }
+    },
+    {
+      "status": "miss",
+      "result": {
+        "trifecta": "1-6-2",
+        "payout_yen": 2280,
+        "manshu": false
+      },
+      "created_at": "2026-07-13T15:24:19+09:00",
+      "detected_at": "2026-07-13T15:24:19+09:00",
+      "first_minutes_to_deadline": 5.7,
+      "notification_enabled": true,
+      "notification_status": "duplicate_sent",
+      "date": "2026-07-13",
+      "race_id": "2026-07-131608",
+      "place_name": "児島",
+      "round": 8,
+      "deadline_time": "2026-07-13T15:30:00+09:00",
+      "source_type": "all_venue_sign",
+      "ai_source": "original_boaters",
+      "data_mode": "full",
+      "rule_set_id": "original_boaters_24_v1",
+      "rule_id": "original_boaters_24_v1:児島:pop1_odds50_nige50:outer2_wind3:non1_h1_b1place_top4",
+      "rule_status": "A",
+      "condition": "1号艇がBOATERS人気1位・支持率50%以上・逃げ率50%以下 / 外艇上位2艇以上かつ風速3m以上",
+      "base_id": "pop1_odds50_nige50",
+      "context_id": "outer2_wind3",
+      "template_id": "non1_h1_b1place_top4",
+      "buy_method": "2-6号艇の頭1艇・1号艇は2/3着可・予測順位上位4点",
+      "historical": {
+        "races": 100,
+        "hits": 16,
+        "hit_rate_pct": 16.0,
+        "avg_points": 4.0,
+        "roi_pct": 220.6
+      },
+      "points": 4,
+      "planned_investment_yen": 400,
+      "tickets": [
+        "6-1-2",
+        "6-2-1",
+        "6-1-3",
+        "6-3-1"
+      ],
+      "heads": [
+        6
+      ],
+      "axes": [
+        1,
+        2,
+        3
+      ],
+      "keshi": null,
+      "condition_snapshot": {
+        "date": "2026-07-13",
+        "race_id": "2026-07-131608",
+        "place_name": "児島",
+        "round": 8,
+        "data_mode": "full",
+        "wind_speed": 4.0,
+        "wave_height": 3.0,
+        "b1_odds_pct": 55.3,
+        "b1_odds_rank": 1,
+        "b1_nige_pct": 25.0,
+        "b1_ai_win": 59.9,
+        "b1_ai_top3": 85.2,
+        "b1_overbet_gap": -4.600000000000001,
+        "b1_tenji_rank": 4,
+        "b1_lap_rank": 2.0,
+        "b1_avg_diff": 0.2467,
+        "outer56_avg_diff": 0.4967,
+        "outer_top2_count": 2,
+        "outer_top1_count": 2,
+        "outer_ai_win_max": 11.3,
+        "outer_ai_top3_max": 57.6,
+        "outer56_ai_win_max": 11.3,
+        "boat5_ai_top3_rank": 4,
+        "boat6_ai_top3_rank": 2
+      },
+      "independent_probabilities": [
+        {
+          "boat_number": 1,
+          "win_pct": 47.302,
+          "top3_pct": 79.1061,
+          "win_rank": 1,
+          "top3_rank": 2
+        },
+        {
+          "boat_number": 2,
+          "win_pct": 23.8402,
+          "top3_pct": 79.6678,
+          "win_rank": 2,
+          "top3_rank": 1
+        },
+        {
+          "boat_number": 3,
+          "win_pct": 6.5151,
+          "top3_pct": 16.4646,
+          "win_rank": 6,
+          "top3_rank": 6
+        },
+        {
+          "boat_number": 4,
+          "win_pct": 7.2134,
+          "top3_pct": 40.6993,
+          "win_rank": 4,
+          "top3_rank": 4
+        },
+        {
+          "boat_number": 5,
+          "win_pct": 8.04,
+          "top3_pct": 50.5346,
+          "win_rank": 3,
+          "top3_rank": 3
+        },
+        {
+          "boat_number": 6,
+          "win_pct": 7.0894,
+          "top3_pct": 33.5276,
+          "win_rank": 5,
+          "top3_rank": 5
+        }
+      ],
+      "independent_probability_model": {
+        "available": true,
+        "version": "independent-composite-probability-v1",
+        "feature_coverage": {
+          "available": 87,
+          "total": 97,
+          "pct": 89.69
+        },
+        "win_temperature": 0.95,
+        "top3_temperature": 0.95
+      },
+      "head_swap_shadow": {
+        "version": "original-boaters-24-head-swap-shadow-v1",
+        "policy_id": "aiwin_delta4_scoregap5_v1",
+        "notification_enabled": false,
+        "active": false,
+        "status": "not_triggered",
+        "ai_win_delta_min_pp": 4.0,
+        "max_current_score_gap": 5.0,
+        "baseline_intended_heads": [
+          6
+        ],
+        "baseline_ticket_heads": [
+          6
+        ],
+        "baseline_tickets": [
+          "6-1-2",
+          "6-2-1",
+          "6-1-3",
+          "6-3-1"
+        ],
+        "shadow_heads": [
+          6
+        ],
+        "shadow_tickets": [
+          "6-1-2",
+          "6-2-1",
+          "6-1-3",
+          "6-3-1"
+        ],
+        "would_change_tickets": false,
+        "promoted_head": 2,
+        "demoted_head": 6,
+        "promoted_ai_win_pct": 9.4,
+        "demoted_ai_win_pct": 11.3,
+        "ai_win_delta_pp": -1.9,
+        "promoted_current_score": 25.0436,
+        "demoted_current_score": 25.58,
+        "current_score_gap": 0.5364,
+        "reason": "ai_win_delta_below_threshold"
+      },
+      "head56_confidence_shadow": {
+        "version": "original-boaters-24-head56-confidence-shadow-v1",
+        "policy_id": "head56_unselected_ai_not_lower_v1",
+        "notification_enabled": false,
+        "active": false,
+        "status": "not_triggered",
+        "would_skip": false,
+        "family": "non1_h1_b1place",
+        "baseline_ticket_heads": [
+          6
+        ],
+        "selected_56_heads": [
+          6
+        ],
+        "unselected_56_heads": [
+          5
+        ],
+        "baseline_tickets": [
+          "6-1-2",
+          "6-2-1",
+          "6-1-3",
+          "6-3-1"
+        ],
+        "reason": "not_head56_family"
+      },
+      "low_confidence_shadow": {
+        "version": "original-boaters-24-low-confidence-shadow-v1",
+        "policy_id": "three_gate_low_confidence_v1",
+        "active": false,
+        "notification_enabled": false,
+        "status": "settled",
+        "production_action": "none",
+        "baseline_tickets": [
+          "6-1-2",
+          "6-2-1",
+          "6-1-3",
+          "6-3-1"
+        ],
+        "diagnostics": {
+          "available": true,
+          "family": "non1_h1_b1place",
+          "ticket_heads": [
+            6
+          ],
+          "eligible_heads": [
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "selected_heads": [
+            6
+          ],
+          "unselected_heads": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "leaders_by_signal": {
+            "ai_win": [
+              6
+            ],
+            "ai_top3": [
+              6
+            ],
+            "market_support": [
+              3
+            ],
+            "win_score": [
+              6
+            ],
+            "top3_score": [
+              6
+            ],
+            "exhibition": [
+              6
+            ],
+            "lap": [
+              6
+            ],
+            "avg_diff": [
+              6
+            ]
+          },
+          "support_by_head": {
+            "2": 0,
+            "3": 1,
+            "4": 0,
+            "5": 0,
+            "6": 7
+          },
+          "selected_best_support": 7,
+          "unselected_best_support": 1,
+          "unselected_minus_selected_support": -6,
+          "consensus_support_by_head": {
+            "2": 1,
+            "3": 1,
+            "4": 0,
+            "5": 0,
+            "6": 4
+          },
+          "selected_best_consensus_support": 4,
+          "unselected_best_consensus_support": 1,
+          "unselected_minus_selected_consensus_support": -3,
+          "selected_best_ai_win_pct": 11.3,
+          "unselected_best_ai_win_pct": 9.4,
+          "unselected_minus_selected_ai_win_pp": -1.9,
+          "ai_exhibition_selection_disagree": false,
+          "selected_has_super_slit": false,
+          "unselected_has_super_slit": false,
+          "unselected_only_super_slit": false,
+          "risk_flags": {
+            "unselected_support_gap_ge2": false,
+            "ai_leader_unselected": false,
+            "exhibition_leader_unselected": false,
+            "ai_exhibition_selection_disagree": false,
+            "unselected_only_super_slit": false
+          },
+          "structural_risk_score": 0,
+          "multi_source_disagreement": false
+        },
+        "candidate_decisions": {
+          "structural_support_gap2": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "未選択頭の歴史検証用強材料が選択頭より2個以上多い",
+            "historical_status": "2026_holdout_failed",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 400,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 400,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -400
+          },
+          "multi_source_disagreement": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "AIと展示の支持先が食い違い、未選択側にも別材料がある",
+            "historical_status": "new_forward_candidate",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 400,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 400,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -400
+          },
+          "head56_unselected_ai_not_lower": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "5・6号艇頭型で未選択側のAI1着率が同等以上",
+            "historical_status": "existing_shadow_candidate",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 400,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 400,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -400
+          },
+          "both_models_ev_below100_t5": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "T-5で旧・着順モデル双方の期待回収率が100%未満",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 400,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 400,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -400
+          },
+          "both_models_ev_below80_t5": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "T-5で旧・着順モデル双方の期待回収率が80%未満",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 400,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 400,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -400
+          },
+          "legacy_ev_drop20_t10_to_t5": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "旧モデルの期待回収率がT-10からT-5で20ポイント以上低下",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 400,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 400,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -400
+          },
+          "synthetic_odds_below3_t5": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "T-5の合成オッズが3倍未満",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 400,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 400,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -400
+          },
+          "synthetic_odds_drop20pct_t10_to_t5": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "合成オッズがT-10からT-5で20%以上急落",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 400,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 400,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -400
+          },
+          "structural_and_both_models_ev_below100": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "構造的な頭不信とT-5期待値不足が同時発生",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 400,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 400,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -400
+          }
+        },
+        "odds_evidence": {
+          "legacy_t10_expected_roi_pct": 123.0474,
+          "legacy_t5_expected_roi_pct": 140.497,
+          "position_t10_expected_roi_pct": 98.3886,
+          "position_t5_expected_roi_pct": 112.2257,
+          "t10_synthetic_odds": 26.0301,
+          "t5_synthetic_odds": 30.2511,
+          "legacy_t5_positive_ev_ticket_count": 2.0,
+          "position_t5_positive_ev_ticket_count": 1.0,
+          "legacy_ev_change_t5_minus_t10_pp": 17.4496,
+          "synthetic_odds_change_pct": 16.2158
+        },
+        "settled_at": "2026-07-13T18:54:33+09:00",
+        "result_trifecta": "1-6-2",
+        "result_payout_yen": 2280,
+        "baseline_hit": false
+      },
+      "ticket_ev_shadow": {
+        "version": "original-boaters-24-ticket-ev-shadow-v1",
+        "policy_id": "aiwin_top3_sequential_v1",
+        "active": false,
+        "notification_enabled": false,
+        "status": "odds_ready",
+        "probability_method": "AI1着率を1着重み、(AI3連対率-AI1着率)/(1-AI1着率)を2・3着重みにした逐次条件付きモデル",
+        "probability_sum_all_combos": 1.0,
+        "selected_probability_pct": 3.733323,
+        "tickets": [
+          {
+            "ticket": "6-1-2",
+            "combo": "612",
+            "probability": 0.01226526,
+            "probability_pct": 1.226526
+          },
+          {
+            "ticket": "6-2-1",
+            "combo": "621",
+            "probability": 0.0110708,
+            "probability_pct": 1.10708
+          },
+          {
+            "ticket": "6-1-3",
+            "combo": "613",
+            "probability": 0.00773712,
+            "probability_pct": 0.773712
+          },
+          {
+            "ticket": "6-3-1",
+            "combo": "631",
+            "probability": 0.00626005,
+            "probability_pct": 0.626005
+          }
+        ],
+        "snapshots": {
+          "t10": {
+            "target_minutes": 10,
+            "snapshot_at": "2026-07-13T15:17:56",
+            "minutes_to_deadline": 12.0667,
+            "absolute_target_error_minutes": 2.0667,
+            "combo_count": 120,
+            "source": "targeted_fetch",
+            "complete_ticket_odds": true,
+            "ticket_count": 4,
+            "positive_ev_ticket_count": 2,
+            "selected_probability_pct": 3.733323,
+            "portfolio_expected_roi_pct": 123.0474,
+            "synthetic_odds": 26.0301,
+            "tickets": [
+              {
+                "ticket": "6-1-2",
+                "probability_pct": 1.226526,
+                "odds": 84.8,
+                "expected_value": 1.040094,
+                "market_probability_pct": 0.882907,
+                "model_edge_pp": 0.343619
+              },
+              {
+                "ticket": "6-2-1",
+                "probability_pct": 1.10708,
+                "odds": 231.4,
+                "expected_value": 2.561783,
+                "market_probability_pct": 0.323554,
+                "model_edge_pp": 0.783526
+              },
+              {
+                "ticket": "6-1-3",
+                "probability_pct": 0.773712,
+                "odds": 70.2,
+                "expected_value": 0.543146,
+                "market_probability_pct": 1.066531,
+                "model_edge_pp": -0.292819
+              },
+              {
+                "ticket": "6-3-1",
+                "probability_pct": 0.626005,
+                "odds": 124.1,
+                "expected_value": 0.776872,
+                "market_probability_pct": 0.603308,
+                "model_edge_pp": 0.022697
+              }
+            ]
+          },
+          "t5": {
+            "target_minutes": 5,
+            "snapshot_at": "2026-07-13T15:23:01",
+            "minutes_to_deadline": 6.9833,
+            "absolute_target_error_minutes": 1.9833,
+            "combo_count": 120,
+            "source": "existing_snapshot",
+            "complete_ticket_odds": true,
+            "ticket_count": 4,
+            "positive_ev_ticket_count": 2,
+            "selected_probability_pct": 3.733323,
+            "portfolio_expected_roi_pct": 140.497,
+            "synthetic_odds": 30.2511,
+            "tickets": [
+              {
+                "ticket": "6-1-2",
+                "probability_pct": 1.226526,
+                "odds": 98.8,
+                "expected_value": 1.211808,
+                "market_probability_pct": 0.7579,
+                "model_edge_pp": 0.468626
+              },
+              {
+                "ticket": "6-2-1",
+                "probability_pct": 1.10708,
+                "odds": 254.1,
+                "expected_value": 2.81309,
+                "market_probability_pct": 0.294689,
+                "model_edge_pp": 0.812391
+              },
+              {
+                "ticket": "6-1-3",
+                "probability_pct": 0.773712,
+                "odds": 79.2,
+                "expected_value": 0.61278,
+                "market_probability_pct": 0.945461,
+                "model_edge_pp": -0.171749
+              },
+              {
+                "ticket": "6-3-1",
+                "probability_pct": 0.626005,
+                "odds": 156.9,
+                "expected_value": 0.982202,
+                "market_probability_pct": 0.47725,
+                "model_edge_pp": 0.148755
+              }
+            ]
+          }
+        },
+        "available_targets": [
+          "t10",
+          "t5"
+        ],
+        "odds_db": "/private/tmp/kyotei-mm1601-reflect/data/live_odds.db",
+        "settled_at": "2026-07-13T18:54:33+09:00",
+        "result_trifecta": "1-6-2",
+        "result_payout_yen": 2280,
+        "baseline_hit": false,
+        "result_ticket_probability_pct": null
+      },
+      "ticket_position_shadow": {
+        "version": "original-boaters-24-ticket-position-shadow-v1",
+        "policy_id": "position123_hgb_calibrated_v1",
+        "active": false,
+        "notification_enabled": false,
+        "status": "odds_ready",
+        "probability_method": "1着・2着・3着の専用モデルを逐次条件付きで120通りへ変換",
+        "model_path": "/private/tmp/kyotei-mm1601-reflect/data/output/self_ai_models/trifecta_position_model_current.joblib",
+        "model_version": "trifecta-position-model-v1",
+        "probability_sum_all_combos": 1.0,
+        "selected_probability_pct": 3.08188,
+        "position_probabilities_pct": {
+          "position1": {
+            "1": 52.835789,
+            "2": 8.777977,
+            "3": 6.767645,
+            "4": 7.751734,
+            "5": 8.020357,
+            "6": 15.846498
+          },
+          "position2": {
+            "1": 16.30192,
+            "2": 25.682858,
+            "3": 14.95708,
+            "4": 10.870941,
+            "5": 12.853631,
+            "6": 19.333571
+          },
+          "position3": {
+            "1": 9.283742,
+            "2": 20.881916,
+            "3": 15.795609,
+            "4": 13.469028,
+            "5": 16.197885,
+            "6": 24.37182
+          }
+        },
+        "tickets": [
+          {
+            "ticket": "6-1-2",
+            "combo": "612",
+            "probability": 0.01007964,
+            "probability_pct": 1.007964
+          },
+          {
+            "ticket": "6-2-1",
+            "combo": "621",
+            "probability": 0.00855564,
+            "probability_pct": 0.855564
+          },
+          {
+            "ticket": "6-1-3",
+            "combo": "613",
+            "probability": 0.00762449,
+            "probability_pct": 0.762449
+          },
+          {
+            "ticket": "6-3-1",
+            "combo": "631",
+            "probability": 0.00455903,
+            "probability_pct": 0.455903
+          }
+        ],
+        "snapshots": {
+          "t10": {
+            "target_minutes": 10,
+            "snapshot_at": "2026-07-13T15:17:56",
+            "minutes_to_deadline": 12.0667,
+            "absolute_target_error_minutes": 2.0667,
+            "combo_count": 120,
+            "source": "targeted_fetch",
+            "complete_ticket_odds": true,
+            "ticket_count": 4,
+            "positive_ev_ticket_count": 1,
+            "selected_probability_pct": 3.08188,
+            "portfolio_expected_roi_pct": 98.3886,
+            "synthetic_odds": 26.0301,
+            "tickets": [
+              {
+                "ticket": "6-1-2",
+                "probability_pct": 1.007964,
+                "odds": 84.8,
+                "expected_value": 0.854753,
+                "market_probability_pct": 0.882907,
+                "model_edge_pp": 0.125057
+              },
+              {
+                "ticket": "6-2-1",
+                "probability_pct": 0.855564,
+                "odds": 231.4,
+                "expected_value": 1.979775,
+                "market_probability_pct": 0.323554,
+                "model_edge_pp": 0.53201
+              },
+              {
+                "ticket": "6-1-3",
+                "probability_pct": 0.762449,
+                "odds": 70.2,
+                "expected_value": 0.535239,
+                "market_probability_pct": 1.066531,
+                "model_edge_pp": -0.304082
+              },
+              {
+                "ticket": "6-3-1",
+                "probability_pct": 0.455903,
+                "odds": 124.1,
+                "expected_value": 0.565776,
+                "market_probability_pct": 0.603308,
+                "model_edge_pp": -0.147405
+              }
+            ]
+          },
+          "t5": {
+            "target_minutes": 5,
+            "snapshot_at": "2026-07-13T15:23:01",
+            "minutes_to_deadline": 6.9833,
+            "absolute_target_error_minutes": 1.9833,
+            "combo_count": 120,
+            "source": "existing_snapshot",
+            "complete_ticket_odds": true,
+            "ticket_count": 4,
+            "positive_ev_ticket_count": 1,
+            "selected_probability_pct": 3.08188,
+            "portfolio_expected_roi_pct": 112.2257,
+            "synthetic_odds": 30.2511,
+            "tickets": [
+              {
+                "ticket": "6-1-2",
+                "probability_pct": 1.007964,
+                "odds": 98.8,
+                "expected_value": 0.995868,
+                "market_probability_pct": 0.7579,
+                "model_edge_pp": 0.250064
+              },
+              {
+                "ticket": "6-2-1",
+                "probability_pct": 0.855564,
+                "odds": 254.1,
+                "expected_value": 2.173988,
+                "market_probability_pct": 0.294689,
+                "model_edge_pp": 0.560875
+              },
+              {
+                "ticket": "6-1-3",
+                "probability_pct": 0.762449,
+                "odds": 79.2,
+                "expected_value": 0.60386,
+                "market_probability_pct": 0.945461,
+                "model_edge_pp": -0.183012
+              },
+              {
+                "ticket": "6-3-1",
+                "probability_pct": 0.455903,
+                "odds": 156.9,
+                "expected_value": 0.715312,
+                "market_probability_pct": 0.47725,
+                "model_edge_pp": -0.021347
+              }
+            ]
+          }
+        },
+        "available_targets": [
+          "t10",
+          "t5"
+        ],
+        "odds_db": "/private/tmp/kyotei-mm1601-reflect/data/live_odds.db",
+        "settled_at": "2026-07-13T18:54:33+09:00",
+        "result_trifecta": "1-6-2",
+        "result_payout_yen": 2280,
+        "baseline_hit": false,
+        "result_ticket_probability_pct": null
+      },
+      "ticket_venue_probability_shadow": {
+        "version": "original-boaters-24-ticket-venue-probability-shadow-v1",
+        "policy_id": "venue_lane_probability_point_overlay_v1",
+        "active": false,
+        "notification_enabled": false,
+        "status": "odds_ready",
+        "probability_method": "BOATERS AI1/AI3を基準に、場×艇番・展示・気象・水面・スリットを着順別の確率ポイントとして補正し120通りへ変換",
+        "model_path": "/private/tmp/kyotei-mm1601-reflect/data/output/self_ai_models/venue_probability_overlay_current.joblib",
+        "model_version": "venue-probability-overlay-v1",
+        "probability_sum_all_combos": 1.0,
+        "selected_probability_pct": 2.031669,
+        "position_probabilities_pct": {
+          "position1": {
+            "1": 59.95996,
+            "2": 9.409409,
+            "3": 4.804805,
+            "4": 7.907908,
+            "5": 6.606607,
+            "6": 11.311311
+          },
+          "position2": {
+            "1": 13.318552,
+            "2": 22.703309,
+            "3": 17.409355,
+            "4": 11.965928,
+            "5": 13.125776,
+            "6": 21.477079
+          },
+          "position3": {
+            "1": 10.781095,
+            "2": 19.180645,
+            "3": 15.544511,
+            "4": 14.397051,
+            "5": 17.840362,
+            "6": 22.256335
+          }
+        },
+        "tickets": [
+          {
+            "ticket": "6-1-2",
+            "combo": "612",
+            "probability": 0.00549547,
+            "probability_pct": 0.549547
+          },
+          {
+            "ticket": "6-2-1",
+            "combo": "621",
+            "probability": 0.00602067,
+            "probability_pct": 0.602067
+          },
+          {
+            "ticket": "6-1-3",
+            "combo": "613",
+            "probability": 0.00445367,
+            "probability_pct": 0.445367
+          },
+          {
+            "ticket": "6-3-1",
+            "combo": "631",
+            "probability": 0.00434688,
+            "probability_pct": 0.434688
+          }
+        ],
+        "snapshots": {
+          "t10": {
+            "target_minutes": 10,
+            "snapshot_at": "2026-07-13T15:17:56",
+            "minutes_to_deadline": 12.0667,
+            "absolute_target_error_minutes": 2.0667,
+            "combo_count": 120,
+            "source": "targeted_fetch",
+            "complete_ticket_odds": true,
+            "ticket_count": 4,
+            "positive_ev_ticket_count": 1,
+            "selected_probability_pct": 2.031669,
+            "portfolio_expected_roi_pct": 67.7824,
+            "synthetic_odds": 26.0301,
+            "tickets": [
+              {
+                "ticket": "6-1-2",
+                "probability_pct": 0.549547,
+                "odds": 84.8,
+                "expected_value": 0.466016,
+                "market_probability_pct": 0.882907,
+                "model_edge_pp": -0.33336
+              },
+              {
+                "ticket": "6-2-1",
+                "probability_pct": 0.602067,
+                "odds": 231.4,
+                "expected_value": 1.393183,
+                "market_probability_pct": 0.323554,
+                "model_edge_pp": 0.278513
+              },
+              {
+                "ticket": "6-1-3",
+                "probability_pct": 0.445367,
+                "odds": 70.2,
+                "expected_value": 0.312648,
+                "market_probability_pct": 1.066531,
+                "model_edge_pp": -0.621164
+              },
+              {
+                "ticket": "6-3-1",
+                "probability_pct": 0.434688,
+                "odds": 124.1,
+                "expected_value": 0.539448,
+                "market_probability_pct": 0.603308,
+                "model_edge_pp": -0.16862
+              }
+            ]
+          },
+          "t5": {
+            "target_minutes": 5,
+            "snapshot_at": "2026-07-13T15:23:01",
+            "minutes_to_deadline": 6.9833,
+            "absolute_target_error_minutes": 1.9833,
+            "combo_count": 120,
+            "source": "existing_snapshot",
+            "complete_ticket_odds": true,
+            "ticket_count": 4,
+            "positive_ev_ticket_count": 1,
+            "selected_probability_pct": 2.031669,
+            "portfolio_expected_roi_pct": 77.689,
+            "synthetic_odds": 30.2511,
+            "tickets": [
+              {
+                "ticket": "6-1-2",
+                "probability_pct": 0.549547,
+                "odds": 98.8,
+                "expected_value": 0.542952,
+                "market_probability_pct": 0.7579,
+                "model_edge_pp": -0.208353
+              },
+              {
+                "ticket": "6-2-1",
+                "probability_pct": 0.602067,
+                "odds": 254.1,
+                "expected_value": 1.529852,
+                "market_probability_pct": 0.294689,
+                "model_edge_pp": 0.307378
+              },
+              {
+                "ticket": "6-1-3",
+                "probability_pct": 0.445367,
+                "odds": 79.2,
+                "expected_value": 0.352731,
+                "market_probability_pct": 0.945461,
+                "model_edge_pp": -0.500094
+              },
+              {
+                "ticket": "6-3-1",
+                "probability_pct": 0.434688,
+                "odds": 156.9,
+                "expected_value": 0.682025,
+                "market_probability_pct": 0.47725,
+                "model_edge_pp": -0.042562
+              }
+            ]
+          }
+        },
+        "available_targets": [
+          "t10",
+          "t5"
+        ],
+        "odds_db": "/private/tmp/kyotei-mm1601-reflect/data/live_odds.db",
+        "settled_at": "2026-07-13T18:54:33+09:00",
+        "result_trifecta": "1-6-2",
+        "result_payout_yen": 2280,
+        "baseline_hit": false,
+        "result_ticket_probability_pct": null
+      },
+      "new_buff_debuff_shadow": {
+        "version": "venue-buff-debuff-s-head-skip-shadow-v1",
+        "policy_id": "skip_s_head_debuff_v1",
+        "active": false,
+        "notification_enabled": false,
+        "status": "settled",
+        "candidate_source": "/private/tmp/kyotei-mm1601-reflect/data/output/venue_new_buff_debuff_candidates.json",
+        "candidate_version": "venue-new-buff-debuff-shadow-v1",
+        "would_skip": false,
+        "heads": [
+          6
+        ],
+        "matched_factor_count": 1,
+        "head_debuffs": [],
+        "reason": "no_s_head_debuff_on_current_head",
+        "settled_at": "2026-07-13T18:54:33+09:00",
+        "result_trifecta": "1-6-2",
+        "result_payout_yen": 2280,
+        "baseline_hit": false,
+        "shadow_buy": true,
+        "shadow_hit": false,
+        "outcome": "bought_miss",
+        "baseline_investment_yen": 400,
+        "baseline_payback_yen": 0,
+        "shadow_investment_yen": 400,
+        "shadow_payback_yen": 0,
+        "shadow_profit_yen": -400
+      },
+      "push_key": "alert:2026-07-131608:venue_sign:venue_sign",
+      "last_seen_at": "2026-07-13T15:29:58+09:00",
+      "minutes_to_deadline": 0.0,
+      "notification_attempted_at": "2026-07-13T15:29:58+09:00",
+      "notification_ok": true,
+      "notification_http_status": null,
+      "notification_sent_at": "2026-07-13T15:24:19+09:00",
+      "notification_error": null,
+      "settled_at": "2026-07-13T18:54:33+09:00",
+      "result_trifecta": "1-6-2",
+      "result_payout_yen": 2280,
+      "result_manshu": false,
+      "hit": false,
+      "payback_yen": 0,
+      "investment_yen": 400,
+      "profit_yen": -400,
+      "ev_risk_note": "",
+      "ticket_strategy_shadow": {
+        "version": "venue-sign-ticket-strategy-shadow-v1",
+        "policy_id": "ticket_strategy_compare_v1",
+        "active": false,
+        "notification_enabled": false,
+        "production_action": "none",
+        "target_preference": [
+          "t5",
+          "t10"
+        ],
+        "minimum_ticket_expected_roi_pct": 100.0,
+        "rescue_max_points": 12,
+        "minimum_forward_sample": 100,
+        "description": "現行買い目は変えず、現行・期待値不足除外・最大12点救済の3案を同じ締切前確率、T-10/T-5オッズ、実結果で比較する。",
+        "baseline_tickets": [
+          "6-1-2",
+          "6-2-1",
+          "6-1-3",
+          "6-3-1"
+        ],
+        "baseline_points": 4,
+        "pre_race_input_only": true,
+        "construction_mode": "pre_race_input_backfill",
+        "constructed_at": "2026-07-13T18:53:34+09:00",
+        "status": "settled",
+        "selected_target": "t5",
+        "odds_snapshot_at": "2026-07-13T15:23:01",
+        "minutes_to_deadline": 6.9833,
+        "absolute_target_error_minutes": 1.9833,
+        "odds_source": "existing_snapshot",
+        "complete_all_combo_odds": true,
+        "probability_models": [
+          "base_ai",
+          "position_ai",
+          "venue_probability_ai"
+        ],
+        "full_probability_models": [
+          "position_ai",
+          "venue_probability_ai"
+        ],
+        "variants": {
+          "baseline_current": {
+            "variant_id": "baseline_current",
+            "label": "現行買い目",
+            "active": false,
+            "notification_enabled": false,
+            "production_action": "none",
+            "status": "settled",
+            "points": 4,
+            "tickets": [
+              "6-1-2",
+              "6-2-1",
+              "6-1-3",
+              "6-3-1"
+            ],
+            "ticket_details": [
+              {
+                "ticket": "6-1-2",
+                "combo": "612",
+                "probability_pct": 0.928012,
+                "odds": 98.8,
+                "expected_value": 0.916876,
+                "expected_roi_pct": 91.6876,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "6-2-1",
+                "combo": "621",
+                "probability_pct": 0.854904,
+                "odds": 254.1,
+                "expected_value": 2.17231,
+                "expected_roi_pct": 217.231,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "6-1-3",
+                "combo": "613",
+                "probability_pct": 0.66051,
+                "odds": 79.2,
+                "expected_value": 0.523124,
+                "expected_roi_pct": 52.3124,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "6-3-1",
+                "combo": "631",
+                "probability_pct": 0.505532,
+                "odds": 156.9,
+                "expected_value": 0.79318,
+                "expected_roi_pct": 79.318,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              }
+            ],
+            "complete_ticket_evidence": true,
+            "selected_probability_pct": 2.948958,
+            "portfolio_expected_roi_pct": 110.1373,
+            "synthetic_odds": 30.2511,
+            "settled_at": "2026-07-13T18:49:23+09:00",
+            "result_trifecta": "1-6-2",
+            "result_payout_yen": 2280,
+            "bet": true,
+            "hit": false,
+            "outcome": "miss",
+            "investment_yen": 400,
+            "payback_yen": 0,
+            "profit_yen": -400
+          },
+          "ev_pruned": {
+            "variant_id": "ev_pruned",
+            "label": "期待値100%未満を除外",
+            "active": false,
+            "notification_enabled": false,
+            "production_action": "none",
+            "status": "settled",
+            "points": 1,
+            "tickets": [
+              "6-2-1"
+            ],
+            "ticket_details": [
+              {
+                "ticket": "6-2-1",
+                "combo": "621",
+                "probability_pct": 0.854904,
+                "odds": 254.1,
+                "expected_value": 2.17231,
+                "expected_roi_pct": 217.231,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              }
+            ],
+            "complete_ticket_evidence": true,
+            "selected_probability_pct": 0.854904,
+            "portfolio_expected_roi_pct": 217.231,
+            "synthetic_odds": 254.1,
+            "removed_tickets": [
+              "6-1-2",
+              "6-1-3",
+              "6-3-1"
+            ],
+            "removed_count": 3,
+            "settled_at": "2026-07-13T18:49:23+09:00",
+            "result_trifecta": "1-6-2",
+            "result_payout_yen": 2280,
+            "bet": true,
+            "hit": false,
+            "outcome": "miss",
+            "investment_yen": 100,
+            "payback_yen": 0,
+            "profit_yen": -100
+          },
+          "rescue12": {
+            "variant_id": "rescue12",
+            "label": "高確率救済を最大12点まで追加",
+            "active": false,
+            "notification_enabled": false,
+            "production_action": "none",
+            "status": "settled",
+            "points": 12,
+            "tickets": [
+              "6-1-2",
+              "6-2-1",
+              "6-1-3",
+              "6-3-1",
+              "1-2-6",
+              "1-6-2",
+              "1-2-5",
+              "1-6-5",
+              "6-2-5",
+              "6-2-3",
+              "6-2-4",
+              "6-3-2"
+            ],
+            "ticket_details": [
+              {
+                "ticket": "6-1-2",
+                "combo": "612",
+                "probability_pct": 0.928012,
+                "odds": 98.8,
+                "expected_value": 0.916876,
+                "expected_roi_pct": 91.6876,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "6-2-1",
+                "combo": "621",
+                "probability_pct": 0.854904,
+                "odds": 254.1,
+                "expected_value": 2.17231,
+                "expected_roi_pct": 217.231,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "6-1-3",
+                "combo": "613",
+                "probability_pct": 0.66051,
+                "odds": 79.2,
+                "expected_value": 0.523124,
+                "expected_roi_pct": 52.3124,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "6-3-1",
+                "combo": "631",
+                "probability_pct": 0.505532,
+                "odds": 156.9,
+                "expected_value": 0.79318,
+                "expected_roi_pct": 79.318,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "1-2-6",
+                "combo": "126",
+                "probability_pct": 5.32432,
+                "odds": 32.7,
+                "expected_value": 1.741053,
+                "expected_roi_pct": 174.1053,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "1-6-2",
+                "combo": "162",
+                "probability_pct": 4.04841,
+                "odds": 33.9,
+                "expected_value": 1.372411,
+                "expected_roi_pct": 137.2411,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "1-2-5",
+                "combo": "125",
+                "probability_pct": 3.880399,
+                "odds": 34.8,
+                "expected_value": 1.350379,
+                "expected_roi_pct": 135.0379,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "1-6-5",
+                "combo": "165",
+                "probability_pct": 3.468899,
+                "odds": 32.8,
+                "expected_value": 1.137799,
+                "expected_roi_pct": 113.7799,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "6-2-5",
+                "combo": "625",
+                "probability_pct": 1.244521,
+                "odds": 516.5,
+                "expected_value": 6.427951,
+                "expected_roi_pct": 642.7951,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "6-2-3",
+                "combo": "623",
+                "probability_pct": 1.161879,
+                "odds": 421.4,
+                "expected_value": 4.896159,
+                "expected_roi_pct": 489.6159,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "6-2-4",
+                "combo": "624",
+                "probability_pct": 1.022634,
+                "odds": 381.2,
+                "expected_value": 3.89828,
+                "expected_roi_pct": 389.828,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "6-3-2",
+                "combo": "632",
+                "probability_pct": 0.899408,
+                "odds": 410.5,
+                "expected_value": 3.69207,
+                "expected_roi_pct": 369.207,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              }
+            ],
+            "complete_ticket_evidence": true,
+            "selected_probability_pct": 23.999428,
+            "portfolio_expected_roi_pct": 241.0133,
+            "synthetic_odds": 6.1832,
+            "added_tickets": [
+              "1-2-6",
+              "1-6-2",
+              "1-2-5",
+              "1-6-5",
+              "6-2-5",
+              "6-2-3",
+              "6-2-4",
+              "6-3-2"
+            ],
+            "added_count": 8,
+            "candidate_count": 47,
+            "rescue_available": true,
+            "settled_at": "2026-07-13T18:49:23+09:00",
+            "result_trifecta": "1-6-2",
+            "result_payout_yen": 2280,
+            "bet": true,
+            "hit": true,
+            "outcome": "hit",
+            "investment_yen": 1200,
+            "payback_yen": 2280,
+            "profit_yen": 1080
+          }
+        },
+        "settled_at": "2026-07-13T18:49:23+09:00",
+        "result_trifecta": "1-6-2",
+        "result_payout_yen": 2280
+      }
+    },
+    {
+      "status": "miss",
+      "result": {
+        "trifecta": "5-3-6",
+        "payout_yen": 2820,
+        "manshu": false
+      },
+      "created_at": "2026-07-13T17:33:43+09:00",
+      "detected_at": "2026-07-13T17:33:43+09:00",
+      "first_minutes_to_deadline": 5.3,
+      "notification_enabled": true,
+      "notification_status": "duplicate_sent",
+      "date": "2026-07-13",
+      "race_id": "2026-07-131901",
+      "place_name": "下関",
+      "round": 1,
+      "deadline_time": "2026-07-13T17:39:00+09:00",
+      "source_type": "all_venue_sign",
+      "ai_source": "original_boaters",
+      "data_mode": "full",
+      "rule_set_id": "original_boaters_24_v1",
+      "rule_id": "original_boaters_24_v1:下関:pop1_odds30_nige35:wind4_outer2:head56_h1_b1place_top5",
+      "rule_status": "B",
+      "condition": "1号艇がBOATERS人気1位・支持率30%以上・逃げ率35%以下 / 風速4m以上かつ外艇上位2艇以上",
+      "base_id": "pop1_odds30_nige35",
+      "context_id": "wind4_outer2",
+      "template_id": "head56_h1_b1place_top5",
+      "buy_method": "5/6号艇のうち評価上位1艇頭・1号艇は2/3着可・予測順位上位5点",
+      "historical": {
+        "races": 77,
+        "hits": 9,
+        "hit_rate_pct": 11.69,
+        "avg_points": 5.0,
+        "roi_pct": 222.05
+      },
+      "points": 5,
+      "planned_investment_yen": 500,
+      "tickets": [
+        "5-1-2",
+        "5-2-1",
+        "5-1-6",
+        "5-1-3",
+        "5-6-1"
+      ],
+      "heads": [
+        5
+      ],
+      "axes": [
+        1,
+        2,
+        6
+      ],
+      "keshi": null,
+      "condition_snapshot": {
+        "date": "2026-07-13",
+        "race_id": "2026-07-131901",
+        "place_name": "下関",
+        "round": 1,
+        "data_mode": "full",
+        "wind_speed": 5.0,
+        "wave_height": 5.0,
+        "b1_odds_pct": 31.5,
+        "b1_odds_rank": 1,
+        "b1_nige_pct": 11.8,
+        "b1_ai_win": 31.7,
+        "b1_ai_top3": 65.1,
+        "b1_overbet_gap": -0.1999999999999993,
+        "b1_tenji_rank": 4,
+        "b1_lap_rank": 3.0,
+        "b1_avg_diff": 0.0633,
+        "outer56_avg_diff": 0.5033,
+        "outer_top2_count": 2,
+        "outer_top1_count": 1,
+        "outer_ai_win_max": 25.7,
+        "outer_ai_top3_max": 73.5,
+        "outer56_ai_win_max": 25.7,
+        "boat5_ai_top3_rank": 1,
+        "boat6_ai_top3_rank": 5
+      },
+      "independent_probabilities": [
+        {
+          "boat_number": 1,
+          "win_pct": 23.4371,
+          "top3_pct": 52.704,
+          "win_rank": 1,
+          "top3_rank": 4
+        },
+        {
+          "boat_number": 2,
+          "win_pct": 14.6223,
+          "top3_pct": 52.6473,
+          "win_rank": 5,
+          "top3_rank": 5
+        },
+        {
+          "boat_number": 3,
+          "win_pct": 15.1716,
+          "top3_pct": 56.9547,
+          "win_rank": 4,
+          "top3_rank": 3
+        },
+        {
+          "boat_number": 4,
+          "win_pct": 7.7646,
+          "top3_pct": 11.0281,
+          "win_rank": 6,
+          "top3_rank": 6
+        },
+        {
+          "boat_number": 5,
+          "win_pct": 19.7934,
+          "top3_pct": 64.5466,
+          "win_rank": 2,
+          "top3_rank": 1
+        },
+        {
+          "boat_number": 6,
+          "win_pct": 19.2111,
+          "top3_pct": 62.1194,
+          "win_rank": 3,
+          "top3_rank": 2
+        }
+      ],
+      "independent_probability_model": {
+        "available": true,
+        "version": "independent-composite-probability-v1",
+        "feature_coverage": {
+          "available": 78,
+          "total": 97,
+          "pct": 80.41
+        },
+        "win_temperature": 0.95,
+        "top3_temperature": 0.95
+      },
+      "head_swap_shadow": {
+        "version": "original-boaters-24-head-swap-shadow-v1",
+        "policy_id": "aiwin_delta4_scoregap5_v1",
+        "notification_enabled": false,
+        "active": false,
+        "status": "not_triggered",
+        "ai_win_delta_min_pp": 4.0,
+        "max_current_score_gap": 5.0,
+        "baseline_intended_heads": [
+          5
+        ],
+        "baseline_ticket_heads": [
+          5
+        ],
+        "baseline_tickets": [
+          "5-1-2",
+          "5-2-1",
+          "5-1-6",
+          "5-1-3",
+          "5-6-1"
+        ],
+        "shadow_heads": [
+          5
+        ],
+        "shadow_tickets": [
+          "5-1-2",
+          "5-2-1",
+          "5-1-6",
+          "5-1-3",
+          "5-6-1"
+        ],
+        "would_change_tickets": false,
+        "promoted_head": 6,
+        "demoted_head": 5,
+        "promoted_ai_win_pct": 6.5,
+        "demoted_ai_win_pct": 25.7,
+        "ai_win_delta_pp": -19.2,
+        "promoted_current_score": 24.13,
+        "demoted_current_score": 32.875,
+        "current_score_gap": 8.745,
+        "reason": "ai_win_delta_below_threshold"
+      },
+      "head56_confidence_shadow": {
+        "version": "original-boaters-24-head56-confidence-shadow-v1",
+        "policy_id": "head56_unselected_ai_not_lower_v1",
+        "notification_enabled": false,
+        "active": false,
+        "status": "not_triggered",
+        "would_skip": false,
+        "family": "head56_h1_b1place",
+        "baseline_ticket_heads": [
+          5
+        ],
+        "selected_56_heads": [
+          5
+        ],
+        "unselected_56_heads": [
+          6
+        ],
+        "baseline_tickets": [
+          "5-1-2",
+          "5-2-1",
+          "5-1-6",
+          "5-1-3",
+          "5-6-1"
+        ],
+        "selected_best_ai_win_pct": 25.7,
+        "unselected_best_ai_win_pct": 6.5,
+        "unselected_minus_selected_ai_win_pp": -19.2,
+        "reason": "selected_head_ai_win_higher"
+      },
+      "low_confidence_shadow": {
+        "version": "original-boaters-24-low-confidence-shadow-v1",
+        "policy_id": "three_gate_low_confidence_v1",
+        "active": false,
+        "notification_enabled": false,
+        "status": "settled",
+        "production_action": "none",
+        "baseline_tickets": [
+          "5-1-2",
+          "5-2-1",
+          "5-1-6",
+          "5-1-3",
+          "5-6-1"
+        ],
+        "diagnostics": {
+          "available": true,
+          "family": "head56_h1_b1place",
+          "ticket_heads": [
+            5
+          ],
+          "eligible_heads": [
+            5,
+            6
+          ],
+          "selected_heads": [
+            5
+          ],
+          "unselected_heads": [
+            6
+          ],
+          "leaders_by_signal": {
+            "ai_win": [
+              5
+            ],
+            "ai_top3": [
+              5
+            ],
+            "market_support": [
+              5
+            ],
+            "win_score": [
+              5
+            ],
+            "top3_score": [
+              5
+            ],
+            "exhibition": [
+              6
+            ],
+            "lap": [
+              6
+            ],
+            "avg_diff": [
+              6
+            ]
+          },
+          "support_by_head": {
+            "5": 5,
+            "6": 3
+          },
+          "selected_best_support": 5,
+          "unselected_best_support": 3,
+          "unselected_minus_selected_support": -2,
+          "consensus_support_by_head": {
+            "5": 2,
+            "6": 3
+          },
+          "selected_best_consensus_support": 2,
+          "unselected_best_consensus_support": 3,
+          "unselected_minus_selected_consensus_support": 1,
+          "selected_best_ai_win_pct": 25.7,
+          "unselected_best_ai_win_pct": 6.5,
+          "unselected_minus_selected_ai_win_pp": -19.2,
+          "ai_exhibition_selection_disagree": true,
+          "selected_has_super_slit": false,
+          "unselected_has_super_slit": false,
+          "unselected_only_super_slit": false,
+          "risk_flags": {
+            "unselected_support_gap_ge2": false,
+            "ai_leader_unselected": false,
+            "exhibition_leader_unselected": true,
+            "ai_exhibition_selection_disagree": true,
+            "unselected_only_super_slit": false
+          },
+          "structural_risk_score": 2,
+          "multi_source_disagreement": false
+        },
+        "candidate_decisions": {
+          "structural_support_gap2": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "未選択頭の歴史検証用強材料が選択頭より2個以上多い",
+            "historical_status": "2026_holdout_failed",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 500,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 500,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -500
+          },
+          "multi_source_disagreement": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "AIと展示の支持先が食い違い、未選択側にも別材料がある",
+            "historical_status": "new_forward_candidate",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 500,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 500,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -500
+          },
+          "head56_unselected_ai_not_lower": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "5・6号艇頭型で未選択側のAI1着率が同等以上",
+            "historical_status": "existing_shadow_candidate",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 500,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 500,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -500
+          },
+          "both_models_ev_below100_t5": {
+            "decision_available": true,
+            "would_skip": true,
+            "production_eligible": false,
+            "reason": "T-5で旧・着順モデル双方の期待回収率が100%未満",
+            "status": "settled",
+            "shadow_buy": false,
+            "shadow_hit": false,
+            "outcome": "avoided_loss",
+            "baseline_investment_yen": 500,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 0,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": 0
+          },
+          "both_models_ev_below80_t5": {
+            "decision_available": true,
+            "would_skip": true,
+            "production_eligible": false,
+            "reason": "T-5で旧・着順モデル双方の期待回収率が80%未満",
+            "status": "settled",
+            "shadow_buy": false,
+            "shadow_hit": false,
+            "outcome": "avoided_loss",
+            "baseline_investment_yen": 500,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 0,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": 0
+          },
+          "legacy_ev_drop20_t10_to_t5": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "旧モデルの期待回収率がT-10からT-5で20ポイント以上低下",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 500,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 500,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -500
+          },
+          "synthetic_odds_below3_t5": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "T-5の合成オッズが3倍未満",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 500,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 500,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -500
+          },
+          "synthetic_odds_drop20pct_t10_to_t5": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "合成オッズがT-10からT-5で20%以上急落",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 500,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 500,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -500
+          },
+          "structural_and_both_models_ev_below100": {
+            "decision_available": true,
+            "would_skip": false,
+            "production_eligible": false,
+            "reason": "構造的な頭不信とT-5期待値不足が同時発生",
+            "status": "settled",
+            "shadow_buy": true,
+            "shadow_hit": false,
+            "outcome": "bought_miss",
+            "baseline_investment_yen": 500,
+            "baseline_payback_yen": 0,
+            "shadow_investment_yen": 500,
+            "shadow_payback_yen": 0,
+            "shadow_profit_yen": -500
+          }
+        },
+        "odds_evidence": {
+          "legacy_t10_expected_roi_pct": 68.1877,
+          "legacy_t5_expected_roi_pct": 70.6848,
+          "position_t10_expected_roi_pct": 51.9768,
+          "position_t5_expected_roi_pct": 54.5238,
+          "t10_synthetic_odds": 5.8688,
+          "t5_synthetic_odds": 6.2279,
+          "legacy_t5_positive_ev_ticket_count": 0.0,
+          "position_t5_positive_ev_ticket_count": 0.0,
+          "legacy_ev_change_t5_minus_t10_pp": 2.4971,
+          "synthetic_odds_change_pct": 6.1188
+        },
+        "settled_at": "2026-07-13T18:54:33+09:00",
+        "result_trifecta": "5-3-6",
+        "result_payout_yen": 2820,
+        "baseline_hit": false
+      },
+      "ticket_ev_shadow": {
+        "version": "original-boaters-24-ticket-ev-shadow-v1",
+        "policy_id": "aiwin_top3_sequential_v1",
+        "active": false,
+        "notification_enabled": false,
+        "status": "odds_ready",
+        "probability_method": "AI1着率を1着重み、(AI3連対率-AI1着率)/(1-AI1着率)を2・3着重みにした逐次条件付きモデル",
+        "probability_sum_all_combos": 1.0,
+        "selected_probability_pct": 10.457022,
+        "tickets": [
+          {
+            "ticket": "5-1-2",
+            "combo": "512",
+            "probability": 0.02266276,
+            "probability_pct": 2.266276
+          },
+          {
+            "ticket": "5-2-1",
+            "combo": "521",
+            "probability": 0.02214757,
+            "probability_pct": 2.214757
+          },
+          {
+            "ticket": "5-1-6",
+            "combo": "516",
+            "probability": 0.02019637,
+            "probability_pct": 2.019637
+          },
+          {
+            "ticket": "5-1-3",
+            "combo": "513",
+            "probability": 0.0205049,
+            "probability_pct": 2.05049
+          },
+          {
+            "ticket": "5-6-1",
+            "combo": "561",
+            "probability": 0.01905862,
+            "probability_pct": 1.905862
+          }
+        ],
+        "snapshots": {
+          "t10": {
+            "target_minutes": 10,
+            "snapshot_at": "2026-07-13T17:26:44",
+            "minutes_to_deadline": 12.2667,
+            "absolute_target_error_minutes": 2.2667,
+            "combo_count": 120,
+            "source": "targeted_fetch",
+            "complete_ticket_odds": true,
+            "ticket_count": 5,
+            "positive_ev_ticket_count": 1,
+            "selected_probability_pct": 10.457022,
+            "portfolio_expected_roi_pct": 68.1877,
+            "synthetic_odds": 5.8688,
+            "tickets": [
+              {
+                "ticket": "5-1-2",
+                "probability_pct": 2.266276,
+                "odds": 24.7,
+                "expected_value": 0.55977,
+                "market_probability_pct": 3.032613,
+                "model_edge_pp": -0.766337
+              },
+              {
+                "ticket": "5-2-1",
+                "probability_pct": 2.214757,
+                "odds": 35.3,
+                "expected_value": 0.781809,
+                "market_probability_pct": 2.12197,
+                "model_edge_pp": 0.092787
+              },
+              {
+                "ticket": "5-1-6",
+                "probability_pct": 2.019637,
+                "odds": 32.5,
+                "expected_value": 0.656382,
+                "market_probability_pct": 2.304786,
+                "model_edge_pp": -0.285149
+              },
+              {
+                "ticket": "5-1-3",
+                "probability_pct": 2.05049,
+                "odds": 19.2,
+                "expected_value": 0.393694,
+                "market_probability_pct": 3.901331,
+                "model_edge_pp": -1.850841
+              },
+              {
+                "ticket": "5-6-1",
+                "probability_pct": 1.905862,
+                "odds": 53.4,
+                "expected_value": 1.01773,
+                "market_probability_pct": 1.402726,
+                "model_edge_pp": 0.503136
+              }
+            ]
+          },
+          "t5": {
+            "target_minutes": 5,
+            "snapshot_at": "2026-07-13T17:32:07",
+            "minutes_to_deadline": 6.8833,
+            "absolute_target_error_minutes": 1.8833,
+            "combo_count": 120,
+            "source": "targeted_fetch",
+            "complete_ticket_odds": true,
+            "ticket_count": 5,
+            "positive_ev_ticket_count": 0,
+            "selected_probability_pct": 10.457022,
+            "portfolio_expected_roi_pct": 70.6848,
+            "synthetic_odds": 6.2279,
+            "tickets": [
+              {
+                "ticket": "5-1-2",
+                "probability_pct": 2.266276,
+                "odds": 28.1,
+                "expected_value": 0.636824,
+                "market_probability_pct": 2.666252,
+                "model_edge_pp": -0.399976
+              },
+              {
+                "ticket": "5-2-1",
+                "probability_pct": 2.214757,
+                "odds": 41.2,
+                "expected_value": 0.91248,
+                "market_probability_pct": 1.818487,
+                "model_edge_pp": 0.39627
+              },
+              {
+                "ticket": "5-1-6",
+                "probability_pct": 2.019637,
+                "odds": 33.9,
+                "expected_value": 0.684657,
+                "market_probability_pct": 2.210079,
+                "model_edge_pp": -0.190442
+              },
+              {
+                "ticket": "5-1-3",
+                "probability_pct": 2.05049,
+                "odds": 20.1,
+                "expected_value": 0.412148,
+                "market_probability_pct": 3.727447,
+                "model_edge_pp": -1.676957
+              },
+              {
+                "ticket": "5-6-1",
+                "probability_pct": 1.905862,
+                "odds": 46.6,
+                "expected_value": 0.888132,
+                "market_probability_pct": 1.607761,
+                "model_edge_pp": 0.298101
+              }
+            ]
+          }
+        },
+        "available_targets": [
+          "t10",
+          "t5"
+        ],
+        "odds_db": "/private/tmp/kyotei-mm1601-reflect/data/live_odds.db",
+        "settled_at": "2026-07-13T18:54:33+09:00",
+        "result_trifecta": "5-3-6",
+        "result_payout_yen": 2820,
+        "baseline_hit": false,
+        "result_ticket_probability_pct": null
+      },
+      "ticket_position_shadow": {
+        "version": "original-boaters-24-ticket-position-shadow-v1",
+        "policy_id": "position123_hgb_calibrated_v1",
+        "active": false,
+        "notification_enabled": false,
+        "status": "odds_ready",
+        "probability_method": "1着・2着・3着の専用モデルを逐次条件付きで120通りへ変換",
+        "model_path": "/private/tmp/kyotei-mm1601-reflect/data/output/self_ai_models/trifecta_position_model_current.joblib",
+        "model_version": "trifecta-position-model-v1",
+        "probability_sum_all_combos": 1.0,
+        "selected_probability_pct": 8.451356,
+        "position_probabilities_pct": {
+          "position1": {
+            "1": 30.338523,
+            "2": 20.932707,
+            "3": 18.336559,
+            "4": 2.604536,
+            "5": 21.689417,
+            "6": 6.098258
+          },
+          "position2": {
+            "1": 21.996946,
+            "2": 18.852325,
+            "3": 17.520762,
+            "4": 3.703085,
+            "5": 25.280513,
+            "6": 12.646369
+          },
+          "position3": {
+            "1": 15.522579,
+            "2": 18.744004,
+            "3": 18.762482,
+            "4": 3.494878,
+            "5": 20.989403,
+            "6": 22.486654
+          }
+        },
+        "tickets": [
+          {
+            "ticket": "5-1-2",
+            "combo": "512",
+            "probability": 0.01885155,
+            "probability_pct": 1.885155
+          },
+          {
+            "ticket": "5-2-1",
+            "combo": "521",
+            "probability": 0.01409503,
+            "probability_pct": 1.409503
+          },
+          {
+            "ticket": "5-1-6",
+            "combo": "516",
+            "probability": 0.02261567,
+            "probability_pct": 2.261567
+          },
+          {
+            "ticket": "5-1-3",
+            "combo": "513",
+            "probability": 0.01887013,
+            "probability_pct": 1.887013
+          },
+          {
+            "ticket": "5-6-1",
+            "combo": "561",
+            "probability": 0.01008118,
+            "probability_pct": 1.008118
+          }
+        ],
+        "snapshots": {
+          "t10": {
+            "target_minutes": 10,
+            "snapshot_at": "2026-07-13T17:26:44",
+            "minutes_to_deadline": 12.2667,
+            "absolute_target_error_minutes": 2.2667,
+            "combo_count": 120,
+            "source": "targeted_fetch",
+            "complete_ticket_odds": true,
+            "ticket_count": 5,
+            "positive_ev_ticket_count": 0,
+            "selected_probability_pct": 8.451356,
+            "portfolio_expected_roi_pct": 51.9768,
+            "synthetic_odds": 5.8688,
+            "tickets": [
+              {
+                "ticket": "5-1-2",
+                "probability_pct": 1.885155,
+                "odds": 24.7,
+                "expected_value": 0.465633,
+                "market_probability_pct": 3.032613,
+                "model_edge_pp": -1.147458
+              },
+              {
+                "ticket": "5-2-1",
+                "probability_pct": 1.409503,
+                "odds": 35.3,
+                "expected_value": 0.497555,
+                "market_probability_pct": 2.12197,
+                "model_edge_pp": -0.712467
+              },
+              {
+                "ticket": "5-1-6",
+                "probability_pct": 2.261567,
+                "odds": 32.5,
+                "expected_value": 0.735009,
+                "market_probability_pct": 2.304786,
+                "model_edge_pp": -0.043219
+              },
+              {
+                "ticket": "5-1-3",
+                "probability_pct": 1.887013,
+                "odds": 19.2,
+                "expected_value": 0.362306,
+                "market_probability_pct": 3.901331,
+                "model_edge_pp": -2.014318
+              },
+              {
+                "ticket": "5-6-1",
+                "probability_pct": 1.008118,
+                "odds": 53.4,
+                "expected_value": 0.538335,
+                "market_probability_pct": 1.402726,
+                "model_edge_pp": -0.394608
+              }
+            ]
+          },
+          "t5": {
+            "target_minutes": 5,
+            "snapshot_at": "2026-07-13T17:32:07",
+            "minutes_to_deadline": 6.8833,
+            "absolute_target_error_minutes": 1.8833,
+            "combo_count": 120,
+            "source": "targeted_fetch",
+            "complete_ticket_odds": true,
+            "ticket_count": 5,
+            "positive_ev_ticket_count": 0,
+            "selected_probability_pct": 8.451356,
+            "portfolio_expected_roi_pct": 54.5238,
+            "synthetic_odds": 6.2279,
+            "tickets": [
+              {
+                "ticket": "5-1-2",
+                "probability_pct": 1.885155,
+                "odds": 28.1,
+                "expected_value": 0.529729,
+                "market_probability_pct": 2.666252,
+                "model_edge_pp": -0.781097
+              },
+              {
+                "ticket": "5-2-1",
+                "probability_pct": 1.409503,
+                "odds": 41.2,
+                "expected_value": 0.580715,
+                "market_probability_pct": 1.818487,
+                "model_edge_pp": -0.408984
+              },
+              {
+                "ticket": "5-1-6",
+                "probability_pct": 2.261567,
+                "odds": 33.9,
+                "expected_value": 0.766671,
+                "market_probability_pct": 2.210079,
+                "model_edge_pp": 0.051488
+              },
+              {
+                "ticket": "5-1-3",
+                "probability_pct": 1.887013,
+                "odds": 20.1,
+                "expected_value": 0.37929,
+                "market_probability_pct": 3.727447,
+                "model_edge_pp": -1.840434
+              },
+              {
+                "ticket": "5-6-1",
+                "probability_pct": 1.008118,
+                "odds": 46.6,
+                "expected_value": 0.469783,
+                "market_probability_pct": 1.607761,
+                "model_edge_pp": -0.599643
+              }
+            ]
+          }
+        },
+        "available_targets": [
+          "t10",
+          "t5"
+        ],
+        "odds_db": "/private/tmp/kyotei-mm1601-reflect/data/live_odds.db",
+        "settled_at": "2026-07-13T18:54:33+09:00",
+        "result_trifecta": "5-3-6",
+        "result_payout_yen": 2820,
+        "baseline_hit": false,
+        "result_ticket_probability_pct": null
+      },
+      "ticket_venue_probability_shadow": {
+        "version": "original-boaters-24-ticket-venue-probability-shadow-v1",
+        "policy_id": "venue_lane_probability_point_overlay_v1",
+        "active": false,
+        "notification_enabled": false,
+        "status": "odds_ready",
+        "probability_method": "BOATERS AI1/AI3を基準に、場×艇番・展示・気象・水面・スリットを着順別の確率ポイントとして補正し120通りへ変換",
+        "model_path": "/private/tmp/kyotei-mm1601-reflect/data/output/self_ai_models/venue_probability_overlay_current.joblib",
+        "model_version": "venue-probability-overlay-v1",
+        "probability_sum_all_combos": 1.0,
+        "selected_probability_pct": 10.21031,
+        "position_probabilities_pct": {
+          "position1": {
+            "1": 31.668332,
+            "2": 19.280719,
+            "3": 15.384615,
+            "4": 1.498501,
+            "5": 25.674326,
+            "6": 6.493506
+          },
+          "position2": {
+            "1": 22.395983,
+            "2": 20.101019,
+            "3": 17.134014,
+            "4": 1.301476,
+            "5": 23.425197,
+            "6": 15.642312
+          },
+          "position3": {
+            "1": 15.963119,
+            "2": 19.307229,
+            "3": 17.80542,
+            "4": 4.496081,
+            "5": 20.08119,
+            "6": 22.346961
+          }
+        },
+        "tickets": [
+          {
+            "ticket": "5-1-2",
+            "combo": "512",
+            "probability": 0.02266857,
+            "probability_pct": 2.266857
+          },
+          {
+            "ticket": "5-2-1",
+            "combo": "521",
+            "probability": 0.0177498,
+            "probability_pct": 1.77498
+          },
+          {
+            "ticket": "5-1-6",
+            "combo": "516",
+            "probability": 0.02623751,
+            "probability_pct": 2.623751
+          },
+          {
+            "ticket": "5-1-3",
+            "combo": "513",
+            "probability": 0.0209053,
+            "probability_pct": 2.09053
+          },
+          {
+            "ticket": "5-6-1",
+            "combo": "561",
+            "probability": 0.01454192,
+            "probability_pct": 1.454192
+          }
+        ],
+        "snapshots": {
+          "t10": {
+            "target_minutes": 10,
+            "snapshot_at": "2026-07-13T17:26:44",
+            "minutes_to_deadline": 12.2667,
+            "absolute_target_error_minutes": 2.2667,
+            "combo_count": 120,
+            "source": "targeted_fetch",
+            "complete_ticket_odds": true,
+            "ticket_count": 5,
+            "positive_ev_ticket_count": 0,
+            "selected_probability_pct": 10.21031,
+            "portfolio_expected_roi_pct": 64.3424,
+            "synthetic_odds": 5.8688,
+            "tickets": [
+              {
+                "ticket": "5-1-2",
+                "probability_pct": 2.266857,
+                "odds": 24.7,
+                "expected_value": 0.559914,
+                "market_probability_pct": 3.032613,
+                "model_edge_pp": -0.765756
+              },
+              {
+                "ticket": "5-2-1",
+                "probability_pct": 1.77498,
+                "odds": 35.3,
+                "expected_value": 0.626568,
+                "market_probability_pct": 2.12197,
+                "model_edge_pp": -0.34699
+              },
+              {
+                "ticket": "5-1-6",
+                "probability_pct": 2.623751,
+                "odds": 32.5,
+                "expected_value": 0.852719,
+                "market_probability_pct": 2.304786,
+                "model_edge_pp": 0.318965
+              },
+              {
+                "ticket": "5-1-3",
+                "probability_pct": 2.09053,
+                "odds": 19.2,
+                "expected_value": 0.401382,
+                "market_probability_pct": 3.901331,
+                "model_edge_pp": -1.810801
+              },
+              {
+                "ticket": "5-6-1",
+                "probability_pct": 1.454192,
+                "odds": 53.4,
+                "expected_value": 0.776539,
+                "market_probability_pct": 1.402726,
+                "model_edge_pp": 0.051466
+              }
+            ]
+          },
+          "t5": {
+            "target_minutes": 5,
+            "snapshot_at": "2026-07-13T17:32:07",
+            "minutes_to_deadline": 6.8833,
+            "absolute_target_error_minutes": 1.8833,
+            "combo_count": 120,
+            "source": "targeted_fetch",
+            "complete_ticket_odds": true,
+            "ticket_count": 5,
+            "positive_ev_ticket_count": 0,
+            "selected_probability_pct": 10.21031,
+            "portfolio_expected_roi_pct": 67.1116,
+            "synthetic_odds": 6.2279,
+            "tickets": [
+              {
+                "ticket": "5-1-2",
+                "probability_pct": 2.266857,
+                "odds": 28.1,
+                "expected_value": 0.636987,
+                "market_probability_pct": 2.666252,
+                "model_edge_pp": -0.399395
+              },
+              {
+                "ticket": "5-2-1",
+                "probability_pct": 1.77498,
+                "odds": 41.2,
+                "expected_value": 0.731292,
+                "market_probability_pct": 1.818487,
+                "model_edge_pp": -0.043507
+              },
+              {
+                "ticket": "5-1-6",
+                "probability_pct": 2.623751,
+                "odds": 33.9,
+                "expected_value": 0.889452,
+                "market_probability_pct": 2.210079,
+                "model_edge_pp": 0.413672
+              },
+              {
+                "ticket": "5-1-3",
+                "probability_pct": 2.09053,
+                "odds": 20.1,
+                "expected_value": 0.420197,
+                "market_probability_pct": 3.727447,
+                "model_edge_pp": -1.636917
+              },
+              {
+                "ticket": "5-6-1",
+                "probability_pct": 1.454192,
+                "odds": 46.6,
+                "expected_value": 0.677653,
+                "market_probability_pct": 1.607761,
+                "model_edge_pp": -0.153569
+              }
+            ]
+          }
+        },
+        "available_targets": [
+          "t10",
+          "t5"
+        ],
+        "odds_db": "/private/tmp/kyotei-mm1601-reflect/data/live_odds.db",
+        "settled_at": "2026-07-13T18:54:33+09:00",
+        "result_trifecta": "5-3-6",
+        "result_payout_yen": 2820,
+        "baseline_hit": false,
+        "result_ticket_probability_pct": null
+      },
+      "new_buff_debuff_shadow": {
+        "version": "venue-buff-debuff-s-head-skip-shadow-v1",
+        "policy_id": "skip_s_head_debuff_v1",
+        "active": false,
+        "notification_enabled": false,
+        "status": "settled",
+        "candidate_source": "/private/tmp/kyotei-mm1601-reflect/data/output/venue_new_buff_debuff_candidates.json",
+        "candidate_version": "venue-new-buff-debuff-shadow-v1",
+        "would_skip": false,
+        "heads": [
+          5
+        ],
+        "matched_factor_count": 2,
+        "head_debuffs": [],
+        "reason": "no_s_head_debuff_on_current_head",
+        "settled_at": "2026-07-13T18:54:33+09:00",
+        "result_trifecta": "5-3-6",
+        "result_payout_yen": 2820,
+        "baseline_hit": false,
+        "shadow_buy": true,
+        "shadow_hit": false,
+        "outcome": "bought_miss",
+        "baseline_investment_yen": 500,
+        "baseline_payback_yen": 0,
+        "shadow_investment_yen": 500,
+        "shadow_payback_yen": 0,
+        "shadow_profit_yen": -500
+      },
+      "ev_risk_note_at_notification": "期待値警戒強(T-5): 旧70.7% / 着順54.5% / 場別補正67.1% （検証中・自動見送りには未使用）",
+      "push_key": "alert:2026-07-131901:venue_sign:venue_sign",
+      "last_seen_at": "2026-07-13T17:38:53+09:00",
+      "minutes_to_deadline": 0.1,
+      "ev_risk_note": "期待値警戒強(T-5): 旧70.7% / 着順54.5% / 場別補正67.1% （検証中・自動見送りには未使用）",
+      "notification_attempted_at": "2026-07-13T17:38:53+09:00",
+      "notification_ok": true,
+      "notification_http_status": null,
+      "notification_sent_at": "2026-07-13T17:33:43+09:00",
+      "notification_error": null,
+      "settled_at": "2026-07-13T18:54:33+09:00",
+      "result_trifecta": "5-3-6",
+      "result_payout_yen": 2820,
+      "result_manshu": false,
+      "hit": false,
+      "payback_yen": 0,
+      "investment_yen": 500,
+      "profit_yen": -500,
+      "ticket_strategy_shadow": {
+        "version": "venue-sign-ticket-strategy-shadow-v1",
+        "policy_id": "ticket_strategy_compare_v1",
+        "active": false,
+        "notification_enabled": false,
+        "production_action": "none",
+        "target_preference": [
+          "t5",
+          "t10"
+        ],
+        "minimum_ticket_expected_roi_pct": 100.0,
+        "rescue_max_points": 12,
+        "minimum_forward_sample": 100,
+        "description": "現行買い目は変えず、現行・期待値不足除外・最大12点救済の3案を同じ締切前確率、T-10/T-5オッズ、実結果で比較する。",
+        "baseline_tickets": [
+          "5-1-2",
+          "5-2-1",
+          "5-1-6",
+          "5-1-3",
+          "5-6-1"
+        ],
+        "baseline_points": 5,
+        "pre_race_input_only": true,
+        "construction_mode": "pre_race_input_backfill",
+        "constructed_at": "2026-07-13T18:53:34+09:00",
+        "status": "settled",
+        "selected_target": "t5",
+        "odds_snapshot_at": "2026-07-13T17:32:07",
+        "minutes_to_deadline": 6.8833,
+        "absolute_target_error_minutes": 1.8833,
+        "odds_source": "targeted_fetch",
+        "complete_all_combo_odds": true,
+        "probability_models": [
+          "base_ai",
+          "position_ai",
+          "venue_probability_ai"
+        ],
+        "full_probability_models": [
+          "position_ai",
+          "venue_probability_ai"
+        ],
+        "variants": {
+          "baseline_current": {
+            "variant_id": "baseline_current",
+            "label": "現行買い目",
+            "active": false,
+            "notification_enabled": false,
+            "production_action": "none",
+            "status": "settled",
+            "points": 5,
+            "tickets": [
+              "5-1-2",
+              "5-2-1",
+              "5-1-6",
+              "5-1-3",
+              "5-6-1"
+            ],
+            "ticket_details": [
+              {
+                "ticket": "5-1-2",
+                "combo": "512",
+                "probability_pct": 2.139429,
+                "odds": 28.1,
+                "expected_value": 0.60118,
+                "expected_roi_pct": 60.118,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-2-1",
+                "combo": "521",
+                "probability_pct": 1.799747,
+                "odds": 41.2,
+                "expected_value": 0.741496,
+                "expected_roi_pct": 74.1496,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-1-6",
+                "combo": "516",
+                "probability_pct": 2.301652,
+                "odds": 33.9,
+                "expected_value": 0.78026,
+                "expected_roi_pct": 78.026,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-1-3",
+                "combo": "513",
+                "probability_pct": 2.009344,
+                "odds": 20.1,
+                "expected_value": 0.403878,
+                "expected_roi_pct": 40.3878,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-6-1",
+                "combo": "561",
+                "probability_pct": 1.456057,
+                "odds": 46.6,
+                "expected_value": 0.678523,
+                "expected_roi_pct": 67.8523,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              }
+            ],
+            "complete_ticket_evidence": true,
+            "selected_probability_pct": 9.706229,
+            "portfolio_expected_roi_pct": 64.1067,
+            "synthetic_odds": 6.2279,
+            "settled_at": "2026-07-13T18:49:23+09:00",
+            "result_trifecta": "5-3-6",
+            "result_payout_yen": 2820,
+            "bet": true,
+            "hit": false,
+            "outcome": "miss",
+            "investment_yen": 500,
+            "payback_yen": 0,
+            "profit_yen": -500
+          },
+          "ev_pruned": {
+            "variant_id": "ev_pruned",
+            "label": "期待値100%未満を除外",
+            "active": false,
+            "notification_enabled": false,
+            "production_action": "none",
+            "status": "settled",
+            "points": 0,
+            "tickets": [],
+            "ticket_details": [],
+            "complete_ticket_evidence": true,
+            "selected_probability_pct": 0.0,
+            "portfolio_expected_roi_pct": null,
+            "synthetic_odds": null,
+            "removed_tickets": [
+              "5-1-2",
+              "5-2-1",
+              "5-1-6",
+              "5-1-3",
+              "5-6-1"
+            ],
+            "removed_count": 5,
+            "settled_at": "2026-07-13T18:49:23+09:00",
+            "result_trifecta": "5-3-6",
+            "result_payout_yen": 2820,
+            "bet": false,
+            "hit": null,
+            "outcome": "skip",
+            "investment_yen": 0,
+            "payback_yen": 0,
+            "profit_yen": 0
+          },
+          "rescue12": {
+            "variant_id": "rescue12",
+            "label": "高確率救済を最大12点まで追加",
+            "active": false,
+            "notification_enabled": false,
+            "production_action": "none",
+            "status": "settled",
+            "points": 12,
+            "tickets": [
+              "5-1-2",
+              "5-2-1",
+              "5-1-6",
+              "5-1-3",
+              "5-6-1",
+              "1-5-6",
+              "1-2-6",
+              "1-3-6",
+              "5-2-6",
+              "2-5-6",
+              "2-1-6",
+              "1-6-5"
+            ],
+            "ticket_details": [
+              {
+                "ticket": "5-1-2",
+                "combo": "512",
+                "probability_pct": 2.139429,
+                "odds": 28.1,
+                "expected_value": 0.60118,
+                "expected_roi_pct": 60.118,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-2-1",
+                "combo": "521",
+                "probability_pct": 1.799747,
+                "odds": 41.2,
+                "expected_value": 0.741496,
+                "expected_roi_pct": 74.1496,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-1-6",
+                "combo": "516",
+                "probability_pct": 2.301652,
+                "odds": 33.9,
+                "expected_value": 0.78026,
+                "expected_roi_pct": 78.026,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-1-3",
+                "combo": "513",
+                "probability_pct": 2.009344,
+                "odds": 20.1,
+                "expected_value": 0.403878,
+                "expected_roi_pct": 40.3878,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "5-6-1",
+                "combo": "561",
+                "probability_pct": 1.456057,
+                "odds": 46.6,
+                "expected_value": 0.678523,
+                "expected_roi_pct": 67.8523,
+                "probability_models": [
+                  "base_ai",
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 3
+              },
+              {
+                "ticket": "1-5-6",
+                "combo": "156",
+                "probability_pct": 3.411358,
+                "odds": 45.6,
+                "expected_value": 1.555579,
+                "expected_roi_pct": 155.5579,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "1-2-6",
+                "combo": "126",
+                "probability_pct": 2.670108,
+                "odds": 71.3,
+                "expected_value": 1.903787,
+                "expected_roi_pct": 190.3787,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "1-3-6",
+                "combo": "136",
+                "probability_pct": 2.345486,
+                "odds": 72.0,
+                "expected_value": 1.68875,
+                "expected_roi_pct": 168.875,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "5-2-6",
+                "combo": "526",
+                "probability_pct": 2.26334,
+                "odds": 72.4,
+                "expected_value": 1.638658,
+                "expected_roi_pct": 163.8658,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "2-5-6",
+                "combo": "256",
+                "probability_pct": 2.258689,
+                "odds": 102.2,
+                "expected_value": 2.30838,
+                "expected_roi_pct": 230.838,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "2-1-6",
+                "combo": "216",
+                "probability_pct": 1.90346,
+                "odds": 150.3,
+                "expected_value": 2.860901,
+                "expected_roi_pct": 286.0901,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              },
+              {
+                "ticket": "1-6-5",
+                "combo": "165",
+                "probability_pct": 1.871638,
+                "odds": 141.2,
+                "expected_value": 2.642753,
+                "expected_roi_pct": 264.2753,
+                "probability_models": [
+                  "position_ai",
+                  "venue_probability_ai"
+                ],
+                "probability_model_count": 2
+              }
+            ],
+            "complete_ticket_evidence": true,
+            "selected_probability_pct": 26.430308,
+            "portfolio_expected_roi_pct": 148.3679,
+            "synthetic_odds": 4.0364,
+            "added_tickets": [
+              "1-5-6",
+              "1-2-6",
+              "1-3-6",
+              "5-2-6",
+              "2-5-6",
+              "2-1-6",
+              "1-6-5"
+            ],
+            "added_count": 7,
+            "candidate_count": 29,
+            "rescue_available": true,
+            "settled_at": "2026-07-13T18:49:23+09:00",
+            "result_trifecta": "5-3-6",
+            "result_payout_yen": 2820,
+            "bet": true,
+            "hit": false,
+            "outcome": "miss",
+            "investment_yen": 1200,
+            "payback_yen": 0,
+            "profit_yen": -1200
+          }
+        },
+        "settled_at": "2026-07-13T18:49:23+09:00",
+        "result_trifecta": "5-3-6",
+        "result_payout_yen": 2820
+      }
     }
   ],
   "head_swap_shadow_policy": {
@@ -1063,7 +4273,7 @@
     "policy_id": "skip_s_head_debuff_v1",
     "active": false,
     "notification_enabled": false,
-    "candidate_path": "/home/runner/work/kyotei-occult-viewer/kyotei-occult-viewer/data/output/venue_new_buff_debuff_candidates.json"
+    "candidate_path": "/private/tmp/kyotei-mm1601-reflect/data/output/venue_new_buff_debuff_candidates.json"
   },
   "head56_confidence_shadow_policy": {
     "policy_id": "head56_unselected_ai_not_lower_v1",
@@ -1112,31 +4322,31 @@
     ],
     "comparison_baseline": "aiwin_top3_sequential_v1"
   },
-  "updated_at": "2026-07-13T16:47:15+09:00",
-  "entry_count": 1,
+  "updated_at": "2026-07-13T18:54:33+09:00",
+  "entry_count": 3,
   "summary": {
-    "entry_count": 1,
+    "entry_count": 3,
     "pending_count": 0,
-    "settled_count": 1,
+    "settled_count": 3,
     "hit_count": 0,
-    "miss_count": 1,
+    "miss_count": 3,
     "hit_rate_pct": 0.0,
-    "investment_yen": 500,
+    "investment_yen": 1400,
     "payback_yen": 0,
-    "profit_yen": -500,
+    "profit_yen": -1400,
     "roi_pct": 0.0,
     "notification_sent_count": 0,
-    "notification_duplicate_sent_count": 1,
+    "notification_duplicate_sent_count": 3,
     "notification_failed_count": 0,
     "notification_pending_count": 0,
-    "avg_points": 5.0,
-    "planned_stake_yen": 500,
-    "max_losing_streak": 1,
-    "current_losing_streak": 1,
+    "avg_points": 4.67,
+    "planned_stake_yen": 1400,
+    "max_losing_streak": 3,
+    "current_losing_streak": 3,
     "manshu_result_count": 0,
     "manshu_hit_count": 0,
     "first_signal_at": "2026-07-13T11:36:34+09:00",
-    "last_signal_at": "2026-07-13T11:36:34+09:00",
+    "last_signal_at": "2026-07-13T17:33:43+09:00",
     "head_swap_shadow": {
       "version": "original-boaters-24-head-swap-shadow-v1",
       "policy_id": "aiwin_delta4_scoregap5_v1",
@@ -1165,15 +4375,15 @@
       "policy_id": "skip_s_head_debuff_v1",
       "active": false,
       "notification_enabled": false,
-      "entry_count": 1,
+      "entry_count": 3,
       "pending_count": 0,
-      "settled_count": 1,
+      "settled_count": 3,
       "triggered_count": 0,
       "avoided_loss_count": 0,
       "skipped_hit_count": 0,
-      "baseline_investment_yen": 500,
+      "baseline_investment_yen": 1400,
       "baseline_payback_yen": 0,
-      "shadow_investment_yen": 500,
+      "shadow_investment_yen": 1400,
       "shadow_payback_yen": 0,
       "baseline_roi_pct": 0.0,
       "shadow_roi_pct": 0.0,
@@ -1202,138 +4412,138 @@
       "policy_id": "three_gate_low_confidence_v1",
       "active": false,
       "notification_enabled": false,
-      "entry_count": 1,
+      "entry_count": 3,
       "candidates": {
         "both_models_ev_below100_t5": {
-          "decision_count": 1,
+          "decision_count": 3,
           "pending_count": 0,
-          "settled_count": 1,
-          "triggered_count": 1,
-          "avoided_loss_count": 1,
+          "settled_count": 3,
+          "triggered_count": 2,
+          "avoided_loss_count": 2,
           "skipped_hit_count": 0,
-          "baseline_investment_yen": 500,
+          "baseline_investment_yen": 1400,
           "baseline_payback_yen": 0,
-          "shadow_investment_yen": 0,
-          "shadow_payback_yen": 0,
-          "baseline_roi_pct": 0.0,
-          "shadow_roi_pct": null,
-          "profit_delta_yen": 500
-        },
-        "both_models_ev_below80_t5": {
-          "decision_count": 1,
-          "pending_count": 0,
-          "settled_count": 1,
-          "triggered_count": 0,
-          "avoided_loss_count": 0,
-          "skipped_hit_count": 0,
-          "baseline_investment_yen": 500,
-          "baseline_payback_yen": 0,
-          "shadow_investment_yen": 500,
+          "shadow_investment_yen": 400,
           "shadow_payback_yen": 0,
           "baseline_roi_pct": 0.0,
           "shadow_roi_pct": 0.0,
-          "profit_delta_yen": 0
+          "profit_delta_yen": 1000
+        },
+        "both_models_ev_below80_t5": {
+          "decision_count": 3,
+          "pending_count": 0,
+          "settled_count": 3,
+          "triggered_count": 1,
+          "avoided_loss_count": 1,
+          "skipped_hit_count": 0,
+          "baseline_investment_yen": 1400,
+          "baseline_payback_yen": 0,
+          "shadow_investment_yen": 900,
+          "shadow_payback_yen": 0,
+          "baseline_roi_pct": 0.0,
+          "shadow_roi_pct": 0.0,
+          "profit_delta_yen": 500
         },
         "head56_unselected_ai_not_lower": {
-          "decision_count": 1,
+          "decision_count": 3,
           "pending_count": 0,
-          "settled_count": 1,
+          "settled_count": 3,
           "triggered_count": 0,
           "avoided_loss_count": 0,
           "skipped_hit_count": 0,
-          "baseline_investment_yen": 500,
+          "baseline_investment_yen": 1400,
           "baseline_payback_yen": 0,
-          "shadow_investment_yen": 500,
+          "shadow_investment_yen": 1400,
           "shadow_payback_yen": 0,
           "baseline_roi_pct": 0.0,
           "shadow_roi_pct": 0.0,
           "profit_delta_yen": 0
         },
         "legacy_ev_drop20_t10_to_t5": {
-          "decision_count": 1,
+          "decision_count": 3,
           "pending_count": 0,
-          "settled_count": 1,
+          "settled_count": 3,
           "triggered_count": 0,
           "avoided_loss_count": 0,
           "skipped_hit_count": 0,
-          "baseline_investment_yen": 500,
+          "baseline_investment_yen": 1400,
           "baseline_payback_yen": 0,
-          "shadow_investment_yen": 500,
+          "shadow_investment_yen": 1400,
           "shadow_payback_yen": 0,
           "baseline_roi_pct": 0.0,
           "shadow_roi_pct": 0.0,
           "profit_delta_yen": 0
         },
         "multi_source_disagreement": {
-          "decision_count": 1,
+          "decision_count": 3,
           "pending_count": 0,
-          "settled_count": 1,
+          "settled_count": 3,
           "triggered_count": 0,
           "avoided_loss_count": 0,
           "skipped_hit_count": 0,
-          "baseline_investment_yen": 500,
+          "baseline_investment_yen": 1400,
           "baseline_payback_yen": 0,
-          "shadow_investment_yen": 500,
+          "shadow_investment_yen": 1400,
           "shadow_payback_yen": 0,
           "baseline_roi_pct": 0.0,
           "shadow_roi_pct": 0.0,
           "profit_delta_yen": 0
         },
         "structural_and_both_models_ev_below100": {
-          "decision_count": 1,
+          "decision_count": 3,
           "pending_count": 0,
-          "settled_count": 1,
+          "settled_count": 3,
           "triggered_count": 0,
           "avoided_loss_count": 0,
           "skipped_hit_count": 0,
-          "baseline_investment_yen": 500,
+          "baseline_investment_yen": 1400,
           "baseline_payback_yen": 0,
-          "shadow_investment_yen": 500,
+          "shadow_investment_yen": 1400,
           "shadow_payback_yen": 0,
           "baseline_roi_pct": 0.0,
           "shadow_roi_pct": 0.0,
           "profit_delta_yen": 0
         },
         "structural_support_gap2": {
-          "decision_count": 1,
+          "decision_count": 3,
           "pending_count": 0,
-          "settled_count": 1,
+          "settled_count": 3,
           "triggered_count": 0,
           "avoided_loss_count": 0,
           "skipped_hit_count": 0,
-          "baseline_investment_yen": 500,
+          "baseline_investment_yen": 1400,
           "baseline_payback_yen": 0,
-          "shadow_investment_yen": 500,
+          "shadow_investment_yen": 1400,
           "shadow_payback_yen": 0,
           "baseline_roi_pct": 0.0,
           "shadow_roi_pct": 0.0,
           "profit_delta_yen": 0
         },
         "synthetic_odds_below3_t5": {
-          "decision_count": 1,
+          "decision_count": 3,
           "pending_count": 0,
-          "settled_count": 1,
+          "settled_count": 3,
           "triggered_count": 0,
           "avoided_loss_count": 0,
           "skipped_hit_count": 0,
-          "baseline_investment_yen": 500,
+          "baseline_investment_yen": 1400,
           "baseline_payback_yen": 0,
-          "shadow_investment_yen": 500,
+          "shadow_investment_yen": 1400,
           "shadow_payback_yen": 0,
           "baseline_roi_pct": 0.0,
           "shadow_roi_pct": 0.0,
           "profit_delta_yen": 0
         },
         "synthetic_odds_drop20pct_t10_to_t5": {
-          "decision_count": 1,
+          "decision_count": 3,
           "pending_count": 0,
-          "settled_count": 1,
+          "settled_count": 3,
           "triggered_count": 0,
           "avoided_loss_count": 0,
           "skipped_hit_count": 0,
-          "baseline_investment_yen": 500,
+          "baseline_investment_yen": 1400,
           "baseline_payback_yen": 0,
-          "shadow_investment_yen": 500,
+          "shadow_investment_yen": 1400,
           "shadow_payback_yen": 0,
           "baseline_roi_pct": 0.0,
           "shadow_roi_pct": 0.0,
@@ -1346,53 +4556,875 @@
       "policy_id": "aiwin_top3_sequential_v1",
       "active": false,
       "notification_enabled": false,
-      "entry_count": 1,
-      "settled_count": 1,
-      "t10_snapshot_count": 1,
-      "t10_complete_ticket_odds_count": 1,
-      "t10_avg_portfolio_expected_roi_pct": 69.57,
-      "t10_synthetic_odds_ge3_count": 1,
-      "t5_snapshot_count": 1,
-      "t5_complete_ticket_odds_count": 1,
-      "t5_avg_portfolio_expected_roi_pct": 59.4,
-      "t5_synthetic_odds_ge3_count": 1,
-      "both_targets_count": 1
+      "entry_count": 3,
+      "settled_count": 3,
+      "t10_snapshot_count": 3,
+      "t10_complete_ticket_odds_count": 3,
+      "t10_avg_portfolio_expected_roi_pct": 86.93,
+      "t10_synthetic_odds_ge3_count": 3,
+      "t5_snapshot_count": 3,
+      "t5_complete_ticket_odds_count": 3,
+      "t5_avg_portfolio_expected_roi_pct": 90.19,
+      "t5_synthetic_odds_ge3_count": 3,
+      "both_targets_count": 3
     },
     "ticket_position_shadow": {
       "version": "original-boaters-24-ticket-position-shadow-v1",
       "policy_id": "position123_hgb_calibrated_v1",
       "active": false,
       "notification_enabled": false,
-      "entry_count": 1,
-      "settled_count": 1,
-      "t10_snapshot_count": 1,
-      "t10_complete_ticket_odds_count": 1,
-      "t10_avg_portfolio_expected_roi_pct": 96.25,
-      "t10_synthetic_odds_ge3_count": 1,
-      "t5_snapshot_count": 1,
-      "t5_complete_ticket_odds_count": 1,
-      "t5_avg_portfolio_expected_roi_pct": 80.55,
-      "t5_synthetic_odds_ge3_count": 1,
-      "both_targets_count": 1
+      "entry_count": 3,
+      "settled_count": 3,
+      "t10_snapshot_count": 3,
+      "t10_complete_ticket_odds_count": 3,
+      "t10_avg_portfolio_expected_roi_pct": 82.2,
+      "t10_synthetic_odds_ge3_count": 3,
+      "t5_snapshot_count": 3,
+      "t5_complete_ticket_odds_count": 3,
+      "t5_avg_portfolio_expected_roi_pct": 82.43,
+      "t5_synthetic_odds_ge3_count": 3,
+      "both_targets_count": 3
     },
     "ticket_venue_probability_shadow": {
       "version": "original-boaters-24-ticket-venue-probability-shadow-v1",
       "policy_id": "venue_lane_probability_point_overlay_v1",
       "active": false,
       "notification_enabled": false,
-      "entry_count": 1,
-      "settled_count": 1,
-      "t10_snapshot_count": 1,
-      "t10_complete_ticket_odds_count": 1,
-      "t10_avg_portfolio_expected_roi_pct": 60.73,
-      "t10_synthetic_odds_ge3_count": 1,
-      "t5_snapshot_count": 1,
-      "t5_complete_ticket_odds_count": 1,
-      "t5_avg_portfolio_expected_roi_pct": 50.69,
-      "t5_synthetic_odds_ge3_count": 1,
-      "both_targets_count": 1
+      "entry_count": 3,
+      "settled_count": 3,
+      "t10_snapshot_count": 3,
+      "t10_complete_ticket_odds_count": 3,
+      "t10_avg_portfolio_expected_roi_pct": 64.28,
+      "t10_synthetic_odds_ge3_count": 3,
+      "t5_snapshot_count": 3,
+      "t5_complete_ticket_odds_count": 3,
+      "t5_avg_portfolio_expected_roi_pct": 65.16,
+      "t5_synthetic_odds_ge3_count": 3,
+      "both_targets_count": 3
+    },
+    "ticket_strategy_shadow": {
+      "version": "venue-sign-ticket-strategy-shadow-v1",
+      "policy_id": "ticket_strategy_compare_v1",
+      "active": false,
+      "notification_enabled": false,
+      "production_action": "none",
+      "target_preference": [
+        "t5",
+        "t10"
+      ],
+      "minimum_ticket_expected_roi_pct": 100.0,
+      "rescue_max_points": 12,
+      "minimum_forward_sample": 100,
+      "description": "現行買い目は変えず、現行・期待値不足除外・最大12点救済の3案を同じ締切前確率、T-10/T-5オッズ、実結果で比較する。",
+      "entry_count": 3,
+      "ready_count": 0,
+      "settled_count": 3,
+      "target_t5_count": 3,
+      "target_t10_count": 0,
+      "variants": {
+        "baseline_current": {
+          "label": "現行買い目",
+          "entry_count": 3,
+          "settled_count": 3,
+          "bet_count": 3,
+          "skip_count": 0,
+          "hit_count": 0,
+          "miss_count": 3,
+          "hit_rate_pct": 0.0,
+          "total_points": 14,
+          "avg_points_per_signal": 4.67,
+          "avg_points_per_bet": 4.67,
+          "investment_yen": 1400,
+          "payback_yen": 0,
+          "profit_yen": -1400,
+          "roi_pct": 0.0,
+          "avg_expected_roi_pct": 79.26,
+          "max_losing_streak": 3,
+          "current_losing_streak": 3
+        },
+        "ev_pruned": {
+          "label": "期待値100%未満を除外",
+          "entry_count": 3,
+          "settled_count": 3,
+          "bet_count": 1,
+          "skip_count": 2,
+          "hit_count": 0,
+          "miss_count": 1,
+          "hit_rate_pct": 0.0,
+          "total_points": 1,
+          "avg_points_per_signal": 0.33,
+          "avg_points_per_bet": 1.0,
+          "investment_yen": 100,
+          "payback_yen": 0,
+          "profit_yen": -100,
+          "roi_pct": 0.0,
+          "avg_expected_roi_pct": 217.23,
+          "max_losing_streak": 1,
+          "current_losing_streak": 1,
+          "roi_delta_pp_vs_baseline": 0.0,
+          "profit_delta_yen_vs_baseline": 1300
+        },
+        "rescue12": {
+          "label": "高確率救済を最大12点まで追加",
+          "entry_count": 3,
+          "settled_count": 3,
+          "bet_count": 3,
+          "skip_count": 0,
+          "hit_count": 2,
+          "miss_count": 1,
+          "hit_rate_pct": 66.67,
+          "total_points": 36,
+          "avg_points_per_signal": 12.0,
+          "avg_points_per_bet": 12.0,
+          "investment_yen": 3600,
+          "payback_yen": 4540,
+          "profit_yen": 940,
+          "roi_pct": 126.11,
+          "avg_expected_roi_pct": 164.86,
+          "max_losing_streak": 1,
+          "current_losing_streak": 1,
+          "roi_delta_pp_vs_baseline": 126.11,
+          "profit_delta_yen_vs_baseline": 2340
+        }
+      },
+      "decision_ready": false,
+      "remaining_to_decision": 97
     },
     "by_venue": {
+      "下関": {
+        "entry_count": 1,
+        "pending_count": 0,
+        "settled_count": 1,
+        "hit_count": 0,
+        "miss_count": 1,
+        "hit_rate_pct": 0.0,
+        "investment_yen": 500,
+        "payback_yen": 0,
+        "profit_yen": -500,
+        "roi_pct": 0.0,
+        "notification_sent_count": 0,
+        "notification_duplicate_sent_count": 1,
+        "notification_failed_count": 0,
+        "notification_pending_count": 0,
+        "avg_points": 5.0,
+        "planned_stake_yen": 500,
+        "max_losing_streak": 1,
+        "current_losing_streak": 1,
+        "manshu_result_count": 0,
+        "manshu_hit_count": 0,
+        "first_signal_at": "2026-07-13T17:33:43+09:00",
+        "last_signal_at": "2026-07-13T17:33:43+09:00",
+        "head_swap_shadow": {
+          "version": "original-boaters-24-head-swap-shadow-v1",
+          "policy_id": "aiwin_delta4_scoregap5_v1",
+          "notification_enabled": false,
+          "active_count": 0,
+          "pending_count": 0,
+          "settled_count": 0,
+          "would_change_tickets_count": 0,
+          "head_rescued_count": 0,
+          "head_lost_count": 0,
+          "net_head_gain": 0,
+          "ticket_rescued_count": 0,
+          "ticket_lost_count": 0,
+          "net_ticket_gain": 0,
+          "baseline_hit_count": 0,
+          "shadow_hit_count": 0,
+          "investment_yen": 0,
+          "baseline_payback_yen": 0,
+          "shadow_payback_yen": 0,
+          "baseline_roi_pct": null,
+          "shadow_roi_pct": null,
+          "roi_delta_pp": null
+        },
+        "new_buff_debuff_shadow": {
+          "version": "venue-buff-debuff-s-head-skip-shadow-v1",
+          "policy_id": "skip_s_head_debuff_v1",
+          "active": false,
+          "notification_enabled": false,
+          "entry_count": 1,
+          "pending_count": 0,
+          "settled_count": 1,
+          "triggered_count": 0,
+          "avoided_loss_count": 0,
+          "skipped_hit_count": 0,
+          "baseline_investment_yen": 500,
+          "baseline_payback_yen": 0,
+          "shadow_investment_yen": 500,
+          "shadow_payback_yen": 0,
+          "baseline_roi_pct": 0.0,
+          "shadow_roi_pct": 0.0,
+          "profit_delta_yen": 0
+        },
+        "head56_confidence_shadow": {
+          "version": "original-boaters-24-head56-confidence-shadow-v1",
+          "policy_id": "head56_unselected_ai_not_lower_v1",
+          "active": false,
+          "notification_enabled": false,
+          "entry_count": 0,
+          "pending_count": 0,
+          "settled_count": 0,
+          "avoided_loss_count": 0,
+          "skipped_hit_count": 0,
+          "baseline_investment_yen": 0,
+          "baseline_payback_yen": 0,
+          "shadow_investment_yen": 0,
+          "shadow_payback_yen": 0,
+          "baseline_roi_pct": null,
+          "shadow_roi_pct": null,
+          "profit_delta_yen": 0
+        },
+        "low_confidence_shadow": {
+          "version": "original-boaters-24-low-confidence-shadow-v1",
+          "policy_id": "three_gate_low_confidence_v1",
+          "active": false,
+          "notification_enabled": false,
+          "entry_count": 1,
+          "candidates": {
+            "both_models_ev_below100_t5": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 1,
+              "avoided_loss_count": 1,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 500,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 0,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": null,
+              "profit_delta_yen": 500
+            },
+            "both_models_ev_below80_t5": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 1,
+              "avoided_loss_count": 1,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 500,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 0,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": null,
+              "profit_delta_yen": 500
+            },
+            "head56_unselected_ai_not_lower": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 500,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 500,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            },
+            "legacy_ev_drop20_t10_to_t5": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 500,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 500,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            },
+            "multi_source_disagreement": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 500,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 500,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            },
+            "structural_and_both_models_ev_below100": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 500,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 500,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            },
+            "structural_support_gap2": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 500,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 500,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            },
+            "synthetic_odds_below3_t5": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 500,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 500,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            },
+            "synthetic_odds_drop20pct_t10_to_t5": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 500,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 500,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            }
+          }
+        },
+        "ticket_ev_shadow": {
+          "version": "original-boaters-24-ticket-ev-shadow-v1",
+          "policy_id": "aiwin_top3_sequential_v1",
+          "active": false,
+          "notification_enabled": false,
+          "entry_count": 1,
+          "settled_count": 1,
+          "t10_snapshot_count": 1,
+          "t10_complete_ticket_odds_count": 1,
+          "t10_avg_portfolio_expected_roi_pct": 68.19,
+          "t10_synthetic_odds_ge3_count": 1,
+          "t5_snapshot_count": 1,
+          "t5_complete_ticket_odds_count": 1,
+          "t5_avg_portfolio_expected_roi_pct": 70.68,
+          "t5_synthetic_odds_ge3_count": 1,
+          "both_targets_count": 1
+        },
+        "ticket_position_shadow": {
+          "version": "original-boaters-24-ticket-position-shadow-v1",
+          "policy_id": "position123_hgb_calibrated_v1",
+          "active": false,
+          "notification_enabled": false,
+          "entry_count": 1,
+          "settled_count": 1,
+          "t10_snapshot_count": 1,
+          "t10_complete_ticket_odds_count": 1,
+          "t10_avg_portfolio_expected_roi_pct": 51.98,
+          "t10_synthetic_odds_ge3_count": 1,
+          "t5_snapshot_count": 1,
+          "t5_complete_ticket_odds_count": 1,
+          "t5_avg_portfolio_expected_roi_pct": 54.52,
+          "t5_synthetic_odds_ge3_count": 1,
+          "both_targets_count": 1
+        },
+        "ticket_venue_probability_shadow": {
+          "version": "original-boaters-24-ticket-venue-probability-shadow-v1",
+          "policy_id": "venue_lane_probability_point_overlay_v1",
+          "active": false,
+          "notification_enabled": false,
+          "entry_count": 1,
+          "settled_count": 1,
+          "t10_snapshot_count": 1,
+          "t10_complete_ticket_odds_count": 1,
+          "t10_avg_portfolio_expected_roi_pct": 64.34,
+          "t10_synthetic_odds_ge3_count": 1,
+          "t5_snapshot_count": 1,
+          "t5_complete_ticket_odds_count": 1,
+          "t5_avg_portfolio_expected_roi_pct": 67.11,
+          "t5_synthetic_odds_ge3_count": 1,
+          "both_targets_count": 1
+        },
+        "ticket_strategy_shadow": {
+          "version": "venue-sign-ticket-strategy-shadow-v1",
+          "policy_id": "ticket_strategy_compare_v1",
+          "active": false,
+          "notification_enabled": false,
+          "production_action": "none",
+          "target_preference": [
+            "t5",
+            "t10"
+          ],
+          "minimum_ticket_expected_roi_pct": 100.0,
+          "rescue_max_points": 12,
+          "minimum_forward_sample": 100,
+          "description": "現行買い目は変えず、現行・期待値不足除外・最大12点救済の3案を同じ締切前確率、T-10/T-5オッズ、実結果で比較する。",
+          "entry_count": 1,
+          "ready_count": 0,
+          "settled_count": 1,
+          "target_t5_count": 1,
+          "target_t10_count": 0,
+          "variants": {
+            "baseline_current": {
+              "label": "現行買い目",
+              "entry_count": 1,
+              "settled_count": 1,
+              "bet_count": 1,
+              "skip_count": 0,
+              "hit_count": 0,
+              "miss_count": 1,
+              "hit_rate_pct": 0.0,
+              "total_points": 5,
+              "avg_points_per_signal": 5.0,
+              "avg_points_per_bet": 5.0,
+              "investment_yen": 500,
+              "payback_yen": 0,
+              "profit_yen": -500,
+              "roi_pct": 0.0,
+              "avg_expected_roi_pct": 64.11,
+              "max_losing_streak": 1,
+              "current_losing_streak": 1
+            },
+            "ev_pruned": {
+              "label": "期待値100%未満を除外",
+              "entry_count": 1,
+              "settled_count": 1,
+              "bet_count": 0,
+              "skip_count": 1,
+              "hit_count": 0,
+              "miss_count": 0,
+              "hit_rate_pct": null,
+              "total_points": 0,
+              "avg_points_per_signal": 0.0,
+              "avg_points_per_bet": null,
+              "investment_yen": 0,
+              "payback_yen": 0,
+              "profit_yen": 0,
+              "roi_pct": null,
+              "avg_expected_roi_pct": null,
+              "max_losing_streak": null,
+              "current_losing_streak": null,
+              "roi_delta_pp_vs_baseline": null,
+              "profit_delta_yen_vs_baseline": 500
+            },
+            "rescue12": {
+              "label": "高確率救済を最大12点まで追加",
+              "entry_count": 1,
+              "settled_count": 1,
+              "bet_count": 1,
+              "skip_count": 0,
+              "hit_count": 0,
+              "miss_count": 1,
+              "hit_rate_pct": 0.0,
+              "total_points": 12,
+              "avg_points_per_signal": 12.0,
+              "avg_points_per_bet": 12.0,
+              "investment_yen": 1200,
+              "payback_yen": 0,
+              "profit_yen": -1200,
+              "roi_pct": 0.0,
+              "avg_expected_roi_pct": 148.37,
+              "max_losing_streak": 1,
+              "current_losing_streak": 1,
+              "roi_delta_pp_vs_baseline": 0.0,
+              "profit_delta_yen_vs_baseline": -700
+            }
+          },
+          "decision_ready": false,
+          "remaining_to_decision": 99
+        }
+      },
+      "児島": {
+        "entry_count": 1,
+        "pending_count": 0,
+        "settled_count": 1,
+        "hit_count": 0,
+        "miss_count": 1,
+        "hit_rate_pct": 0.0,
+        "investment_yen": 400,
+        "payback_yen": 0,
+        "profit_yen": -400,
+        "roi_pct": 0.0,
+        "notification_sent_count": 0,
+        "notification_duplicate_sent_count": 1,
+        "notification_failed_count": 0,
+        "notification_pending_count": 0,
+        "avg_points": 4.0,
+        "planned_stake_yen": 400,
+        "max_losing_streak": 1,
+        "current_losing_streak": 1,
+        "manshu_result_count": 0,
+        "manshu_hit_count": 0,
+        "first_signal_at": "2026-07-13T15:24:19+09:00",
+        "last_signal_at": "2026-07-13T15:24:19+09:00",
+        "head_swap_shadow": {
+          "version": "original-boaters-24-head-swap-shadow-v1",
+          "policy_id": "aiwin_delta4_scoregap5_v1",
+          "notification_enabled": false,
+          "active_count": 0,
+          "pending_count": 0,
+          "settled_count": 0,
+          "would_change_tickets_count": 0,
+          "head_rescued_count": 0,
+          "head_lost_count": 0,
+          "net_head_gain": 0,
+          "ticket_rescued_count": 0,
+          "ticket_lost_count": 0,
+          "net_ticket_gain": 0,
+          "baseline_hit_count": 0,
+          "shadow_hit_count": 0,
+          "investment_yen": 0,
+          "baseline_payback_yen": 0,
+          "shadow_payback_yen": 0,
+          "baseline_roi_pct": null,
+          "shadow_roi_pct": null,
+          "roi_delta_pp": null
+        },
+        "new_buff_debuff_shadow": {
+          "version": "venue-buff-debuff-s-head-skip-shadow-v1",
+          "policy_id": "skip_s_head_debuff_v1",
+          "active": false,
+          "notification_enabled": false,
+          "entry_count": 1,
+          "pending_count": 0,
+          "settled_count": 1,
+          "triggered_count": 0,
+          "avoided_loss_count": 0,
+          "skipped_hit_count": 0,
+          "baseline_investment_yen": 400,
+          "baseline_payback_yen": 0,
+          "shadow_investment_yen": 400,
+          "shadow_payback_yen": 0,
+          "baseline_roi_pct": 0.0,
+          "shadow_roi_pct": 0.0,
+          "profit_delta_yen": 0
+        },
+        "head56_confidence_shadow": {
+          "version": "original-boaters-24-head56-confidence-shadow-v1",
+          "policy_id": "head56_unselected_ai_not_lower_v1",
+          "active": false,
+          "notification_enabled": false,
+          "entry_count": 0,
+          "pending_count": 0,
+          "settled_count": 0,
+          "avoided_loss_count": 0,
+          "skipped_hit_count": 0,
+          "baseline_investment_yen": 0,
+          "baseline_payback_yen": 0,
+          "shadow_investment_yen": 0,
+          "shadow_payback_yen": 0,
+          "baseline_roi_pct": null,
+          "shadow_roi_pct": null,
+          "profit_delta_yen": 0
+        },
+        "low_confidence_shadow": {
+          "version": "original-boaters-24-low-confidence-shadow-v1",
+          "policy_id": "three_gate_low_confidence_v1",
+          "active": false,
+          "notification_enabled": false,
+          "entry_count": 1,
+          "candidates": {
+            "both_models_ev_below100_t5": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 400,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 400,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            },
+            "both_models_ev_below80_t5": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 400,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 400,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            },
+            "head56_unselected_ai_not_lower": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 400,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 400,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            },
+            "legacy_ev_drop20_t10_to_t5": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 400,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 400,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            },
+            "multi_source_disagreement": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 400,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 400,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            },
+            "structural_and_both_models_ev_below100": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 400,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 400,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            },
+            "structural_support_gap2": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 400,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 400,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            },
+            "synthetic_odds_below3_t5": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 400,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 400,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            },
+            "synthetic_odds_drop20pct_t10_to_t5": {
+              "decision_count": 1,
+              "pending_count": 0,
+              "settled_count": 1,
+              "triggered_count": 0,
+              "avoided_loss_count": 0,
+              "skipped_hit_count": 0,
+              "baseline_investment_yen": 400,
+              "baseline_payback_yen": 0,
+              "shadow_investment_yen": 400,
+              "shadow_payback_yen": 0,
+              "baseline_roi_pct": 0.0,
+              "shadow_roi_pct": 0.0,
+              "profit_delta_yen": 0
+            }
+          }
+        },
+        "ticket_ev_shadow": {
+          "version": "original-boaters-24-ticket-ev-shadow-v1",
+          "policy_id": "aiwin_top3_sequential_v1",
+          "active": false,
+          "notification_enabled": false,
+          "entry_count": 1,
+          "settled_count": 1,
+          "t10_snapshot_count": 1,
+          "t10_complete_ticket_odds_count": 1,
+          "t10_avg_portfolio_expected_roi_pct": 123.05,
+          "t10_synthetic_odds_ge3_count": 1,
+          "t5_snapshot_count": 1,
+          "t5_complete_ticket_odds_count": 1,
+          "t5_avg_portfolio_expected_roi_pct": 140.5,
+          "t5_synthetic_odds_ge3_count": 1,
+          "both_targets_count": 1
+        },
+        "ticket_position_shadow": {
+          "version": "original-boaters-24-ticket-position-shadow-v1",
+          "policy_id": "position123_hgb_calibrated_v1",
+          "active": false,
+          "notification_enabled": false,
+          "entry_count": 1,
+          "settled_count": 1,
+          "t10_snapshot_count": 1,
+          "t10_complete_ticket_odds_count": 1,
+          "t10_avg_portfolio_expected_roi_pct": 98.39,
+          "t10_synthetic_odds_ge3_count": 1,
+          "t5_snapshot_count": 1,
+          "t5_complete_ticket_odds_count": 1,
+          "t5_avg_portfolio_expected_roi_pct": 112.23,
+          "t5_synthetic_odds_ge3_count": 1,
+          "both_targets_count": 1
+        },
+        "ticket_venue_probability_shadow": {
+          "version": "original-boaters-24-ticket-venue-probability-shadow-v1",
+          "policy_id": "venue_lane_probability_point_overlay_v1",
+          "active": false,
+          "notification_enabled": false,
+          "entry_count": 1,
+          "settled_count": 1,
+          "t10_snapshot_count": 1,
+          "t10_complete_ticket_odds_count": 1,
+          "t10_avg_portfolio_expected_roi_pct": 67.78,
+          "t10_synthetic_odds_ge3_count": 1,
+          "t5_snapshot_count": 1,
+          "t5_complete_ticket_odds_count": 1,
+          "t5_avg_portfolio_expected_roi_pct": 77.69,
+          "t5_synthetic_odds_ge3_count": 1,
+          "both_targets_count": 1
+        },
+        "ticket_strategy_shadow": {
+          "version": "venue-sign-ticket-strategy-shadow-v1",
+          "policy_id": "ticket_strategy_compare_v1",
+          "active": false,
+          "notification_enabled": false,
+          "production_action": "none",
+          "target_preference": [
+            "t5",
+            "t10"
+          ],
+          "minimum_ticket_expected_roi_pct": 100.0,
+          "rescue_max_points": 12,
+          "minimum_forward_sample": 100,
+          "description": "現行買い目は変えず、現行・期待値不足除外・最大12点救済の3案を同じ締切前確率、T-10/T-5オッズ、実結果で比較する。",
+          "entry_count": 1,
+          "ready_count": 0,
+          "settled_count": 1,
+          "target_t5_count": 1,
+          "target_t10_count": 0,
+          "variants": {
+            "baseline_current": {
+              "label": "現行買い目",
+              "entry_count": 1,
+              "settled_count": 1,
+              "bet_count": 1,
+              "skip_count": 0,
+              "hit_count": 0,
+              "miss_count": 1,
+              "hit_rate_pct": 0.0,
+              "total_points": 4,
+              "avg_points_per_signal": 4.0,
+              "avg_points_per_bet": 4.0,
+              "investment_yen": 400,
+              "payback_yen": 0,
+              "profit_yen": -400,
+              "roi_pct": 0.0,
+              "avg_expected_roi_pct": 110.14,
+              "max_losing_streak": 1,
+              "current_losing_streak": 1
+            },
+            "ev_pruned": {
+              "label": "期待値100%未満を除外",
+              "entry_count": 1,
+              "settled_count": 1,
+              "bet_count": 1,
+              "skip_count": 0,
+              "hit_count": 0,
+              "miss_count": 1,
+              "hit_rate_pct": 0.0,
+              "total_points": 1,
+              "avg_points_per_signal": 1.0,
+              "avg_points_per_bet": 1.0,
+              "investment_yen": 100,
+              "payback_yen": 0,
+              "profit_yen": -100,
+              "roi_pct": 0.0,
+              "avg_expected_roi_pct": 217.23,
+              "max_losing_streak": 1,
+              "current_losing_streak": 1,
+              "roi_delta_pp_vs_baseline": 0.0,
+              "profit_delta_yen_vs_baseline": 300
+            },
+            "rescue12": {
+              "label": "高確率救済を最大12点まで追加",
+              "entry_count": 1,
+              "settled_count": 1,
+              "bet_count": 1,
+              "skip_count": 0,
+              "hit_count": 1,
+              "miss_count": 0,
+              "hit_rate_pct": 100.0,
+              "total_points": 12,
+              "avg_points_per_signal": 12.0,
+              "avg_points_per_bet": 12.0,
+              "investment_yen": 1200,
+              "payback_yen": 2280,
+              "profit_yen": 1080,
+              "roi_pct": 190.0,
+              "avg_expected_roi_pct": 241.01,
+              "max_losing_streak": 0,
+              "current_losing_streak": 0,
+              "roi_delta_pp_vs_baseline": 190.0,
+              "profit_delta_yen_vs_baseline": 1480
+            }
+          },
+          "decision_ready": false,
+          "remaining_to_decision": 99
+        }
+      },
       "浜名湖": {
         "entry_count": 1,
         "pending_count": 0,
@@ -1670,8 +5702,111 @@
           "t5_avg_portfolio_expected_roi_pct": 50.69,
           "t5_synthetic_odds_ge3_count": 1,
           "both_targets_count": 1
+        },
+        "ticket_strategy_shadow": {
+          "version": "venue-sign-ticket-strategy-shadow-v1",
+          "policy_id": "ticket_strategy_compare_v1",
+          "active": false,
+          "notification_enabled": false,
+          "production_action": "none",
+          "target_preference": [
+            "t5",
+            "t10"
+          ],
+          "minimum_ticket_expected_roi_pct": 100.0,
+          "rescue_max_points": 12,
+          "minimum_forward_sample": 100,
+          "description": "現行買い目は変えず、現行・期待値不足除外・最大12点救済の3案を同じ締切前確率、T-10/T-5オッズ、実結果で比較する。",
+          "entry_count": 1,
+          "ready_count": 0,
+          "settled_count": 1,
+          "target_t5_count": 1,
+          "target_t10_count": 0,
+          "variants": {
+            "baseline_current": {
+              "label": "現行買い目",
+              "entry_count": 1,
+              "settled_count": 1,
+              "bet_count": 1,
+              "skip_count": 0,
+              "hit_count": 0,
+              "miss_count": 1,
+              "hit_rate_pct": 0.0,
+              "total_points": 5,
+              "avg_points_per_signal": 5.0,
+              "avg_points_per_bet": 5.0,
+              "investment_yen": 500,
+              "payback_yen": 0,
+              "profit_yen": -500,
+              "roi_pct": 0.0,
+              "avg_expected_roi_pct": 63.55,
+              "max_losing_streak": 1,
+              "current_losing_streak": 1
+            },
+            "ev_pruned": {
+              "label": "期待値100%未満を除外",
+              "entry_count": 1,
+              "settled_count": 1,
+              "bet_count": 0,
+              "skip_count": 1,
+              "hit_count": 0,
+              "miss_count": 0,
+              "hit_rate_pct": null,
+              "total_points": 0,
+              "avg_points_per_signal": 0.0,
+              "avg_points_per_bet": null,
+              "investment_yen": 0,
+              "payback_yen": 0,
+              "profit_yen": 0,
+              "roi_pct": null,
+              "avg_expected_roi_pct": null,
+              "max_losing_streak": null,
+              "current_losing_streak": null,
+              "roi_delta_pp_vs_baseline": null,
+              "profit_delta_yen_vs_baseline": 500
+            },
+            "rescue12": {
+              "label": "高確率救済を最大12点まで追加",
+              "entry_count": 1,
+              "settled_count": 1,
+              "bet_count": 1,
+              "skip_count": 0,
+              "hit_count": 1,
+              "miss_count": 0,
+              "hit_rate_pct": 100.0,
+              "total_points": 12,
+              "avg_points_per_signal": 12.0,
+              "avg_points_per_bet": 12.0,
+              "investment_yen": 1200,
+              "payback_yen": 2260,
+              "profit_yen": 1060,
+              "roi_pct": 188.33,
+              "avg_expected_roi_pct": 105.19,
+              "max_losing_streak": 0,
+              "current_losing_streak": 0,
+              "roi_delta_pp_vs_baseline": 188.33,
+              "profit_delta_yen_vs_baseline": 1560
+            }
+          },
+          "decision_ready": false,
+          "remaining_to_decision": 99
         }
       }
     }
+  },
+  "ticket_strategy_shadow_policy": {
+    "version": "venue-sign-ticket-strategy-shadow-v1",
+    "policy_id": "ticket_strategy_compare_v1",
+    "active": false,
+    "notification_enabled": false,
+    "production_action": "none",
+    "target_preference": [
+      "t5",
+      "t10"
+    ],
+    "minimum_ticket_expected_roi_pct": 100.0,
+    "rescue_max_points": 12,
+    "minimum_forward_sample": 100,
+    "description": "現行買い目は変えず、現行・期待値不足除外・最大12点救済の3案を同じ締切前確率、T-10/T-5オッズ、実結果で比較する。"
   }
 }
