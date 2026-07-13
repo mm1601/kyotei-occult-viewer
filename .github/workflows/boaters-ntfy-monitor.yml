@@ -2,9 +2,9 @@ name: BOATERS manshu smartphone monitor
 
 on:
   schedule:
-    # JST 09:02-18:57 every 5 minutes (GitHub cron is UTC).
+    # JST 09:02-20:57 every 5 minutes (GitHub cron is UTC).
     # Use staggered minutes instead of */5 to avoid GitHub's busiest schedule slots.
-    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 0-9 * * *"
+    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 0-11 * * *"
   workflow_dispatch:
     inputs:
       test_push:
@@ -31,7 +31,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install Python dependencies
-        run: python -m pip install --upgrade pandas numpy certifi
+        run: python -m pip install --upgrade pandas numpy certifi joblib beautifulsoup4
 
       - name: Resolve JST date
         id: jst
@@ -58,7 +58,7 @@ jobs:
             --core-alert-threshold 40 \
             --lookahead-minutes 20 \
             --scan-risers \
-            --notify-risers \
+            --venue-sign-only \
             --riser-top-n 10 \
             --riser-threshold 40
 
@@ -87,14 +87,8 @@ jobs:
           python scripts/build_core_buy_forward_report.py \
             --start-date 2026-06-19 \
             --end-date "${{ steps.jst.outputs.date }}"
-
-      - name: Notify acquisition status
-        if: ${{ !(github.event_name == 'workflow_dispatch' && github.event.inputs.test_push == 'true') }}
-        env:
-          BOATERS_NTFY_SERVER: ${{ secrets.BOATERS_NTFY_SERVER }}
-          BOATERS_NTFY_TOPIC: ${{ secrets.BOATERS_NTFY_TOPIC || 'boat10000-codex-manshu-7d56f47f-ee5f-48f8-905a-ed6e5025b8db' }}
-          BOATERS_NTFY_TOKEN: ${{ secrets.BOATERS_NTFY_TOKEN }}
-        run: python scripts/notify_boaters_fetch_status.py --date "${{ steps.jst.outputs.date }}"
+          python scripts/export_manshu_system_dashboard.py \
+            --date "${{ steps.jst.outputs.date }}"
 
       - name: Persist generated monitor data
         if: ${{ !(github.event_name == 'workflow_dispatch' && github.event.inputs.test_push == 'true') }}
@@ -110,9 +104,13 @@ jobs:
             "data/output/boaters_manshu_alert_state_${{ steps.jst.outputs.key }}.json" \
             "data/output/boaters_fetch_status_${{ steps.jst.outputs.key }}.json" \
             "data/output/boaters_fetch_status_state_${{ steps.jst.outputs.key }}.json" \
+            "data/output/forward_validation/original_boaters_24_shadow_${{ steps.jst.outputs.key }}.json" \
+            "data/output/forward_validation/original_boaters_24_shadow_summary.json" \
             "data/output/boaters_manshu_history_index.json" \
             "data/output/core_buy_forward_validation.json" \
             "data/output/core_buy_forward_validation.csv" \
+            "data/output/manshu_system_dashboard_latest.json" \
+            "data/output/manshu_system_dashboard_${{ steps.jst.outputs.key }}.json" \
             "reports/core_buy_forward_validation.md" \
             "data/output/manshu_daily_rank_${{ steps.jst.outputs.date }}.json" \
             "data/output/manshu_daily_rank_${{ steps.jst.outputs.date }}.csv"; do

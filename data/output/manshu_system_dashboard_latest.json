@@ -1,24 +1,25 @@
 {
   "version": "manshu-system-dashboard-v1",
   "date": "2026-07-13",
-  "exported_at": "2026-07-13T12:33:56+09:00",
-  "source_generated_at": "2026-07-13T12:30:56+09:00",
+  "exported_at": "2026-07-13T15:30:39+09:00",
+  "source_generated_at": "2026-07-13T14:45:32+09:00",
   "source_monitor_file": "data/output/boaters_manshu_alerts_20260713.json",
   "system": {
     "name": "24場サイン管制盤",
     "mode": "all_races_venue_sign_only",
-    "live_source": "official",
+    "live_source": null,
     "lookahead_minutes": 20.0,
     "signal_count": 1,
-    "monitored_count": 156,
-    "checked_count": 5,
-    "preview_ready_count": 2,
+    "monitored_count": 16,
+    "checked_count": 0,
+    "preview_ready_count": 6,
     "fetch_failed_count": 0,
     "notifications_sent": 0,
     "notifications_failed": 0,
     "status_counts": {
-      "outside_window": 151,
-      "checked": 5
+      "after_close_backfilled": 8,
+      "preview_refreshed": 2,
+      "outside_window": 6
     }
   },
   "models": {
@@ -77,52 +78,9 @@
         "combined_log_loss": 5.003301
       }
     },
-    "probability_overlay": {
-      "enabled": true,
-      "model_path": "venue_probability_overlay_current.joblib",
-      "active": false,
-      "notification_enabled": false,
-      "description": "場×艇番、展示、風・波・潮・潮流、平均との差、スーパースリットを1着・2着・3着率のポイント補正として影記録する。24場サインと買い目は変更しない。"
-    },
-    "position_model": {
-      "enabled": true,
-      "model_path": "trifecta_position_model_current.joblib",
-      "active": false,
-      "notification_enabled": false,
-      "description": "1着・2着・3着専用モデルの120通り確率と期待値を影記録する。24場サインと買い目は変更しない。"
-    },
-    "factor_dictionaries": {
-      "venue_exhibition": {
-        "path": "venue_exhibition_factor_dictionary.json",
-        "exists": true,
-        "version": "venue-exhibition-factor-dictionary-v2",
-        "generated_at": "2026-07-12T10:22:09+09:00",
-        "factor_count": 526,
-        "active_index_keys": 354,
-        "venue_count": 24,
-        "ready": true
-      },
-      "avg_diff_threshold": {
-        "path": "avg_diff_threshold_effect_profile.json",
-        "exists": true,
-        "version": "avg-diff-threshold-effect-profile-v1",
-        "generated_at": "2026-07-09T20:43:57",
-        "factor_count": 2268,
-        "active_factor_count": 2268,
-        "active_index_keys": 715,
-        "venue_count": 24,
-        "ready": true
-      },
-      "super_slit": {
-        "path": "super_slit_place_boat_effects.json",
-        "exists": true,
-        "generated_at": "2026-07-09T20:23:17",
-        "place_boat_count": 120,
-        "venue_count": 24,
-        "ready": true
-      },
-      "ready": true
-    }
+    "probability_overlay": {},
+    "position_model": {},
+    "factor_dictionaries": {}
   },
   "signals": [
     {
@@ -294,231 +252,44 @@
   ],
   "monitor": [
     {
-      "race_id": "2026-07-131304",
-      "venue": "尼崎",
-      "round": 4,
-      "status": "outside_window",
-      "minutes_to_deadline": -29.9,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-130502",
-      "venue": "多摩川",
-      "round": 2,
-      "status": "outside_window",
-      "minutes_to_deadline": -26.9,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-130303",
-      "venue": "江戸川",
-      "round": 3,
-      "status": "outside_window",
-      "minutes_to_deadline": -22.9,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-130904",
-      "venue": "津",
-      "round": 4,
-      "status": "outside_window",
-      "minutes_to_deadline": -22.9,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-130602",
-      "venue": "浜名湖",
-      "round": 2,
-      "status": "outside_window",
-      "minutes_to_deadline": -18.9,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-132201",
-      "venue": "福岡",
-      "round": 1,
-      "status": "outside_window",
-      "minutes_to_deadline": -14.9,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-131602",
-      "venue": "児島",
-      "round": 2,
-      "status": "outside_window",
-      "minutes_to_deadline": -11.9,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-132309",
-      "venue": "唐津",
-      "round": 9,
-      "status": "outside_window",
-      "minutes_to_deadline": -9.9,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-130402",
-      "venue": "平和島",
-      "round": 2,
-      "status": "outside_window",
-      "minutes_to_deadline": -6.9,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-131409",
+      "race_id": "2026-07-131411",
       "venue": "鳴門",
-      "round": 9,
-      "status": "outside_window",
-      "minutes_to_deadline": -3.9,
-      "preview_ready": false,
-      "fetch_reason": null,
+      "round": 11,
+      "status": "after_close_backfilled",
+      "minutes_to_deadline": -68.5,
+      "preview_ready": true,
+      "fetch_reason": "after_close_backfill",
       "near_miss_level": null,
       "near_miss_summary": null,
       "near_miss_reasons": [],
       "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-131305",
-      "venue": "尼崎",
-      "round": 5,
-      "status": "checked",
-      "minutes_to_deadline": -0.9,
-      "preview_ready": true,
-      "fetch_reason": "venue_sign_alert_window",
-      "near_miss_level": "見送り",
-      "near_miss_summary": "展示後38%未満(0.00%)",
-      "near_miss_reasons": [
-        "展示後38%未満(0.00%)",
-        "朝監視TOP10外なので本命扱いではない"
-      ],
-      "near_miss_positives": [
-        "1号艇人気: 普通に人気",
-        "1号艇人気あり",
-        "1号艇危険度: 危険",
-        "前半1〜6R:OK(5R)",
-        "1号艇展示弱化:OK"
-      ],
-      "post_exhibition_manshu_rate_pct": 0.0,
+      "post_exhibition_manshu_rate_pct": 32.98,
       "heads": [
-        4,
-        6
+        3,
+        5
       ],
       "axes": [
-        2,
-        4
+        3,
+        1
       ],
-      "keshi": 3
+      "keshi": 4
     },
     {
-      "race_id": "2026-07-130503",
-      "venue": "多摩川",
-      "round": 3,
-      "status": "checked",
-      "minutes_to_deadline": 3.1,
+      "race_id": "2026-07-131408",
+      "venue": "鳴門",
+      "round": 8,
+      "status": "after_close_backfilled",
+      "minutes_to_deadline": -168.5,
       "preview_ready": true,
-      "fetch_reason": "venue_sign_alert_window",
-      "near_miss_level": "見送り",
-      "near_miss_summary": "展示後38%未満(0.00%)",
-      "near_miss_reasons": [
-        "展示後38%未満(0.00%)",
-        "朝監視TOP10外なので本命扱いではない"
-      ],
-      "near_miss_positives": [
-        "1号艇人気: かなり人気",
-        "1号艇人気あり",
-        "前半1〜3R:OK(3R)",
-        "1号艇展示弱化:OK"
-      ],
-      "post_exhibition_manshu_rate_pct": 0.0,
+      "fetch_reason": "after_close_backfill",
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": 39.24,
       "heads": [
-        4,
-        3
+        3,
+        6
       ],
       "axes": [
         1,
@@ -527,21 +298,179 @@
       "keshi": 2
     },
     {
+      "race_id": "2026-07-131504",
+      "venue": "丸亀",
+      "round": 4,
+      "status": "preview_refreshed",
+      "minutes_to_deadline": 112.5,
+      "preview_ready": false,
+      "fetch_reason": "preview_refresh",
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": 40.0,
+      "heads": [
+        5,
+        6
+      ],
+      "axes": [
+        4,
+        6
+      ],
+      "keshi": 1
+    },
+    {
+      "race_id": "2026-07-130506",
+      "venue": "多摩川",
+      "round": 6,
+      "status": "after_close_backfilled",
+      "minutes_to_deadline": -41.5,
+      "preview_ready": true,
+      "fetch_reason": "after_close_backfill",
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": 32.17,
+      "heads": [
+        3,
+        6
+      ],
+      "axes": [
+        3,
+        1
+      ],
+      "keshi": 4
+    },
+    {
+      "race_id": "2026-07-131505",
+      "venue": "丸亀",
+      "round": 5,
+      "status": "preview_refreshed",
+      "minutes_to_deadline": 138.5,
+      "preview_ready": false,
+      "fetch_reason": "preview_refresh",
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": 39.34,
+      "heads": [
+        4,
+        3
+      ],
+      "axes": [
+        5,
+        1
+      ],
+      "keshi": 2
+    },
+    {
+      "race_id": "2026-07-130604",
+      "venue": "浜名湖",
+      "round": 4,
+      "status": "after_close_backfilled",
+      "minutes_to_deadline": -98.5,
+      "preview_ready": true,
+      "fetch_reason": "after_close_backfill",
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": 35.1,
+      "heads": [
+        3,
+        2
+      ],
+      "axes": [
+        2,
+        3
+      ],
+      "keshi": 5
+    },
+    {
+      "race_id": "2026-07-130507",
+      "venue": "多摩川",
+      "round": 7,
+      "status": "after_close_backfilled",
+      "minutes_to_deadline": -10.5,
+      "preview_ready": true,
+      "fetch_reason": "after_close_backfill",
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": 25.54,
+      "heads": [
+        6,
+        1
+      ],
+      "axes": [
+        4,
+        6
+      ],
+      "keshi": 3
+    },
+    {
+      "race_id": "2026-07-132307",
+      "venue": "唐津",
+      "round": 7,
+      "status": "after_close_backfilled",
+      "minutes_to_deadline": -208.5,
+      "preview_ready": true,
+      "fetch_reason": "after_close_backfill",
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": 34.5,
+      "heads": [
+        3,
+        2
+      ],
+      "axes": [
+        2,
+        4
+      ],
+      "keshi": 1
+    },
+    {
+      "race_id": "2026-07-130308",
+      "venue": "江戸川",
+      "round": 8,
+      "status": "after_close_backfilled",
+      "minutes_to_deadline": -21.5,
+      "preview_ready": false,
+      "fetch_reason": "after_close_backfill",
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": 39.33,
+      "heads": [
+        6,
+        3
+      ],
+      "axes": [
+        2,
+        3
+      ],
+      "keshi": 1
+    },
+    {
       "race_id": "2026-07-130304",
       "venue": "江戸川",
       "round": 4,
-      "status": "checked",
-      "minutes_to_deadline": 4.1,
+      "status": "after_close_backfilled",
+      "minutes_to_deadline": -130.5,
       "preview_ready": false,
-      "fetch_reason": "venue_sign_alert_window",
-      "near_miss_level": "取得待ち",
-      "near_miss_summary": "1周/半周0/6のため本命判定前",
-      "near_miss_reasons": [
-        "1周/半周0/6",
-        "展示・1周が揃ってから本命/見送りを確定"
-      ],
+      "fetch_reason": "after_close_backfill",
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
       "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": 0.0,
+      "post_exhibition_manshu_rate_pct": 37.77,
       "heads": [
         6,
         2
@@ -551,143 +480,6 @@
         5
       ],
       "keshi": 3
-    },
-    {
-      "race_id": "2026-07-130603",
-      "venue": "浜名湖",
-      "round": 3,
-      "status": "checked",
-      "minutes_to_deadline": 6.1,
-      "preview_ready": false,
-      "fetch_reason": "venue_sign_alert_window",
-      "near_miss_level": "取得待ち",
-      "near_miss_summary": "1周/半周0/6のため本命判定前",
-      "near_miss_reasons": [
-        "1周/半周0/6",
-        "展示・1周が揃ってから本命/見送りを確定"
-      ],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": 0.0,
-      "heads": [
-        3,
-        5
-      ],
-      "axes": [
-        3,
-        5
-      ],
-      "keshi": 1
-    },
-    {
-      "race_id": "2026-07-130905",
-      "venue": "津",
-      "round": 5,
-      "status": "checked",
-      "minutes_to_deadline": 8.1,
-      "preview_ready": false,
-      "fetch_reason": "venue_sign_alert_window",
-      "near_miss_level": "取得待ち",
-      "near_miss_summary": "1周/半周0/6のため本命判定前",
-      "near_miss_reasons": [
-        "1周/半周0/6",
-        "展示・1周が揃ってから本命/見送りを確定"
-      ],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": 0.0,
-      "heads": [
-        3,
-        4
-      ],
-      "axes": [
-        1,
-        4
-      ],
-      "keshi": 5
-    },
-    {
-      "race_id": "2026-07-132202",
-      "venue": "福岡",
-      "round": 2,
-      "status": "outside_window",
-      "minutes_to_deadline": 13.1,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-131603",
-      "venue": "児島",
-      "round": 3,
-      "status": "outside_window",
-      "minutes_to_deadline": 19.1,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-132310",
-      "venue": "唐津",
-      "round": 10,
-      "status": "outside_window",
-      "minutes_to_deadline": 21.1,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-130403",
-      "venue": "平和島",
-      "round": 3,
-      "status": "outside_window",
-      "minutes_to_deadline": 23.1,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-131306",
-      "venue": "尼崎",
-      "round": 6,
-      "status": "outside_window",
-      "minutes_to_deadline": 28.1,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
     }
   ],
   "validation": {
