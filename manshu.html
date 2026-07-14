@@ -283,6 +283,7 @@
       catch(error){}
     }
     function statusLabel(signal,result){
+      if(signal.data_quality_invalid)return {text:"通知後無効",className:"bad"};
       if(result&&result.trifecta){if(isHit(signal,result))return {text:"的中",className:"ok"};return {text:"結果確定",className:""};}
       if(signal.notification_status==="sent"||signal.notification_status==="duplicate_sent")return {text:"通知済み",className:"signal"};
       if(signal.notification_status==="failed")return {text:"通知失敗",className:"bad"};
@@ -300,14 +301,14 @@
       return '<div class="boat-probabilities"><div class="boat-probability-head"><span class="boat-probability-title">独自AI確率＋同場サイン実績</span><span class="boat-probability-note">今回予測 / 2024-25</span></div><div class="boat-probability-grid">'+rows.map(function(row){var hasContext=row.sign_position1_pct!=null&&row.sign_position2_pct!=null&&row.sign_position3_pct!=null;var context=hasContext?'<div class="boat-probability-context"><div class="boat-probability-context-label"><span>同サイン時</span><span>n='+num(row.sign_sample_races,0)+'</span></div><div class="boat-probability-value"><span>1着</span><b>'+pct(row.sign_position1_pct,1)+'</b></div><div class="boat-probability-value"><span>2着</span><b>'+pct(row.sign_position2_pct,1)+'</b></div><div class="boat-probability-value"><span>3着</span><b>'+pct(row.sign_position3_pct,1)+'</b></div></div>':'';return '<div class="boat-probability"><div class="boat-probability-lane">'+lane(row.boat)+'<span>'+num(row.boat,0)+'号艇</span></div><div class="boat-probability-value"><span>今回1着</span><b>'+pct(row.win_pct,1)+'</b></div><div class="boat-probability-value"><span>今回3着内</span><b>'+pct(row.top3_pct,1)+'</b></div>'+context+'</div>';}).join("")+'</div></div>';
     }
     function signalHtml(signal){
-      var archived=signal.record_kind==="historical_backtest",result=resultFromApi(signal),status=statusLabel(signal,result),hit=result&&result.trifecta&&isHit(signal,result),cardClass=hit?" hit":(result&&result.trifecta?" miss":"");
+      var archived=signal.record_kind==="historical_backtest",invalid=Boolean(signal.data_quality_invalid),result=resultFromApi(signal),status=statusLabel(signal,result),hit=!invalid&&result&&result.trifecta&&isHit(signal,result),cardClass=invalid?" miss":(hit?" hit":(result&&result.trifecta?" miss":""));
       var resultMain=result&&result.trifecta?esc(result.trifecta):"結果待ち";
-      var resultSub=result&&result.payout_yen!=null?yen(result.payout_yen)+(hit?" / 買い目的中":" / 買い目外"):"通知 "+esc(signal.notification_status||"未確認");
+      var resultSub=invalid?"通知済み / 集計対象外":(result&&result.payout_yen!=null?yen(result.payout_yen)+(hit?" / 買い目的中":" / 買い目外"):"通知 "+esc(signal.notification_status||"未確認"));
       var h=signal.historical||{},c=signal.conditions||{},timeText=archived?esc(signal.date)+" / "+esc(signal.source_label||"過去検証"):'締切 '+clock(signal.deadline_time)+' / 検知 '+clock(signal.detected_at)+' / 締切'+num(signal.first_minutes_to_deadline,1)+'分前';
       var analysisDetails=archived?'<div><div class="detail-title">このレースの収支（100円/点）</div>'+detailLine("購入",yen(signal.investment_yen))+detailLine("払戻",yen(signal.payback_yen))+detailLine("収支",yen(signal.profit_yen))+'</div>':evBlock("既存AI1/AI3期待値",signal.legacy_ev)+evBlock("場別確率補正（影）",signal.probability_overlay_ev);
       return '<article class="signal-card'+cardClass+'">'+
         '<div class="signal-summary"><div><div class="race-line"><span class="race-name">'+esc(signal.venue)+Number(signal.round)+'R</span><span class="tag signal">'+(archived?'過去サイン':'24場サイン')+'</span><span class="tag '+esc(status.className)+'">'+esc(status.text)+'</span><span class="tag">'+esc(signal.data_mode==="full"?"展示完備":"展示限定")+'</span></div><div class="signal-time">'+timeText+'</div></div><div class="result-box"><div class="result-main">'+resultMain+'</div><span class="result-sub">'+resultSub+'</span></div></div>'+
-        '<div class="signal-body"><p class="condition">'+esc(signal.condition||"条件記録なし")+'</p><p class="buy-method">'+esc(signal.buy_method||"")+'</p>'+probabilityHtml(signal)+
+        '<div class="signal-body">'+(invalid?'<p class="condition">データ無効: '+esc(signal.data_quality_invalidation_reason||"通知後に取得データの不備が判明")+'</p>':'')+'<p class="condition">'+esc(signal.condition||"条件記録なし")+'</p><p class="buy-method">'+esc(signal.buy_method||"")+'</p>'+probabilityHtml(signal)+
         '<div class="role-line"><span class="role-item">頭 <b>'+lanes(signal.heads)+'</b></span><span class="role-item">相手 <b>'+lanes(signal.axes)+'</b></span><span class="role-item">消し <b>'+lane(signal.keshi)+'</b></span><span class="role-item">点数 <b>'+num(signal.points,0)+'点</b></span></div>'+
         '<div class="tickets">'+(signal.tickets||[]).map(ticket).join("")+'</div>'+
         '<div class="facts">'+fact("過去回収率",pct(h.roi_pct,1))+fact("過去該当",num(h.races,0)+"R")+fact("1号艇AI1着",pct(c.boat1_ai_win_pct,1))+fact("1号艇周回順位",c.boat1_lap_rank?num(c.boat1_lap_rank,0)+"位":"-")+'</div>'+
@@ -316,7 +317,7 @@
     function renderSignals(){
       if(!STATE.data)return;var list=document.getElementById("signal-list"),signals=STATE.data.signals||[],historical=(STATE.data.system||{}).mode==="history",day=STATE.data.history_day||{};
       document.querySelector("#view-signals h2").textContent=historical?STATE.data.date+"のサイン":"本日のサイン";
-      document.querySelector("#view-signals .section-head p").textContent=historical?"その日に条件が成立した全買い目と結果":"展示後に条件が確定し、通知対象になったレース";
+      document.querySelector("#view-signals .section-head p").textContent=historical?"その日に通知・記録された全買い目と結果":"実際に通知されたレースを、無効判明分も含めて全件保存";
       if(signals.length){list.innerHTML=signals.map(signalHtml).join("");return;}
       if(historical&&day.status==="unavailable"){list.innerHTML='<div class="empty"><b>この日は元データがありません</b><span>未収集日として区別しています。該当なしとは数えていません。</span></div>';return;}
       list.innerHTML='<div class="empty"><b>'+esc(historical?"この日の24場サインは0件です":"本日の24場サインはまだありません")+'</b><span>'+esc(historical?"検証済みデータ上で条件成立レースはありません。":"条件がそろったレースだけ、ここに追加されます。")+'</span></div>';
@@ -366,9 +367,9 @@
       return data;
     }
     function activeDaySummary(){
-      var rows=(STATE.data&&STATE.data.signals)||[],settled=0,hits=0,points=0,investment=0,payback=0;
-      rows.forEach(function(row){var result=resultFromApi(row),isSettled=Boolean(result&&result.trifecta),planned=Number(row.investment_yen);points+=Number(row.points)||0;if(!isSettled)return;settled+=1;if(!(planned>0))planned=(Number(row.points)||0)*100;investment+=planned;if(isHit(row,result)){hits+=1;payback+=Number(result.payout_yen)||0;}});
-      return {signals:rows.length,settled:settled,hits:hits,points:points,investment_yen:investment,payback_yen:payback,profit_yen:settled?payback-investment:null,roi_pct:investment?payback/investment*100:null};
+      var rows=(STATE.data&&STATE.data.signals)||[],settled=0,hits=0,points=0,investment=0,payback=0,invalid=0;
+      rows.forEach(function(row){if(row.data_quality_invalid){invalid+=1;return;}var result=resultFromApi(row),isSettled=Boolean(result&&result.trifecta),planned=Number(row.investment_yen);points+=Number(row.points)||0;if(!isSettled)return;settled+=1;if(!(planned>0))planned=(Number(row.points)||0)*100;investment+=planned;if(isHit(row,result)){hits+=1;payback+=Number(result.payout_yen)||0;}});
+      return {signals:rows.length,invalid:invalid,settled:settled,hits:hits,points:points,investment_yen:investment,payback_yen:payback,profit_yen:settled?payback-investment:null,roi_pct:investment?payback/investment*100:null};
     }
     function renderHeader(){
       var d=STATE.data,s=d.system||{},historical=s.mode==="history",monitoringOpen=monitoringWindowOpen(),closed=!historical&&!monitoringOpen,age=ageMinutes(d.source_generated_at),stale=!historical&&monitoringOpen&&age!=null&&age>20,forward=(d.validation||{}).forward||{},progress=(d.validation||{}).progress||{},badge=document.querySelector("#status-strip .status-badge");
@@ -387,9 +388,9 @@
         document.getElementById("system-status").textContent=closed?"本日の監視終了":(stale?"更新待ち":"監視データ正常");
         document.getElementById("mast-meta").textContent=d.date+" / 監視最終 "+clock(d.source_generated_at)+" / 公開反映 "+clock(d.exported_at);
         document.querySelector("#status-strip .status-main").textContent=closed?"本日の監視は終了しました":(stale?"最終更新から20分以上経過しています":"24場サイン監視データを表示中");document.querySelector("#status-strip .status-sub").textContent="取得元 "+(s.live_source||"不明")+" / 監視 "+num(s.monitored_count,0)+"R / 取得失敗 "+num(s.fetch_failed_count,0)+"R";badge.textContent=closed?"終了":(stale?"更新待ち":"正常");badge.className="status-badge"+(stale?" warn":"");
-        document.getElementById("kpi-signals-label").textContent="本日の24場サイン";document.getElementById("kpi-signals").textContent=num(s.signal_count,0)+"R";document.getElementById("kpi-signals-note").textContent="条件確定・買い目あり";
+        document.getElementById("kpi-signals-label").textContent="本日の通知レース";document.getElementById("kpi-signals").textContent=num(s.signal_count,0)+"R";document.getElementById("kpi-signals-note").textContent="全通知を保存 / 無効 "+num(s.notifications_invalid,0)+"件";
         document.getElementById("kpi-monitored-label").textContent="監視対象";document.getElementById("kpi-monitored").textContent=num(s.monitored_count,0)+"R";document.getElementById("kpi-monitored-note").textContent="直前確認 "+num(s.checked_count,0)+"R";
-        document.getElementById("kpi-notified-label").textContent="通知成功";document.getElementById("kpi-notified").textContent=num(forward.notification_sent_count,0)+"件";document.getElementById("kpi-notified-note").textContent="失敗 "+num(forward.notification_failed_count,0)+"件";
+        document.getElementById("kpi-notified-label").textContent="通知成功";document.getElementById("kpi-notified").textContent=num(s.notifications_sent,0)+"件";document.getElementById("kpi-notified-note").textContent="失敗 "+num(s.notifications_failed,0)+"件";
         document.getElementById("kpi-forward-label").textContent="フォワード蓄積";document.getElementById("kpi-forward").textContent=num(progress.entry_count,0)+"件";document.getElementById("kpi-forward-note").textContent="目標100件まで "+num(progress.remaining_to_minimum,0)+"件";
       }
       document.getElementById("signal-count-tab").textContent=num((d.signals||[]).length,0);document.getElementById("history-count-tab").textContent=num((((STATE.history||{}).totals||{}).all||{}).signals,0);document.getElementById("monitor-count-tab").textContent=num((d.monitor||[]).length,0);document.getElementById("rule-count-tab").textContent=num((d.rules||[]).length,0);

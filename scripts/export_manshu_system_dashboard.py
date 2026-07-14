@@ -12,6 +12,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+NOTIFIED_STATUSES = {"sent", "duplicate_sent"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -52,6 +53,72 @@ def as_int(value: Any) -> int | None:
 def newest(paths: list[Path]) -> Path | None:
     existing = [path for path in paths if path.exists()]
     return max(existing, key=lambda path: (path.stat().st_mtime, path.name)) if existing else None
+
+
+def notification_key(entry: dict[str, Any]) -> str:
+    race_id = str(entry.get("race_id") or "").strip()
+    if race_id:
+        return race_id
+    return ":".join(
+        [
+            str(entry.get("date") or ""),
+            str(entry.get("place_name") or ""),
+            str(as_int(entry.get("round")) or ""),
+        ]
+    )
+
+
+def notification_score(entry: dict[str, Any]) -> tuple[int, int, int, int]:
+    return (
+        int(not bool(entry.get("data_quality_invalid"))),
+        int(entry.get("notification_status") == "sent"),
+        int(entry.get("_notification_source") == "core_focus"),
+        len(entry.get("tickets") or []),
+    )
+
+
+def notified_entries(
+    output_dir: Path, date_key: str
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    sources = [
+        (
+            "core_focus",
+            output_dir / "forward_validation" / f"core_focus_forward_{date_key}.json",
+        ),
+        (
+            "original_boaters_24",
+            output_dir
+            / "forward_validation"
+            / f"original_boaters_24_shadow_{date_key}.json",
+        ),
+    ]
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    failed = 0
+    for source_name, path in sources:
+        payload = read_json(path, {})
+        for raw in payload.get("entries") or []:
+            status = str(raw.get("notification_status") or "")
+            if status == "failed":
+                failed += 1
+            if status not in NOTIFIED_STATUSES:
+                continue
+            entry = dict(raw)
+            entry["_notification_source"] = source_name
+            grouped.setdefault(notification_key(entry), []).append(entry)
+
+    result: list[dict[str, Any]] = []
+    for rows in grouped.values():
+        selected = max(rows, key=notification_score)
+        selected["notification_sources"] = sorted(
+            {str(row.get("_notification_source") or "") for row in rows}
+        )
+        result.append(selected)
+    result.sort(key=lambda row: str(row.get("detected_at") or ""), reverse=True)
+    return result, {
+        "sent": len(result),
+        "failed": failed,
+        "invalid": sum(bool(row.get("data_quality_invalid")) for row in result),
+    }
 
 
 def public_paths(value: Any, source_root: Path) -> Any:
@@ -251,6 +318,11 @@ def signal_row(
         "notification_status": entry.get("notification_status"),
         "notification_sent_at": entry.get("notification_sent_at"),
         "notification_ok": entry.get("notification_ok"),
+        "notification_sources": entry.get("notification_sources") or [],
+        "data_quality_invalid": bool(entry.get("data_quality_invalid")),
+        "data_quality_invalidation_reason": entry.get(
+            "data_quality_invalidation_reason"
+        ),
         "rule_status": entry.get("rule_status"),
         "rule_id": entry.get("rule_id"),
         "condition": entry.get("condition"),
@@ -389,6 +461,7 @@ def build_payload(source_root: Path, date_text: str) -> dict[str, Any]:
     active_monitor_rows = active_monitor_rows[-40:]
 
     probabilities = live_probability_map(source_root, date_key, monitor)
+    notification_rows, notification_counts = notified_entries(output_dir, date_key)
     signals = [
         signal_row(
             entry,
@@ -398,7 +471,7 @@ def build_payload(source_root: Path, date_text: str) -> dict[str, Any]:
                 entry.get("place_name"),
             ),
         )
-        for entry in forward.get("entries") or []
+        for entry in notification_rows
     ]
     signals.sort(key=lambda row: str(row.get("detected_at") or ""), reverse=True)
     performance = (
@@ -407,6 +480,10 @@ def build_payload(source_root: Path, date_text: str) -> dict[str, Any]:
         or (monitor.get("original_boaters_24_forward") or {}).get("performance")
         or {}
     )
+    performance = dict(performance)
+    performance["notification_sent_count"] = notification_counts["sent"]
+    performance["notification_failed_count"] = notification_counts["failed"]
+    performance["notification_invalid_count"] = notification_counts["invalid"]
     progress = (
         forward_summary.get("progress")
         or (monitor.get("original_boaters_24_forward") or {}).get("progress")
@@ -437,8 +514,9 @@ def build_payload(source_root: Path, date_text: str) -> dict[str, Any]:
             "checked_count": status_counts.get("checked", 0),
             "preview_ready_count": sum(bool(row.get("preview_ready")) for row in inspected),
             "fetch_failed_count": status_counts.get("fetch_failed", 0),
-            "notifications_sent": as_int(push.get("sent")) or 0,
-            "notifications_failed": len(push.get("errors") or []),
+            "notifications_sent": notification_counts["sent"],
+            "notifications_failed": notification_counts["failed"],
+            "notifications_invalid": notification_counts["invalid"],
             "status_counts": status_counts,
         },
         "models": {

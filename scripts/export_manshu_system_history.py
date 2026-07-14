@@ -17,6 +17,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+NOTIFIED_STATUSES = {"sent", "duplicate_sent"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -401,6 +402,24 @@ def forward_signal(
     snapshot = entry.get("condition_snapshot") or {}
     raw_result = entry.get("result") or {}
     payout = as_int(raw_result.get("payout_yen"))
+    hit = entry.get("hit")
+    if hit is None:
+        hit = raw_result.get("hit")
+    investment = as_int(entry.get("investment_yen"))
+    if investment is None:
+        investment = as_int(raw_result.get("investment_yen"))
+    if investment is None and payout is not None:
+        investment = (as_int(entry.get("points")) or 0) * 100
+    payback = as_int(entry.get("payback_yen"))
+    if payback is None:
+        payback = as_int(raw_result.get("payback_yen"))
+    if payback is None and payout is not None:
+        payback = payout if bool(hit) else 0
+    profit = as_int(entry.get("profit_yen"))
+    if profit is None:
+        profit = as_int(raw_result.get("profit_yen"))
+    if profit is None and investment is not None and payback is not None:
+        profit = payback - investment
     return {
         "date": entry.get("date"),
         "race_id": entry.get("race_id"),
@@ -411,6 +430,12 @@ def forward_signal(
         "status": entry.get("status"),
         "notification_status": entry.get("notification_status"),
         "notification_ok": entry.get("notification_ok"),
+        "notification_sent_at": entry.get("notification_sent_at"),
+        "notification_sources": entry.get("notification_sources") or [],
+        "data_quality_invalid": bool(entry.get("data_quality_invalid")),
+        "data_quality_invalidation_reason": entry.get(
+            "data_quality_invalidation_reason"
+        ),
         "detected_at": entry.get("detected_at"),
         "deadline_time": entry.get("deadline_time"),
         "first_minutes_to_deadline": as_num(entry.get("first_minutes_to_deadline")),
@@ -430,22 +455,25 @@ def forward_signal(
             "trifecta": trifecta(raw_result.get("trifecta")),
             "payout_yen": payout,
             "manshu": bool(payout is not None and payout >= 10000),
-            "hit": raw_result.get("hit"),
+            "hit": hit,
         },
-        "hit": raw_result.get("hit"),
-        "investment_yen": as_int(raw_result.get("investment_yen")) or 0,
-        "payback_yen": as_int(raw_result.get("payback_yen")) or 0,
-        "profit_yen": as_int(raw_result.get("profit_yen")),
+        "hit": hit,
+        "investment_yen": investment or 0,
+        "payback_yen": payback or 0,
+        "profit_yen": profit,
     }
 
 
 def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    settled = [row for row in rows if (row.get("result") or {}).get("trifecta")]
+    valid = [row for row in rows if not row.get("data_quality_invalid")]
+    settled = [row for row in valid if (row.get("result") or {}).get("trifecta")]
     investment = sum(as_int(row.get("investment_yen")) or 0 for row in settled)
     payback = sum(as_int(row.get("payback_yen")) or 0 for row in settled)
     hits = sum(bool(row.get("hit")) for row in settled)
     return {
         "signals": len(rows),
+        "valid_signals": len(valid),
+        "invalid_signals": len(rows) - len(valid),
         "settled": len(settled),
         "hits": hits,
         "hit_rate_pct": round(hits / len(settled) * 100, 3) if settled else None,
@@ -506,38 +534,74 @@ def main() -> int:
     forward_dates: set[str] = set()
     forward_rows: list[dict[str, Any]] = []
     if args.forward_dir:
-        for path in sorted(Path(args.forward_dir).glob("original_boaters_24_shadow_????????.json")):
-            payload = read_json(path, {})
-            log_date = str(payload.get("date") or "")
-            if not (args.start_date <= log_date <= args.end_date):
-                continue
-            forward_dates.add(log_date)
-            live_probabilities = {}
-            if args.live_ranking_dir:
-                ranking_path = (
-                    Path(args.live_ranking_dir)
-                    / f"boaters_manshu_live_ranking_{log_date.replace('-', '')}.json"
-                )
-                live_probabilities = ranking_probability_map(ranking_path)
-            if args.approved_root:
-                live_probabilities.update(
-                    approved_probability_map(
-                        Path(args.approved_root), log_date.replace("-", "")
-                    )
-                )
-            for entry in payload.get("entries") or []:
-                if entry.get("race_id") in known_ids:
+        grouped_entries: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        source_patterns = [
+            ("core_focus", "core_focus_forward_????????.json"),
+            ("original_boaters_24", "original_boaters_24_shadow_????????.json"),
+        ]
+        for source_name, pattern in source_patterns:
+            for path in sorted(Path(args.forward_dir).glob(pattern)):
+                payload = read_json(path, {})
+                log_date = str(payload.get("date") or "")
+                if not (args.start_date <= log_date <= args.end_date):
                     continue
-                signal = forward_signal(
-                    entry,
-                    enrich_sign_position_priors(
-                        probabilities_for_entry(live_probabilities, entry),
-                        sign_position_priors,
-                        entry.get("place_name"),
-                    ),
-                )
-                forward_rows.append(signal)
-                known_ids.add(signal.get("race_id"))
+                forward_dates.add(log_date)
+                for raw in payload.get("entries") or []:
+                    if raw.get("notification_status") not in NOTIFIED_STATUSES:
+                        continue
+                    entry = dict(raw)
+                    entry["_notification_source"] = source_name
+                    key = str(entry.get("race_id") or "") or ":".join(
+                        [
+                            log_date,
+                            str(entry.get("place_name") or ""),
+                            str(as_int(entry.get("round")) or ""),
+                        ]
+                    )
+                    grouped_entries[key].append(entry)
+
+        probability_cache: dict[str, dict[str, list[dict[str, Any]]]] = {}
+        for rows in grouped_entries.values():
+            entry = max(
+                rows,
+                key=lambda row: (
+                    int(not bool(row.get("data_quality_invalid"))),
+                    int(row.get("notification_status") == "sent"),
+                    int(row.get("_notification_source") == "core_focus"),
+                    len(row.get("tickets") or []),
+                ),
+            )
+            entry["notification_sources"] = sorted(
+                {str(row.get("_notification_source") or "") for row in rows}
+            )
+            if entry.get("race_id") in known_ids:
+                continue
+            log_date = str(entry.get("date") or "")
+            if log_date not in probability_cache:
+                live_probabilities: dict[str, list[dict[str, Any]]] = {}
+                if args.live_ranking_dir:
+                    ranking_path = (
+                        Path(args.live_ranking_dir)
+                        / f"boaters_manshu_live_ranking_{log_date.replace('-', '')}.json"
+                    )
+                    live_probabilities = ranking_probability_map(ranking_path)
+                if args.approved_root:
+                    live_probabilities.update(
+                        approved_probability_map(
+                            Path(args.approved_root), log_date.replace("-", "")
+                        )
+                    )
+                probability_cache[log_date] = live_probabilities
+            signal = forward_signal(
+                entry,
+                enrich_sign_position_priors(
+                    probabilities_for_entry(probability_cache[log_date], entry),
+                    sign_position_priors,
+                    entry.get("place_name"),
+                ),
+            )
+            forward_rows.append(signal)
+            known_ids.add(signal.get("race_id"))
 
     signals = sorted(
         historical + forward_rows,
