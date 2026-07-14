@@ -258,6 +258,7 @@
     function yen(value){return value==null?"-":num(value,0)+"円";}
     function query(name){return new URLSearchParams(location.search).get(name)||"";}
     function todayJst(){return new Intl.DateTimeFormat("sv-SE",{timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());}
+    function monitoringWindowOpen(){var parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Tokyo",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(new Date()),values={};parts.forEach(function(part){values[part.type]=part.value;});var minutes=Number(values.hour)*60+Number(values.minute);return minutes>=9*60&&minutes<21*60;}
     function dateKey(value){return String(value||"").replace(/-/g,"");}
     function shiftDate(value,days){var parts=String(value||todayJst()).split("-").map(Number),d=new Date(Date.UTC(parts[0],parts[1]-1,parts[2]));d.setUTCDate(d.getUTCDate()+days);return d.toISOString().slice(0,10);}
     function clock(value){if(!value)return "-";var d=new Date(value);if(Number.isNaN(d.getTime()))return "-";return new Intl.DateTimeFormat("ja-JP",{timeZone:"Asia/Tokyo",hour:"2-digit",minute:"2-digit",hour12:false}).format(d);}
@@ -370,7 +371,7 @@
       return {signals:rows.length,settled:settled,hits:hits,points:points,investment_yen:investment,payback_yen:payback,profit_yen:settled?payback-investment:null,roi_pct:investment?payback/investment*100:null};
     }
     function renderHeader(){
-      var d=STATE.data,s=d.system||{},historical=s.mode==="history",age=ageMinutes(d.source_generated_at),stale=!historical&&age!=null&&age>20,forward=(d.validation||{}).forward||{},progress=(d.validation||{}).progress||{},badge=document.querySelector("#status-strip .status-badge");
+      var d=STATE.data,s=d.system||{},historical=s.mode==="history",monitoringOpen=monitoringWindowOpen(),closed=!historical&&!monitoringOpen,age=ageMinutes(d.source_generated_at),stale=!historical&&monitoringOpen&&age!=null&&age>20,forward=(d.validation||{}).forward||{},progress=(d.validation||{}).progress||{},badge=document.querySelector("#status-strip .status-badge");
       if(historical){
         var day=d.history_day||{},missing=day.status==="unavailable",summary=activeDaySummary(),statusName=day.status==="historical_complete"?"過去検証":(day.status==="forward_complete"?"実運用ログ":"未収集");
         document.getElementById("live-dot").className="live-dot"+(missing?" stale":"");document.getElementById("system-status").textContent=missing?"元データなし":"過去データ";
@@ -382,9 +383,10 @@
         document.getElementById("kpi-notified-label").textContent="的中";document.getElementById("kpi-notified").textContent=num(summary.hits,0)+"件";document.getElementById("kpi-notified-note").textContent="結果確定 "+num(summary.settled,0)+"R";
         document.getElementById("kpi-forward-label").textContent="日別収支";document.getElementById("kpi-forward").textContent=summary.profit_yen==null?"-":(summary.profit_yen>=0?"+":"")+yen(summary.profit_yen);document.getElementById("kpi-forward-note").textContent=summary.roi_pct==null?"集計対象なし":"回収率 "+pct(summary.roi_pct,1);
       }else{
-        document.getElementById("live-dot").className="live-dot"+(stale?" stale":"");document.getElementById("system-status").textContent=stale?"更新待ち":"監視データ正常";
-        document.getElementById("mast-meta").textContent=d.date+" / 最終更新 "+clock(d.source_generated_at)+" / 24場サインのみ通知";
-        document.querySelector("#status-strip .status-main").textContent=stale?"最終更新から20分以上経過しています":"24場サイン監視データを表示中";document.querySelector("#status-strip .status-sub").textContent="取得元 "+(s.live_source||"不明")+" / 監視 "+num(s.monitored_count,0)+"R / 取得失敗 "+num(s.fetch_failed_count,0)+"R";badge.textContent=stale?"更新待ち":"正常";badge.className="status-badge"+(stale?" warn":"");
+        document.getElementById("live-dot").className="live-dot"+(stale?" stale":"");
+        document.getElementById("system-status").textContent=closed?"本日の監視終了":(stale?"更新待ち":"監視データ正常");
+        document.getElementById("mast-meta").textContent=d.date+" / 監視最終 "+clock(d.source_generated_at)+" / 公開反映 "+clock(d.exported_at);
+        document.querySelector("#status-strip .status-main").textContent=closed?"本日の監視は終了しました":(stale?"最終更新から20分以上経過しています":"24場サイン監視データを表示中");document.querySelector("#status-strip .status-sub").textContent="取得元 "+(s.live_source||"不明")+" / 監視 "+num(s.monitored_count,0)+"R / 取得失敗 "+num(s.fetch_failed_count,0)+"R";badge.textContent=closed?"終了":(stale?"更新待ち":"正常");badge.className="status-badge"+(stale?" warn":"");
         document.getElementById("kpi-signals-label").textContent="本日の24場サイン";document.getElementById("kpi-signals").textContent=num(s.signal_count,0)+"R";document.getElementById("kpi-signals-note").textContent="条件確定・買い目あり";
         document.getElementById("kpi-monitored-label").textContent="監視対象";document.getElementById("kpi-monitored").textContent=num(s.monitored_count,0)+"R";document.getElementById("kpi-monitored-note").textContent="直前確認 "+num(s.checked_count,0)+"R";
         document.getElementById("kpi-notified-label").textContent="通知成功";document.getElementById("kpi-notified").textContent=num(forward.notification_sent_count,0)+"件";document.getElementById("kpi-notified-note").textContent="失敗 "+num(forward.notification_failed_count,0)+"件";
