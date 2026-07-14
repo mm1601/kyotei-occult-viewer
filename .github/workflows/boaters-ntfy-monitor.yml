@@ -87,8 +87,6 @@ jobs:
           python scripts/build_core_buy_forward_report.py \
             --start-date 2026-06-19 \
             --end-date "${{ steps.jst.outputs.date }}"
-          python scripts/export_manshu_system_dashboard.py \
-            --date "${{ steps.jst.outputs.date }}"
 
       - name: Persist generated monitor data
         if: ${{ !(github.event_name == 'workflow_dispatch' && github.event.inputs.test_push == 'true') }}
@@ -110,8 +108,6 @@ jobs:
             "data/output/boaters_manshu_history_index.json" \
             "data/output/core_buy_forward_validation.json" \
             "data/output/core_buy_forward_validation.csv" \
-            "data/output/manshu_system_dashboard_latest.json" \
-            "data/output/manshu_system_dashboard_${{ steps.jst.outputs.key }}.json" \
             "reports/core_buy_forward_validation.md" \
             "data/output/manshu_daily_rank_${{ steps.jst.outputs.date }}.json" \
             "data/output/manshu_daily_rank_${{ steps.jst.outputs.date }}.csv"; do
