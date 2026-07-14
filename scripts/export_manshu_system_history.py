@@ -464,6 +464,50 @@ def forward_signal(
     }
 
 
+def historical_backfill_signal(
+    entry: dict[str, Any], probabilities: list[dict[str, Any]]
+) -> dict[str, Any]:
+    snapshot = entry.get("condition_snapshot") or {}
+    payout = as_int(entry.get("result_payout_yen"))
+    hit = bool(entry.get("ticket_hit"))
+    return {
+        "date": entry.get("date"),
+        "race_id": entry.get("race_id"),
+        "venue": entry.get("place_name"),
+        "round": as_int(entry.get("round")),
+        "record_kind": "historical_backfill",
+        "source_label": "欠損日再構成",
+        "actual_notification": False,
+        "status": "settled",
+        "notification_status": "historical_backfill_not_notified",
+        "rule_status": entry.get("rule_id"),
+        "condition": entry.get("condition"),
+        "buy_method": entry.get("buy_method"),
+        "data_mode": "historical_reconstruction",
+        "points": as_int(entry.get("ticket_count")),
+        "tickets": tickets(entry.get("tickets")),
+        "heads": int_list(entry.get("heads")),
+        "axes": int_list(entry.get("axes")),
+        "keshi": as_int(entry.get("keshi")),
+        "historical": entry.get("historical") or {},
+        "probabilities": probabilities,
+        "conditions": condition_fields(snapshot),
+        "result": {
+            "trifecta": trifecta(entry.get("result_trifecta")),
+            "payout_yen": payout,
+            "manshu": bool(payout is not None and payout >= 10000),
+            "hit": hit,
+        },
+        "hit": hit,
+        "investment_yen": as_int(entry.get("investment_yen")) or 0,
+        "payback_yen": as_int(entry.get("payback_yen")) or 0,
+        "profit_yen": as_int(entry.get("profit_yen")) or 0,
+        "reconstructed_at": entry.get("reconstructed_at"),
+        "lookahead_safe": bool(entry.get("lookahead_safe")),
+        "lookahead_note": entry.get("lookahead_note"),
+    }
+
+
 def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     valid = [row for row in rows if not row.get("data_quality_invalid")]
     settled = [row for row in valid if (row.get("result") or {}).get("trifecta")]
@@ -530,6 +574,49 @@ def main() -> int:
     historical.sort(key=lambda row: (row.get("date") or "", row.get("race_id") or ""))
     complete_through = max((row["date"] for row in historical), default=args.start_date)
     known_ids = {row.get("race_id") for row in historical}
+
+    backfill_dates: set[str] = set()
+    backfill_rows: list[dict[str, Any]] = []
+    if args.forward_dir:
+        for path in sorted(
+            Path(args.forward_dir).glob("venue_sign_historical_backfill_????????.json")
+        ):
+            payload = read_json(path, {})
+            log_date = str(payload.get("date") or "")
+            if not (args.start_date <= log_date <= args.end_date):
+                continue
+            if payload.get("record_kind") != "historical_backfill":
+                continue
+            backfill_dates.add(log_date)
+            live_probabilities: dict[str, list[dict[str, Any]]] = {}
+            if args.live_ranking_dir:
+                ranking_path = (
+                    Path(args.live_ranking_dir)
+                    / f"boaters_manshu_live_ranking_{log_date.replace('-', '')}.json"
+                )
+                live_probabilities.update(ranking_probability_map(ranking_path))
+            if args.approved_root:
+                live_probabilities.update(
+                    approved_probability_map(
+                        Path(args.approved_root), log_date.replace("-", "")
+                    )
+                )
+            for raw in payload.get("entries") or []:
+                if raw.get("actual_notification") is not False:
+                    continue
+                race_id = str(raw.get("race_id") or "")
+                if not race_id or race_id in known_ids:
+                    continue
+                signal = historical_backfill_signal(
+                    raw,
+                    enrich_sign_position_priors(
+                        probabilities_for_entry(live_probabilities, raw),
+                        sign_position_priors,
+                        raw.get("place_name"),
+                    ),
+                )
+                backfill_rows.append(signal)
+                known_ids.add(race_id)
 
     forward_dates: set[str] = set()
     forward_rows: list[dict[str, Any]] = []
@@ -604,7 +691,7 @@ def main() -> int:
             known_ids.add(signal.get("race_id"))
 
     signals = sorted(
-        historical + forward_rows,
+        historical + backfill_rows + forward_rows,
         key=lambda row: (row.get("date") or "", row.get("race_id") or ""),
     )
     by_day: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -617,7 +704,9 @@ def main() -> int:
     unavailable_dates: list[str] = []
     for day in date_range(start, end):
         day_text = day.isoformat()
-        if day_text <= complete_through:
+        if day_text in backfill_dates:
+            status = "historical_backfill"
+        elif day_text <= complete_through:
             status = "historical_complete"
         elif day_text in forward_dates:
             status = "forward_complete"
@@ -649,6 +738,7 @@ def main() -> int:
         "period": {"start": args.start_date, "end": args.end_date},
         "coverage": {
             "historical_complete_through": complete_through,
+            "historical_backfill_dates": sorted(backfill_dates),
             "forward_logged_dates": sorted(forward_dates),
             "unavailable_dates": unavailable_dates,
             "independent_probability_source": Path(
@@ -664,6 +754,7 @@ def main() -> int:
         "totals": {
             "all": summarize(signals),
             "historical_backtest": summarize(historical),
+            "historical_backfill": summarize(backfill_rows),
             "forward_live": summarize(forward_rows),
         },
         "months": months,
@@ -682,6 +773,7 @@ def main() -> int:
                 "ok": True,
                 "out": str(out),
                 "historical_signals": len(historical),
+                "historical_backfill_signals": len(backfill_rows),
                 "forward_signals": len(forward_rows),
                 "unavailable_dates": len(unavailable_dates),
             },
