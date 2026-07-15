@@ -117,7 +117,7 @@ VALIDATED_BUY_STRATEGY_IDS = {
     "codex_kiryu_wind6_b1odds45_h2_top3_no1_has56_12",
     "codex_toda_b1odds40_nige40_outerbox6",
     "codex_edogawa_r9_12_b1odds45_nige40_outertop2_h1_ai13_8",
-    "codex_heiwajima_b1odds55_outer56top2_outertop1_h2_top3_no1_has56_12",
+    "codex_heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6",
     "codex_tamagawa_r1_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12",
     "codex_hamanako_r1_3_wave3_low_ai_revival_outerbox6",
     "codex_gamagori_b1lap4_b1odds35_b1loss30_outer_h1_ai13_no1_has56_8",
@@ -156,7 +156,7 @@ VALIDATED_BUY_STRATEGY_ORDER = {
             "codex_kiryu_wind6_b1odds45_h2_top3_no1_has56_12",
             "codex_toda_b1odds40_nige40_outerbox6",
             "codex_edogawa_r9_12_b1odds45_nige40_outertop2_h1_ai13_8",
-            "codex_heiwajima_b1odds55_outer56top2_outertop1_h2_top3_no1_has56_12",
+            "codex_heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6",
             "codex_tamagawa_r1_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12",
             "codex_hamanako_r1_3_wave3_low_ai_revival_outerbox6",
             "codex_gamagori_b1lap4_b1odds35_b1loss30_outer_h1_ai13_no1_has56_8",
@@ -190,7 +190,7 @@ VALIDATED_RULE_STATS = {
     "codex_kiryu_wind6_b1odds45_h2_top3_no1_has56_12": "自前AI再検証値: 回収率232.12% / 231R / 平均4.82点 / 的中8本 / 2024-2025条件決定231.90%・2026未使用検証232.51% / 最大66連敗",
     "codex_toda_b1odds40_nige40_outerbox6": "実装検証値: 回収率272.32% / 94R / 6点固定 / 万舟4本 / 2024-2026年別すべて211%超",
     "codex_edogawa_r9_12_b1odds45_nige40_outertop2_h1_ai13_8": "実装検証値: 回収率284.51% / 42R / 平均7.71点 / 万舟3本 / 2024年202.22%・2025年455.25%・2026年162.25%",
-    "codex_heiwajima_b1odds55_outer56top2_outertop1_h2_top3_no1_has56_12": "実装検証値: 回収率274.00% / 320R / 平均3.23点 / 万舟6本 / 2024-2026年別すべて124%超",
+    "codex_heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6": "再分析検証値: 回収率332.13% / 121R / 8的中 / 6点固定 / 最大40連敗 / 最大配当除外229.41% / 2024年334.01%・2025年337.40%・2026年305.42%",
     "codex_tamagawa_r1_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12": "実装検証値: 回収率288.12% / 217R / 平均4.57点 / 万舟8本 / 2024-2026年別すべて208%超",
     "codex_hamanako_r1_3_wave3_low_ai_revival_outerbox6": "実装検証値: 回収率280.93% / 93R / 6点固定 / 万舟5本 / 2024年246.91%・2025年147.47%・2026年544.37%",
     "codex_gamagori_b1lap4_b1odds35_b1loss30_outer_h1_ai13_no1_has56_8": "実装検証値: 回収率269.69% / 95R / 平均3.05点 / 万舟2本 / 2024年189.74%・2025年422.68%・2026年142.90%",
@@ -7430,11 +7430,18 @@ def edogawa_r9_12_b1odds45_nige40_outertop2_h1_ai13_8(rows):
     }
 
 
-def heiwajima_b1odds55_outer56top2_outertop1_h2_top3_no1_has56_12(rows):
+def heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6(rows):
     metrics = rows[0].get("_morning_metrics") or {}
     b1_odds_pct = as_num(metrics.get("boat1_odds_prediction_pct"))
     b1_odds_rank = int(as_num(metrics.get("boat1_odds_rank")) or 9)
-    if b1_odds_rank != 1 or b1_odds_pct is None or b1_odds_pct < 55:
+    b1_nige_pct = as_num(metrics.get("boat1_nige_pct"))
+    if (
+        b1_odds_rank != 1
+        or b1_odds_pct is None
+        or b1_odds_pct < 55
+        or b1_nige_pct is None
+        or b1_nige_pct > 65
+    ):
         return set(), None
 
     def exhibit_or_lap_rank(row, default=9):
@@ -7444,96 +7451,66 @@ def heiwajima_b1odds55_outer56top2_outertop1_h2_top3_no1_has56_12(rows):
         return min(ranks) if ranks else default
 
     outer_rows = [row for row in rows if row.get("boat_number") in {3, 4, 5, 6}]
-    outer56_rows = [row for row in rows if row.get("boat_number") in {5, 6}]
-    outer_any_top1 = any(exhibit_or_lap_rank(row) <= 1 for row in outer_rows)
-    outer56_any_top2 = any(exhibit_or_lap_rank(row) <= 2 for row in outer56_rows)
-    if not (outer_any_top1 and outer56_any_top2):
+    outer_top2_boats = [
+        row["boat_number"] for row in outer_rows if exhibit_or_lap_rank(row) <= 2
+    ]
+    if not outer_top2_boats:
+        return set(), None
+
+    # Keep the exact mined template used by the 2024-2026 validation.  The
+    # formation scorer uses only information available before the deadline.
+    ticket_order = original_boaters_forward.ticket_families(rows).get("non1_h2_no1", [])[:6]
+    if len(ticket_order) != 6:
+        return set(), None
+    ticket_set = set(ticket_order)
+    heads = original_boaters_forward.intended_heads(rows, "non1_h2_no1")
+    if len(heads) != 2:
         return set(), None
 
     head_rows = sorted(
         [row for row in rows if row.get("boat_number") != 1],
         key=lambda row: (
-            -venue_roi_win_score(row),
+            -original_boaters_forward.pre_race_win_score(row),
             row["boat_number"],
         ),
     )
-    heads = [row["boat_number"] for row in head_rows[:2]]
     axis_rows = sorted(
-        rows,
+        [row for row in rows if row.get("boat_number") != 1],
         key=lambda row: (
-            -venue_roi_top3_score(row),
+            -original_boaters_forward.pre_race_top3_score(row),
             row["boat_number"],
         ),
     )
     axes = [row["boat_number"] for row in axis_rows[:2]]
-    if len(heads) < 2 or len(axes) < 2:
-        return set(), None
-
-    ai13_axes, _ai13_axis_rule = axis_boats_for_roles(rows, ranks=(1, 3))
-    protected = set(heads + ai13_axes + axes)
-    keshi_row = sorted(
-        rows,
-        key=lambda row: (
-            bool(row.get("venue_dont_keshi") or row["boat_number"] in protected),
-            venue_roi_top3_score(row),
-            row["boat_number"],
-        ),
-    )[0]
-    keshi = keshi_row["boat_number"]
-    supports = [boat for boat in range(2, 7) if boat != keshi]
-
-    tickets = []
-    seen = set()
-    for head in heads:
-        for axis in axes:
-            if axis == head:
-                continue
-            for other in supports:
-                if len({head, axis, other}) != 3:
-                    continue
-                for ticket in (f"{head}{axis}{other}", f"{head}{other}{axis}"):
-                    nums = set(combo_boats(ticket))
-                    if 1 in nums or not (nums & {5, 6}):
-                        continue
-                    if ticket in seen:
-                        continue
-                    seen.add(ticket)
-                    tickets.append(ticket)
-                    if len(tickets) >= BUY_TICKET_MAX_POINTS:
-                        break
-                if len(tickets) >= BUY_TICKET_MAX_POINTS:
-                    break
-            if len(tickets) >= BUY_TICKET_MAX_POINTS:
-                break
-        if len(tickets) >= BUY_TICKET_MAX_POINTS:
-            break
-    if len(tickets) < 2:
-        return set(), None
-
-    ticket_set = set(tickets)
+    supports = sorted(
+        {
+            boat
+            for ticket in ticket_set
+            for boat in combo_boats(ticket)
+            if boat not in set(heads)
+        }
+    )
     head_scores = {
         str(row["boat_number"]): {
-            "score": round(venue_roi_win_score(row), 3),
+            "score": round(original_boaters_forward.pre_race_win_score(row), 3),
             "reasons": row.get("composite_rate_reasons") or [],
         }
         for row in head_rows[:2]
     }
     support_scores = {
         str(row["boat_number"]): {
-            "score": round(venue_roi_top3_score(row), 3),
+            "score": round(original_boaters_forward.pre_race_top3_score(row), 3),
             "reasons": row.get("composite_rate_reasons") or [],
         }
         for row in axis_rows[:4]
     }
-    outer_top1_boats = [row["boat_number"] for row in outer_rows if exhibit_or_lap_rank(row) <= 1]
-    outer56_top2_boats = [row["boat_number"] for row in outer56_rows if exhibit_or_lap_rank(row) <= 2]
     ai_plus_rank6_row = next((row for row in rows if row.get("ai_plus_rank") == 6), {})
     ai_plus_rank6_boat = ai_plus_rank6_row.get("boat_number")
     ai_plus_rank6_revival = revive_reasons(ai_plus_rank6_row) if ai_plus_rank6_row else []
     return ticket_set, {
         "heads": heads,
-        "head_rule": "平和島専用。1号艇がオッズ評価55%以上で強く売れ、外3〜6に展示/1周1位、5/6に展示/1周2位以内がある時に1号艇を疑う",
-        "head_mode": "heiwajima_b1odds55_outer_pressure_h2",
+        "head_rule": "平和島専用。後半9〜12Rで人気1号艇の支持55%以上・逃げ率65%以下、外展示上位、波3cm以上が揃った時に1号艇を消す",
+        "head_mode": "heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6",
         "head_scores": head_scores,
         "attackers": heads,
         "attack_scores": head_scores,
@@ -7548,20 +7525,20 @@ def heiwajima_b1odds55_outer56top2_outertop1_h2_top3_no1_has56_12(rows):
             }
         ),
         "support_scores": support_scores,
-        "role_split_note": "平和島の長期検証で強かった、人気1号艇を外展示圧で疑う小点数型",
+        "role_split_note": "平和島の時系列検証で選ばれた、後半荒れ水面の人気1号艇を疑う6点固定型",
         "axes": axes,
-        "axis_rule": "複合3着内率の上位2艇",
-        "alt_axes": ai13_axes,
-        "alt_axis_rule": "消し保護ではAI+1位と3位も参照",
+        "axis_rule": "固定軸なし。複合3着内評価で全組合せを順位付け",
+        "alt_axes": [],
+        "alt_axis_rule": "なし",
         "supports": supports,
-        "keshi": keshi,
-        "keshi_reason": f"平和島ROIルール専用: 複合3着内スコアが弱い{keshi}号艇を消し",
+        "keshi": 1,
+        "keshi_reason": "平和島再分析ルール専用: 人気1号艇を全買い目から消し",
         "ai_plus_rank6_boat": ai_plus_rank6_boat,
         "ai_plus_rank6_revival": ai_plus_rank6_revival,
         "role_note": (
-            f"平和島専用本命。1号艇オッズ評価1位{b1_odds_pct:.1f}%だが、"
-            f"外1位{','.join(map(str, outer_top1_boats))}・5/6上位{','.join(map(str, outer56_top2_boats))}で外圧あり。"
-            f"頭は複合1着率上位{heads[0]},{heads[1]}、1号艇全消し+5/6絡みだけを{len(ticket_set)}点"
+            f"平和島専用本命。1号艇オッズ評価1位{b1_odds_pct:.1f}%・逃げ率{b1_nige_pct:.1f}%だが、"
+            f"外展示/1周2位以内{','.join(map(str, outer_top2_boats))}号艇がいる荒れ水面。"
+            f"頭は締切前複合1着評価上位{heads[0]},{heads[1]}、1号艇全消しの上位{len(ticket_set)}点"
         ),
     }
 
@@ -13918,31 +13895,36 @@ def roi_strategies(race, metrics, rows):
     if (
         full_exhibition
         and place == "平和島"
+        and 9 <= round_no <= 12
         and b1_odds_rank == 1
         and b1_odds_pct >= 55
-        and outer56_exhibit_top2
-        and outer36_exhibit_top1
+        and b1_nige_pct is not None
+        and b1_nige_pct <= 65
+        and outer36_exhibit_top2
+        and wave_height >= 3
     ):
         strategies.append(
             (
-                "codex_heiwajima_b1odds55_outer56top2_outertop1_h2_top3_no1_has56_12",
-                "Codex平和島本命: 1号艇強人気+外展示圧 1消し5/6絡み最大12点",
-                heiwajima_b1odds55_outer56top2_outertop1_h2_top3_no1_has56_12,
+                "codex_heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6",
+                "Codex平和島本命: 後半+1号艇強人気/逃げ65%以下+外展示上位+波3cm 1消し6点",
+                heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6,
                 {
                     "tier": "venue_roi_core",
                     "rate_gate_exempt": True,
                     "entry_checks": [
                         "平和島専用ROI条件:OK",
+                        f"後半9〜12R:OK({round_no}R)",
                         f"1号艇オッズ評価1位:OK({b1_odds_rank}位)",
                         f"1号艇オッズ評価55%以上:OK({b1_odds_pct:.2f}%)",
-                        "5/6号艇の展示/1周2位以内:OK",
-                        "3〜6号艇の展示/1周1位:OK",
-                        VALIDATED_RULE_STATS["codex_heiwajima_b1odds55_outer56top2_outertop1_h2_top3_no1_has56_12"],
+                        f"1号艇逃げ率65%以下:OK({b1_nige_pct:.2f}%)",
+                        "3〜6号艇の展示/1周2位以内:OK",
+                        f"波高3cm以上:OK({wave_height:.0f}cm)",
+                        VALIDATED_RULE_STATS["codex_heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6"],
                         "展示後万舟率40%未満でも検証済みROIルールとして本命判定",
                         "1号艇は全消し",
-                        "5/6号艇絡みだけ",
+                        "締切前複合評価順の上位6点固定",
                     ],
-                    "odds_filter": "1号艇全消し。5/6絡み。合成オッズ3倍未満なら見送り",
+                    "odds_filter": "1号艇全消し6点。合成オッズ3倍未満なら見送り",
                 },
             )
         )

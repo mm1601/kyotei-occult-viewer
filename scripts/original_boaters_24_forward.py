@@ -1082,6 +1082,9 @@ def context_matches(context_id: str, feature: dict[str, Any]) -> bool:
         "outer2_wind5": lambda: _ge(feature, "outer_top2_count", 2) and _ge(feature, "wind_speed", 5),
         "outer2_wind3": lambda: _ge(feature, "outer_top2_count", 2) and _ge(feature, "wind_speed", 3),
         "outer2_wave3": lambda: _ge(feature, "outer_top2_count", 2) and _ge(feature, "wave_height", 3),
+        "round9_12_outertop2_wave3": lambda: round_no >= 9
+        and _ge(feature, "outer_top2_count", 1)
+        and _ge(feature, "wave_height", 3),
         "outertop2_1": lambda: _ge(feature, "outer_top2_count", 1),
         "outer2_o56avg010": lambda: _ge(feature, "outer_top2_count", 2) and _ge(feature, "outer56_avg_diff", 0.10),
         "wind4_outer2": lambda: _ge(feature, "wind_speed", 4) and _ge(feature, "outer_top2_count", 2),
