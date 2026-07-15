@@ -1,25 +1,24 @@
 {
   "version": "manshu-system-dashboard-v1",
-  "date": "2026-07-14",
-  "exported_at": "2026-07-15T01:57:26+09:00",
-  "source_generated_at": "2026-07-14T20:57:17+09:00",
-  "source_monitor_file": "data/output/boaters_manshu_alerts_20260714.json",
+  "date": "2026-07-15",
+  "exported_at": "2026-07-15T09:01:19+09:00",
+  "source_generated_at": "2026-07-15T09:01:18+09:00",
+  "source_monitor_file": "data/output/boaters_manshu_alerts_20260715.json",
   "system": {
     "name": "24場サイン管制盤",
     "mode": "all_races_venue_sign_only",
-    "live_source": "official",
+    "live_source": null,
     "lookahead_minutes": 20.0,
-    "signal_count": 2,
-    "monitored_count": 156,
-    "checked_count": 1,
-    "preview_ready_count": 1,
+    "signal_count": 0,
+    "monitored_count": 1,
+    "checked_count": 0,
+    "preview_ready_count": 0,
     "fetch_failed_count": 0,
-    "notifications_sent": 2,
+    "notifications_sent": 0,
     "notifications_failed": 0,
-    "notifications_invalid": 1,
+    "notifications_invalid": 0,
     "status_counts": {
-      "outside_window": 155,
-      "checked": 1
+      "skip_no_ranking": 1
     }
   },
   "models": {
@@ -78,347 +77,18 @@
         "combined_log_loss": 5.003301
       }
     },
-    "probability_overlay": {
-      "enabled": true,
-      "model_path": "data/output/self_ai_models/venue_probability_overlay_current.joblib",
-      "active": false,
-      "notification_enabled": false,
-      "description": "場×艇番、展示、風・波・潮・潮流、平均との差、スーパースリットを1着・2着・3着率のポイント補正として影記録する。24場サインと買い目は変更しない。"
-    },
-    "position_model": {
-      "enabled": true,
-      "model_path": "data/output/self_ai_models/trifecta_position_model_current.joblib",
-      "active": false,
-      "notification_enabled": false,
-      "description": "1着・2着・3着専用モデルの120通り確率と期待値を影記録する。24場サインと買い目は変更しない。"
-    },
-    "factor_dictionaries": {
-      "venue_exhibition": {
-        "path": "data/output/venue_exhibition_factor_dictionary.json",
-        "exists": true,
-        "version": "venue-exhibition-factor-dictionary-v2",
-        "generated_at": "2026-07-12T10:22:09+09:00",
-        "factor_count": 526,
-        "active_index_keys": 354,
-        "venue_count": 24,
-        "ready": true
-      },
-      "avg_diff_threshold": {
-        "path": "data/output/avg_diff_threshold_effect_profile.json",
-        "exists": false,
-        "version": null,
-        "generated_at": null,
-        "factor_count": 0,
-        "active_factor_count": 0,
-        "active_index_keys": 0,
-        "venue_count": 0,
-        "ready": false
-      },
-      "super_slit": {
-        "path": "data/output/super_slit_place_boat_effects.json",
-        "exists": false,
-        "generated_at": null,
-        "place_boat_count": 0,
-        "venue_count": 0,
-        "ready": false
-      },
-      "s_candidate_shadow": {
-        "path": "data/output/venue_s_grade_implementation_shortlist.json",
-        "exists": true,
-        "version": "venue-s-grade-implementation-shortlist-v1",
-        "candidate_count": 21,
-        "venue_count": 21,
-        "active": false,
-        "score_enabled": false,
-        "ticket_change_enabled": false,
-        "notification_enabled": false,
-        "ready": true
-      },
-      "ready": false
-    }
+    "probability_overlay": {},
+    "position_model": {},
+    "factor_dictionaries": {}
   },
-  "signals": [
-    {
-      "race_id": "2026-07-142112",
-      "date": "2026-07-14",
-      "venue": "芦屋",
-      "round": 12,
-      "deadline_time": "2026-07-14T14:00:00+09:00",
-      "detected_at": "2026-07-14T13:54:26+09:00",
-      "first_minutes_to_deadline": 5.6,
-      "status": "miss",
-      "notification_status": "sent",
-      "notification_sent_at": "2026-07-14T13:54:26+09:00",
-      "notification_ok": true,
-      "notification_sources": [
-        "core_focus"
-      ],
-      "data_quality_invalid": false,
-      "data_quality_invalidation_reason": null,
-      "rule_status": null,
-      "rule_id": "codex_ashiya_wave_b1weak_top3buff10_outer_h1_ai13_no1_has56_8",
-      "condition": null,
-      "buy_method": null,
-      "data_mode": null,
-      "points": 4,
-      "tickets": [
-        "5-2-4",
-        "5-3-4",
-        "5-4-2",
-        "5-4-3"
-      ],
-      "heads": [
-        5
-      ],
-      "axes": [
-        1,
-        4
-      ],
-      "keshi": 6,
-      "historical": {},
-      "probabilities": [],
-      "conditions": {
-        "wind_speed": null,
-        "wave_height": null,
-        "boat1_popularity_pct": null,
-        "boat1_ai_win_pct": null,
-        "boat1_escape_pct": null,
-        "boat1_exhibition_rank": null,
-        "boat1_lap_rank": null,
-        "boat1_average_diff": null,
-        "outer56_average_diff": null
-      },
-      "legacy_ev": {
-        "status": "settled",
-        "t10": {
-          "available": true,
-          "expected_roi_pct": 147.8174,
-          "synthetic_odds": 55.6372,
-          "positive_ev_tickets": 4,
-          "snapshot_at": "2026-07-14T13:48:22",
-          "complete_odds": true
-        },
-        "t5": {
-          "available": true,
-          "expected_roi_pct": 151.6718,
-          "synthetic_odds": 57.1823,
-          "positive_ev_tickets": 4,
-          "snapshot_at": "2026-07-14T13:53:03",
-          "complete_odds": true
-        }
-      },
-      "probability_overlay_ev": {
-        "status": "settled",
-        "t10": {
-          "available": true,
-          "expected_roi_pct": 209.2722,
-          "synthetic_odds": 55.6372,
-          "positive_ev_tickets": 4,
-          "snapshot_at": "2026-07-14T13:48:22",
-          "complete_odds": true
-        },
-        "t5": {
-          "available": true,
-          "expected_roi_pct": 214.73,
-          "synthetic_odds": 57.1823,
-          "positive_ev_tickets": 4,
-          "snapshot_at": "2026-07-14T13:53:03",
-          "complete_odds": true
-        }
-      },
-      "result": {
-        "trifecta": "2-4-5",
-        "payout_yen": 18930,
-        "manshu": true,
-        "hit": false,
-        "profit_yen": -400
-      }
-    },
-    {
-      "race_id": "2026-07-140905",
-      "date": "2026-07-14",
-      "venue": "津",
-      "round": 5,
-      "deadline_time": "2026-07-14T12:39:00+09:00",
-      "detected_at": "2026-07-14T12:31:56+09:00",
-      "first_minutes_to_deadline": 7.1,
-      "status": "invalid_data",
-      "notification_status": "sent",
-      "notification_sent_at": "2026-07-14T12:31:56+09:00",
-      "notification_ok": true,
-      "notification_sources": [
-        "core_focus"
-      ],
-      "data_quality_invalid": true,
-      "data_quality_invalidation_reason": "津5Rに唐津5RのBOATERS画像が誤関連付けされたため通知・買い目・成績を無効化",
-      "rule_status": null,
-      "rule_id": "codex_tsu_r4_8_top3buff12_top2heads56_h1_top3_has56_8",
-      "condition": null,
-      "buy_method": null,
-      "data_mode": null,
-      "points": 4,
-      "tickets": [
-        "2-1-5",
-        "2-1-6",
-        "2-5-1",
-        "2-6-1"
-      ],
-      "heads": [
-        2
-      ],
-      "axes": [
-        1,
-        2
-      ],
-      "keshi": 4,
-      "historical": {},
-      "probabilities": [],
-      "conditions": {
-        "wind_speed": null,
-        "wave_height": null,
-        "boat1_popularity_pct": null,
-        "boat1_ai_win_pct": null,
-        "boat1_escape_pct": null,
-        "boat1_exhibition_rank": null,
-        "boat1_lap_rank": null,
-        "boat1_average_diff": null,
-        "outer56_average_diff": null
-      },
-      "legacy_ev": {
-        "status": "settled",
-        "t10": {
-          "available": true,
-          "expected_roi_pct": 175.9197,
-          "synthetic_odds": 40.2783,
-          "positive_ev_tickets": 2,
-          "snapshot_at": "2026-07-14T12:26:39",
-          "complete_odds": true
-        },
-        "t5": {
-          "available": true,
-          "expected_roi_pct": 210.4652,
-          "synthetic_odds": 44.4767,
-          "positive_ev_tickets": 2,
-          "snapshot_at": "2026-07-14T12:32:13",
-          "complete_odds": true
-        }
-      },
-      "probability_overlay_ev": {
-        "status": "settled",
-        "t10": {
-          "available": true,
-          "expected_roi_pct": 74.9896,
-          "synthetic_odds": 40.2783,
-          "positive_ev_tickets": 1,
-          "snapshot_at": "2026-07-14T12:26:39",
-          "complete_odds": true
-        },
-        "t5": {
-          "available": true,
-          "expected_roi_pct": 89.1072,
-          "synthetic_odds": 44.4767,
-          "positive_ev_tickets": 1,
-          "snapshot_at": "2026-07-14T12:32:13",
-          "complete_odds": true
-        }
-      },
-      "result": {
-        "trifecta": "2-1-4",
-        "payout_yen": 20330,
-        "manshu": true,
-        "hit": null,
-        "profit_yen": 0
-      }
-    }
-  ],
+  "signals": [],
   "monitor": [
     {
-      "race_id": "2026-07-141512",
-      "venue": "丸亀",
-      "round": 12,
-      "status": "outside_window",
-      "minutes_to_deadline": -26.3,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-140112",
-      "venue": "桐生",
-      "round": 12,
-      "status": "outside_window",
-      "minutes_to_deadline": -19.3,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-140712",
-      "venue": "蒲郡",
-      "round": 12,
-      "status": "outside_window",
-      "minutes_to_deadline": -12.3,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-07-142408",
-      "venue": "大村",
-      "round": 8,
-      "status": "checked",
-      "minutes_to_deadline": 1.7,
-      "preview_ready": true,
-      "fetch_reason": "venue_sign_alert_window",
-      "near_miss_level": "見送り",
-      "near_miss_summary": "展示後38%未満(0.00%)",
-      "near_miss_reasons": [
-        "展示後38%未満(0.00%)",
-        "朝監視TOP10外なので本命扱いではない"
-      ],
-      "near_miss_positives": [
-        "1号艇人気: 売れすぎ",
-        "1号艇人気あり",
-        "1号艇展示弱化:OK"
-      ],
-      "post_exhibition_manshu_rate_pct": 0.0,
-      "heads": [
-        6,
-        1
-      ],
-      "axes": [
-        1,
-        2
-      ],
-      "keshi": 4
-    },
-    {
-      "race_id": "2026-07-142409",
-      "venue": "大村",
-      "round": 9,
-      "status": "outside_window",
-      "minutes_to_deadline": 27.7,
+      "race_id": null,
+      "venue": null,
+      "round": null,
+      "status": "skip_no_ranking",
+      "minutes_to_deadline": null,
       "preview_ready": false,
       "fetch_reason": null,
       "near_miss_level": null,
@@ -453,7 +123,7 @@
       "payback_yen": 0,
       "profit_yen": -3400,
       "roi_pct": 0.0,
-      "notification_sent_count": 2,
+      "notification_sent_count": 0,
       "notification_duplicate_sent_count": 4,
       "notification_failed_count": 0,
       "notification_pending_count": 0,
@@ -4646,7 +4316,7 @@
           }
         }
       },
-      "notification_invalid_count": 1
+      "notification_invalid_count": 0
     },
     "historical_24_sign": {
       "stake": 420900,
