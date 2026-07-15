@@ -1,0 +1,129 @@
+name: Least-popular prospective shadow monitor
+
+on:
+  schedule:
+    # JST 07:02-21:57 every 5 minutes. The fixed snapshot window is T-22 to T-5.
+    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 22-23,0-12 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: least-popular-shadow-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Sync the latest committed ledger before scanning
+        run: |
+          git fetch origin main
+          git pull --ff-only origin main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.4"
+
+      - name: Resolve JST date
+        id: jst
+        run: |
+          echo "date=$(TZ=Asia/Tokyo date +%F)" >> "$GITHUB_OUTPUT"
+          echo "key=$(TZ=Asia/Tokyo date +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Acquire BOATERS race schedule twice independently
+        run: |
+          python scripts/build_boaters_database.py \
+            --mode index \
+            --start-date "${{ steps.jst.outputs.date }}" \
+            --end-date "${{ steps.jst.outputs.date }}" \
+            --db /tmp/least-popular-schedule-primary.sqlite \
+            --sleep 0.08 \
+            --refresh
+          python scripts/build_boaters_database.py \
+            --mode index \
+            --start-date "${{ steps.jst.outputs.date }}" \
+            --end-date "${{ steps.jst.outputs.date }}" \
+            --db /tmp/least-popular-schedule-verification.sqlite \
+            --sleep 0.08 \
+            --refresh
+
+      - name: Acquire official BOATRACE venue index
+        run: |
+          python scripts/fetch_boatrace_data.py \
+            --date "${{ steps.jst.outputs.date }}" \
+            --raw-dir /tmp/least-popular-official \
+            --force \
+            --sleep 0 \
+            --timeout 20 \
+            --retries 2
+
+      - name: Run both least-popular shadow strategies
+        env:
+          BOATERS_NTFY_SERVER: ${{ secrets.BOATERS_NTFY_SERVER }}
+          BOATERS_NTFY_TOPIC: ${{ secrets.BOATERS_NTFY_TOPIC || 'boat10000-codex-manshu-7d56f47f-ee5f-48f8-905a-ed6e5025b8db' }}
+          BOATERS_NTFY_TOKEN: ${{ secrets.BOATERS_NTFY_TOKEN }}
+        run: |
+          python scripts/monitor_least_popular_shadow.py \
+            --date "${{ steps.jst.outputs.date }}" \
+            --db /tmp/least-popular-schedule-primary.sqlite \
+            --verification-db /tmp/least-popular-schedule-verification.sqlite \
+            --official-index-html "/tmp/least-popular-official/${{ steps.jst.outputs.key }}/official_index.html" \
+            --workflow-run-id "${{ github.run_id }}" \
+            --workflow-run-attempt "${{ github.run_attempt }}"
+
+      - name: Persist the append-only shadow ledger
+        if: ${{ always() }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/output/least_popular_shadow/candidates_*.json 2>/dev/null || true
+          for path in \
+            "data/output/least_popular_shadow/protocol_lock.json" \
+            "data/output/least_popular_shadow/status.json" \
+            "data/output/least_popular_shadow/notification_state.json"; do
+            if [ -e "$path" ]; then
+              git add "$path"
+            fi
+          done
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Update least-popular shadow ledger ${{ steps.jst.outputs.date }}"
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin main
+            if git push; then
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
+
+      - name: Notify only from the committed adoption status
+        env:
+          BOATERS_NTFY_SERVER: ${{ secrets.BOATERS_NTFY_SERVER }}
+          BOATERS_NTFY_TOPIC: ${{ secrets.BOATERS_NTFY_TOPIC || 'boat10000-codex-manshu-7d56f47f-ee5f-48f8-905a-ed6e5025b8db' }}
+          BOATERS_NTFY_TOKEN: ${{ secrets.BOATERS_NTFY_TOKEN }}
+        run: python scripts/monitor_least_popular_shadow.py --notify-from-status
+
+      - name: Persist notification state
+        run: |
+          git add data/output/least_popular_shadow/notification_state.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Update least-popular adoption notification state"
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin main
+            if git push; then
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
