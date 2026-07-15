@@ -1099,6 +1099,9 @@ def make_feature(
         "b1_ai_top3": number(b1.get("ai_3ren_pct")),
         "b1_overbet_gap": b1_odds - b1_ai if b1_odds is not None and b1_ai is not None else None,
         "b1_venue_debuff": bool(b1.get("venue_b1_head_debuff")),
+        "low_ai_venue_revival": any(
+            bool(row.get("venue_low_ai_revival")) for row in normalized_rows
+        ),
         "b1_tenji_rank": int(number(metrics.get("boat1_tenji_time_rank") or metrics.get("boat1_tenji_rank"), 9) or 9),
         "b1_lap_rank": number(metrics.get("boat1_isshu_rank")) if mode == "full" else None,
         "b1_avg_diff": number(metrics.get("boat1_avg_isshu_diff")) if mode == "full" else None,
@@ -1117,6 +1120,8 @@ def make_feature(
 
 
 def base_matches(base_id: str, feature: dict[str, Any]) -> bool:
+    if base_id == "all":
+        return True
     popularity_only = re.fullmatch(r"pop([12])_odds(\d+)", base_id)
     if popularity_only:
         rank_max, odds_min = map(int, popularity_only.groups())
@@ -1195,6 +1200,11 @@ def context_matches(context_id: str, feature: dict[str, Any]) -> bool:
         "round1_3": lambda: round_no <= 3,
         "round4_6_b1venue_debuff": lambda: 4 <= round_no <= 6
         and bool(feature.get("b1_venue_debuff")),
+        "round1_3_wave2_revival_b1avg000_outer56avg005": lambda: round_no <= 3
+        and _ge(feature, "wave_height", 2)
+        and bool(feature.get("low_ai_venue_revival"))
+        and _le(feature, "b1_avg_diff", 0.0)
+        and _ge(feature, "outer56_avg_diff", 0.05),
         "b1avg000": lambda: _le(feature, "b1_avg_diff", 0.0),
         "late_b1lap4": lambda: round_no >= 9 and _ge(feature, "b1_lap_rank", 4),
         "outer2_early": lambda: round_no <= 6 and _ge(feature, "outer_top2_count", 2),
@@ -1331,6 +1341,7 @@ def validate_rule_coverage(path: Path | str = DEFAULT_RULES_PATH) -> dict[str, A
             "b1_nige_pct": 0.0,
             "b1_ai_win": 0.0,
             "b1_overbet_gap": 100.0,
+            "low_ai_venue_revival": True,
             "b1_tenji_rank": 6,
             "b1_lap_rank": 6,
             "b1_avg_diff": -1.0,

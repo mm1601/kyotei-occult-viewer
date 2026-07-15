@@ -119,7 +119,7 @@ VALIDATED_BUY_STRATEGY_IDS = {
     "codex_edogawa_r9_12_b1odds45_nige40_outertop2_h1_ai13_8",
     "codex_heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6",
     "codex_tamagawa_r4_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12",
-    "codex_hamanako_r1_3_wave3_low_ai_revival_outerbox6",
+    "codex_hamanako_r1_3_wave2_revival_b1avg000_outer56avg005_outerh2_no1_has56_4",
     "codex_gamagori_b1lap4_b1odds35_b1loss30_outer_h1_ai13_no1_has56_8",
     "codex_tokoname_b1loss40_b5top3rank1_wind4_h1_56_ai13_no1_has56_8",
     "codex_tsu_r4_8_top3buff12_top2heads56_h1_top3_has56_8",
@@ -158,7 +158,7 @@ VALIDATED_BUY_STRATEGY_ORDER = {
             "codex_edogawa_r9_12_b1odds45_nige40_outertop2_h1_ai13_8",
             "codex_heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6",
             "codex_tamagawa_r4_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12",
-            "codex_hamanako_r1_3_wave3_low_ai_revival_outerbox6",
+            "codex_hamanako_r1_3_wave2_revival_b1avg000_outer56avg005_outerh2_no1_has56_4",
             "codex_gamagori_b1lap4_b1odds35_b1loss30_outer_h1_ai13_no1_has56_8",
             "codex_tokoname_b1loss40_b5top3rank1_wind4_h1_56_ai13_no1_has56_8",
             "codex_tsu_r4_8_top3buff12_top2heads56_h1_top3_has56_8",
@@ -192,7 +192,7 @@ VALIDATED_RULE_STATS = {
     "codex_edogawa_r9_12_b1odds45_nige40_outertop2_h1_ai13_8": "実装検証値: 回収率284.51% / 42R / 平均7.71点 / 万舟3本 / 2024年202.22%・2025年455.25%・2026年162.25%",
     "codex_heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6": "再分析検証値: 回収率332.13% / 121R / 8的中 / 6点固定 / 最大40連敗 / 最大配当除外229.41% / 2024年334.01%・2025年337.40%・2026年305.42%",
     "codex_tamagawa_r4_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12": "再分析検証値: 回収率271.96% / 185R / 6的中 / 平均4.23点 / 最大80連敗 / 最大配当除外159.63% / 2024年253.37%・2025年298.43%・2026年257.33%",
-    "codex_hamanako_r1_3_wave3_low_ai_revival_outerbox6": "実装検証値: 回収率280.93% / 93R / 6点固定 / 万舟5本 / 2024年246.91%・2025年147.47%・2026年544.37%",
+    "codex_hamanako_r1_3_wave2_revival_b1avg000_outer56avg005_outerh2_no1_has56_4": "再分析検証値: 回収率418.78% / 74R / 14的中 / 4点固定 / 最大14連敗 / 最大配当除外243.38% / 2024年671.58%・2025年265.98%・2026年212.19%",
     "codex_gamagori_b1lap4_b1odds35_b1loss30_outer_h1_ai13_no1_has56_8": "実装検証値: 回収率269.69% / 95R / 平均3.05点 / 万舟2本 / 2024年189.74%・2025年422.68%・2026年142.90%",
     "codex_tokoname_b1loss40_b5top3rank1_wind4_h1_56_ai13_no1_has56_8": "実装検証値: 回収率249.56% / 20R / 平均8.00点 / 万舟1本 / 2024年221.88%・2025年221.41%・2026年291.56%",
     "codex_tsu_r4_8_top3buff12_top2heads56_h1_top3_has56_8": "実装検証値: 回収率283.84% / 89R / 平均5.24点 / 万舟3本 / 2025年225.94%・2026年317.09%（2024年該当0）",
@@ -7647,91 +7647,82 @@ def tamagawa_r4_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12(rows):
     }
 
 
-def hamanako_r1_3_wave3_low_ai_revival_outerbox6(rows):
+def hamanako_r1_3_wave2_revival_b1avg000_outer56avg005_outerh2_no1_has56_4(rows):
+    metrics = rows[0].get("_morning_metrics") or {}
+    b1_avgdiff = as_num(metrics.get("boat1_avg_isshu_diff"))
+    outer56_avgdiff = as_num(metrics.get("outer56_best_avg_isshu_diff"))
     revival_rows = [row for row in rows if row.get("venue_low_ai_revival")]
-    if not revival_rows:
+    if (
+        not revival_rows
+        or b1_avgdiff is None
+        or b1_avgdiff > 0.0
+        or outer56_avgdiff is None
+        or outer56_avgdiff < 0.05
+    ):
         return set(), None
 
-    outer_rows = [row for row in rows if row.get("boat_number") in {3, 4, 5, 6}]
-    head_rows = sorted(
-        outer_rows,
+    ticket_list = original_boaters_forward.ticket_families(rows).get(
+        "outer_h2_no1_has56", []
+    )[:4]
+    if len(ticket_list) != 4:
+        return set(), None
+    tickets = set(ticket_list)
+
+    outer_rows = sorted(
+        [row for row in rows if row.get("boat_number") in {3, 4, 5, 6}],
         key=lambda row: (
-            -venue_roi_win_score(row),
+            -original_boaters_forward.pre_race_win_score(row),
             row["boat_number"],
         ),
     )
-    axis_rows = sorted(
-        rows,
+    heads = [int(row["boat_number"]) for row in outer_rows[:2]]
+    ticket_boats = sorted({boat for ticket in tickets for boat in combo_boats(ticket)})
+    support_rows = sorted(
+        [row for row in rows if row.get("boat_number") in ticket_boats],
         key=lambda row: (
-            -venue_roi_top3_score(row),
+            -original_boaters_forward.pre_race_top3_score(row),
             row["boat_number"],
         ),
     )
-    outer_axis_rows = sorted(
-        outer_rows,
-        key=lambda row: (
-            -venue_roi_top3_score(row),
-            row["boat_number"],
-        ),
-    )
-
-    selected = []
-    for row in head_rows[:2] + [row for row in axis_rows[:2] if row.get("boat_number") in {3, 4, 5, 6}] + outer_axis_rows:
-        boat = row["boat_number"]
-        if boat in selected:
-            continue
-        selected.append(boat)
-        if len(selected) >= 3:
-            break
-    if len(selected) < 3:
-        return set(), None
-
-    tickets = set()
-    for head in selected:
-        for second in selected:
-            for third in selected:
-                if len({head, second, third}) == 3:
-                    tickets.add(f"{head}{second}{third}")
-    if len(tickets) != 6:
-        return set(), None
-
-    selected_rows = [next(row for row in rows if row["boat_number"] == boat) for boat in selected]
+    supports = [int(row["boat_number"]) for row in support_rows]
+    score_rows = [row for row in rows if row.get("boat_number") in ticket_boats]
     selected_scores = {
         str(row["boat_number"]): {
-            "head_score": round(venue_roi_win_score(row), 3),
-            "top3_score": round(venue_roi_top3_score(row), 3),
+            "head_score": round(original_boaters_forward.pre_race_win_score(row), 3),
+            "top3_score": round(original_boaters_forward.pre_race_top3_score(row), 3),
             "reasons": row.get("composite_rate_reasons") or [],
         }
-        for row in selected_rows
+        for row in score_rows
     }
     revival_summary = venue_low_ai_revival_summary(rows)
     revival_reason = "; ".join(item.get("reason") or "" for item in revival_summary[:2]).strip("; ")
     return tickets, {
-        "heads": selected,
-        "head_rule": "浜名湖専用。前半1〜3Rで波3cm以上、低評価艇に場別展示復活バフが出た時に外3〜6号艇から強い3艇を選ぶ",
-        "head_mode": "hamanako_wave3_low_ai_revival_outerbox",
+        "heads": heads,
+        "head_rule": "浜名湖専用。1〜3R・波2cm以上・場別展示復活バフ・1号艇平均との差0.00以下・5/6号艇平均との差+0.05以上を同時に満たす時、3〜6号艇の複合1着評価上位2艇を頭にする",
+        "head_mode": "hamanako_wave2_revival_b1avg000_outer56avg005_outer_h2",
         "head_scores": selected_scores,
-        "attackers": selected,
+        "attackers": heads,
         "attack_scores": selected_scores,
-        "finishers": selected,
+        "finishers": heads,
         "finisher_scores": selected_scores,
-        "support_boats": selected,
+        "support_boats": supports,
         "support_scores": selected_scores,
-        "role_split_note": "浜名湖の長期検証で強かった、荒れ水面+場別復活バフを使う外3艇BOX6点型",
-        "axes": selected,
-        "axis_rule": "外3〜6号艇から複合1着率上位、複合3着内率上位、場別復活バフを融合して選んだ3艇",
+        "role_split_note": "浜名湖の時系列再分析で強かった、弱い1号艇と浮上した5/6号艇を同時確認する1号艇全消し4点型",
+        "axes": supports[:2],
+        "axis_rule": "買い目内の複合3着内評価上位を相手軸にする",
         "alt_axes": [],
-        "alt_axis_rule": "浜名湖専用: 外3艇BOX固定",
-        "supports": selected,
+        "alt_axis_rule": "浜名湖専用: 5/6号艇を必ず含む上位4点固定",
+        "supports": supports,
         "keshi": 1,
-        "keshi_reason": "浜名湖ROIルール専用: 1〜2号艇より外3艇BOXを優先",
+        "keshi_reason": f"浜名湖ROIルール専用: 1号艇平均との差{b1_avgdiff:+.2f}のため1号艇を全消し",
         "ai_plus_rank6_boat": next((row.get("boat_number") for row in rows if row.get("ai_plus_rank") == 6), None),
         "ai_plus_rank6_revival": revive_reasons(next((row for row in rows if row.get("ai_plus_rank") == 6), {})),
-        "venue_low_ai_revival": revival_summary,
+        "venue_low_ai_revivals": revival_summary,
         "role_note": (
             "浜名湖専用本命。前半の波あり水面で、"
             f"{revival_reason or '低評価艇に場別展示復活バフあり'}。"
-            f"外3〜6号艇から選抜{','.join(map(str, selected))}のBOX6点"
+            f"1号艇平均との差{b1_avgdiff:+.2f}、5/6号艇の良い方{outer56_avgdiff:+.2f}。"
+            f"頭{','.join(map(str, heads))}、1号艇全消し、5/6絡みの上位4点"
         ),
     }
 
@@ -13940,29 +13931,34 @@ def roi_strategies(race, metrics, rows):
         full_exhibition
         and place == "浜名湖"
         and round_no <= 3
-        and wave_height >= 3
+        and wave_height >= 2
         and low_ai_venue_revival
+        and b1_avgdiff <= 0.0
+        and outer56_avgdiff >= 0.05
     ):
         strategies.append(
             (
-                "codex_hamanako_r1_3_wave3_low_ai_revival_outerbox6",
-                "Codex浜名湖本命: 前半波3cm以上+場別復活バフ 外3艇BOX6点",
-                hamanako_r1_3_wave3_low_ai_revival_outerbox6,
+                "codex_hamanako_r1_3_wave2_revival_b1avg000_outer56avg005_outerh2_no1_has56_4",
+                "Codex浜名湖本命: 前半波2cm以上+場別復活+1弱5/6浮上 1号艇消し4点",
+                hamanako_r1_3_wave2_revival_b1avg000_outer56avg005_outerh2_no1_has56_4,
                 {
                     "tier": "venue_roi_core",
                     "rate_gate_exempt": True,
                     "entry_checks": [
                         "浜名湖専用ROI条件:OK",
                         f"前半1〜3R:OK({round_no}R)",
-                        f"波高3cm以上:OK({wave_height:.0f}cm)",
+                        f"波高2cm以上:OK({wave_height:.0f}cm)",
                         "低評価艇の場別展示復活バフ:OK",
                         *(low_ai_venue_revival_reasons[:2] or []),
-                        VALIDATED_RULE_STATS["codex_hamanako_r1_3_wave3_low_ai_revival_outerbox6"],
+                        f"1号艇 展示+1周平均との差0.00以下:OK({b1_avgdiff:+.2f})",
+                        f"5/6号艇の良い方 展示+1周平均との差+0.05以上:OK({outer56_avgdiff:+.2f})",
+                        VALIDATED_RULE_STATS["codex_hamanako_r1_3_wave2_revival_b1avg000_outer56avg005_outerh2_no1_has56_4"],
                         "展示後万舟率40%未満でも検証済みROIルールとして本命判定",
-                        "外3〜6号艇から3艇選抜",
-                        "3艇BOX6点固定",
+                        "1号艇は全消し",
+                        "3〜6号艇の複合1着評価上位2艇を頭",
+                        "5/6号艇絡みだけを上位4点",
                     ],
-                    "odds_filter": "外3艇BOX6点。合成オッズ3倍未満なら見送り",
+                    "odds_filter": "1号艇全消し。5/6絡み4点。合成オッズ3倍未満なら見送り",
                 },
             )
         )
