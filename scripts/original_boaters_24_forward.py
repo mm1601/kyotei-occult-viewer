@@ -893,6 +893,99 @@ def evaluate_ticket_venue_probability_shadow(
     )
 
 
+def tamagawa_win_score(row: dict[str, Any]) -> float:
+    ai_pred = number(row.get("ai_prediction_pct"), 0.0) or 0.0
+    ai_plus = number(row.get("ai_plus"), 0.0) or 0.0
+    tenji = valid_rank(row.get("tenji_rank") or row.get("exhibit_rank") or row.get("tenji_time_rank")) or 9
+    lap = valid_rank(row.get("isshu_rank")) or 9
+    choku = valid_rank(row.get("chokusen_rank")) or 9
+    avg_diff = number(row.get("avg_isshu_diff"), 0.0) or 0.0
+    venue_head = number(row.get("venue_head_score_delta"), 0.0) or 0.0
+    venue_manshu = number(row.get("venue_manshu_score_delta"), 0.0) or 0.0
+    revival_win = number((row.get("venue_low_ai_revival_profile") or {}).get("win_rate_pp"), 0.0) or 0.0
+    return (
+        ai_pred
+        + ai_plus * 0.055
+        + (7 - min(tenji, 7)) * 0.75
+        + (7 - min(lap, 7)) * 0.65
+        + (7 - min(choku, 7)) * 0.20
+        + avg_diff * 8.0
+        + venue_head * 1.15
+        + venue_manshu * 0.35
+        + (1.3 if revival_win >= 8.0 else 0.0)
+    )
+
+
+def tamagawa_top3_score(row: dict[str, Any]) -> float:
+    ai_plus = number(row.get("ai_plus"), 0.0) or 0.0
+    tenji = valid_rank(row.get("tenji_rank") or row.get("exhibit_rank") or row.get("tenji_time_rank")) or 9
+    lap = valid_rank(row.get("isshu_rank")) or 9
+    mawari = valid_rank(row.get("mawariashi_rank")) or 9
+    avg_diff = number(row.get("avg_isshu_diff"), 0.0) or 0.0
+    venue_top3 = number(row.get("venue_top3_score_delta"), 0.0) or 0.0
+    venue_manshu = number(row.get("venue_manshu_score_delta"), 0.0) or 0.0
+    dont_keshi = 2.0 if row.get("venue_dont_keshi") else 0.0
+    return (
+        ai_plus
+        + (7 - min(tenji, 7)) * 2.0
+        + (7 - min(lap, 7)) * 1.7
+        + (7 - min(mawari, 7)) * 0.8
+        + avg_diff * 18.0
+        + venue_top3 * 3.0
+        + venue_manshu * 1.2
+        + dont_keshi
+    )
+
+
+def tamagawa_h2_ai13_no1_has56(rows: list[dict[str, Any]]) -> list[str]:
+    """Return the exact ordered Tamagawa production formation (up to 12)."""
+
+    head_rows = sorted(
+        [row for row in rows if int(number(row.get("boat_number"), 0) or 0) != 1],
+        key=lambda row: (-tamagawa_win_score(row), int(row["boat_number"])),
+    )
+    heads = [int(row["boat_number"]) for row in head_rows[:2]]
+    ai_rows = sorted(
+        [row for row in rows if number(row.get("ai_plus")) is not None],
+        key=lambda row: (-(number(row.get("ai_plus"), 0.0) or 0.0), int(row["boat_number"])),
+    )
+    axes = [int(ai_rows[index - 1]["boat_number"]) for index in (1, 3) if len(ai_rows) >= index]
+    top3_rows = sorted(
+        rows,
+        key=lambda row: (-tamagawa_top3_score(row), int(row["boat_number"])),
+    )
+    protected = set(heads + axes + [int(row["boat_number"]) for row in top3_rows[:2]])
+    keshi = int(
+        sorted(
+            rows,
+            key=lambda row: (
+                bool(row.get("venue_dont_keshi") or int(row["boat_number"]) in protected),
+                tamagawa_top3_score(row),
+                int(row["boat_number"]),
+            ),
+        )[0]["boat_number"]
+    )
+    supports = [boat for boat in range(2, 7) if boat != keshi]
+    tickets: list[str] = []
+    seen: set[str] = set()
+    for head in heads:
+        for axis in axes:
+            if axis == head:
+                continue
+            for other in supports:
+                if len({head, axis, other}) != 3:
+                    continue
+                for ticket in (f"{head}{axis}{other}", f"{head}{other}{axis}"):
+                    boats = {int(char) for char in ticket}
+                    if 1 in boats or not boats.intersection({5, 6}) or ticket in seen:
+                        continue
+                    seen.add(ticket)
+                    tickets.append(ticket)
+                    if len(tickets) >= 12:
+                        return tickets
+    return tickets
+
+
 def ticket_families(rows: list[dict[str, Any]]) -> dict[str, list[str]]:
     non1 = sorted(
         [row for row in rows if int(number(row.get("boat_number"), 0) or 0) != 1],
@@ -923,6 +1016,7 @@ def ticket_families(rows: list[dict[str, Any]]) -> dict[str, list[str]]:
         "head56_h2_no1": ranked_formation(rows, head56[:2], allow_b1_place=False),
         "head56_h1_b1place": ranked_formation(rows, head56[:1], allow_b1_place=True),
         "head56_h2_b1place": ranked_formation(rows, head56[:2], allow_b1_place=True),
+        "tamagawa_h2_ai13_no1_has56": tamagawa_h2_ai13_no1_has56(rows),
     }
 
 
@@ -1004,6 +1098,7 @@ def make_feature(
         "b1_ai_win": b1_ai,
         "b1_ai_top3": number(b1.get("ai_3ren_pct")),
         "b1_overbet_gap": b1_odds - b1_ai if b1_odds is not None and b1_ai is not None else None,
+        "b1_venue_debuff": bool(b1.get("venue_b1_head_debuff")),
         "b1_tenji_rank": int(number(metrics.get("boat1_tenji_time_rank") or metrics.get("boat1_tenji_rank"), 9) or 9),
         "b1_lap_rank": number(metrics.get("boat1_isshu_rank")) if mode == "full" else None,
         "b1_avg_diff": number(metrics.get("boat1_avg_isshu_diff")) if mode == "full" else None,
@@ -1022,6 +1117,15 @@ def make_feature(
 
 
 def base_matches(base_id: str, feature: dict[str, Any]) -> bool:
+    popularity_only = re.fullmatch(r"pop([12])_odds(\d+)", base_id)
+    if popularity_only:
+        rank_max, odds_min = map(int, popularity_only.groups())
+        return bool(
+            feature.get("b1_odds_rank") is not None
+            and feature["b1_odds_rank"] <= rank_max
+            and feature.get("b1_odds_pct") is not None
+            and feature["b1_odds_pct"] >= odds_min
+        )
     match = re.fullmatch(r"pop([12])_odds(\d+)_nige(\d+)", base_id)
     if match:
         max_rank, odds_min, nige_max = map(int, match.groups())
@@ -1089,6 +1193,8 @@ def context_matches(context_id: str, feature: dict[str, Any]) -> bool:
         "outer2_o56avg010": lambda: _ge(feature, "outer_top2_count", 2) and _ge(feature, "outer56_avg_diff", 0.10),
         "wind4_outer2": lambda: _ge(feature, "wind_speed", 4) and _ge(feature, "outer_top2_count", 2),
         "round1_3": lambda: round_no <= 3,
+        "round4_6_b1venue_debuff": lambda: 4 <= round_no <= 6
+        and bool(feature.get("b1_venue_debuff")),
         "b1avg000": lambda: _le(feature, "b1_avg_diff", 0.0),
         "late_b1lap4": lambda: round_no >= 9 and _ge(feature, "b1_lap_rank", 4),
         "outer2_early": lambda: round_no <= 6 and _ge(feature, "outer_top2_count", 2),
@@ -1102,6 +1208,8 @@ def context_matches(context_id: str, feature: dict[str, Any]) -> bool:
 
 
 def template_parts(template_id: str, feature: dict[str, Any]) -> tuple[str, int]:
+    if template_id == "tamagawa_h2_ai13_no1_has56_all12":
+        return "tamagawa_h2_ai13_no1_has56", 12
     if template_id in {"outer_box3_6", "non1_box3_6"}:
         return template_id.removesuffix("_6"), 6
     adaptive = re.fullmatch(r"(.+)_top4_plus5_outertop3_ge(65|70)", template_id)
@@ -1153,7 +1261,8 @@ def evaluate(
         }
     family, points = template_parts(rule["template_id"], feature)
     tickets = ticket_families(rows).get(family, [])[:points]
-    if len(tickets) != points:
+    variable_points = rule["template_id"] == "tamagawa_h2_ai13_no1_has56_all12"
+    if (variable_points and len(tickets) < 2) or (not variable_points and len(tickets) != points):
         return {
             "status": "skip_ticket_generation_failed",
             "matched": False,
@@ -1161,6 +1270,8 @@ def evaluate(
             "expected_points": points,
             "actual_points": len(tickets),
         }
+    if variable_points:
+        points = len(tickets)
     formatted = [format_ticket(ticket) for ticket in tickets]
     heads = sorted({int(ticket[0]) for ticket in tickets})
     axes = sorted({int(ticket[1]) for ticket in tickets})

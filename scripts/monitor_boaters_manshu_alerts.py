@@ -118,7 +118,7 @@ VALIDATED_BUY_STRATEGY_IDS = {
     "codex_toda_b1odds40_nige40_outerbox6",
     "codex_edogawa_r9_12_b1odds45_nige40_outertop2_h1_ai13_8",
     "codex_heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6",
-    "codex_tamagawa_r1_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12",
+    "codex_tamagawa_r4_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12",
     "codex_hamanako_r1_3_wave3_low_ai_revival_outerbox6",
     "codex_gamagori_b1lap4_b1odds35_b1loss30_outer_h1_ai13_no1_has56_8",
     "codex_tokoname_b1loss40_b5top3rank1_wind4_h1_56_ai13_no1_has56_8",
@@ -157,7 +157,7 @@ VALIDATED_BUY_STRATEGY_ORDER = {
             "codex_toda_b1odds40_nige40_outerbox6",
             "codex_edogawa_r9_12_b1odds45_nige40_outertop2_h1_ai13_8",
             "codex_heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6",
-            "codex_tamagawa_r1_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12",
+            "codex_tamagawa_r4_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12",
             "codex_hamanako_r1_3_wave3_low_ai_revival_outerbox6",
             "codex_gamagori_b1lap4_b1odds35_b1loss30_outer_h1_ai13_no1_has56_8",
             "codex_tokoname_b1loss40_b5top3rank1_wind4_h1_56_ai13_no1_has56_8",
@@ -191,7 +191,7 @@ VALIDATED_RULE_STATS = {
     "codex_toda_b1odds40_nige40_outerbox6": "実装検証値: 回収率272.32% / 94R / 6点固定 / 万舟4本 / 2024-2026年別すべて211%超",
     "codex_edogawa_r9_12_b1odds45_nige40_outertop2_h1_ai13_8": "実装検証値: 回収率284.51% / 42R / 平均7.71点 / 万舟3本 / 2024年202.22%・2025年455.25%・2026年162.25%",
     "codex_heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6": "再分析検証値: 回収率332.13% / 121R / 8的中 / 6点固定 / 最大40連敗 / 最大配当除外229.41% / 2024年334.01%・2025年337.40%・2026年305.42%",
-    "codex_tamagawa_r1_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12": "実装検証値: 回収率288.12% / 217R / 平均4.57点 / 万舟8本 / 2024-2026年別すべて208%超",
+    "codex_tamagawa_r4_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12": "再分析検証値: 回収率271.96% / 185R / 6的中 / 平均4.23点 / 最大80連敗 / 最大配当除外159.63% / 2024年253.37%・2025年298.43%・2026年257.33%",
     "codex_hamanako_r1_3_wave3_low_ai_revival_outerbox6": "実装検証値: 回収率280.93% / 93R / 6点固定 / 万舟5本 / 2024年246.91%・2025年147.47%・2026年544.37%",
     "codex_gamagori_b1lap4_b1odds35_b1loss30_outer_h1_ai13_no1_has56_8": "実装検証値: 回収率269.69% / 95R / 平均3.05点 / 万舟2本 / 2024年189.74%・2025年422.68%・2026年142.90%",
     "codex_tokoname_b1loss40_b5top3rank1_wind4_h1_56_ai13_no1_has56_8": "実装検証値: 回収率249.56% / 20R / 平均8.00点 / 万舟1本 / 2024年221.88%・2025年221.41%・2026年291.56%",
@@ -7543,7 +7543,7 @@ def heiwajima_r9_12_b1odds55_nige65_outertop2_wave3_h2_no1_top6(rows):
     }
 
 
-def tamagawa_r1_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12(rows):
+def tamagawa_r4_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12(rows):
     metrics = rows[0].get("_morning_metrics") or {}
     b1_odds_pct = as_num(metrics.get("boat1_odds_prediction_pct"))
     b1_odds_rank = int(as_num(metrics.get("boat1_odds_rank")) or 9)
@@ -7588,31 +7588,7 @@ def tamagawa_r1_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12(rows):
     keshi = keshi_row["boat_number"]
     supports = [boat for boat in range(2, 7) if boat != keshi]
 
-    tickets = []
-    seen = set()
-    for head in heads:
-        for axis in axes:
-            if axis == head:
-                continue
-            for other in supports:
-                if len({head, axis, other}) != 3:
-                    continue
-                for ticket in (f"{head}{axis}{other}", f"{head}{other}{axis}"):
-                    nums = set(combo_boats(ticket))
-                    if 1 in nums or not (nums & {5, 6}):
-                        continue
-                    if ticket in seen:
-                        continue
-                    seen.add(ticket)
-                    tickets.append(ticket)
-                    if len(tickets) >= BUY_TICKET_MAX_POINTS:
-                        break
-                if len(tickets) >= BUY_TICKET_MAX_POINTS:
-                    break
-            if len(tickets) >= BUY_TICKET_MAX_POINTS:
-                break
-        if len(tickets) >= BUY_TICKET_MAX_POINTS:
-            break
+    tickets = original_boaters_forward.tamagawa_h2_ai13_no1_has56(rows)
     if len(tickets) < 2:
         return set(), None
 
@@ -7637,7 +7613,7 @@ def tamagawa_r1_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12(rows):
     ai_plus_rank6_revival = revive_reasons(ai_plus_rank6_row) if ai_plus_rank6_row else []
     return ticket_set, {
         "heads": heads,
-        "head_rule": "多摩川専用。1〜6Rで1号艇がオッズ評価40%以上の人気、かつ場別展示S/Aで1号艇頭デバフが出た時に1号艇を全消し",
+        "head_rule": "多摩川専用。4〜6Rで1号艇がオッズ評価40%以上の人気、かつ場別展示S/Aで1号艇頭デバフが出た時に1号艇を全消し",
         "head_mode": "tamagawa_b1odds40_venue_debuff_h2",
         "head_scores": head_scores,
         "attackers": heads,
@@ -7653,7 +7629,7 @@ def tamagawa_r1_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12(rows):
             }
         ),
         "support_scores": support_scores,
-        "role_split_note": "多摩川の長期検証で強かった、人気1号艇の場別展示デバフを起点にした1号艇全消し型",
+        "role_split_note": "多摩川の時系列再分析で強かった、4〜6Rの人気1号艇に場別展示デバフが出た時の1号艇全消し型",
         "axes": axes,
         "axis_rule": axis_rule,
         "alt_axes": axes_top3,
@@ -7664,7 +7640,7 @@ def tamagawa_r1_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12(rows):
         "ai_plus_rank6_boat": ai_plus_rank6_boat,
         "ai_plus_rank6_revival": ai_plus_rank6_revival,
         "role_note": (
-            f"多摩川専用本命。1号艇オッズ評価1位{b1_odds_pct:.1f}%だが、"
+            f"多摩川専用本命。4〜6Rで1号艇オッズ評価1位{b1_odds_pct:.1f}%だが、"
             f"場別展示デバフ({'; '.join(b1_debuff_reasons[:2]) or '詳細あり'})で1号艇を全消し。"
             f"頭は複合1着率上位{heads[0]},{heads[1]}、軸は{axis_rule}、5/6絡みだけを{len(ticket_set)}点"
         ),
@@ -13931,27 +13907,27 @@ def roi_strategies(race, metrics, rows):
     if (
         full_exhibition
         and place == "多摩川"
-        and round_no <= 6
+        and 4 <= round_no <= 6
         and b1_odds_rank == 1
         and b1_odds_pct >= 40
         and b1_venue_debuff
     ):
         strategies.append(
             (
-                "codex_tamagawa_r1_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12",
-                "Codex多摩川本命: 前半+1号艇人気+場別展示デバフ 1消し5/6絡み最大12点",
-                tamagawa_r1_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12,
+                "codex_tamagawa_r4_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12",
+                "Codex多摩川本命: 4〜6R+1号艇人気+場別展示デバフ 1消し5/6絡み最大12点",
+                tamagawa_r4_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12,
                 {
                     "tier": "venue_roi_core",
                     "rate_gate_exempt": True,
                     "entry_checks": [
                         "多摩川専用ROI条件:OK",
-                        f"前半1〜6R:OK({round_no}R)",
+                        f"4〜6R限定:OK({round_no}R)",
                         f"1号艇オッズ評価1位:OK({b1_odds_rank}位)",
                         f"1号艇オッズ評価40%以上:OK({b1_odds_pct:.2f}%)",
                         "1号艇場別展示デバフ:OK",
                         *(b1_venue_debuff_reasons[:2] or []),
-                        VALIDATED_RULE_STATS["codex_tamagawa_r1_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12"],
+                        VALIDATED_RULE_STATS["codex_tamagawa_r4_6_b1odds40_venue_debuff_h2_ai13_no1_has56_12"],
                         "展示後万舟率40%未満でも検証済みROIルールとして本命判定",
                         "1号艇は全消し",
                         "5/6号艇絡みだけ",
