@@ -21,7 +21,10 @@ import platform
 import random
 import re
 import sqlite3
-import sys
+import ssl
+import time
+import urllib.error
+import urllib.request
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -43,6 +46,7 @@ CAPTURE_LOOKAHEAD_MINUTES = 22.0
 SETTLEMENT_OVERDUE_HOURS = 3.0
 BOOTSTRAP_SAMPLES = 20_000
 PRODUCTION_PYTHON_VERSION = "3.12.4"
+DEFAULT_NTFY_TOPIC = "boat10000-codex-manshu-7d56f47f-ee5f-48f8-905a-ed6e5025b8db"
 JST = ZoneInfo("Asia/Tokyo")
 
 PROTOCOL = {
@@ -223,7 +227,6 @@ def monitor_bundle_sha256() -> str:
     digest = hashlib.sha256()
     paths = (
         Path(__file__),
-        ROOT / "scripts" / "monitor_boaters_manshu_alerts.py",
         ROOT / "scripts" / "build_boaters_database.py",
         ROOT / "scripts" / "fetch_boatrace_data.py",
         ROOT / ".github" / "workflows" / "least-popular-shadow-monitor.yml",
@@ -838,13 +841,38 @@ def record_workflow_run(daily: dict[str, Any], args: argparse.Namespace, now: da
     )
 
 
-def import_live_module():
-    scripts_dir = str(ROOT / "scripts")
-    if scripts_dir not in sys.path:
-        sys.path.insert(0, scripts_dir)
-    import monitor_boaters_manshu_alerts as live  # type: ignore
+def tls_context() -> ssl.SSLContext:
+    try:
+        import certifi  # type: ignore
 
-    return live
+        return ssl.create_default_context(cafile=certifi.where())
+    except Exception:
+        return ssl.create_default_context()
+
+
+def fetch_text_url(url: str, user_agent: str, timeout: float) -> str:
+    request = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": user_agent,
+            "Accept-Language": "ja,en-US;q=0.8,en;q=0.6",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout, context=tls_context()) as response:
+            return response.read().decode("utf-8", errors="replace")
+    except urllib.error.HTTPError as exc:
+        raise RuntimeError(f"HTTP {exc.code}: {url}") from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"URL error: {url}: {exc}") from exc
+
+
+def fetch_boaters_page(slug: str, date_text: str, round_no: int, page: str) -> str:
+    """Fetch one BOATERS page using only the Python standard library."""
+    url = f"https://boaters-boatrace.com/race/{slug}/{date_text}/{round_no}R/{page}"
+    text = fetch_text_url(url, "Mozilla/5.0 (compatible; least-popular-shadow/1.0)", 25)
+    time.sleep(0.18)
+    return text
 
 
 def normalize_pct(value: Any) -> float | None:
@@ -873,17 +901,69 @@ def live_race_object(text: str) -> tuple[dict[str, Any], dict[str, Any]]:
     raise IncompleteRaceData("raceRoundDetail not found in live page")
 
 
+def keyed_live_rows(state: dict[str, Any], values: Any, key: str) -> dict[int, dict[str, Any]]:
+    rows: dict[int, dict[str, Any]] = {}
+    for value in values or []:
+        item = dereference(state, value)
+        if not isinstance(item, dict):
+            continue
+        boat = as_int(item.get(key))
+        if boat in set(range(1, 7)):
+            rows[int(boat)] = item
+    return rows
+
+
+def extract_data_rows(text: str) -> dict[int, dict[str, Any]]:
+    state, race = live_race_object(text)
+    ai_3ren = race.get("aiProba") or {}
+    market = race.get("racerOddsProba") or {}
+    waku_rows = [
+        dereference(state, item)
+        for item in race.get('wakuAggregations({"boatNumbers":[1,2,3,4,5,6]})', [])
+    ]
+    waku_general = {
+        as_int(item.get("waku")): item
+        for item in waku_rows
+        if isinstance(item, dict) and item.get("aggType") == "一般"
+    }
+    return {
+        boat: {
+            "ai_3ren_pct": normalize_pct(ai_3ren.get(f"aiProbaRacer{boat}3ren")),
+            "general_3ren_pct": normalize_pct(
+                (waku_general.get(boat) or {}).get("result3renAvgWithWaku")
+            ),
+            "ai_prediction_pct": normalize_pct(market.get(f"racerAiProba{boat}")),
+            "odds_prediction_pct": normalize_pct(market.get(f"racerOddsProba{boat}")),
+        }
+        for boat in range(1, 7)
+    }
+
+
+def extract_last_minute_rows(text: str) -> dict[int, dict[str, Any]]:
+    state, race = live_race_object(text)
+    before = dereference(state, race.get("beforeInfo")) or {}
+    before_rows = keyed_live_rows(state, before.get("racers"), "boatNumber")
+    original_rows = keyed_live_rows(state, race.get("originalTenjis"), "boatNumber")
+    return {
+        boat: {
+            "tenji_time": (before_rows.get(boat) or {}).get("tenjiTime"),
+            "start_tenji_time": (before_rows.get(boat) or {}).get("startTenjiTime"),
+            "isshu_time": (original_rows.get(boat) or {}).get("isshuTime"),
+        }
+        for boat in range(1, 7)
+    }
+
+
 def fetch_live_rows(race: dict[str, Any]) -> tuple[dict[int, dict[str, Any]], dict[str, Any]]:
-    live = import_live_module()
-    slug = race.get("slug") or getattr(live, "PLACE_SLUGS", {}).get(race.get("place_name"))
+    slug = race.get("slug")
     if not slug:
         raise IncompleteRaceData(f"unknown place slug: {race.get('place_name')}")
     date_text = str(race.get("date") or "")
     round_no = int(race.get("round"))
-    data_text = live.fetch_boaters_page(slug, date_text, round_no, "data", refresh=True)
-    last_text = live.fetch_boaters_page(slug, date_text, round_no, "last-minute", refresh=True)
-    data_rows = live.extract_data_page(data_text)
-    last_rows = live.extract_last_minute_page(last_text)
+    data_text = fetch_boaters_page(str(slug), date_text, round_no, "data")
+    last_text = fetch_boaters_page(str(slug), date_text, round_no, "last-minute")
+    data_rows = extract_data_rows(data_text)
+    last_rows = extract_last_minute_rows(last_text)
     state, raw_race = live_race_object(data_text)
     _, raw_last_race = live_race_object(last_text)
     expected_race_id = str(race.get("race_id") or "")
@@ -1107,68 +1187,83 @@ def dereference(state: dict[str, Any], value: Any) -> Any:
     return value
 
 
-def parse_result_page(text: str) -> dict[str, Any] | None:
-    match = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', text, re.S)
-    if not match:
+def official_result_url(capture: dict[str, Any]) -> str:
+    compact_date = re.sub(r"\D", "", str(capture.get("date") or ""))
+    place_id = as_int(capture.get("place_id"))
+    round_no = as_int(capture.get("round"))
+    race_digits = re.sub(r"\D", "", str(capture.get("race_id") or ""))
+    if len(compact_date) != 8 or place_id not in set(range(1, 25)) or round_no not in set(range(1, 13)):
+        raise RuntimeError("captured race lacks a valid official result identity")
+    expected_digits = f"{compact_date}{int(place_id):02d}{int(round_no):02d}"
+    if race_digits != expected_digits:
+        raise RuntimeError("captured race id does not match date/place/round")
+    return (
+        "https://www.boatrace.jp/owpc/pc/race/raceresult"
+        f"?rno={int(round_no)}&jcd={int(place_id):02d}&hd={compact_date}"
+    )
+
+
+def parse_official_result_page(text: str) -> dict[str, Any] | None:
+    section_match = re.search(
+        r"<td[^>]*>\s*3連単\s*</td>(.*?)(?:</tbody>|<td[^>]*>\s*3連複\s*</td>)",
+        text or "",
+        flags=re.I | re.S,
+    )
+    refund_match = re.search(
+        r"<th[^>]*>\s*返還\s*</th>.*?<tbody[^>]*>(.*?)</tbody>",
+        text or "",
+        flags=re.I | re.S,
+    )
+    refund_boats = sorted(
+        {
+            int(boat)
+            for boat in re.findall(
+                r'class=["\'][^"\']*\bnumberSet1_number\b[^"\']*["\'][^>]*>\s*([1-6])\s*</span>',
+                refund_match.group(1) if refund_match else "",
+                flags=re.I,
+            )
+        }
+    )
+    if not section_match:
+        if re.search(r"(?:レース中止|不成立)", text or ""):
+            return {"is_suspended": 1, "refund_boats": list(range(1, 7))}
         return None
-    payload = json.loads(html.unescape(match.group(1)))
-    state = payload["props"]["pageProps"]["initialApolloState"]
-    root = state.get("ROOT_QUERY") or {}
-    race = None
-    for key, value in root.items():
-        if str(key).startswith("raceRoundDetail("):
-            race = dereference(state, value)
-            break
-    if not isinstance(race, dict):
+    section = section_match.group(1)
+    boats = re.findall(
+        r'class=["\'][^"\']*\bnumberSet1_number\b[^"\']*["\'][^>]*>\s*([1-6])\s*</span>',
+        section,
+        flags=re.I,
+    )
+    payout_match = re.search(
+        r'class=["\'][^"\']*\bis-payout1\b[^"\']*["\'][^>]*>\s*(?:&yen;|&#165;|¥|￥)?\s*([0-9,]+)',
+        section,
+        flags=re.I,
+    )
+    if len(boats) < 3 or not payout_match:
         return None
-    result = dereference(state, race.get("result")) or race.get("result") or {}
-    if not isinstance(result, dict):
-        return None
-    racers = []
-    for value in result.get("racers") or []:
-        item = dereference(state, value)
-        if isinstance(item, dict):
-            racers.append(item)
-    parsed = {
-        "provider_race_id": race.get("raceId"),
-        "provider_round": race.get("round"),
-        "provider_deadline_time": race.get("deadlineTime"),
-        "is_suspended": result.get("isSuspended"),
-        "winning_number3t1": result.get("winningNumber3t1"),
-        "result_payout3t1": result.get("resultPayout3t1"),
-        "refund_boats": [
-            int(item.get("boatNumber"))
-            for item in racers
-            if bool(item.get("henkan")) and as_int(item.get("boatNumber")) is not None
-        ],
+    return {
+        "is_suspended": 0,
+        "winning_number3t1": "-".join(boats[:3]),
+        "result_payout3t1": int(payout_match.group(1).replace(",", "")),
+        "refund_boats": refund_boats,
     }
-    if not normalize_ticket(parsed.get("winning_number3t1")) and not parsed.get("is_suspended"):
-        return None
-    return parsed
 
 
 def web_result(capture: dict[str, Any]) -> dict[str, Any] | None:
-    live = import_live_module()
-    text = live.fetch_boaters_page(
-        capture.get("slug"),
-        capture.get("date"),
-        int(capture.get("round")),
-        "result",
-        refresh=True,
-    )
-    result = parse_result_page(text)
+    url = official_result_url(capture)
+    text = fetch_text_url(url, "Mozilla/5.0 (compatible; least-popular-shadow/1.0)", 20)
+    result = parse_official_result_page(text)
     if result is not None:
-        if (
-            str(result.get("provider_race_id") or "") != str(capture.get("race_id") or "")
-            or as_int(result.get("provider_round")) != as_int(capture.get("round"))
-        ):
-            raise RuntimeError("result page identity does not match the captured race")
         result.update(
             {
-                "result_source": "boaters_result_page",
+                "result_source": "official_boatrace_raceresult",
                 "result_page_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
                 "retrieved_at": datetime.now(JST).isoformat(timespec="seconds"),
                 "requested_race_key": capture.get("race_key"),
+                "provider_race_id": capture.get("race_id"),
+                "provider_round": capture.get("round"),
+                "provider_deadline_time": capture.get("deadline_time"),
+                "result_url_sha256": hashlib.sha256(url.encode("utf-8")).hexdigest(),
             }
         )
     return result
@@ -1198,6 +1293,7 @@ RESULT_PROVENANCE_KEYS = (
     "provider_race_id",
     "provider_round",
     "provider_deadline_time",
+    "result_url_sha256",
 )
 
 
@@ -1220,11 +1316,13 @@ def settlement_is_valid(record: dict[str, Any]) -> bool:
         return False
     provenance = settlement.get("result_provenance") or {}
     source = provenance.get("result_source")
-    if source == "boaters_result_page":
+    if source == "official_boatrace_raceresult":
         return bool(
             provenance.get("result_page_sha256")
+            and provenance.get("result_url_sha256")
             and provenance.get("requested_race_key") == record.get("capture", {}).get("race_key")
             and provenance.get("provider_race_id") == record.get("capture", {}).get("race_id")
+            and as_int(provenance.get("provider_round")) == as_int(record.get("capture", {}).get("round"))
         )
     return source == "sqlite_exact_race_id" and provenance.get("requested_race_id") == record.get("capture", {}).get("race_id")
 
@@ -1910,14 +2008,95 @@ def build_status(
     }
 
 
+def load_push_config() -> dict[str, Any]:
+    config: dict[str, Any] = {}
+    local_path = ROOT / "data" / "output" / "boaters_push_config.local.json"
+    if local_path.exists():
+        try:
+            loaded = json.loads(local_path.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                config.update(loaded)
+        except (OSError, json.JSONDecodeError):
+            pass
+    env_map = {
+        "ntfy_server": "BOATERS_NTFY_SERVER",
+        "ntfy_topic": "BOATERS_NTFY_TOPIC",
+        "ntfy_token": "BOATERS_NTFY_TOKEN",
+        "ntfy_priority": "BOATERS_NTFY_PRIORITY",
+    }
+    for key, env_name in env_map.items():
+        value = os.environ.get(env_name)
+        if value:
+            config[key] = value
+    config.setdefault("ntfy_server", "https://ntfy.sh")
+    config.setdefault("ntfy_topic", DEFAULT_NTFY_TOPIC)
+    return config
+
+
+def ntfy_url(config: dict[str, Any]) -> str | None:
+    topic = str(config.get("ntfy_topic") or "").strip()
+    if not topic:
+        return None
+    if topic.startswith(("http://", "https://")):
+        return topic
+    return f"{str(config.get('ntfy_server') or 'https://ntfy.sh').rstrip('/')}/{topic}"
+
+
+def ascii_header(value: Any, fallback: str) -> str:
+    rendered = str(value or "")
+    try:
+        rendered.encode("latin-1")
+        return rendered
+    except UnicodeEncodeError:
+        return fallback
+
+
+def send_ntfy(
+    config: dict[str, Any],
+    title: str,
+    message: str,
+    tags: str = "rotating_light",
+    priority: str | None = None,
+) -> dict[str, Any]:
+    url = ntfy_url(config)
+    if not url:
+        return {"enabled": False, "ok": False, "reason": "ntfy_topic not configured"}
+    safe_title = ascii_header(title, "BOATERS Alert")
+    if safe_title != title:
+        message = f"{title}\n\n{message}"
+    headers = {
+        "Title": safe_title,
+        "Tags": ascii_header(tags, "boat"),
+        "Priority": str(priority or config.get("ntfy_priority") or "high"),
+    }
+    if config.get("ntfy_token"):
+        headers["Authorization"] = f"Bearer {config['ntfy_token']}"
+    request = urllib.request.Request(
+        url,
+        data=message.encode("utf-8"),
+        headers=headers,
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=8, context=tls_context()) as response:
+            return {
+                "enabled": True,
+                "ok": 200 <= response.status < 300,
+                "status": response.status,
+            }
+    except urllib.error.HTTPError as exc:
+        return {"enabled": True, "ok": False, "status": exc.code, "error": str(exc)}
+    except Exception as exc:
+        return {"enabled": True, "ok": False, "error": str(exc)}
+
+
 def notify_status_transitions(status: dict[str, Any], state_path: Path) -> dict[str, Any]:
     state = load_json(state_path, {"last_status": {}, "notified": {}})
     last_status = state.setdefault("last_status", {})
     notified = state.setdefault("notified", {})
     notifications = []
     state_changed = False
-    live = import_live_module()
-    config = live.load_push_config()
+    config: dict[str, Any] | None = None
     for strategy_id, result in status.get("strategies", {}).items():
         new_status = result.get("status")
         old_status = last_status.get(strategy_id)
@@ -1934,7 +2113,9 @@ def notify_status_transitions(status: dict[str, Any], state_path: Path) -> dict[
             f"ROI {metrics.get('roi_pct')}% / 最大1本除外 {metrics.get('roi_without_top_hit_pct')}%\n"
             f"{result.get('explanation')}"
         )
-        send_result = live.send_ntfy(
+        if config is None:
+            config = load_push_config()
+        send_result = send_ntfy(
             config,
             "人気最下位艇シャドー監視・採用判定",
             message,

@@ -1,5 +1,7 @@
 import importlib.util
+import json
 import sys
+import tempfile
 import unittest
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -272,6 +274,77 @@ class LeastPopularShadowTests(unittest.TestCase):
                 "official-test-hash",
                 datetime.fromisoformat("2026-07-15T07:02:00+09:00"),
             )
+
+    def test_embedded_live_parsers_need_no_external_monitor_module(self):
+        race = {
+            "raceId": self.race["race_id"],
+            "round": 1,
+            "deadlineTime": self.race["deadline_time"],
+            "aiProba": {f"aiProbaRacer{boat}3ren": boat / 10 for boat in range(1, 7)},
+            "racerOddsProba": {
+                **{f"racerAiProba{boat}": boat / 100 for boat in range(1, 7)},
+                **{f"racerOddsProba{boat}": (7 - boat) / 100 for boat in range(1, 7)},
+            },
+            'wakuAggregations({"boatNumbers":[1,2,3,4,5,6]})': [
+                {"__ref": f"W{boat}"} for boat in range(1, 7)
+            ],
+            "beforeInfo": {"__ref": "Before"},
+            "originalTenjis": [{"__ref": f"O{boat}"} for boat in range(1, 7)],
+        }
+        state = {
+            "ROOT_QUERY": {"raceRoundDetail(test)": {"__ref": "Race"}},
+            "Race": race,
+            "Before": {"racers": [{"__ref": f"B{boat}"} for boat in range(1, 7)]},
+        }
+        for boat in range(1, 7):
+            state[f"W{boat}"] = {
+                "waku": boat,
+                "aggType": "一般",
+                "result3renAvgWithWaku": boat / 10,
+            }
+            state[f"B{boat}"] = {
+                "boatNumber": boat,
+                "tenjiTime": 6.80 + boat / 100,
+                "startTenjiTime": boat / 100,
+            }
+            state[f"O{boat}"] = {"boatNumber": boat, "isshuTime": 36 + boat / 10}
+        payload = {"props": {"pageProps": {"initialApolloState": state}}}
+        text = '<script id="__NEXT_DATA__" type="application/json">' + json.dumps(payload) + "</script>"
+        data_rows = MODULE.extract_data_rows(text)
+        last_rows = MODULE.extract_last_minute_rows(text)
+        self.assertEqual(data_rows[5]["ai_3ren_pct"], 50.0)
+        self.assertEqual(data_rows[6]["odds_prediction_pct"], 1.0)
+        self.assertAlmostEqual(last_rows[2]["tenji_time"], 6.82)
+        self.assertEqual(last_rows[4]["isshu_time"], 36.4)
+
+    def test_watch_notification_transition_is_local_and_silent(self):
+        status = {
+            "generated_at": "2026-07-15T15:00:00+09:00",
+            "strategies": {
+                strategy_id: {"status": "WATCH"}
+                for strategy_id in MODULE.STRATEGIES
+            },
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            result = MODULE.notify_status_transitions(status, Path(directory) / "state.json")
+        self.assertEqual(result["attempts"], [])
+        self.assertTrue(result["state_changed"])
+
+    def test_official_result_parser_includes_partial_refund(self):
+        text = """
+        <table><tbody><tr><td rowspan="2">3連単</td><td>
+        <span class="numberSet1_number is-type1">1</span>
+        <span class="numberSet1_number is-type5">5</span>
+        <span class="numberSet1_number is-type4">4</span></td>
+        <td><span class="is-payout1">&yen;4,780</span></td></tr></tbody></table>
+        <table><thead><tr><th>返還</th></tr></thead><tbody><tr><td>
+        <span class="numberSet1_number is-type3">3</span>
+        </td></tr></tbody></table>
+        """
+        result = MODULE.parse_official_result_page(text)
+        self.assertEqual(result["winning_number3t1"], "1-5-4")
+        self.assertEqual(result["result_payout3t1"], 4780)
+        self.assertEqual(result["refund_boats"], [3])
 
 
 if __name__ == "__main__":
