@@ -1,0 +1,382 @@
+{
+  "version": "least-popular-shadow-status-v1",
+  "rule_version": "least-popular-shadow-v1-20260715",
+  "protocol": {
+    "protocol_id": "least-popular-prospective-v1-20260716",
+    "rule_version": "least-popular-shadow-v1-20260715",
+    "forward_start_date": "2026-07-16",
+    "capture_policy": "first_complete_snapshot_in_fixed_window",
+    "capture_window_minutes_before_deadline": [
+      5.0,
+      22.0
+    ],
+    "stake_per_ticket_yen": 100,
+    "market_definition": "unique_minimum_boaters_odds_prediction_pct",
+    "scheduled_scan_cadence_minutes": 5,
+    "settlement_overdue_hours": 3.0,
+    "bootstrap_samples": 20000,
+    "production_python_version": "3.12.4",
+    "independent_schedule_acquisitions": 2,
+    "production_schedule_db": "/tmp/least-popular-schedule-primary.sqlite",
+    "production_verification_db": "/tmp/least-popular-schedule-verification.sqlite",
+    "official_venue_source": "boatrace.jp_daily_index"
+  },
+  "protocol_sha256": "aead84afcdeea40e6a1baa8a6e877731c89fee9e94d8e4114172072667599a00",
+  "forward_start_date": "2026-07-16",
+  "generated_at": "2026-07-15T15:05:00+09:00",
+  "decision_policy": {
+    "historical_results_used_for_adoption": false,
+    "fixed_checkpoints_only": true,
+    "stake_per_ticket_yen": 100,
+    "minimum_capture_lead_minutes": 5.0,
+    "status_meanings": {
+      "WATCH": "最低サンプル到達前",
+      "PROMISING": "最初の固定チェックポイントを通過",
+      "ADOPT_SMALL": "次の固定区間でも再現し、少額採用可",
+      "200_CONFIRMED": "bootstrap片側95%下限も200%以上",
+      "HOLD": "採用ゲートまたは停止基準を未通過"
+    }
+  },
+  "coverage": {
+    "closed_races": 0,
+    "evaluated_races": 0,
+    "complete_rate_pct": null,
+    "manifest_days": 0,
+    "valid_manifest_days": 0,
+    "manifest_integrity_pct": null,
+    "missing_manifest_days": [],
+    "workflow_past_days": 0,
+    "workflow_complete_days": 0,
+    "workflow_complete_rate_pct": null,
+    "workflow_days": {},
+    "by_status": {}
+  },
+  "open_records": 0,
+  "void_records": 0,
+  "strategies": {
+    "c1_target_first_two": {
+      "strategy_id": "c1_target_first_two",
+      "label": "最下位艇1着固定2点",
+      "rule_version": "least-popular-shadow-v1-20260715",
+      "forward_only": true,
+      "observed_metrics": {
+        "races": 0,
+        "hits": 0,
+        "hit_rate_pct": null,
+        "capture_integrity_pct": null,
+        "settlement_integrity_pct": null,
+        "investment_yen": 0,
+        "return_yen": 0,
+        "net_yen": 0,
+        "roi_pct": null,
+        "bootstrap_one_sided_95_lower_roi_pct": null,
+        "roi_without_top_hit_pct": null,
+        "top_hit_return_share_pct": null,
+        "top3_hit_return_share_pct": null,
+        "max_drawdown_yen": 0,
+        "max_consecutive_misses": 0,
+        "current_consecutive_misses": 0,
+        "hit_calendar_quarters": 0,
+        "hit_quarter_labels": [],
+        "first_half": {
+          "races": 0,
+          "hits": 0,
+          "roi_pct": null
+        },
+        "second_half": {
+          "races": 0,
+          "hits": 0,
+          "roi_pct": null
+        },
+        "by_target_lane": {
+          "5": {
+            "races": 0,
+            "hits": 0,
+            "roi_pct": null
+          },
+          "6": {
+            "races": 0,
+            "hits": 0,
+            "roi_pct": null
+          }
+        }
+      },
+      "stable_resolved_prefix_metrics": {
+        "races": 0,
+        "hits": 0,
+        "hit_rate_pct": null,
+        "capture_integrity_pct": null,
+        "settlement_integrity_pct": null,
+        "investment_yen": 0,
+        "return_yen": 0,
+        "net_yen": 0,
+        "roi_pct": null,
+        "bootstrap_one_sided_95_lower_roi_pct": null,
+        "roi_without_top_hit_pct": null,
+        "top_hit_return_share_pct": null,
+        "top3_hit_return_share_pct": null,
+        "max_drawdown_yen": 0,
+        "max_consecutive_misses": 0,
+        "current_consecutive_misses": 0,
+        "hit_calendar_quarters": 0,
+        "hit_quarter_labels": [],
+        "first_half": {
+          "races": 0,
+          "hits": 0,
+          "roi_pct": null
+        },
+        "second_half": {
+          "races": 0,
+          "hits": 0,
+          "roi_pct": null
+        },
+        "by_target_lane": {
+          "5": {
+            "races": 0,
+            "hits": 0,
+            "roi_pct": null
+          },
+          "6": {
+            "races": 0,
+            "hits": 0,
+            "roi_pct": null
+          }
+        }
+      },
+      "prediction_records": 0,
+      "resolved_prefix_predictions": 0,
+      "closed_day_decision_races": 0,
+      "sequence_quality": {
+        "records": 0,
+        "contiguous_unique_from_one": true,
+        "append_hash_chain_valid": true,
+        "first_bad_position": null
+      },
+      "settlement_quality": {
+        "due_predictions": 0,
+        "resolved_predictions": 0,
+        "overdue_open_predictions": 0,
+        "complete_rate_pct": null
+      },
+      "last_completed_checkpoint_races": 0,
+      "next_checkpoint_races": 500,
+      "status": "WATCH",
+      "explanation": "最初の固定判定は500レース到達時",
+      "risk_stop": false,
+      "checkpoint_metrics": null,
+      "first_checkpoint_metrics": null,
+      "first_checkpoint_performance_pass": null,
+      "gates": [],
+      "historical_reference_not_used_for_adoption": {
+        "all_races": 894,
+        "all_roi_pct": 254.89,
+        "2025_plus_races": 535,
+        "2025_plus_roi_pct": 235.62
+      }
+    },
+    "c4_target_second_three": {
+      "strategy_id": "c4_target_second_three",
+      "label": "最下位艇2着固定・他艇2艇以上弱化3点",
+      "rule_version": "least-popular-shadow-v1-20260715",
+      "forward_only": true,
+      "observed_metrics": {
+        "races": 0,
+        "hits": 0,
+        "hit_rate_pct": null,
+        "capture_integrity_pct": null,
+        "settlement_integrity_pct": null,
+        "investment_yen": 0,
+        "return_yen": 0,
+        "net_yen": 0,
+        "roi_pct": null,
+        "bootstrap_one_sided_95_lower_roi_pct": null,
+        "roi_without_top_hit_pct": null,
+        "top_hit_return_share_pct": null,
+        "top3_hit_return_share_pct": null,
+        "max_drawdown_yen": 0,
+        "max_consecutive_misses": 0,
+        "current_consecutive_misses": 0,
+        "hit_calendar_quarters": 0,
+        "hit_quarter_labels": [],
+        "first_half": {
+          "races": 0,
+          "hits": 0,
+          "roi_pct": null
+        },
+        "second_half": {
+          "races": 0,
+          "hits": 0,
+          "roi_pct": null
+        },
+        "by_target_lane": {
+          "5": {
+            "races": 0,
+            "hits": 0,
+            "roi_pct": null
+          },
+          "6": {
+            "races": 0,
+            "hits": 0,
+            "roi_pct": null
+          }
+        }
+      },
+      "stable_resolved_prefix_metrics": {
+        "races": 0,
+        "hits": 0,
+        "hit_rate_pct": null,
+        "capture_integrity_pct": null,
+        "settlement_integrity_pct": null,
+        "investment_yen": 0,
+        "return_yen": 0,
+        "net_yen": 0,
+        "roi_pct": null,
+        "bootstrap_one_sided_95_lower_roi_pct": null,
+        "roi_without_top_hit_pct": null,
+        "top_hit_return_share_pct": null,
+        "top3_hit_return_share_pct": null,
+        "max_drawdown_yen": 0,
+        "max_consecutive_misses": 0,
+        "current_consecutive_misses": 0,
+        "hit_calendar_quarters": 0,
+        "hit_quarter_labels": [],
+        "first_half": {
+          "races": 0,
+          "hits": 0,
+          "roi_pct": null
+        },
+        "second_half": {
+          "races": 0,
+          "hits": 0,
+          "roi_pct": null
+        },
+        "by_target_lane": {
+          "5": {
+            "races": 0,
+            "hits": 0,
+            "roi_pct": null
+          },
+          "6": {
+            "races": 0,
+            "hits": 0,
+            "roi_pct": null
+          }
+        }
+      },
+      "prediction_records": 0,
+      "resolved_prefix_predictions": 0,
+      "closed_day_decision_races": 0,
+      "sequence_quality": {
+        "records": 0,
+        "contiguous_unique_from_one": true,
+        "append_hash_chain_valid": true,
+        "first_bad_position": null
+      },
+      "settlement_quality": {
+        "due_predictions": 0,
+        "resolved_predictions": 0,
+        "overdue_open_predictions": 0,
+        "complete_rate_pct": null
+      },
+      "last_completed_checkpoint_races": 0,
+      "next_checkpoint_races": 120,
+      "status": "WATCH",
+      "explanation": "最初の固定判定は120レース到達時",
+      "risk_stop": false,
+      "checkpoint_metrics": null,
+      "first_checkpoint_metrics": null,
+      "first_checkpoint_performance_pass": null,
+      "gates": [],
+      "historical_reference_not_used_for_adoption": {
+        "all_races": 148,
+        "all_roi_pct": 371.24,
+        "2025_plus_races": 92,
+        "2025_plus_roi_pct": 365.8
+      }
+    }
+  },
+  "combined_shadow_portfolio": {
+    "races": 0,
+    "hits": 0,
+    "hit_rate_pct": null,
+    "capture_integrity_pct": null,
+    "settlement_integrity_pct": null,
+    "investment_yen": 0,
+    "return_yen": 0,
+    "net_yen": 0,
+    "roi_pct": null,
+    "bootstrap_one_sided_95_lower_roi_pct": null,
+    "roi_without_top_hit_pct": null,
+    "top_hit_return_share_pct": null,
+    "top3_hit_return_share_pct": null,
+    "max_drawdown_yen": 0,
+    "max_consecutive_misses": 0,
+    "current_consecutive_misses": 0,
+    "hit_calendar_quarters": 0,
+    "hit_quarter_labels": [],
+    "first_half": {
+      "races": 0,
+      "hits": 0,
+      "roi_pct": null
+    },
+    "second_half": {
+      "races": 0,
+      "hits": 0,
+      "roi_pct": null
+    },
+    "by_target_lane": {
+      "5": {
+        "races": 0,
+        "hits": 0,
+        "roi_pct": null
+      },
+      "6": {
+        "races": 0,
+        "hits": 0,
+        "roi_pct": null
+      }
+    }
+  },
+  "protocol_lock": {
+    "protocol": {
+      "protocol_id": "least-popular-prospective-v1-20260716",
+      "rule_version": "least-popular-shadow-v1-20260715",
+      "forward_start_date": "2026-07-16",
+      "capture_policy": "first_complete_snapshot_in_fixed_window",
+      "capture_window_minutes_before_deadline": [
+        5.0,
+        22.0
+      ],
+      "stake_per_ticket_yen": 100,
+      "market_definition": "unique_minimum_boaters_odds_prediction_pct",
+      "scheduled_scan_cadence_minutes": 5,
+      "settlement_overdue_hours": 3.0,
+      "bootstrap_samples": 20000,
+      "production_python_version": "3.12.4",
+      "independent_schedule_acquisitions": 2,
+      "production_schedule_db": "/tmp/least-popular-schedule-primary.sqlite",
+      "production_verification_db": "/tmp/least-popular-schedule-verification.sqlite",
+      "official_venue_source": "boatrace.jp_daily_index"
+    },
+    "protocol_sha256": "aead84afcdeea40e6a1baa8a6e877731c89fee9e94d8e4114172072667599a00",
+    "monitor_code_sha256": "fce8a5ec32839999c4d5918fbcd39c065acad25d29e8641a1c10aa2d59c5497d",
+    "monitor_bundle_sha256": "4c7062e0fe0f38b038629ab1ee5b601164d8687465b3cdb88f41e79f960f742f",
+    "runtime": {
+      "python_version": "3.12.4",
+      "python_implementation": "CPython"
+    },
+    "locked_at": "2026-07-15T15:05:00+09:00"
+  },
+  "last_run": {
+    "date": "2026-07-15",
+    "database": "/tmp/least-popular-schedule-primary.sqlite",
+    "verification_database": "/tmp/least-popular-schedule-verification.sqlite",
+    "official_index_html": "/tmp/least-popular-official/20260715/official_index.html",
+    "workflow_run_id": "29393154295",
+    "workflow_run_attempt": "1",
+    "offline": false,
+    "capture": {},
+    "settlement": {}
+  },
+  "status_sha256": "41ea72d7a5edd884169c33b30e85db7f8a88645a9fa11441080c77ebf36bd715"
+}
