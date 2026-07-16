@@ -1,28 +1,21 @@
-name: BOATERS manshu smartphone monitor
+name: BOATERS notification manual test
 
+# Production monitoring runs locally from approved visible screenshots.
+# Keeping a second scheduled cloud monitor would duplicate notifications and
+# cannot access the local screenshot evidence, so this workflow is manual only.
 on:
-  schedule:
-    # JST 09:02-20:57 every 5 minutes (GitHub cron is UTC).
-    # Use staggered minutes instead of */5 to avoid GitHub's busiest schedule slots.
-    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 0-11 * * *"
   workflow_dispatch:
-    inputs:
-      test_push:
-        description: "スマホ通知の疎通テストだけを実行する"
-        required: false
-        default: false
-        type: boolean
 
 concurrency:
-  group: boaters-ntfy-monitor
+  group: boaters-ntfy-manual-test
   cancel-in-progress: false
 
 jobs:
-  monitor:
+  test-notification:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     permissions:
-      contents: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -30,91 +23,9 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Python dependencies
-        run: python -m pip install --upgrade pandas numpy certifi joblib beautifulsoup4
-
-      - name: Resolve JST date
-        id: jst
-        run: |
-          echo "date=$(TZ=Asia/Tokyo date +%F)" >> "$GITHUB_OUTPUT"
-          echo "key=$(TZ=Asia/Tokyo date +%Y%m%d)" >> "$GITHUB_OUTPUT"
-
-      - name: Run BOATERS monitor
+      - name: Send one notification test
         env:
           BOATERS_NTFY_SERVER: ${{ secrets.BOATERS_NTFY_SERVER }}
           BOATERS_NTFY_TOPIC: ${{ secrets.BOATERS_NTFY_TOPIC || 'boat10000-codex-manshu-7d56f47f-ee5f-48f8-905a-ed6e5025b8db' }}
           BOATERS_NTFY_TOKEN: ${{ secrets.BOATERS_NTFY_TOKEN }}
-          TEST_PUSH: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_push == 'true' }}
-        run: |
-          if [ "$TEST_PUSH" = "true" ]; then
-            python scripts/monitor_boaters_manshu_alerts.py --test-push
-            exit 0
-          fi
-          python scripts/monitor_boaters_manshu_alerts.py \
-            --date "${{ steps.jst.outputs.date }}" \
-            --top-n 10 \
-            --threshold 27 \
-            --alert-threshold 38 \
-            --core-alert-threshold 40 \
-            --lookahead-minutes 20 \
-            --scan-risers \
-            --venue-sign-only \
-            --riser-top-n 10 \
-            --riser-threshold 40
-
-      - name: Refresh static results and history
-        if: ${{ !(github.event_name == 'workflow_dispatch' && github.event.inputs.test_push == 'true') }}
-        run: |
-          KEY="${{ steps.jst.outputs.key }}"
-          YEAR="${KEY:0:4}"
-          RESULTS="/tmp/boatrace_results_${KEY}.json"
-          curl -fsSL --max-time 30 "https://boatraceopenapi.github.io/results/v2/${YEAR}/${KEY}.json" -o "$RESULTS" || true
-          if [ -s "$RESULTS" ] && [ -e "data/output/boaters_manshu_ranking_${KEY}.json" ]; then
-            python scripts/build_boaters_manshu_site_data.py \
-              --source-json "data/output/boaters_manshu_ranking_${KEY}.json" \
-              --out "data/output/boaters_manshu_ranking_${KEY}.json" \
-              --top-n 10 \
-              --results-json "$RESULTS"
-          fi
-          python scripts/backfill_official_boatrace_results.py \
-            "data/output/boaters_manshu_ranking_${KEY}.json" \
-            "data/output/boaters_manshu_ranking_codex_${KEY}.json" \
-            "data/output/boaters_manshu_morning_ranking_${KEY}.json"
-          python scripts/build_boaters_manshu_history_index.py \
-            --start-date 2026-05-01 \
-            --end-date "${{ steps.jst.outputs.date }}" \
-            --top-n 10
-          python scripts/build_core_buy_forward_report.py \
-            --start-date 2026-06-19 \
-            --end-date "${{ steps.jst.outputs.date }}"
-
-      - name: Persist generated monitor data
-        if: ${{ !(github.event_name == 'workflow_dispatch' && github.event.inputs.test_push == 'true') }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for path in \
-            "data/output/boaters_manshu_morning_ranking_${{ steps.jst.outputs.key }}.json" \
-            "data/output/boaters_manshu_live_ranking_${{ steps.jst.outputs.key }}.json" \
-            "data/output/boaters_manshu_ranking_codex_${{ steps.jst.outputs.key }}.json" \
-            "data/output/boaters_manshu_ranking_${{ steps.jst.outputs.key }}.json" \
-            "data/output/boaters_manshu_alerts_${{ steps.jst.outputs.key }}.json" \
-            "data/output/boaters_manshu_alert_state_${{ steps.jst.outputs.key }}.json" \
-            "data/output/boaters_fetch_status_${{ steps.jst.outputs.key }}.json" \
-            "data/output/boaters_fetch_status_state_${{ steps.jst.outputs.key }}.json" \
-            "data/output/forward_validation/core_focus_forward_${{ steps.jst.outputs.key }}.json" \
-            "data/output/forward_validation/original_boaters_24_shadow_${{ steps.jst.outputs.key }}.json" \
-            "data/output/forward_validation/original_boaters_24_shadow_summary.json" \
-            "data/output/boaters_manshu_history_index.json" \
-            "data/output/core_buy_forward_validation.json" \
-            "data/output/core_buy_forward_validation.csv" \
-            "reports/core_buy_forward_validation.md" \
-            "data/output/manshu_daily_rank_${{ steps.jst.outputs.date }}.json" \
-            "data/output/manshu_daily_rank_${{ steps.jst.outputs.date }}.csv"; do
-            if [ -e "$path" ]; then
-              git add "$path"
-            fi
-          done
-          git diff --cached --quiet || git commit -m "Update BOATERS monitor data ${{ steps.jst.outputs.date }}"
-          git pull --rebase --autostash origin main
-          git push
+        run: python scripts/monitor_boaters_manshu_alerts.py --test-push
