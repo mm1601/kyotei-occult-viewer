@@ -1,10 +1,10 @@
 {
   "version": "boaters-runtime-health-v1",
-  "generated_at": "2026-07-17T13:23:02+09:00",
+  "generated_at": "2026-07-17T13:46:33+09:00",
   "date": "2026-07-17",
   "active_window": true,
   "startup_warmup": false,
-  "active_minutes": 353.044,
+  "active_minutes": 376.557,
   "window": {
     "start": "07:30",
     "end": "21:00"
@@ -12,49 +12,41 @@
   "state": "failed",
   "healthy": false,
   "critical_issues": [
-    "cycle:live:success_stale,last_state_failed",
-    "cycle:retry:success_stale,last_state_failed",
+    "artifact:race_schedule:missing_or_stale",
+    "artifact:monitor_output:missing_or_stale",
     "semantic:monitor_decision_integrity:due_races_not_fully_decided,monitor_integrity_unhealthy"
   ],
-  "warnings": [
-    "cycle:screenshot_archive:last_state_lock_skipped"
-  ],
+  "warnings": [],
   "cycles": [
     {
       "role": "live",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/live_cycle.json",
-      "state": "failed",
-      "attempt_age_minutes": 3.944,
-      "success_age_minutes": 56.444,
-      "consecutive_failures": 12,
+      "state": "waiting_for_schedule",
+      "attempt_age_minutes": 0.007,
+      "success_age_minutes": 79.957,
+      "consecutive_failures": 15,
       "critical": true,
-      "healthy": false,
-      "issues": [
-        "success_stale",
-        "last_state_failed"
-      ]
+      "healthy": true,
+      "issues": []
     },
     {
       "role": "retry",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/retry_cycle.json",
-      "state": "failed",
-      "attempt_age_minutes": 0.044,
-      "success_age_minutes": 56.078,
-      "consecutive_failures": 37,
+      "state": "waiting_for_schedule",
+      "attempt_age_minutes": 0.007,
+      "success_age_minutes": 79.59,
+      "consecutive_failures": 45,
       "critical": true,
-      "healthy": false,
-      "issues": [
-        "success_stale",
-        "last_state_failed"
-      ]
+      "healthy": true,
+      "issues": []
     },
     {
       "role": "screenshot_post",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_post_cycle.json",
       "state": "running",
-      "attempt_age_minutes": 1.628,
-      "success_age_minutes": 2.644,
-      "consecutive_failures": 0,
+      "attempt_age_minutes": 0.023,
+      "success_age_minutes": 1.857,
+      "consecutive_failures": 1,
       "critical": true,
       "healthy": true,
       "issues": []
@@ -62,22 +54,20 @@
     {
       "role": "screenshot_archive",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_archive_cycle.json",
-      "state": "lock_skipped",
-      "attempt_age_minutes": 0.011,
-      "success_age_minutes": 32.811,
-      "consecutive_failures": 7,
+      "state": "running",
+      "attempt_age_minutes": 0.023,
+      "success_age_minutes": 3.223,
+      "consecutive_failures": 0,
       "critical": false,
-      "healthy": false,
-      "issues": [
-        "last_state_lock_skipped"
-      ]
+      "healthy": true,
+      "issues": []
     },
     {
       "role": "dashboard",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/dashboard_cycle.json",
       "state": "running",
-      "attempt_age_minutes": 5.194,
-      "success_age_minutes": 20.878,
+      "attempt_age_minutes": 0.007,
+      "success_age_minutes": 20.64,
       "consecutive_failures": 0,
       "critical": true,
       "healthy": true,
@@ -86,9 +76,9 @@
     {
       "role": "publisher",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/publisher_cycle.json",
-      "state": "success",
-      "attempt_age_minutes": 5.078,
-      "success_age_minutes": 5.078,
+      "state": "running",
+      "attempt_age_minutes": 0.007,
+      "success_age_minutes": 4.357,
       "consecutive_failures": 0,
       "critical": true,
       "healthy": true,
@@ -99,15 +89,17 @@
     {
       "name": "race_schedule",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/official_live_ranking_20260717.json",
-      "age_minutes": 1.014,
+      "age_minutes": 19.565,
       "max_age_minutes": 8.0,
-      "healthy": true,
-      "issues": []
+      "healthy": false,
+      "issues": [
+        "missing_or_stale"
+      ]
     },
     {
       "name": "dashboard_json",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/manshu_system_dashboard_latest.json",
-      "age_minutes": 5.023,
+      "age_minutes": 4.275,
       "max_age_minutes": 15.0,
       "healthy": true,
       "issues": []
@@ -115,10 +107,12 @@
     {
       "name": "monitor_output",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/boaters_manshu_alerts_20260717.json",
-      "age_minutes": 0.04,
+      "age_minutes": 18.495,
       "max_age_minutes": 15.0,
-      "healthy": true,
-      "issues": []
+      "healthy": false,
+      "issues": [
+        "missing_or_stale"
+      ]
     }
   ],
   "semantic_checks": [
@@ -152,10 +146,10 @@
         "all_due_complete": false,
         "incomplete_due_races": [
           {
-            "race_id": "2026-07-172111",
-            "place_name": "芦屋",
-            "round": 11,
-            "minutes_to_deadline": 1.1,
+            "race_id": "2026-07-170807",
+            "place_name": "常滑",
+            "round": 7,
+            "minutes_to_deadline": 2.1,
             "reasons": [
               "original_boaters_data_not_verified",
               "decision_incomplete:skip_incompatible_ai_source"
@@ -163,10 +157,10 @@
             "error": ""
           },
           {
-            "race_id": "2026-07-170807",
-            "place_name": "常滑",
+            "race_id": "2026-07-171307",
+            "place_name": "尼崎",
             "round": 7,
-            "minutes_to_deadline": 7.1,
+            "minutes_to_deadline": 6.1,
             "reasons": [
               "original_boaters_data_not_verified",
               "decision_incomplete:skip_incompatible_ai_source"
@@ -189,73 +183,63 @@
       "role": "live",
       "label": "com.mm1601.boaters-live-monitor",
       "loaded": true,
-      "message": "01 [100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 2\n\tlast exit code = 2\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+      "message": "polined = 1\n\tstarted suspended = 0\n\tproxy started suspended = 0\n\tlast exit code = (never exited)\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
     },
     {
       "role": "retry",
       "label": "com.mm1601.boaters-original-retry",
       "loaded": true,
-      "message": "501 [100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 5\n\tlast exit code = 2\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+      "message": "mpolined = 1\n\tstarted suspended = 0\n\tproxy started suspended = 0\n\tlast exit code = (never exited)\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
     },
     {
       "role": "screenshot_post",
       "label": "com.mm1601.boaters-post-snapshot",
       "loaded": true,
-      "message": "ized = 1\n\ttrampolined = 1\n\tstarted suspended = 0\n\tproxy started suspended = 0\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+      "message": "mpolined = 1\n\tstarted suspended = 0\n\tproxy started suspended = 0\n\tlast exit code = (never exited)\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
     },
     {
       "role": "screenshot_archive",
       "label": "com.mm1601.boaters-exhibition-5m",
       "loaded": true,
-      "message": "sid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 2\n\tlast exit code = 75: EX_TEMPFAIL\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+      "message": "polined = 1\n\tstarted suspended = 0\n\tproxy started suspended = 0\n\tlast exit code = (never exited)\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
     },
     {
       "role": "dashboard",
       "label": "com.mm1601.boaters-ops-dashboard",
       "loaded": true,
-      "message": "launchd.calendarinterval\" = {\n\t\t\tport = 0x71113\n\t\t\tactive = 0\n\t\t\tmanaged = 1\n\t\t\treset = 0\n\t\t\thide = 0\n\t\t\twatching = 0\n\t\t}\n\t}\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+      "message": "launchd.calendarinterval\" = {\n\t\t\tport = 0x7112b\n\t\t\tactive = 0\n\t\t\tmanaged = 1\n\t\t\treset = 0\n\t\t\thide = 0\n\t\t\twatching = 0\n\t\t}\n\t}\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
     },
     {
       "role": "publisher",
       "label": "com.mm1601.boaters-dashboard-publisher",
       "loaded": true,
-      "message": "launchd.calendarinterval\" = {\n\t\t\tport = 0x84183\n\t\t\tactive = 0\n\t\t\tmanaged = 1\n\t\t\treset = 0\n\t\t\thide = 0\n\t\t\twatching = 1\n\t\t}\n\t}\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+      "message": "launchd.calendarinterval\" = {\n\t\t\tport = 0x75827\n\t\t\tactive = 0\n\t\t\tmanaged = 1\n\t\t\treset = 0\n\t\t\thide = 0\n\t\t\twatching = 0\n\t\t}\n\t}\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
     },
     {
       "role": "post_import",
       "label": "com.mm1601.boaters-post-import",
       "loaded": true,
-      "message": "501 [100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 6\n\tlast exit code = 5\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+      "message": "mpolined = 1\n\tstarted suspended = 0\n\tproxy started suspended = 0\n\tlast exit code = (never exited)\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
     },
     {
       "role": "screenshot_archive_import",
       "label": "com.mm1601.boaters-exhibition-5m-import",
       "loaded": true,
-      "message": "501 [100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 5\n\tlast exit code = 5\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+      "message": "mpolined = 1\n\tstarted suspended = 0\n\tproxy started suspended = 0\n\tlast exit code = (never exited)\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
     },
     {
       "role": "audit",
       "label": "com.mm1601.boaters-runtime-audit",
       "loaded": true,
-      "message": "zed = 1\n\ttrampolined = 1\n\tstarted suspended = 0\n\tproxy started suspended = 0\n\tlast exit code = 2\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+      "message": "polined = 1\n\tstarted suspended = 0\n\tproxy started suspended = 0\n\tlast exit code = (never exited)\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
     }
   ],
   "repairs": [
     {
-      "role": "live",
-      "label": "com.mm1601.boaters-live-monitor",
-      "state": "cooldown"
-    },
-    {
-      "role": "retry",
-      "label": "com.mm1601.boaters-original-retry",
-      "state": "cooldown"
-    },
-    {
-      "role": "screenshot_archive",
-      "label": "com.mm1601.boaters-exhibition-5m",
-      "state": "kicked",
-      "message": ""
+      "role": "external_runtime",
+      "state": "repaired",
+      "returncode": 0,
+      "message": "oaters_schedule_screenshot.py\", \"before_sha256\": \"f1537d7312f7ecd0d6a5e1a0f9d62fd2d6de4c3d5e872f64f98d2550fe247855\", \"after_sha256\": \"f1537d7312f7ecd0d6a5e1a0f9d62fd2d6de4c3d5e872f64f98d2550fe247855\"}, {\"name\": \"run_boaters_exhibition_5m_cycle.sh\", \"destination\": \"/Users/ohyabumasaya/Library/Application Support/ManshuScreenshotMonitor/manshu_detailed_analysis/boaters_screenshot_runtime/scripts/run_boaters_exhibition_5m_cycle.sh\", \"before_sha256\": \"4e45c26b58f2494e42cde27eb08fffae9331b3810f5e3b887381ae50d62a21e2\", \"after_sha256\": \"4e45c26b58f2494e42cde27eb08fffae9331b3810f5e3b887381ae50d62a21e2\"}, {\"name\": \"capture_boaters_screenshots.cjs\", \"destination\": \"/Users/ohyabumasaya/Library/Application Support/ManshuScreenshotMonitor/manshu_detailed_analysis/boaters_screenshot_runtime/scripts/capture_boaters_screenshots.cjs\", \"before_sha256\": \"b6815c9dd5fc19c1cd5297e8eaae79bf17ea7dc0b0fecce256dd6605814e144f\", \"after_sha256\": \"b6815c9dd5fc19c1cd5297e8eaae79bf17ea7dc0b0fecce256dd6605814e144f\"}]}"
     },
     {
       "role": "screenshot_post",
