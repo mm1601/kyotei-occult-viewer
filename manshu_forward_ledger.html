@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#171a1f">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>公開フォワード検証台帳</title>
+  <style>
+    :root{
+      --bg:#f3f4f6;--surface:#fff;--soft:#f8f9fa;--ink:#171a1f;--muted:#68717d;
+      --line:#d9dde3;--line-strong:#b9c0ca;--teal:#087f6b;--teal-soft:#e9f7f3;
+      --red:#b42338;--red-soft:#fff0f2;--gold:#8a610f;--gold-soft:#fff7e5;
+      --blue:#2864ad;--blue-soft:#edf4fc;--dark:#171a1f;--shadow:0 1px 2px rgba(23,26,31,.05);
+      --lane1:#fff;--lane2:#272a2f;--lane3:#d4313d;--lane4:#2674c8;--lane5:#f0c62d;--lane6:#2b9d62;
+    }
+    *{box-sizing:border-box}
+    [hidden]{display:none!important}
+    html{background:var(--bg)}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;font-size:14px;line-height:1.55;letter-spacing:0}
+    button,input,select{font:inherit;letter-spacing:0}
+    button{cursor:pointer}
+    a{color:inherit}
+    .app{max-width:1180px;margin:0 auto;padding:14px 14px 42px}
+    .masthead{background:var(--dark);color:#fff;border-radius:6px;padding:17px 18px 16px;box-shadow:var(--shadow)}
+    .mast-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+    .eyebrow{display:flex;align-items:center;gap:9px;color:#9fe0cf;font-size:12px;font-weight:850}
+    .dot{width:8px;height:8px;border-radius:50%;background:#62d5b1;box-shadow:0 0 0 4px rgba(98,213,177,.14)}
+    .dot.warn{background:#e6ad3b;box-shadow:0 0 0 4px rgba(230,173,59,.14)}
+    h1{font-size:27px;line-height:1.2;margin:7px 0 0;font-weight:900}
+    .mast-meta{margin:8px 0 0;color:#cbd0d8;font-size:12px}
+    .mast-actions{display:flex;gap:7px}
+    .icon-btn,.back-link{height:38px;border:1px solid #424851;border-radius:5px;background:#252a31;color:#fff;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-weight:850}
+    .icon-btn{width:38px;font-size:21px}
+    .back-link{padding:0 11px;font-size:12px;white-space:nowrap}
+    .integrity-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:6px;background:var(--surface);padding:10px 12px;margin:12px 0;box-shadow:var(--shadow)}
+    .integrity-strip.warn{border-left-color:var(--gold)}
+    .integrity-strip.bad{border-left-color:var(--red)}
+    .integrity-title{font-weight:900}
+    .integrity-sub{color:var(--muted);font-size:12px;margin-top:1px}
+    .badge{display:inline-flex;align-items:center;min-height:24px;border-radius:4px;padding:3px 8px;background:var(--teal-soft);color:var(--teal);font-size:11px;font-weight:900;white-space:nowrap}
+    .badge.warn{background:var(--gold-soft);color:var(--gold)}
+    .badge.bad{background:var(--red-soft);color:var(--red)}
+    .badge.neutral{background:#eef0f3;color:#555e69}
+    .notice{border-left:4px solid var(--blue);background:var(--blue-soft);color:#244f82;padding:9px 11px;margin-bottom:12px;font-size:12px}
+    .kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);margin-bottom:12px}
+    .kpi{padding:12px 13px;border-right:1px solid var(--line);min-width:0}
+    .kpi:last-child{border-right:0}
+    .kpi span{display:block;color:var(--muted);font-size:10px;font-weight:800}
+    .kpi b{display:block;font-size:21px;line-height:1.2;margin-top:3px;font-weight:950;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .kpi small{display:block;color:var(--muted);font-size:10px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .positive{color:var(--teal)!important}.negative{color:var(--red)!important}
+    .quality{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);margin-bottom:17px}
+    .quality-item{padding:10px 12px;border-right:1px solid var(--line);min-width:0}
+    .quality-item:last-child{border-right:0}
+    .quality-item span{display:block;color:var(--muted);font-size:10px;font-weight:800}
+    .quality-item b{display:block;margin-top:2px;font-size:15px;font-variant-numeric:tabular-nums}
+    .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:17px 0 8px}
+    .section-head h2{font-size:17px;margin:0}
+    .section-head p{margin:2px 0 0;color:var(--muted);font-size:12px}
+    .tables{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .table-shell{min-width:0}
+    table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:6px;overflow:hidden;box-shadow:var(--shadow)}
+    th,td{padding:9px 8px;border-bottom:1px solid #e8ebef;text-align:left;vertical-align:top;font-variant-numeric:tabular-nums}
+    th{background:#f6f7f8;color:var(--muted);font-size:10px;font-weight:850}
+    tr:last-child td{border-bottom:0}
+    .roi{font-weight:900;color:var(--teal)}
+    .controls{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 0 9px}
+    .filters{display:flex;gap:4px;padding:3px;background:#e4e7eb;border:1px solid #d7dbe1;border-radius:6px;overflow-x:auto}
+    .filter{border:0;border-radius:4px;background:transparent;color:#59616d;padding:8px 11px;font-size:12px;font-weight:850;white-space:nowrap}
+    .filter.active{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(23,26,31,.08)}
+    .search{height:38px;width:min(100%,230px);border:1px solid var(--line-strong);border-radius:5px;background:#fff;padding:0 10px;color:var(--ink)}
+    .record-list{display:grid;gap:9px}
+    .record{background:var(--surface);border:1px solid var(--line);border-left:5px solid #7a828e;border-radius:6px;box-shadow:var(--shadow);overflow:hidden}
+    .record.hit{border-left-color:var(--teal)}
+    .record.pending{border-left-color:var(--gold)}
+    .record.failed{border-left-color:var(--red)}
+    .record-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:12px 13px;border-bottom:1px solid var(--line)}
+    .race-line{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+    .race{font-size:18px;font-weight:950}
+    .time{margin-top:4px;color:var(--muted);font-size:11px}
+    .record-result{text-align:right;min-width:120px}
+    .result-main{font-size:15px;font-weight:950}
+    .result-sub{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+    .record-body{padding:11px 13px 13px}
+    .condition{font-size:12px;font-weight:800;color:#303640;margin:0}
+    .buy-method{font-size:11px;color:var(--muted);margin:4px 0 0}
+    .tickets{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+    .ticket{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:5px;background:#fff;padding:4px 6px}
+    .lane{display:inline-flex;width:20px;height:20px;border-radius:50%;align-items:center;justify-content:center;font-size:11px;font-weight:900;border:1px solid transparent}
+    .lane-1{background:var(--lane1);color:#171a1f;border-color:#9ca3ad}.lane-2{background:var(--lane2);color:#fff}.lane-3{background:var(--lane3);color:#fff}.lane-4{background:var(--lane4);color:#fff}.lane-5{background:var(--lane5);color:#171a1f}.lane-6{background:var(--lane6);color:#fff}
+    .arrow{color:#9aa1aa;font-size:9px}
+    .facts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin-top:10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .fact{padding:8px;border-right:1px solid var(--line);min-width:0}
+    .fact:first-child{padding-left:0}.fact:last-child{border-right:0}
+    .fact span{display:block;color:var(--muted);font-size:9px;font-weight:800}
+    .fact b{display:block;margin-top:2px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+    details{margin-top:7px}
+    summary{cursor:pointer;color:var(--blue);font-size:11px;font-weight:850;list-style:none;padding:3px 0}
+    summary::-webkit-details-marker{display:none}
+    .hash-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;border-top:1px solid #edf0f3;padding-top:8px;margin-top:4px}
+    .hash-line{min-width:0;color:var(--muted);font-size:10px}
+    .hash-line b{display:block;color:#3d4550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px}
+    .empty{background:#fff;border:1px solid var(--line);border-radius:6px;padding:27px 16px;text-align:center;color:var(--muted)}
+    .empty b{display:block;color:var(--ink);font-size:15px;margin-bottom:3px}
+    .more-btn{display:block;width:100%;height:42px;margin-top:9px;border:1px solid var(--line-strong);border-radius:5px;background:#fff;color:var(--blue);font-weight:900}
+    .integrity-detail{background:#fff;border:1px solid var(--line);border-radius:6px;padding:12px 13px;box-shadow:var(--shadow)}
+    .integrity-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .integrity-cell{min-width:0}
+    .integrity-cell span{display:block;color:var(--muted);font-size:10px;font-weight:800}
+    .integrity-cell b{display:block;margin-top:2px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+    footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:20px;padding-top:12px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}
+    .loading{display:flex;align-items:center;justify-content:center;min-height:260px;color:var(--muted);font-weight:850}
+    .error{background:var(--red-soft);border:1px solid #edb8c0;color:var(--red);border-radius:6px;padding:14px;margin-top:12px}
+    @media(max-width:860px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.kpi:nth-child(3n){border-right:0}.kpi:nth-child(-n+3){border-bottom:1px solid var(--line)}.tables{grid-template-columns:1fr}.facts{grid-template-columns:repeat(3,minmax(0,1fr))}.fact:nth-child(3){border-right:0}.fact:nth-child(n+4){border-top:1px solid var(--line)}.fact:nth-child(5){border-right:0}.integrity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:620px){.app{padding:8px 8px 28px}.masthead{padding:14px}.mast-top{gap:8px}h1{font-size:23px}.back-link{padding:0 8px;font-size:11px}.integrity-strip{align-items:flex-start}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi:nth-child(3n){border-right:1px solid var(--line)}.kpi:nth-child(2n){border-right:0}.kpi:nth-child(-n+4){border-bottom:1px solid var(--line)}.quality{grid-template-columns:repeat(2,minmax(0,1fr))}.quality-item:nth-child(2){border-right:0}.quality-item:nth-child(-n+2){border-bottom:1px solid var(--line)}.controls{align-items:stretch;flex-direction:column}.filters{width:100%}.filter{flex:1}.search{width:100%;max-width:none}.record-head{grid-template-columns:1fr}.record-result{text-align:left;min-width:0}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.fact:nth-child(3){border-right:1px solid var(--line)}.fact:nth-child(2n){border-right:0}.fact:nth-child(n+3){border-top:1px solid var(--line)}.hash-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="masthead">
+      <div class="mast-top">
+        <div>
+          <div class="eyebrow"><span class="dot" id="chain-dot"></span><span id="chain-label">台帳を検証中</span></div>
+          <h1>公開フォワード検証台帳</h1>
+          <p class="mast-meta" id="mast-meta">実運用ログを読み込んでいます</p>
+        </div>
+        <div class="mast-actions">
+          <a class="back-link" href="manshu.html">管制盤</a>
+          <button class="icon-btn" id="refresh" type="button" title="再読み込み" aria-label="再読み込み">↻</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="integrity-strip" id="integrity-strip">
+      <div><div class="integrity-title" id="integrity-title">記録を確認しています</div><div class="integrity-sub" id="integrity-sub">ハッシュチェーンを端末内で再計算中</div></div>
+      <span class="badge neutral" id="integrity-badge">確認中</span>
+    </section>
+
+    <div class="notice">過去バックテストは含めません。実際に発行されたサインを、外れ・通知失敗を含めて固定額100円/点で集計しています。</div>
+
+    <div id="loading" class="loading">公開台帳を読み込んでいます</div>
+    <div id="error" class="error" hidden></div>
+
+    <div id="content" hidden>
+      <section class="kpis" aria-label="通算実績">
+        <div class="kpi"><span>実運用サイン</span><b id="kpi-records">-</b><small id="kpi-records-note">-</small></div>
+        <div class="kpi"><span>確定・的中</span><b id="kpi-hits">-</b><small id="kpi-hit-rate">-</small></div>
+        <div class="kpi"><span>回収率</span><b id="kpi-roi">-</b><small id="kpi-money">-</small></div>
+        <div class="kpi"><span>通算収支</span><b id="kpi-profit">-</b><small>各買い目100円</small></div>
+        <div class="kpi"><span>最大連敗</span><b id="kpi-losing">-</b><small id="kpi-current-losing">-</small></div>
+        <div class="kpi"><span>最大ドローダウン</span><b id="kpi-drawdown">-</b><small>累積収支の最高点から</small></div>
+      </section>
+
+      <section class="quality" aria-label="記録品質">
+        <div class="quality-item"><span>必須データ充足</span><b id="quality-complete">-</b></div>
+        <div class="quality-item"><span>通知到達率</span><b id="quality-delivery">-</b></div>
+        <div class="quality-item"><span>締切前ライブ封印</span><b id="quality-live">-</b></div>
+        <div class="quality-item"><span>初回取り込み</span><b id="quality-imported">-</b></div>
+      </section>
+
+      <section>
+        <div class="section-head"><div><h2>期間別・場別成績</h2><p>同じ100円/点で集計</p></div></div>
+        <div class="tables">
+          <div class="table-shell" id="monthly-table"></div>
+          <div class="table-shell" id="venue-table"></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="controls">
+          <div class="filters" aria-label="記録の絞り込み">
+            <button class="filter active" type="button" data-filter="all">全件</button>
+            <button class="filter" type="button" data-filter="hit">的中</button>
+            <button class="filter" type="button" data-filter="miss">外れ</button>
+            <button class="filter" type="button" data-filter="failed">通知失敗</button>
+            <button class="filter" type="button" data-filter="pending">未確定</button>
+          </div>
+          <input class="search" id="search" type="search" placeholder="場名で絞る" aria-label="場名で絞る">
+        </div>
+        <div class="section-head"><div><h2>全発行記録</h2><p id="record-count">0件</p></div></div>
+        <div class="record-list" id="record-list"></div>
+        <button class="more-btn" id="more" type="button" hidden>さらに表示</button>
+      </section>
+
+      <section>
+        <div class="section-head"><div><h2>改ざん検知情報</h2><p>イベントを順番に連結したSHA-256</p></div></div>
+        <div class="integrity-detail"><div class="integrity-grid">
+          <div class="integrity-cell"><span>イベント数</span><b id="chain-events">-</b></div>
+          <div class="integrity-cell"><span>先頭ハッシュ</span><b id="chain-head">-</b></div>
+          <div class="integrity-cell"><span>台帳開始</span><b id="chain-start">-</b></div>
+          <div class="integrity-cell"><span>元ログ期間</span><b id="source-period">-</b></div>
+        </div></div>
+      </section>
+    </div>
+
+    <footer><span>24場サイン 公開フォワード検証</span><span id="footer-updated">-</span></footer>
+  </main>
+
+  <script>
+    (function(){
+      "use strict";
+      var STATE={data:null,filter:"all",query:"",limit:100,clientVerified:null};
+      function esc(value){return String(value==null?"":value).replace(/[&<>"']/g,function(ch){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch];});}
+      function num(value,digits){var n=Number(value);return Number.isFinite(n)?n.toLocaleString("ja-JP",{minimumFractionDigits:digits||0,maximumFractionDigits:digits||0}):"-";}
+      function yen(value){var n=Number(value);return Number.isFinite(n)?"¥"+Math.abs(n).toLocaleString("ja-JP"):"-";}
+      function signedYen(value){var n=Number(value);return Number.isFinite(n)?(n>0?"+":n<0?"-":"")+yen(n):"-";}
+      function pct(value,digits){var n=Number(value);return Number.isFinite(n)?num(n,digits==null?1:digits)+"%":"-";}
+      function clock(value){if(!value)return "-";var d=new Date(value);return Number.isNaN(d.getTime())?String(value):new Intl.DateTimeFormat("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(d);}
+      function shortHash(value){var text=String(value||"");return text?text.slice(0,12)+"…":"-";}
+      function canonical(value){if(Array.isArray(value))return value.map(canonical);if(value&&typeof value==="object"){var out={};Object.keys(value).sort().forEach(function(key){out[key]=canonical(value[key]);});return out;}return value;}
+      async function hash(value){var bytes=new TextEncoder().encode(JSON.stringify(canonical(value))),digest=await crypto.subtle.digest("SHA-256",bytes);return Array.from(new Uint8Array(digest)).map(function(byte){return byte.toString(16).padStart(2,"0");}).join("");}
+      async function verifyClient(events){if(!crypto||!crypto.subtle)return null;var previous="0".repeat(64);for(var index=0;index<events.length;index+=1){var source=events[index],copy={};Object.keys(source).forEach(function(key){if(key!=="event_hash")copy[key]=source[key];});if(source.sequence!==index+1||source.previous_event_hash!==previous||await hash(copy)!==source.event_hash)return false;previous=source.event_hash;}return true;}
+      function setProfit(element,value){element.textContent=signedYen(value);element.className=Number(value)>=0?"positive":"negative";}
+      function lane(value){return '<span class="lane lane-'+esc(value)+'">'+esc(value)+'</span>';}
+      function ticket(value){return '<span class="ticket">'+String(value||"").split("-").map(lane).join('<span class="arrow">›</span>')+'</span>';}
+      function resultStatus(row){var notification=(row.notification||{}).status,result=row.result||{};if(notification==="failed")return "failed";if(!row.result)return "pending";return result.hit?"hit":"miss";}
+      function resultLabel(row){var status=resultStatus(row);return status==="hit"?"的中":status==="miss"?"外れ":status==="failed"?"通知失敗":"未確定";}
+      function sealLabel(row){return row.seal_mode==="live_sealed"?"締切前封印":row.seal_mode==="imported_forward_log"?"初回取り込み":row.seal_mode==="late_observation"?"締切後確認":"時刻未確認";}
+      function notificationLabel(row){var status=(row.notification||{}).status;return status==="sent"?"通知成功":status==="duplicate_sent"?"通知済み":status==="failed"?"通知失敗":"通知待ち";}
+      function table(title,rows){return '<table><thead><tr><th>'+esc(title)+'</th><th>件数</th><th>的中</th><th>回収率</th><th>収支</th></tr></thead><tbody>'+rows.map(function(row){return '<tr><td><b>'+esc(row.key)+'</b></td><td>'+num(row.settled,0)+'</td><td>'+num(row.hits,0)+'</td><td class="roi">'+pct(row.roi_pct,1)+'</td><td class="'+(Number(row.profit_yen)>=0?'positive':'negative')+'">'+signedYen(row.profit_yen)+'</td></tr>';}).join("")+'</tbody></table>';}
+      function recordHtml(row){var result=row.result||{},notification=row.notification||{},status=resultStatus(row),minutes=Number(row.minutes_to_deadline),profit=Number(result.profit_yen),quality=(row.quality_reasons||[]),conflicts=(row.conflicts||[]);return '<article class="record '+status+'">'+
+        '<div class="record-head"><div><div class="race-line"><span class="race">'+esc(row.venue)+esc(row.round)+'R</span><span class="badge '+(status==="hit"?'':status==="failed"?'bad':status==="pending"?'warn':'neutral')+'">'+resultLabel(row)+'</span><span class="badge '+(row.seal_mode==="live_sealed"?'':row.seal_mode==="imported_forward_log"?'warn':'bad')+'">'+sealLabel(row)+'</span></div><div class="time">発行 '+clock(row.issued_at)+' / 締切 '+(Number.isFinite(minutes)?num(minutes,1)+'分前':'未確認')+'</div></div>'+
+        '<div class="record-result"><span class="result-main">'+(row.result?esc(result.trifecta||'-'):'結果待ち')+'</span><span class="result-sub">'+(row.result?'3連単 '+yen(result.payout_yen):notificationLabel(row))+'</span></div></div>'+
+        '<div class="record-body"><p class="condition">'+esc(row.condition||'-')+'</p><p class="buy-method">'+esc(row.buy_method||'-')+'</p><div class="tickets">'+(row.tickets||[]).map(ticket).join("")+'</div>'+
+        '<div class="facts"><div class="fact"><span>買い目</span><b>'+num(row.points,0)+'点</b></div><div class="fact"><span>投資</span><b>'+yen(result.investment_yen==null?row.planned_investment_yen:result.investment_yen)+'</b></div><div class="fact"><span>払戻</span><b>'+yen(result.payback_yen)+'</b></div><div class="fact"><span>収支</span><b class="'+(profit>=0?'positive':'negative')+'">'+(row.result?signedYen(profit):'-')+'</b></div><div class="fact"><span>通知</span><b class="'+(notification.status==="failed"?'negative':'')+'">'+notificationLabel(row)+'</b></div></div>'+
+        '<details><summary>記録証明と品質</summary><div class="hash-grid"><div class="hash-line">発行イベント<b>'+esc(row.issue_event_hash||'-')+'</b></div><div class="hash-line">結果イベント<b>'+esc(row.settlement_event_hash||'-')+'</b></div><div class="hash-line">元データ指紋<b>'+esc(row.source_snapshot_hash||'-')+'</b></div><div class="hash-line">品質判定<b>'+esc(row.quality_eligible?'集計対象':quality.join(', ')||'対象外')+'</b></div>'+(conflicts.length?'<div class="hash-line">競合<b>'+esc(conflicts.length+'件を検知')+'</b></div>':'')+'</div></details></div></article>';}
+      function filteredRecords(){return (STATE.data.records||[]).filter(function(row){var status=resultStatus(row),query=STATE.query.trim();return (STATE.filter==="all"||STATE.filter===status)&&(!query||String(row.venue||"").indexOf(query)>=0);});}
+      function renderRecords(){var rows=filteredRecords(),visible=rows.slice(0,STATE.limit),list=document.getElementById("record-list"),more=document.getElementById("more");document.getElementById("record-count").textContent=rows.length+"件";list.innerHTML=visible.length?visible.map(recordHtml).join(""):'<div class="empty"><b>該当する記録はありません</b><span>別の条件で確認してください。</span></div>';more.hidden=visible.length>=rows.length;more.textContent="さらに表示（残り "+Math.max(0,rows.length-visible.length)+"件）";}
+      function renderIntegrity(clientVerified){var chain=STATE.data.chain||{},quality=STATE.data.quality||{},ok=chain.verified&&clientVerified!==false&&Number(quality.conflict_records||0)===0,strip=document.getElementById("integrity-strip"),badge=document.getElementById("integrity-badge"),dot=document.getElementById("chain-dot");strip.className="integrity-strip"+(ok?"":clientVerified===false?" bad":" warn");badge.className="badge "+(ok?"":clientVerified===false?"bad":"warn");badge.textContent=ok?"検証一致":clientVerified===false?"不一致":"要確認";dot.className="dot"+(ok?"":" warn");document.getElementById("chain-label").textContent=ok?"ハッシュ検証済み":"台帳要確認";document.getElementById("integrity-title").textContent=ok?"発行後の書き換えは検知されていません":"台帳の整合性を確認してください";document.getElementById("integrity-sub").textContent="端末再計算 "+(clientVerified===null?"未対応":clientVerified?"一致":"不一致")+" / 競合 "+num(quality.conflict_records,0)+"件 / 最新 "+shortHash(chain.head_hash);}
+      function render(){var data=STATE.data,summary=(data.summaries||{}).all_forward||{},quality=data.quality||{},chain=data.chain||{},coverage=data.source_coverage||{};document.getElementById("loading").hidden=true;document.getElementById("content").hidden=false;document.getElementById("mast-meta").textContent="更新 "+clock(data.generated_at)+" / 元ログ "+(coverage.first_date||'-')+"〜"+(coverage.last_date||'-');document.getElementById("kpi-records").textContent=num(summary.records,0)+"R";document.getElementById("kpi-records-note").textContent="集計対象 "+num(summary.eligible_records,0)+"R";document.getElementById("kpi-hits").textContent=num(summary.settled,0)+"R / "+num(summary.hits,0)+"的中";document.getElementById("kpi-hit-rate").textContent="的中率 "+pct(summary.hit_rate_pct,1);document.getElementById("kpi-roi").textContent=pct(summary.roi_pct,1);document.getElementById("kpi-money").textContent="投資 "+yen(summary.investment_yen)+" / 払戻 "+yen(summary.payback_yen);setProfit(document.getElementById("kpi-profit"),summary.profit_yen);document.getElementById("kpi-losing").textContent=num(summary.max_losing_streak,0)+"連敗";document.getElementById("kpi-current-losing").textContent="現在 "+num(summary.current_losing_streak,0)+"連敗";document.getElementById("kpi-drawdown").textContent=yen(summary.max_drawdown_yen);document.getElementById("quality-complete").textContent=pct(quality.required_field_completeness_pct,1);document.getElementById("quality-delivery").textContent=pct(summary.notification_delivery_pct,1)+"（失敗 "+num(summary.notification_failed,0)+"）";document.getElementById("quality-live").textContent=num(quality.live_sealed,0)+"件";document.getElementById("quality-imported").textContent=num(quality.imported_forward_logs,0)+"件";document.getElementById("monthly-table").innerHTML=table("月",(data.summaries||{}).monthly||[]);document.getElementById("venue-table").innerHTML=table("場",(data.summaries||{}).venues||[]);document.getElementById("chain-events").textContent=num(chain.event_count,0);document.getElementById("chain-head").textContent=shortHash(chain.head_hash);document.getElementById("chain-start").textContent=clock(data.ledger_started_at);document.getElementById("source-period").textContent=(coverage.first_date||'-')+"〜"+(coverage.last_date||'-');document.getElementById("footer-updated").textContent="最終更新 "+clock(data.generated_at);renderRecords();renderIntegrity(STATE.clientVerified);}
+      async function load(){document.getElementById("loading").hidden=false;document.getElementById("content").hidden=true;document.getElementById("error").hidden=true;try{var response=await fetch("data/output/manshu_forward_ledger.json?t="+Date.now(),{cache:"no-store"});if(!response.ok)throw new Error("台帳JSONが見つかりません");STATE.data=await response.json();STATE.clientVerified=await verifyClient(STATE.data.events||[]);render();}catch(error){document.getElementById("loading").hidden=true;var box=document.getElementById("error");box.hidden=false;box.textContent="公開台帳を表示できませんでした: "+String(error&&error.message?error.message:error);}}
+      document.querySelectorAll(".filter").forEach(function(button){button.addEventListener("click",function(){document.querySelectorAll(".filter").forEach(function(item){item.classList.remove("active");});button.classList.add("active");STATE.filter=button.dataset.filter;STATE.limit=100;renderRecords();});});
+      document.getElementById("search").addEventListener("input",function(event){STATE.query=event.target.value;STATE.limit=100;renderRecords();});
+      document.getElementById("more").addEventListener("click",function(){STATE.limit+=100;renderRecords();});
+      document.getElementById("refresh").addEventListener("click",load);
+      load();
+    })();
+  </script>
+</body>
+</html>
