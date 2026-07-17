@@ -119,16 +119,20 @@
         <span class="badge" id="order-status-badge">準備完了</span>
       </div>
 
-      <details class="setup-guide">
-        <summary>初回だけ: Safari入力補助を設定</summary>
+      <details class="setup-guide" open>
+        <summary>初回だけ: iPhoneショートカットを設定</summary>
         <div class="setup-body">
           <ol class="setup-steps">
-            <li>Safariでブックマークを1つ作り、名前を「24場買い目入力」にします。</li>
-            <li>下のボタンでコードをコピーし、作ったブックマークのURL欄へ貼り付けます。</li>
-            <li>以後は公式3連単画面で、そのブックマークをタップします。</li>
+            <li>「ショートカット用コードをコピー」を押します。</li>
+            <li>ショートカットAppで「WebページでJavaScriptを実行」を1つ追加し、見本のコードを消して貼り付けます。</li>
+            <li>名前を「24場買い目入力」にし、「共有シートに表示」をオン、受け取る対象を「SafariのWebページ」だけにします。</li>
+            <li>以後は公式3連単画面の共有メニューから「24場買い目入力」を押します。</li>
           </ol>
-          <button class="btn" id="bookmarklet-btn" type="button">ブックマーク用コードをコピー</button>
-          <div class="setup-status" id="bookmarklet-status"></div>
+          <div class="actions">
+            <button class="btn" id="shortcut-code-btn" type="button">ショートカット用コードをコピー</button>
+            <a class="btn" href="shortcuts://create-shortcut">ショートカットAppを開く</a>
+          </div>
+          <div class="setup-status" id="shortcut-code-status"></div>
         </div>
       </details>
 
@@ -199,7 +203,7 @@
       var LOG_KEY="manshu-purchase-actions-v1";
       var DRAFT_KEY="manshu-purchase-drafts-v1";
       var AUTOFILL_SCRIPT_URL="https://mm1601.github.io/kyotei-occult-viewer/manshu_autofill.js?v=20260717-1";
-      var BOOKMARKLET_CODE="javascript:(()=>{if(window.__manshuAutofillLoading)return;window.__manshuAutofillLoading=true;const s=document.createElement('script');s.src='"+AUTOFILL_SCRIPT_URL+"';s.onload=()=>{window.__manshuAutofillLoading=false};s.onerror=()=>{window.__manshuAutofillLoading=false;alert('24場入力補助を読み込めませんでした')};document.head.appendChild(s)})()";
+      var SHORTCUT_CODE="(function(){if(window.__manshuAutofillLoading){completion();return;}window.__manshuAutofillLoading=true;var s=document.createElement('script');s.src='"+AUTOFILL_SCRIPT_URL+"';s.onload=function(){window.__manshuAutofillLoading=false;completion();};s.onerror=function(){window.__manshuAutofillLoading=false;completion('24場入力補助を読み込めませんでした');};document.head.appendChild(s);}());";
       var VENUE_CODES={"桐生":"01","戸田":"02","江戸川":"03","平和島":"04","多摩川":"05","浜名湖":"06","蒲郡":"07","常滑":"08","津":"09","三国":"10","びわこ":"11","琵琶湖":"11","住之江":"12","尼崎":"13","鳴門":"14","丸亀":"15","児島":"16","宮島":"17","徳山":"18","下関":"19","若松":"20","芦屋":"21","福岡":"22","唐津":"23","大村":"24"};
       var STATE={order:null,hashValid:false,settings:{unitYen:100,dailyCapYen:10000},logs:[],drafts:{},timer:null};
 
@@ -317,7 +321,7 @@
       }
 
       function copyOfficialUrl(){copyText(officialAutofillUrl()).then(function(){var button=document.getElementById("official-url-btn"),original=button.textContent;button.textContent="コピー済み";setTimeout(function(){button.textContent=original;},1200);});}
-      function copyBookmarklet(){var status=document.getElementById("bookmarklet-status");copyText(BOOKMARKLET_CODE).then(function(){status.textContent="コピーしました。SafariのブックマークURL欄へ貼り付けてください。";}).catch(function(){status.textContent="コピーできませんでした。Safariでこのページを開いて再度お試しください。";});}
+      function copyShortcutCode(){var status=document.getElementById("shortcut-code-status");copyText(SHORTCUT_CODE).then(function(){status.textContent="コピーしました。ショートカットのJavaScript欄へ貼り付けてください。";}).catch(function(){status.textContent="コピーできませんでした。Safariでこのページを開いて再度お試しください。";});}
 
       function exportLogs(){var blob=new Blob([JSON.stringify({version:"manshu-purchase-actions-v1",exported_at:new Date().toISOString(),actions:STATE.logs},null,2)+"\n"],{type:"application/json"}),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download="manshu_purchase_actions_"+new Date().toISOString().slice(0,10)+".json";link.click();setTimeout(function(){URL.revokeObjectURL(url);},1000);}
 
@@ -338,7 +342,7 @@
 
       document.getElementById("unit-yen").addEventListener("change",function(event){STATE.settings.unitYen=normalizeMoney(event.target.value,100);writeJson(SETTINGS_KEY,STATE.settings);STATE.drafts[STATE.order.order_id]={amounts:STATE.order.ticket_rows.map(function(){return STATE.settings.unitYen;}),updated_at:new Date().toISOString()};writeJson(DRAFT_KEY,STATE.drafts);renderTickets();renderSafety();});
       document.getElementById("daily-cap").addEventListener("change",function(event){STATE.settings.dailyCapYen=normalizeMoney(event.target.value,10000);writeJson(SETTINGS_KEY,STATE.settings);event.target.value=STATE.settings.dailyCapYen;renderSafety();});
-      document.getElementById("copy-btn").addEventListener("click",copyTickets);document.getElementById("official-url-btn").addEventListener("click",copyOfficialUrl);document.getElementById("bookmarklet-btn").addEventListener("click",copyBookmarklet);document.getElementById("official-btn").addEventListener("click",function(event){if(this.classList.contains("disabled"))event.preventDefault();});document.getElementById("purchased-btn").addEventListener("click",function(){saveAction("purchased");});document.getElementById("skip-btn").addEventListener("click",function(){saveAction("skipped");});document.getElementById("missed-btn").addEventListener("click",function(){saveAction("missed");});document.getElementById("export-btn").addEventListener("click",exportLogs);
+      document.getElementById("copy-btn").addEventListener("click",copyTickets);document.getElementById("official-url-btn").addEventListener("click",copyOfficialUrl);document.getElementById("shortcut-code-btn").addEventListener("click",copyShortcutCode);document.getElementById("official-btn").addEventListener("click",function(event){if(this.classList.contains("disabled"))event.preventDefault();});document.getElementById("purchased-btn").addEventListener("click",function(){saveAction("purchased");});document.getElementById("skip-btn").addEventListener("click",function(){saveAction("skipped");});document.getElementById("missed-btn").addEventListener("click",function(){saveAction("missed");});document.getElementById("export-btn").addEventListener("click",exportLogs);
       init();
     })();
   </script>
