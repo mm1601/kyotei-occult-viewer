@@ -66,8 +66,16 @@
     .btn{min-height:42px;border:1px solid var(--line-strong);border-radius:5px;background:#fff;color:var(--ink);font-weight:900;padding:8px 11px;text-align:center;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
     .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
     .btn.success{background:var(--teal);border-color:var(--teal);color:#fff}
+    .btn.x-post{background:#171a1f;border-color:#171a1f;color:#fff}
     .btn.danger{color:var(--danger);border-color:#ddaab3}
     .btn.full{grid-column:1/-1}
+    .share-tools{margin:0 0 12px;padding:0 0 12px;border-bottom:1px solid var(--line)}
+    .share-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .share-head b{font-size:13px}
+    .share-head span{color:var(--muted);font-size:10px;text-align:right}
+    .share-preview{margin:7px 0 0;padding:9px 10px;border-left:3px solid #171a1f;border-radius:0 4px 4px 0;background:var(--soft);font-family:inherit;font-size:12px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+    .share-status{min-height:17px;margin-top:6px;color:var(--teal);font-size:11px;font-weight:850}
+    .share-status.error-text{color:var(--danger)}
     .guard-list{display:grid;gap:7px}
     .guard{display:flex;align-items:flex-start;justify-content:space-between;gap:9px;padding-bottom:7px;border-bottom:1px solid #eceff2;font-size:12px}
     .guard:last-child{border-bottom:0;padding-bottom:0}
@@ -151,6 +159,16 @@
               <div class="total-item"><span>本日の残り上限</span><b id="daily-remaining">-</b></div>
             </div>
 
+            <div class="share-tools">
+              <div class="share-head"><b>X投稿用</b><span>最終投稿はXの画面で確認します</span></div>
+              <div class="share-preview" id="x-post-preview">投稿文を準備しています</div>
+              <div class="actions">
+                <a class="btn x-post" id="x-post-btn" href="#" target="_blank" rel="noopener noreferrer">Xに投稿</a>
+                <button class="btn" id="x-copy-btn" type="button">本文をコピー</button>
+              </div>
+              <div class="share-status" id="x-share-status" role="status" aria-live="polite"></div>
+            </div>
+
             <div class="checks">
               <label class="check-row"><input id="check-race" type="checkbox"><span>公式画面でレース場・レース番号・締切を確認した</span></label>
               <label class="check-row"><input id="check-scratch" type="checkbox"><span>公式画面で欠場・中止・艇変更がないことを確認した</span></label>
@@ -224,6 +242,15 @@
         return new Promise(function(resolve,reject){var input=document.createElement("textarea");input.value=value;input.setAttribute("readonly","");input.style.position="fixed";input.style.opacity="0";document.body.appendChild(input);input.select();try{if(!document.execCommand("copy"))throw new Error("copy failed");resolve();}catch(error){reject(error);}finally{input.remove();}});
       }
 
+      function xPostText(){
+        var lines=[STATE.order.venue+Number(STATE.order.round),"","買い目"];
+        STATE.order.ticket_rows.forEach(function(row){lines.push(row.combination);});
+        return lines.join("\n");
+      }
+      function xPostUrl(){var url=new URL("https://x.com/intent/tweet");url.searchParams.set("text",xPostText());url.searchParams.set("lang","ja");return url.toString();}
+      function setXShareStatus(message,isError){var status=document.getElementById("x-share-status");status.textContent=message;status.classList.toggle("error-text",Boolean(isError));}
+      function copyXPostText(){copyText(xPostText()).then(function(){setXShareStatus("投稿文をコピーしました。",false);}).catch(function(){setXShareStatus("コピーできませんでした。Safariで開いて再度お試しください。",true);});}
+
       function jstDateKey(value){var parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(value),map={};parts.forEach(function(part){map[part.type]=part.value;});return map.year+"-"+map.month+"-"+map.day;}
       function saleDay(){var raceDate=String(STATE.order.date||"");if(raceDate===jstDateKey(new Date(Date.now()+86400000)))return "1";return "0";}
       function autofillPayload(){var amounts=draftAmounts();return {version:1,order_id:STATE.order.order_id,date:STATE.order.date,venue:STATE.order.venue,venue_code:STATE.order.venue_code,round:Number(STATE.order.round),deadline_at:STATE.order.deadline_at,max_points:Number(STATE.order.max_points||12),tickets:STATE.order.ticket_rows.map(function(row,index){return {combination:row.combination,amount_yen:amounts[index]};})};}
@@ -280,6 +307,9 @@
         document.getElementById("amount-total").textContent=yen(total);
         document.getElementById("daily-remaining").textContent=yen(remaining);
         document.getElementById("copy-btn").disabled=!STATE.hashValid;
+        var shareReady=STATE.hashValid&&!isExpired(),xPostButton=document.getElementById("x-post-btn");
+        xPostButton.classList.toggle("disabled",!shareReady);xPostButton.setAttribute("aria-disabled",shareReady?"false":"true");xPostButton.href=shareReady?xPostUrl():"#";
+        document.getElementById("x-copy-btn").disabled=!shareReady;
         document.getElementById("official-url-btn").disabled=!safe;
         var officialButton=document.getElementById("official-btn");officialButton.classList.toggle("disabled",!safe);officialButton.setAttribute("aria-disabled",safe?"false":"true");officialButton.href=safe?officialAutofillUrl():"#";
         document.getElementById("purchased-btn").disabled=!(safe&&confirmationsPass());
@@ -327,6 +357,7 @@
 
       function renderOrder(){
         var order=STATE.order,target=deadline();document.getElementById("race-name").textContent=order.venue+Number(order.round)+"R";document.getElementById("deadline-text").textContent="締切 "+(target?target.toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"}):"不明")+" / "+(order.rule_label||"24場サイン");document.getElementById("buy-method").textContent=order.buy_method||"通知時点の確定買い目";
+        document.getElementById("x-post-preview").textContent=xPostText();
         document.getElementById("browser-warning").hidden=isIOSSafari()||!/iPhone|iPad|iPod/.test(navigator.userAgent||"");
         document.getElementById("unit-yen").value=STATE.settings.unitYen;document.getElementById("daily-cap").value=STATE.settings.dailyCapYen;
         renderTickets();renderSafety();renderCountdown();renderHistory();
@@ -342,7 +373,7 @@
 
       document.getElementById("unit-yen").addEventListener("change",function(event){STATE.settings.unitYen=normalizeMoney(event.target.value,100);writeJson(SETTINGS_KEY,STATE.settings);STATE.drafts[STATE.order.order_id]={amounts:STATE.order.ticket_rows.map(function(){return STATE.settings.unitYen;}),updated_at:new Date().toISOString()};writeJson(DRAFT_KEY,STATE.drafts);renderTickets();renderSafety();});
       document.getElementById("daily-cap").addEventListener("change",function(event){STATE.settings.dailyCapYen=normalizeMoney(event.target.value,10000);writeJson(SETTINGS_KEY,STATE.settings);event.target.value=STATE.settings.dailyCapYen;renderSafety();});
-      document.getElementById("copy-btn").addEventListener("click",copyTickets);document.getElementById("official-url-btn").addEventListener("click",copyOfficialUrl);document.getElementById("shortcut-code-btn").addEventListener("click",copyShortcutCode);document.getElementById("official-btn").addEventListener("click",function(event){if(this.classList.contains("disabled"))event.preventDefault();});document.getElementById("purchased-btn").addEventListener("click",function(){saveAction("purchased");});document.getElementById("skip-btn").addEventListener("click",function(){saveAction("skipped");});document.getElementById("missed-btn").addEventListener("click",function(){saveAction("missed");});document.getElementById("export-btn").addEventListener("click",exportLogs);
+      document.getElementById("copy-btn").addEventListener("click",copyTickets);document.getElementById("x-copy-btn").addEventListener("click",copyXPostText);document.getElementById("x-post-btn").addEventListener("click",function(event){if(this.classList.contains("disabled"))event.preventDefault();});document.getElementById("official-url-btn").addEventListener("click",copyOfficialUrl);document.getElementById("shortcut-code-btn").addEventListener("click",copyShortcutCode);document.getElementById("official-btn").addEventListener("click",function(event){if(this.classList.contains("disabled"))event.preventDefault();});document.getElementById("purchased-btn").addEventListener("click",function(){saveAction("purchased");});document.getElementById("skip-btn").addEventListener("click",function(){saveAction("skipped");});document.getElementById("missed-btn").addEventListener("click",function(){saveAction("missed");});document.getElementById("export-btn").addEventListener("click",exportLogs);
       init();
     })();
   </script>
