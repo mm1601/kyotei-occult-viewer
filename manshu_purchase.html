@@ -77,6 +77,13 @@
     .setting-row label{font-size:12px;font-weight:800}
     .setting-row input{width:112px}
     .setting-note{color:var(--muted);font-size:10px;margin-top:7px}
+    .browser-warning{margin:0 0 12px;border:1px solid #edb8c0;border-left:4px solid var(--danger);border-radius:6px;background:var(--danger-soft);color:var(--danger);padding:10px 12px;font-size:12px;font-weight:800}
+    .setup-guide{margin:0 0 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface);overflow:hidden}
+    .setup-guide summary{padding:11px 13px;font-weight:900;cursor:pointer;list-style-position:inside}
+    .setup-body{padding:0 13px 13px;border-top:1px solid var(--line)}
+    .setup-steps{margin:11px 0;padding-left:22px;color:var(--muted);font-size:12px}
+    .setup-steps li{margin:6px 0}
+    .setup-status{min-height:18px;margin-top:6px;color:var(--teal);font-size:11px;font-weight:850}
     .history{margin-top:12px}
     .history-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
     .history-row:last-child{border-bottom:0}
@@ -101,6 +108,7 @@
     </header>
 
     <div class="notice">この画面は買い目を準備・記録するだけです。自動投票は行いません。投票の最終確定と投票照会は、必ず本人が公式投票画面で行ってください。</div>
+    <div id="browser-warning" class="browser-warning" hidden>iPhoneの公式投票はSafariで開いてください。現在の画面がChromeの場合は「公式入力URLをコピー」し、Safariへ貼り付けます。</div>
 
     <div id="loading" class="status-strip"><div><div class="status-main">通知データを確認しています</div><div class="status-sub">改ざん検知と安全項目を照合中</div></div><span class="badge">確認中</span></div>
     <div id="error" class="error" hidden></div>
@@ -110,6 +118,19 @@
         <div><div class="status-main" id="order-status-main">購入準備ができました</div><div class="status-sub" id="order-status-sub">通知の買い目を変更せず表示しています</div></div>
         <span class="badge" id="order-status-badge">準備完了</span>
       </div>
+
+      <details class="setup-guide">
+        <summary>初回だけ: Safari入力補助を設定</summary>
+        <div class="setup-body">
+          <ol class="setup-steps">
+            <li>Safariでブックマークを1つ作り、名前を「24場買い目入力」にします。</li>
+            <li>下のボタンでコードをコピーし、作ったブックマークのURL欄へ貼り付けます。</li>
+            <li>以後は公式3連単画面で、そのブックマークをタップします。</li>
+          </ol>
+          <button class="btn" id="bookmarklet-btn" type="button">ブックマーク用コードをコピー</button>
+          <div class="setup-status" id="bookmarklet-status"></div>
+        </div>
+      </details>
 
       <div class="layout">
         <section class="band">
@@ -134,7 +155,8 @@
 
             <div class="actions">
               <button class="btn" id="copy-btn" type="button">買い目をコピー</button>
-              <a class="btn primary" id="official-btn" href="https://spweb.brtb.jp/" target="_blank" rel="noopener noreferrer">公式投票サイトを開く</a>
+              <button class="btn" id="official-url-btn" type="button">公式入力URLをコピー</button>
+              <a class="btn primary full" id="official-btn" href="https://spweb.brtb.jp/" target="_blank" rel="noopener noreferrer">Safariで公式入力画面を開く</a>
               <button class="btn success full" id="purchased-btn" type="button">購入済みとして記録</button>
               <button class="btn" id="skip-btn" type="button">見送りを記録</button>
               <button class="btn danger" id="missed-btn" type="button">買えなかったを記録</button>
@@ -176,6 +198,9 @@
       var SETTINGS_KEY="manshu-purchase-settings-v1";
       var LOG_KEY="manshu-purchase-actions-v1";
       var DRAFT_KEY="manshu-purchase-drafts-v1";
+      var AUTOFILL_SCRIPT_URL="https://mm1601.github.io/kyotei-occult-viewer/manshu_autofill.js?v=20260717-1";
+      var BOOKMARKLET_CODE="javascript:(()=>{if(window.__manshuAutofillLoading)return;window.__manshuAutofillLoading=true;const s=document.createElement('script');s.src='"+AUTOFILL_SCRIPT_URL+"';s.onload=()=>{window.__manshuAutofillLoading=false};s.onerror=()=>{window.__manshuAutofillLoading=false;alert('24場入力補助を読み込めませんでした')};document.head.appendChild(s)})()";
+      var VENUE_CODES={"桐生":"01","戸田":"02","江戸川":"03","平和島":"04","多摩川":"05","浜名湖":"06","蒲郡":"07","常滑":"08","津":"09","三国":"10","びわこ":"11","琵琶湖":"11","住之江":"12","尼崎":"13","鳴門":"14","丸亀":"15","児島":"16","宮島":"17","徳山":"18","下関":"19","若松":"20","芦屋":"21","福岡":"22","唐津":"23","大村":"24"};
       var STATE={order:null,hashValid:false,settings:{unitYen:100,dailyCapYen:10000},logs:[],drafts:{},timer:null};
 
       function readJson(key,fallback){try{var value=localStorage.getItem(key);return value?JSON.parse(value):fallback;}catch(error){return fallback;}}
@@ -185,9 +210,21 @@
       function normalizeMoney(value,fallback){var number=Math.floor(Number(value)/100)*100;return Number.isFinite(number)&&number>=100?number:fallback;}
       function sortObject(value){if(Array.isArray(value))return value.map(sortObject);if(value&&typeof value==="object"){return Object.keys(value).sort().reduce(function(result,key){result[key]=sortObject(value[key]);return result;},{});}return value;}
       function base64UrlDecode(value){var normalized=value.replace(/-/g,"+").replace(/_/g,"/");while(normalized.length%4)normalized+="=";var binary=atob(normalized),bytes=new Uint8Array(binary.length);for(var index=0;index<binary.length;index++)bytes[index]=binary.charCodeAt(index);return new TextDecoder().decode(bytes);}
+      function base64UrlEncode(value){var bytes=new TextEncoder().encode(JSON.stringify(value)),binary="";bytes.forEach(function(byte){binary+=String.fromCharCode(byte);});return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");}
       async function sha256(value){var bytes=new TextEncoder().encode(value),digest=await crypto.subtle.digest("SHA-256",bytes);return Array.from(new Uint8Array(digest)).map(function(byte){return byte.toString(16).padStart(2,"0");}).join("");}
       async function verifyPayload(payload){var core=Object.assign({},payload);delete core.order_id;var digest=await sha256(JSON.stringify(sortObject(core)));return payload.order_id==="mpq_"+digest.slice(0,24);}
-      function queueOrder(raw){var rows=(raw.ticket_rows||[]).length?raw.ticket_rows:(raw.tickets||[]).map(function(ticket){return {combination:ticket,amount_yen:raw.default_unit_yen||100};});return Object.assign({},raw,{ticket_rows:rows,status:raw.status||"ready",points:raw.points||rows.length,total_yen:raw.total_yen||rows.length*(raw.default_unit_yen||100)});}
+      function queueOrder(raw){var rows=(raw.ticket_rows||[]).length?raw.ticket_rows:(raw.tickets||[]).map(function(ticket){return {combination:ticket,amount_yen:raw.default_unit_yen||100};}),venueCode=String(raw.venue_code||VENUE_CODES[raw.venue]||"");return Object.assign({},raw,{venue_code:venueCode,ticket_rows:rows,status:raw.status||"ready",points:raw.points||rows.length,total_yen:raw.total_yen||rows.length*(raw.default_unit_yen||100)});}
+
+      function copyText(value){
+        if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(value);
+        return new Promise(function(resolve,reject){var input=document.createElement("textarea");input.value=value;input.setAttribute("readonly","");input.style.position="fixed";input.style.opacity="0";document.body.appendChild(input);input.select();try{if(!document.execCommand("copy"))throw new Error("copy failed");resolve();}catch(error){reject(error);}finally{input.remove();}});
+      }
+
+      function jstDateKey(value){var parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(value),map={};parts.forEach(function(part){map[part.type]=part.value;});return map.year+"-"+map.month+"-"+map.day;}
+      function saleDay(){var raceDate=String(STATE.order.date||"");if(raceDate===jstDateKey(new Date(Date.now()+86400000)))return "1";return "0";}
+      function autofillPayload(){var amounts=draftAmounts();return {version:1,order_id:STATE.order.order_id,date:STATE.order.date,venue:STATE.order.venue,venue_code:STATE.order.venue_code,round:Number(STATE.order.round),deadline_at:STATE.order.deadline_at,max_points:Number(STATE.order.max_points||12),tickets:STATE.order.ticket_rows.map(function(row,index){return {combination:row.combination,amount_yen:amounts[index]};})};}
+      function officialAutofillUrl(){var url=new URL("https://spweb.brtb.jp/bet");url.searchParams.set("zenjitsuToujitsu",saleDay());url.searchParams.set("jyoCode",String(STATE.order.venue_code||"").padStart(2,"0"));url.searchParams.set("raceNo",String(Number(STATE.order.round)).padStart(2,"0"));url.searchParams.set("kachishiki","6");url.searchParams.set("betWay","1");url.hash="manshu="+base64UrlEncode(autofillPayload());return url.toString();}
+      function isIOSSafari(){var ua=navigator.userAgent||"",ios=/iPhone|iPad|iPod/.test(ua),other=/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);return ios&&/Safari/.test(ua)&&!other;}
 
       async function loadOrder(){
         var params=new URLSearchParams(location.search),encoded=params.get("payload"),orderId=params.get("order");
@@ -222,6 +259,7 @@
         return [
           {label:"通知データの改ざん検知",ok:STATE.hashValid},
           {label:"BOATERS AI・展示・スタート展示",ok:Boolean(STATE.order.capture_verified)},
+          {label:"公式投票用の場コード",ok:/^(0[1-9]|1[0-9]|2[0-4])$/.test(String(STATE.order.venue_code||""))},
           {label:"買い目の重複なし・最大12点",ok:ticketCount>0&&ticketCount<=Number(STATE.order.max_points||12)&&new Set(STATE.order.ticket_rows.map(function(row){return row.combination;})).size===ticketCount},
           {label:"締切前",ok:!isExpired()},
           {label:"二重購入なし",ok:!alreadyPurchased()},
@@ -238,7 +276,8 @@
         document.getElementById("amount-total").textContent=yen(total);
         document.getElementById("daily-remaining").textContent=yen(remaining);
         document.getElementById("copy-btn").disabled=!STATE.hashValid;
-        document.getElementById("official-btn").classList.toggle("disabled",!safe);
+        document.getElementById("official-url-btn").disabled=!safe;
+        var officialButton=document.getElementById("official-btn");officialButton.classList.toggle("disabled",!safe);officialButton.setAttribute("aria-disabled",safe?"false":"true");officialButton.href=safe?officialAutofillUrl():"#";
         document.getElementById("purchased-btn").disabled=!(safe&&confirmationsPass());
         document.getElementById("skip-btn").disabled=alreadyPurchased();
         document.getElementById("missed-btn").disabled=alreadyPurchased();
@@ -274,13 +313,17 @@
       function copyTickets(){
         var amounts=draftAmounts(),lines=[STATE.order.venue+STATE.order.round+"R","買い目"];
         STATE.order.ticket_rows.forEach(function(row,index){lines.push(row.combination+" "+amounts[index]+"円");});lines.push("合計 "+currentTotal()+"円");
-        navigator.clipboard.writeText(lines.join("\n")).then(function(){var button=document.getElementById("copy-btn"),original=button.textContent;button.textContent="コピー済み";setTimeout(function(){button.textContent=original;},1200);});
+        copyText(lines.join("\n")).then(function(){var button=document.getElementById("copy-btn"),original=button.textContent;button.textContent="コピー済み";setTimeout(function(){button.textContent=original;},1200);});
       }
+
+      function copyOfficialUrl(){copyText(officialAutofillUrl()).then(function(){var button=document.getElementById("official-url-btn"),original=button.textContent;button.textContent="コピー済み";setTimeout(function(){button.textContent=original;},1200);});}
+      function copyBookmarklet(){var status=document.getElementById("bookmarklet-status");copyText(BOOKMARKLET_CODE).then(function(){status.textContent="コピーしました。SafariのブックマークURL欄へ貼り付けてください。";}).catch(function(){status.textContent="コピーできませんでした。Safariでこのページを開いて再度お試しください。";});}
 
       function exportLogs(){var blob=new Blob([JSON.stringify({version:"manshu-purchase-actions-v1",exported_at:new Date().toISOString(),actions:STATE.logs},null,2)+"\n"],{type:"application/json"}),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download="manshu_purchase_actions_"+new Date().toISOString().slice(0,10)+".json";link.click();setTimeout(function(){URL.revokeObjectURL(url);},1000);}
 
       function renderOrder(){
         var order=STATE.order,target=deadline();document.getElementById("race-name").textContent=order.venue+Number(order.round)+"R";document.getElementById("deadline-text").textContent="締切 "+(target?target.toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"}):"不明")+" / "+(order.rule_label||"24場サイン");document.getElementById("buy-method").textContent=order.buy_method||"通知時点の確定買い目";
+        document.getElementById("browser-warning").hidden=isIOSSafari()||!/iPhone|iPad|iPod/.test(navigator.userAgent||"");
         document.getElementById("unit-yen").value=STATE.settings.unitYen;document.getElementById("daily-cap").value=STATE.settings.dailyCapYen;
         renderTickets();renderSafety();renderCountdown();renderHistory();
         ["check-race","check-scratch","check-amount"].forEach(function(id){document.getElementById(id).addEventListener("change",renderSafety);});
@@ -295,7 +338,7 @@
 
       document.getElementById("unit-yen").addEventListener("change",function(event){STATE.settings.unitYen=normalizeMoney(event.target.value,100);writeJson(SETTINGS_KEY,STATE.settings);STATE.drafts[STATE.order.order_id]={amounts:STATE.order.ticket_rows.map(function(){return STATE.settings.unitYen;}),updated_at:new Date().toISOString()};writeJson(DRAFT_KEY,STATE.drafts);renderTickets();renderSafety();});
       document.getElementById("daily-cap").addEventListener("change",function(event){STATE.settings.dailyCapYen=normalizeMoney(event.target.value,10000);writeJson(SETTINGS_KEY,STATE.settings);event.target.value=STATE.settings.dailyCapYen;renderSafety();});
-      document.getElementById("copy-btn").addEventListener("click",copyTickets);document.getElementById("purchased-btn").addEventListener("click",function(){saveAction("purchased");});document.getElementById("skip-btn").addEventListener("click",function(){saveAction("skipped");});document.getElementById("missed-btn").addEventListener("click",function(){saveAction("missed");});document.getElementById("export-btn").addEventListener("click",exportLogs);
+      document.getElementById("copy-btn").addEventListener("click",copyTickets);document.getElementById("official-url-btn").addEventListener("click",copyOfficialUrl);document.getElementById("bookmarklet-btn").addEventListener("click",copyBookmarklet);document.getElementById("official-btn").addEventListener("click",function(event){if(this.classList.contains("disabled"))event.preventDefault();});document.getElementById("purchased-btn").addEventListener("click",function(){saveAction("purchased");});document.getElementById("skip-btn").addEventListener("click",function(){saveAction("skipped");});document.getElementById("missed-btn").addEventListener("click",function(){saveAction("missed");});document.getElementById("export-btn").addEventListener("click",exportLogs);
       init();
     })();
   </script>
