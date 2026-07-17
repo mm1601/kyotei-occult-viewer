@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#171a1f">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>24場サイン 購入準備</title>
+  <style>
+    :root{
+      --bg:#f3f4f6;--surface:#fff;--soft:#f8f9fa;--ink:#171a1f;--muted:#69717d;
+      --line:#d9dde3;--line-strong:#b9c0ca;--signal:#d84b37;--signal-soft:#fff2ef;
+      --teal:#087f6b;--teal-soft:#eaf7f4;--gold:#90610d;--gold-soft:#fff8e8;
+      --blue:#2864ad;--blue-soft:#edf4fc;--danger:#b42338;--danger-soft:#fff0f2;
+      --lane1:#fff;--lane2:#272a2f;--lane3:#d4313d;--lane4:#2674c8;--lane5:#f0c62d;--lane6:#2b9d62;
+    }
+    *{box-sizing:border-box}
+    [hidden]{display:none!important}
+    html{background:var(--bg)}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;font-size:14px;line-height:1.55;letter-spacing:0}
+    button,input{font:inherit;letter-spacing:0}
+    button,a{cursor:pointer}
+    button:disabled,a.disabled{cursor:not-allowed;opacity:.45;pointer-events:none}
+    .app{max-width:940px;margin:0 auto;padding:12px 12px 40px}
+    .masthead{background:#171a1f;color:#fff;border-radius:6px;padding:16px 17px}
+    .eyebrow{color:#ffb7aa;font-size:12px;font-weight:850}
+    h1{font-size:25px;line-height:1.2;margin:5px 0 0;font-weight:900}
+    .mast-meta{margin:7px 0 0;color:#cbd0d8;font-size:12px}
+    .notice{margin:10px 0 12px;border:1px solid #ebd092;border-left:4px solid var(--gold);border-radius:6px;background:var(--gold-soft);color:#65470c;padding:10px 12px;font-size:12px;font-weight:750}
+    .status-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:6px;background:var(--surface);padding:11px 12px}
+    .status-strip.blocked{border-left-color:var(--danger)}
+    .status-main{font-weight:900}
+    .status-sub{color:var(--muted);font-size:11px;margin-top:2px}
+    .badge{display:inline-flex;align-items:center;min-height:24px;border-radius:4px;background:var(--teal-soft);color:var(--teal);padding:2px 8px;font-size:11px;font-weight:900;white-space:nowrap}
+    .badge.warn{background:var(--gold-soft);color:var(--gold)}
+    .badge.bad{background:var(--danger-soft);color:var(--danger)}
+    .layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(260px,.65fr);gap:12px;align-items:start}
+    .band{background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+    .band-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:13px 14px;border-bottom:1px solid var(--line)}
+    .band-head h2{font-size:16px;margin:0}
+    .band-head p{margin:3px 0 0;color:var(--muted);font-size:11px}
+    .band-body{padding:13px 14px}
+    .race-name{font-size:25px;line-height:1.1;font-weight:950}
+    .deadline{margin-top:5px;color:var(--muted);font-size:12px}
+    .countdown{font-size:18px;font-weight:900;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+    .countdown.expired{color:var(--danger)}
+    .method{border-left:3px solid var(--blue);background:var(--blue-soft);padding:9px 10px;margin-bottom:12px;color:#244f82;font-size:12px}
+    .ticket-list{border-top:1px solid var(--line)}
+    .ticket-row{display:grid;grid-template-columns:minmax(0,1fr) 118px;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+    .ticket-combo{display:flex;align-items:center;gap:5px;font-weight:900;font-size:16px}
+    .lane{display:inline-flex;width:28px;height:28px;border-radius:50%;align-items:center;justify-content:center;font-size:13px;font-weight:900;border:1px solid transparent;flex:0 0 auto}
+    .lane-1{background:var(--lane1);color:#171a1f;border-color:#9ca3ad}.lane-2{background:var(--lane2);color:#fff}.lane-3{background:var(--lane3);color:#fff}.lane-4{background:var(--lane4);color:#fff}.lane-5{background:var(--lane5);color:#171a1f}.lane-6{background:var(--lane6);color:#fff}
+    .arrow{color:#9aa1aa;font-size:11px}
+    .amount-wrap{display:flex;align-items:center;gap:5px;justify-content:flex-end}
+    .amount-wrap input,.setting-row input{height:36px;border:1px solid var(--line-strong);border-radius:5px;background:#fff;color:var(--ink);padding:0 8px;text-align:right;font-variant-numeric:tabular-nums}
+    .amount-wrap input{width:88px}
+    .totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid var(--line);margin-bottom:12px}
+    .total-item{padding:10px 8px;border-right:1px solid var(--line);min-width:0}
+    .total-item:first-child{padding-left:0}.total-item:last-child{border-right:0}
+    .total-item span{display:block;color:var(--muted);font-size:10px;font-weight:800}
+    .total-item b{display:block;margin-top:2px;font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .checks{display:grid;gap:8px;margin-top:12px}
+    .check-row{display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid #eceff2;padding:0 0 8px;font-size:12px}
+    .check-row input{width:18px;height:18px;margin:1px 0 0;flex:0 0 auto}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+    .btn{min-height:42px;border:1px solid var(--line-strong);border-radius:5px;background:#fff;color:var(--ink);font-weight:900;padding:8px 11px;text-align:center;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+    .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+    .btn.success{background:var(--teal);border-color:var(--teal);color:#fff}
+    .btn.danger{color:var(--danger);border-color:#ddaab3}
+    .btn.full{grid-column:1/-1}
+    .guard-list{display:grid;gap:7px}
+    .guard{display:flex;align-items:flex-start;justify-content:space-between;gap:9px;padding-bottom:7px;border-bottom:1px solid #eceff2;font-size:12px}
+    .guard:last-child{border-bottom:0;padding-bottom:0}
+    .guard b{font-size:11px;white-space:nowrap;color:var(--teal)}
+    .guard b.bad{color:var(--danger)}
+    .setting-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+    .setting-row label{font-size:12px;font-weight:800}
+    .setting-row input{width:112px}
+    .setting-note{color:var(--muted);font-size:10px;margin-top:7px}
+    .history{margin-top:12px}
+    .history-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+    .history-row:last-child{border-bottom:0}
+    .history-main{font-weight:850}.history-sub{color:var(--muted);font-size:10px;margin-top:2px}
+    .empty{padding:22px 12px;text-align:center;color:var(--muted)}
+    .error{border:1px solid #edb8c0;border-radius:6px;background:var(--danger-soft);color:var(--danger);padding:13px;margin-top:12px}
+    footer{margin-top:18px;padding-top:11px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}
+    @media(max-width:720px){
+      .app{padding:8px 8px 28px}.layout{grid-template-columns:1fr}.masthead{padding:14px}h1{font-size:22px}.race-name{font-size:23px}
+    }
+    @media(max-width:430px){
+      .status-strip{align-items:flex-start}.band-head,.band-body{padding:11px}.ticket-row{grid-template-columns:minmax(0,1fr) 104px}.amount-wrap input{width:76px}.actions{grid-template-columns:1fr}.btn.full{grid-column:auto}.totals{grid-template-columns:1fr 1fr}.total-item:nth-child(2){border-right:0}.total-item:last-child{grid-column:1/-1;border-top:1px solid var(--line)}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="masthead">
+      <div class="eyebrow">24場サイン専用</div>
+      <h1>購入準備</h1>
+      <p class="mast-meta">通知時点の買い目を固定し、金額と安全項目を確認します</p>
+    </header>
+
+    <div class="notice">この画面は買い目を準備・記録するだけです。自動投票は行いません。投票の最終確定と投票照会は、必ず本人が公式投票画面で行ってください。</div>
+
+    <div id="loading" class="status-strip"><div><div class="status-main">通知データを確認しています</div><div class="status-sub">改ざん検知と安全項目を照合中</div></div><span class="badge">確認中</span></div>
+    <div id="error" class="error" hidden></div>
+
+    <div id="content" hidden>
+      <div id="order-status" class="status-strip">
+        <div><div class="status-main" id="order-status-main">購入準備ができました</div><div class="status-sub" id="order-status-sub">通知の買い目を変更せず表示しています</div></div>
+        <span class="badge" id="order-status-badge">準備完了</span>
+      </div>
+
+      <div class="layout">
+        <section class="band">
+          <div class="band-head">
+            <div><div class="race-name" id="race-name">-</div><div class="deadline" id="deadline-text">締切 -</div></div>
+            <div><div class="countdown" id="countdown">--:--</div><div class="status-sub" style="text-align:right">締切まで</div></div>
+          </div>
+          <div class="band-body">
+            <div class="method" id="buy-method">買い方を読み込んでいます</div>
+            <div class="ticket-list" id="ticket-list"></div>
+            <div class="totals">
+              <div class="total-item"><span>買い目</span><b id="points-total">-</b></div>
+              <div class="total-item"><span>今回合計</span><b id="amount-total">-</b></div>
+              <div class="total-item"><span>本日の残り上限</span><b id="daily-remaining">-</b></div>
+            </div>
+
+            <div class="checks">
+              <label class="check-row"><input id="check-race" type="checkbox"><span>公式画面でレース場・レース番号・締切を確認した</span></label>
+              <label class="check-row"><input id="check-scratch" type="checkbox"><span>公式画面で欠場・中止・艇変更がないことを確認した</span></label>
+              <label class="check-row"><input id="check-amount" type="checkbox"><span>買い目と各金額、合計金額を確認した</span></label>
+            </div>
+
+            <div class="actions">
+              <button class="btn" id="copy-btn" type="button">買い目をコピー</button>
+              <a class="btn primary" id="official-btn" href="https://spweb.brtb.jp/" target="_blank" rel="noopener noreferrer">公式投票サイトを開く</a>
+              <button class="btn success full" id="purchased-btn" type="button">購入済みとして記録</button>
+              <button class="btn" id="skip-btn" type="button">見送りを記録</button>
+              <button class="btn danger" id="missed-btn" type="button">買えなかったを記録</button>
+            </div>
+          </div>
+        </section>
+
+        <aside>
+          <section class="band">
+            <div class="band-head"><div><h2>安全確認</h2><p>自動検査と端末内の購入履歴</p></div></div>
+            <div class="band-body">
+              <div class="guard-list" id="guard-list"></div>
+            </div>
+          </section>
+
+          <section class="band history">
+            <div class="band-head"><div><h2>金額設定</h2><p>100円単位。端末内に保存します</p></div></div>
+            <div class="band-body">
+              <div class="setting-row"><label for="unit-yen">全点を一括設定</label><input id="unit-yen" type="number" min="100" step="100" inputmode="numeric"></div>
+              <div class="setting-row"><label for="daily-cap">1日の購入上限</label><input id="daily-cap" type="number" min="100" step="100" inputmode="numeric"></div>
+              <div class="setting-note">個別の金額は買い目ごとに変更できます。上限を超える場合は購入済み記録を停止します。</div>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <section class="band history">
+        <div class="band-head"><div><h2>この端末の記録</h2><p>購入済み・見送り・買えなかった履歴</p></div><button class="btn" id="export-btn" type="button">JSON出力</button></div>
+        <div class="band-body" id="history-list"></div>
+      </section>
+    </div>
+
+    <footer>認証情報や投票用パスワードは保存しません。ブラウザのデータを消すと、この端末内の記録も消えます。</footer>
+  </main>
+
+  <script>
+    (function(){
+      "use strict";
+      var SETTINGS_KEY="manshu-purchase-settings-v1";
+      var LOG_KEY="manshu-purchase-actions-v1";
+      var DRAFT_KEY="manshu-purchase-drafts-v1";
+      var STATE={order:null,hashValid:false,settings:{unitYen:100,dailyCapYen:10000},logs:[],drafts:{},timer:null};
+
+      function readJson(key,fallback){try{var value=localStorage.getItem(key);return value?JSON.parse(value):fallback;}catch(error){return fallback;}}
+      function writeJson(key,value){localStorage.setItem(key,JSON.stringify(value));}
+      function yen(value){return new Intl.NumberFormat("ja-JP",{style:"currency",currency:"JPY",maximumFractionDigits:0}).format(Number(value)||0);}
+      function esc(value){return String(value==null?"":value).replace(/[&<>"']/g,function(char){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[char];});}
+      function normalizeMoney(value,fallback){var number=Math.floor(Number(value)/100)*100;return Number.isFinite(number)&&number>=100?number:fallback;}
+      function sortObject(value){if(Array.isArray(value))return value.map(sortObject);if(value&&typeof value==="object"){return Object.keys(value).sort().reduce(function(result,key){result[key]=sortObject(value[key]);return result;},{});}return value;}
+      function base64UrlDecode(value){var normalized=value.replace(/-/g,"+").replace(/_/g,"/");while(normalized.length%4)normalized+="=";var binary=atob(normalized),bytes=new Uint8Array(binary.length);for(var index=0;index<binary.length;index++)bytes[index]=binary.charCodeAt(index);return new TextDecoder().decode(bytes);}
+      async function sha256(value){var bytes=new TextEncoder().encode(value),digest=await crypto.subtle.digest("SHA-256",bytes);return Array.from(new Uint8Array(digest)).map(function(byte){return byte.toString(16).padStart(2,"0");}).join("");}
+      async function verifyPayload(payload){var core=Object.assign({},payload);delete core.order_id;var digest=await sha256(JSON.stringify(sortObject(core)));return payload.order_id==="mpq_"+digest.slice(0,24);}
+      function queueOrder(raw){var rows=(raw.ticket_rows||[]).length?raw.ticket_rows:(raw.tickets||[]).map(function(ticket){return {combination:ticket,amount_yen:raw.default_unit_yen||100};});return Object.assign({},raw,{ticket_rows:rows,status:raw.status||"ready",points:raw.points||rows.length,total_yen:raw.total_yen||rows.length*(raw.default_unit_yen||100)});}
+
+      async function loadOrder(){
+        var params=new URLSearchParams(location.search),encoded=params.get("payload"),orderId=params.get("order");
+        if(encoded){var payload=JSON.parse(base64UrlDecode(encoded));STATE.hashValid=await verifyPayload(payload);return queueOrder(payload);}
+        var response=await fetch("data/output/manshu_purchase_queue_latest.json?t="+Date.now(),{cache:"no-store"});
+        if(!response.ok)throw new Error("購入準備JSONが見つかりません");
+        var queue=await response.json(),orders=(queue.orders||[]).map(queueOrder),order=orderId?orders.find(function(item){return item.order_id===orderId;}):orders.slice().reverse().find(function(item){return item.status==="ready";});
+        if(!order)throw new Error("表示できる購入準備がありません");
+        STATE.hashValid=true;
+        return order;
+      }
+
+      function latestActions(){var map={};STATE.logs.forEach(function(row){map[row.order_id]=row;});return map;}
+      function purchasedActions(){var map={};STATE.logs.forEach(function(row){if(row.status==="purchased"&&!map[row.order_id])map[row.order_id]=row;});return map;}
+      function spentForDate(date){var purchased=purchasedActions();return Object.keys(purchased).reduce(function(total,key){var row=purchased[key];return total+(row.date===date?Number(row.total_yen)||0:0);},0);}
+      function draftAmounts(){var order=STATE.order,draft=STATE.drafts[order.order_id]||{};return order.ticket_rows.map(function(row,index){return normalizeMoney((draft.amounts||[])[index],normalizeMoney(row.amount_yen,STATE.settings.unitYen));});}
+      function currentTotal(){return draftAmounts().reduce(function(total,value){return total+value;},0);}
+      function deadline(){var date=new Date(STATE.order.deadline_at);return Number.isNaN(date.getTime())?null:date;}
+      function isExpired(){var value=deadline();return !value||Date.now()>=value.getTime();}
+      function alreadyPurchased(){return Boolean(purchasedActions()[STATE.order.order_id]);}
+      function lane(number){return '<span class="lane lane-'+number+'">'+number+'</span>';}
+      function ticketMarkup(ticket){return ticket.split("-").map(lane).join('<span class="arrow">›</span>');}
+
+      function renderTickets(){
+        var amounts=draftAmounts(),list=document.getElementById("ticket-list");
+        list.innerHTML=STATE.order.ticket_rows.map(function(row,index){return '<div class="ticket-row"><div class="ticket-combo">'+ticketMarkup(row.combination)+'</div><div class="amount-wrap"><input class="ticket-amount" data-index="'+index+'" type="number" min="100" step="100" inputmode="numeric" value="'+amounts[index]+'"><span>円</span></div></div>';}).join("");
+        list.querySelectorAll(".ticket-amount").forEach(function(input){input.addEventListener("change",function(){var amounts=draftAmounts();amounts[Number(input.dataset.index)]=normalizeMoney(input.value,100);STATE.drafts[STATE.order.order_id]={amounts:amounts,updated_at:new Date().toISOString()};writeJson(DRAFT_KEY,STATE.drafts);renderTickets();renderSafety();});});
+      }
+
+      function guardRows(){
+        var total=currentTotal(),spent=spentForDate(STATE.order.date),remaining=Math.max(0,STATE.settings.dailyCapYen-spent),ticketCount=STATE.order.ticket_rows.length;
+        return [
+          {label:"通知データの改ざん検知",ok:STATE.hashValid},
+          {label:"BOATERS AI・展示・スタート展示",ok:Boolean(STATE.order.capture_verified)},
+          {label:"買い目の重複なし・最大12点",ok:ticketCount>0&&ticketCount<=Number(STATE.order.max_points||12)&&new Set(STATE.order.ticket_rows.map(function(row){return row.combination;})).size===ticketCount},
+          {label:"締切前",ok:!isExpired()},
+          {label:"二重購入なし",ok:!alreadyPurchased()},
+          {label:"1日の購入上限内",ok:STATE.settings.dailyCapYen>0&&total<=remaining}
+        ];
+      }
+
+      function hardGuardsPass(){return guardRows().every(function(row){return row.ok;});}
+      function confirmationsPass(){return ["check-race","check-scratch","check-amount"].every(function(id){return document.getElementById(id).checked;});}
+      function renderSafety(){
+        var guards=guardRows(),total=currentTotal(),spent=spentForDate(STATE.order.date),remaining=Math.max(0,STATE.settings.dailyCapYen-spent),safe=guards.every(function(row){return row.ok;});
+        document.getElementById("guard-list").innerHTML=guards.map(function(row){return '<div class="guard"><span>'+esc(row.label)+'</span><b class="'+(row.ok?'':'bad')+'">'+(row.ok?'OK':'停止')+'</b></div>';}).join("");
+        document.getElementById("points-total").textContent=STATE.order.ticket_rows.length+"点";
+        document.getElementById("amount-total").textContent=yen(total);
+        document.getElementById("daily-remaining").textContent=yen(remaining);
+        document.getElementById("copy-btn").disabled=!STATE.hashValid;
+        document.getElementById("official-btn").classList.toggle("disabled",!safe);
+        document.getElementById("purchased-btn").disabled=!(safe&&confirmationsPass());
+        document.getElementById("skip-btn").disabled=alreadyPurchased();
+        document.getElementById("missed-btn").disabled=alreadyPurchased();
+        var strip=document.getElementById("order-status"),badge=document.getElementById("order-status-badge");
+        strip.classList.toggle("blocked",!safe);badge.className="badge"+(safe?"":" bad");
+        document.getElementById("order-status-main").textContent=safe?"購入準備ができました":"安全確認で停止しています";
+        document.getElementById("order-status-sub").textContent=safe?"最終確認後、公式投票画面で本人が確定してください":"停止項目を確認してください。自動では解除しません";
+        badge.textContent=safe?"準備完了":"停止";
+      }
+
+      function renderCountdown(){
+        var target=deadline(),element=document.getElementById("countdown");
+        if(!target){element.textContent="時刻不明";element.classList.add("expired");renderSafety();return;}
+        var seconds=Math.floor((target.getTime()-Date.now())/1000),expired=seconds<=0;seconds=Math.max(0,seconds);var minutes=Math.floor(seconds/60),remainder=seconds%60;
+        element.textContent=expired?"締切経過":String(minutes).padStart(2,"0")+":"+String(remainder).padStart(2,"0");element.classList.toggle("expired",expired);
+        if(expired)renderSafety();
+      }
+
+      function actionLabel(status){return status==="purchased"?"購入済み":status==="skipped"?"見送り":"買えなかった";}
+      function renderHistory(){
+        var list=document.getElementById("history-list"),rows=STATE.logs.slice().reverse().slice(0,30);
+        if(!rows.length){list.innerHTML='<div class="empty">この端末の記録はまだありません</div>';return;}
+        list.innerHTML=rows.map(function(row){return '<div class="history-row"><div><div class="history-main">'+esc(row.venue)+Number(row.round)+'R / '+esc(actionLabel(row.status))+'</div><div class="history-sub">'+esc(new Date(row.recorded_at).toLocaleString("ja-JP"))+' / '+esc((row.tickets||[]).join(" "))+'</div></div><b>'+yen(row.total_yen)+'</b></div>';}).join("");
+      }
+
+      function saveAction(status){
+        if(alreadyPurchased())return;
+        if(status==="purchased"&&(!hardGuardsPass()||!confirmationsPass()))return;
+        var amounts=draftAmounts(),record={order_id:STATE.order.order_id,date:STATE.order.date,venue:STATE.order.venue,round:STATE.order.round,deadline_at:STATE.order.deadline_at,status:status,tickets:STATE.order.ticket_rows.map(function(row){return row.combination;}),amounts_yen:amounts,total_yen:amounts.reduce(function(total,value){return total+value;},0),recorded_at:new Date().toISOString(),manual_final_confirmation:true};
+        STATE.logs.push(record);writeJson(LOG_KEY,STATE.logs);renderHistory();renderSafety();
+      }
+
+      function copyTickets(){
+        var amounts=draftAmounts(),lines=[STATE.order.venue+STATE.order.round+"R","買い目"];
+        STATE.order.ticket_rows.forEach(function(row,index){lines.push(row.combination+" "+amounts[index]+"円");});lines.push("合計 "+currentTotal()+"円");
+        navigator.clipboard.writeText(lines.join("\n")).then(function(){var button=document.getElementById("copy-btn"),original=button.textContent;button.textContent="コピー済み";setTimeout(function(){button.textContent=original;},1200);});
+      }
+
+      function exportLogs(){var blob=new Blob([JSON.stringify({version:"manshu-purchase-actions-v1",exported_at:new Date().toISOString(),actions:STATE.logs},null,2)+"\n"],{type:"application/json"}),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download="manshu_purchase_actions_"+new Date().toISOString().slice(0,10)+".json";link.click();setTimeout(function(){URL.revokeObjectURL(url);},1000);}
+
+      function renderOrder(){
+        var order=STATE.order,target=deadline();document.getElementById("race-name").textContent=order.venue+Number(order.round)+"R";document.getElementById("deadline-text").textContent="締切 "+(target?target.toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"}):"不明")+" / "+(order.rule_label||"24場サイン");document.getElementById("buy-method").textContent=order.buy_method||"通知時点の確定買い目";
+        document.getElementById("unit-yen").value=STATE.settings.unitYen;document.getElementById("daily-cap").value=STATE.settings.dailyCapYen;
+        renderTickets();renderSafety();renderCountdown();renderHistory();
+        ["check-race","check-scratch","check-amount"].forEach(function(id){document.getElementById(id).addEventListener("change",renderSafety);});
+      }
+
+      async function init(){
+        try{
+          STATE.settings=Object.assign(STATE.settings,readJson(SETTINGS_KEY,{}));STATE.settings.unitYen=normalizeMoney(STATE.settings.unitYen,100);STATE.settings.dailyCapYen=normalizeMoney(STATE.settings.dailyCapYen,10000);STATE.logs=readJson(LOG_KEY,[]);STATE.drafts=readJson(DRAFT_KEY,{});STATE.order=await loadOrder();
+          document.getElementById("loading").hidden=true;document.getElementById("content").hidden=false;renderOrder();STATE.timer=setInterval(renderCountdown,1000);
+        }catch(error){document.getElementById("loading").hidden=true;var box=document.getElementById("error");box.hidden=false;box.textContent="購入準備を開けませんでした: "+error.message;}
+      }
+
+      document.getElementById("unit-yen").addEventListener("change",function(event){STATE.settings.unitYen=normalizeMoney(event.target.value,100);writeJson(SETTINGS_KEY,STATE.settings);STATE.drafts[STATE.order.order_id]={amounts:STATE.order.ticket_rows.map(function(){return STATE.settings.unitYen;}),updated_at:new Date().toISOString()};writeJson(DRAFT_KEY,STATE.drafts);renderTickets();renderSafety();});
+      document.getElementById("daily-cap").addEventListener("change",function(event){STATE.settings.dailyCapYen=normalizeMoney(event.target.value,10000);writeJson(SETTINGS_KEY,STATE.settings);event.target.value=STATE.settings.dailyCapYen;renderSafety();});
+      document.getElementById("copy-btn").addEventListener("click",copyTickets);document.getElementById("purchased-btn").addEventListener("click",function(){saveAction("purchased");});document.getElementById("skip-btn").addEventListener("click",function(){saveAction("skipped");});document.getElementById("missed-btn").addEventListener("click",function(){saveAction("missed");});document.getElementById("export-btn").addEventListener("click",exportLogs);
+      init();
+    })();
+  </script>
+</body>
+</html>
