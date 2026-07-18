@@ -119,7 +119,7 @@
     </header>
 
     <div class="notice">この画面は買い目を準備・記録するだけです。自動投票は行いません。投票の最終確定と投票照会は、必ず本人が公式投票画面で行ってください。</div>
-    <div id="browser-warning" class="browser-warning" hidden>通知内ブラウザで公式ログインが切れる場合は、共有メニューからSafariで開いてください。公式の内部投票画面へ直接は移動しません。</div>
+    <div id="browser-warning" class="browser-warning" hidden>重要: 画面上部に「ntfy」と出ている場合は、公式サイトへ進む前に、この購入準備ページを共有メニューからSafariで開いてください。公式画面へ進んだ後にSafariへ移すとログイン状態が切れ、エラーになることがあります。</div>
 
     <div id="loading" class="status-strip"><div><div class="status-main">通知データを確認しています</div><div class="status-sub">改ざん検知と安全項目を照合中</div></div><span class="badge">確認中</span></div>
     <div id="error" class="error" hidden></div>
@@ -137,7 +137,8 @@
             <li>「ショートカット用コードをコピー」を押します。</li>
             <li>ショートカットAppで「WebページでJavaScriptを実行」を1つ追加し、見本のコードを消して貼り付けます。</li>
             <li>名前を「24場買い目入力」にし、「共有シートに表示」をオン、受け取る対象を「SafariのWebページ」だけにします。</li>
-            <li>以後は公式3連単画面の共有メニューから「24場買い目入力」を押します。</li>
+            <li>以後はSafariの公式3連単画面の共有メニューから「24場買い目入力」を押します。</li>
+            <li>艇番と金額が入ったら、公式の「ベットリストに追加して入力を続ける」だけは自分で押します。</li>
           </ol>
           <div class="actions">
             <button class="btn" id="shortcut-code-btn" type="button">ショートカット用コードをコピー</button>
@@ -156,11 +157,13 @@
           <div class="band-body">
             <div class="method" id="buy-method">買い方を読み込んでいます</div>
             <div class="official-flow">
-              <b>公式入力までの3手順</b>
+              <b>公式入力までの5手順</b>
               <ol>
+                <li>上に「ntfy」と出ていたら、まずこのページをSafariで開きます。</li>
                 <li>下のボタンから公式トップを開き、必要ならログインします。</li>
                 <li>通知と同じ場・レースの「3連単・通常投票」を開きます。</li>
-                <li>共有メニューから「24場買い目入力」を押します。</li>
+                <li>Safariの共有メニューから「24場買い目入力」を押します。</li>
+                <li>1点ずつ艇番と金額が入るので、公式の追加ボタンを自分で押します。</li>
               </ol>
             </div>
             <div class="ticket-list" id="ticket-list"></div>
@@ -231,7 +234,7 @@
       var SETTINGS_KEY="manshu-purchase-settings-v1";
       var LOG_KEY="manshu-purchase-actions-v1";
       var DRAFT_KEY="manshu-purchase-drafts-v1";
-      var AUTOFILL_SCRIPT_URL="https://mm1601.github.io/kyotei-occult-viewer/manshu_autofill.js?v=20260718-2";
+      var AUTOFILL_SCRIPT_URL="https://mm1601.github.io/kyotei-occult-viewer/manshu_autofill.js?v=20260718-3";
       var SHORTCUT_CODE="(function(){if(window.__manshuAutofillLoading){completion();return;}window.__manshuAutofillLoading=true;var s=document.createElement('script');s.src='"+AUTOFILL_SCRIPT_URL+"';s.onload=function(){window.__manshuAutofillLoading=false;completion();};s.onerror=function(){window.__manshuAutofillLoading=false;completion('24場入力補助を読み込めませんでした');};document.head.appendChild(s);}());";
       var VENUE_CODES={"桐生":"01","戸田":"02","江戸川":"03","平和島":"04","多摩川":"05","浜名湖":"06","蒲郡":"07","常滑":"08","津":"09","三国":"10","びわこ":"11","琵琶湖":"11","住之江":"12","尼崎":"13","鳴門":"14","丸亀":"15","児島":"16","宮島":"17","徳山":"18","下関":"19","若松":"20","芦屋":"21","福岡":"22","唐津":"23","大村":"24"};
       var STATE={order:null,hashValid:false,settings:{unitYen:100,dailyCapYen:10000},logs:[],drafts:{},timer:null};
