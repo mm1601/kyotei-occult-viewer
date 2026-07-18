@@ -3,9 +3,15 @@
 
   var MAX_POINTS = 12;
   var FRAGMENT_KEY = "manshu";
+  var QUEUE_URL = "https://mm1601.github.io/kyotei-occult-viewer/data/output/manshu_purchase_queue_latest.json";
   var OVERLAY_ID = "manshu-autofill-overlay";
   var RUN_FLAG = "__manshuAutofillActive";
   var TICKET_PATTERN = /^([1-6])-([1-6])-([1-6])$/;
+  var QUEUE_CORE_KEYS = [
+    "version", "date", "race_id", "venue", "venue_code", "round",
+    "deadline_at", "detected_at", "rule_id", "rule_label", "buy_method",
+    "tickets", "default_unit_yen", "max_points", "capture_verified"
+  ];
 
   function normalizeText(value) {
     return String(value == null ? "" : value).replace(/\s+/g, "").trim();
@@ -31,6 +37,111 @@
     } catch (error) {
       throw new Error("24場サインの入力データを読めませんでした");
     }
+  }
+
+  function sortObject(value) {
+    if (Array.isArray(value)) return value.map(sortObject);
+    if (value && typeof value === "object") {
+      return Object.keys(value).sort().reduce(function (result, key) {
+        result[key] = sortObject(value[key]);
+        return result;
+      }, {});
+    }
+    return value;
+  }
+
+  async function sha256(value) {
+    if (!root.crypto || !root.crypto.subtle) throw new Error("通知データを検証できません");
+    var bytes = new TextEncoder().encode(value);
+    var digest = await root.crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(digest)).map(function (byte) {
+      return byte.toString(16).padStart(2, "0");
+    }).join("");
+  }
+
+  function queueCore(order) {
+    return QUEUE_CORE_KEYS.reduce(function (core, key) {
+      core[key] = order[key];
+      return core;
+    }, {});
+  }
+
+  async function verifyQueueOrder(order) {
+    if (!order || !/^mpq_[0-9a-f]{24}$/.test(String(order.order_id || ""))) return false;
+    var digest = await sha256(JSON.stringify(sortObject(queueCore(order))));
+    return order.order_id === "mpq_" + digest.slice(0, 24);
+  }
+
+  function queueOrderPayload(order) {
+    var unitYen = Number(order.default_unit_yen) || 100;
+    var rows = (order.tickets || []).map(function (combination) {
+      return { combination: combination, amount_yen: unitYen };
+    });
+    return {
+      version: Number(order.version),
+      order_id: String(order.order_id || ""),
+      date: String(order.date || ""),
+      venue: String(order.venue || ""),
+      venue_code: String(order.venue_code || "").padStart(2, "0"),
+      round: Number(order.round),
+      deadline_at: String(order.deadline_at || ""),
+      max_points: Number(order.max_points || MAX_POINTS),
+      tickets: rows.map(function (row) {
+        return { combination: row.combination, amount_yen: Number(row.amount_yen) };
+      })
+    };
+  }
+
+  function ticketSetKey(order) {
+    return JSON.stringify(queueOrderPayload(order).tickets.slice().sort(function (left, right) {
+      return String(left.combination).localeCompare(String(right.combination));
+    }));
+  }
+
+  function selectQueueOrder(queue, currentUrl, now) {
+    var url = currentUrl instanceof URL ? currentUrl : new URL(String(currentUrl));
+    var venueCode = String(url.searchParams.get("jyoCode") || "").padStart(2, "0");
+    var round = Number(url.searchParams.get("raceNo"));
+    var currentTime = Number(now == null ? Date.now() : now);
+    var matches = (queue && Array.isArray(queue.orders) ? queue.orders : []).filter(function (order) {
+      var deadline = new Date(order && order.deadline_at || "").getTime();
+      var rows = order && Array.isArray(order.tickets) ? order.tickets : [];
+      return order
+        && order.status === "ready"
+        && order.capture_verified === true
+        && String(order.venue_code || "").padStart(2, "0") === venueCode
+        && Number(order.round) === round
+        && Number.isFinite(deadline)
+        && currentTime < deadline
+        && rows.length > 0
+        && rows.length <= MAX_POINTS;
+    }).sort(function (left, right) {
+      return Date.parse(left.detected_at || left.last_seen_at || 0)
+        - Date.parse(right.detected_at || right.last_seen_at || 0);
+    });
+    if (!matches.length) throw new Error("この場・レースに有効な24場サインの買い目がありません");
+    var unique = new Map();
+    matches.forEach(function (order) { unique.set(ticketSetKey(order), order); });
+    if (unique.size !== 1) {
+      throw new Error("同じレースに異なる買い目が複数あるため、安全のため停止しました");
+    }
+    return Array.from(unique.values())[0];
+  }
+
+  async function resolvePayload(hash, currentUrl, now, fetchImpl) {
+    var hashParams = new URLSearchParams(String(hash || "").replace(/^#/, ""));
+    if (hashParams.get(FRAGMENT_KEY)) return parsePayload(hash);
+    var url = currentUrl instanceof URL ? currentUrl : new URL(String(currentUrl));
+    if (url.protocol !== "https:" || url.hostname !== "spweb.brtb.jp" || url.pathname.replace(/\/$/, "") !== "/bet") {
+      throw new Error("公式サイトで対象レースの3連単通常投票画面を開いてから実行してください");
+    }
+    var request = fetchImpl || (root.fetch && root.fetch.bind(root));
+    if (!request) throw new Error("最新の通知買い目を取得できません");
+    var response = await request(QUEUE_URL + "?t=" + Date.now(), { cache: "no-store", credentials: "omit" });
+    if (!response || !response.ok) throw new Error("最新の通知買い目を取得できません");
+    var order = selectQueueOrder(await response.json(), url, now);
+    if (!await verifyQueueOrder(order)) throw new Error("通知買い目の改ざん検知で停止しました");
+    return queueOrderPayload(order);
   }
 
   function forbiddenActionText(value) {
@@ -273,7 +384,7 @@
     var overlay;
     var cancelled = false;
     try {
-      payload = parsePayload(location.hash);
+      payload = await resolvePayload(location.hash, new URL(location.href), Date.now());
       overlay = createOverlay(payload);
       overlay.cancel.onclick = function () {
         cancelled = true;
@@ -315,6 +426,10 @@
   var api = {
     decodeBase64Url: decodeBase64Url,
     parsePayload: parsePayload,
+    queueOrderPayload: queueOrderPayload,
+    selectQueueOrder: selectQueueOrder,
+    verifyQueueOrder: verifyQueueOrder,
+    resolvePayload: resolvePayload,
     forbiddenActionText: forbiddenActionText,
     normalizeTickets: normalizeTickets,
     validatePayload: validatePayload,
