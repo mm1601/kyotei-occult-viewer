@@ -6,6 +6,7 @@
   var QUEUE_URL = "https://mm1601.github.io/kyotei-occult-viewer/data/output/manshu_purchase_queue_latest.json";
   var OVERLAY_ID = "manshu-autofill-overlay";
   var RUN_FLAG = "__manshuAutofillActive";
+  var PROGRESS_PREFIX = "manshu-autofill-progress:";
   var TICKET_PATTERN = /^([1-6])-([1-6])-([1-6])$/;
   var QUEUE_CORE_KEYS = [
     "version", "date", "race_id", "venue", "venue_code", "round",
@@ -259,9 +260,14 @@
     document.body.appendChild(host);
     return {
       host: host,
+      panel: panel,
       status: status,
       progress: progress,
       cancel: cancel,
+      guideMode: function () {
+        host.style.cssText = "position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;right:8px;z-index:2147483647;display:block;padding:0;background:transparent;font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;pointer-events:none;";
+        panel.style.cssText = "width:min(440px,100%);margin:0 auto;background:#fff;color:#171a1f;border-radius:8px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,.32);line-height:1.5;letter-spacing:0;pointer-events:auto;";
+      },
       setStatus: function (message, detail, kind) {
         status.textContent = message;
         progress.textContent = detail || "";
@@ -277,20 +283,11 @@
     if (forbiddenActionText(text) || element.classList && (element.classList.contains("btn-purchase") || element.classList.contains("btn-inverse"))) {
       throw new Error("安全装置が投票操作を停止しました");
     }
-    if (kind === "ticket") {
-      if (element.tagName !== "INPUT" || !/^bet[1-3]-[1-6]$/.test(element.id)) {
-        throw new Error("買い目以外への操作を停止しました");
-      }
-    } else if (kind === "add") {
-      if (text.indexOf("ベットリストに追加して") < 0 || text.indexOf("入力を続ける") < 0) {
-        throw new Error("安全な追加ボタンを確認できません");
-      }
-    } else if (kind === "betlist") {
-      if (!element.classList || !element.classList.contains("betlist")) {
-        throw new Error("ベットリスト以外への移動を停止しました");
-      }
-    } else {
+    if (kind !== "ticket") {
       throw new Error("許可されていない操作です");
+    }
+    if (element.tagName !== "INPUT" || !/^bet[1-3]-[1-6]$/.test(element.id)) {
+      throw new Error("買い目以外への操作を停止しました");
     }
     element.click();
   }
@@ -344,32 +341,102 @@
     return Boolean(element) && !element.classList.contains("is-disabled") && element.getAttribute("aria-disabled") !== "true";
   }
 
-  async function addTicket(ticket, cancelled) {
+  function progressKey(payload) {
+    return PROGRESS_PREFIX + String(payload && payload.order_id || "unknown");
+  }
+
+  function ticketSignature(tickets) {
+    return JSON.stringify((tickets || []).map(function (ticket) {
+      return [ticket.combination, ticket.amount_yen];
+    }));
+  }
+
+  function readProgress(payload, tickets) {
+    try {
+      var saved = JSON.parse(root.sessionStorage.getItem(progressKey(payload)) || "null");
+      if (!saved || saved.signature !== ticketSignature(tickets)) return 0;
+      var index = Number(saved.next_index);
+      return Number.isInteger(index) && index >= 0 && index <= tickets.length ? index : 0;
+    } catch (error) {
+      return 0;
+    }
+  }
+
+  function saveProgress(payload, tickets, nextIndex) {
+    try {
+      root.sessionStorage.setItem(progressKey(payload), JSON.stringify({
+        signature: ticketSignature(tickets),
+        next_index: nextIndex,
+        updated_at: new Date().toISOString()
+      }));
+    } catch (error) {
+      // Safari private-session storage can be unavailable. The active run still continues.
+    }
+  }
+
+  async function waitForHumanAdd(button, ticket, currentIndex, tickets, payload, overlay, cancelled) {
+    overlay.guideMode();
+    overlay.setStatus(
+      ticket.combination + "  " + ticket.amount_yen.toLocaleString("ja-JP") + "円を入力しました",
+      "公式の『ベットリストに追加して入力を続ける』を指で押してください（" + String(currentIndex + 1) + " / " + tickets.length + "点）"
+    );
+    await new Promise(function (resolve, reject) {
+      var finished = false;
+      var timeoutId;
+      var cancelId;
+      function cleanup() {
+        button.removeEventListener("click", onClick, true);
+        clearTimeout(timeoutId);
+        clearInterval(cancelId);
+      }
+      function settle(callback, value) {
+        if (finished) return;
+        finished = true;
+        cleanup();
+        callback(value);
+      }
+      function onClick(event) {
+        if (!event.isTrusted) return;
+        settle(resolve);
+      }
+      button.addEventListener("click", onClick, true);
+      timeoutId = setTimeout(function () {
+        settle(reject, new Error("公式の追加ボタンが2分以内に押されませんでした"));
+      }, 120000);
+      cancelId = setInterval(function () {
+        if (cancelled()) settle(reject, new Error("入力を中止しました"));
+      }, 150);
+    });
+    await waitFor(function () {
+      var message = document.querySelector(".bet-add-message");
+      return cancelled()
+        || (message && normalizeText(message.textContent).indexOf("追加しました") >= 0)
+        || selectedInputs().length === 0;
+    }, 15000, ticket.combination + " の手動追加完了");
+    if (cancelled()) throw new Error("入力を中止しました");
+    var message = document.querySelector(".bet-add-message");
+    if (message) {
+      await waitFor(function () { return !document.querySelector(".bet-add-message"); }, 10000, "追加完了画面の終了");
+    }
+    saveProgress(payload, tickets, currentIndex + 1);
+  }
+
+  async function prepareTicket(ticket, currentIndex, tickets, payload, overlay, cancelled) {
     await selectCombination(ticket.combination, cancelled);
     var amountInput = await waitFor(findAmountInput, 5000, "購入金額欄");
     setReactInputValue(amountInput, ticket.amount_yen / 100);
-    await waitFor(function () {
+    var addButton = await waitFor(function () {
       var button = findSafeAddButton();
       return cancelled() || (isEnabled(button) && button);
     }, 5000, "ベットリスト追加ボタン");
     if (cancelled()) throw new Error("入力を中止しました");
-    guardedClick(findSafeAddButton(), "add");
-    await waitFor(function () {
-      var message = document.querySelector(".bet-add-message");
-      return cancelled() || (message && normalizeText(message.textContent).indexOf("追加しました") >= 0);
-    }, 10000, ticket.combination + " の追加完了");
-    if (cancelled()) throw new Error("入力を中止しました");
-    await waitFor(function () { return !document.querySelector(".bet-add-message"); }, 8000, "追加完了画面の終了");
+    await waitForHumanAdd(addButton, ticket, currentIndex, tickets, payload, overlay, cancelled);
   }
 
   function removePayloadFragment() {
     var url = new URL(location.href);
     url.hash = "";
     history.replaceState(history.state, "", url.pathname + url.search);
-  }
-
-  function findBetListButton() {
-    return document.querySelector(".header-nav-btn.betlist");
   }
 
   async function run() {
@@ -397,22 +464,35 @@
         return document.querySelector("#bet1-1") && document.querySelector("#bet2-1") && document.querySelector("#bet3-1");
       }, 20000, "公式3連単入力画面");
 
-      for (var index = 0; index < validation.tickets.length; index += 1) {
+      var startIndex = readProgress(payload, validation.tickets);
+      if (startIndex >= validation.tickets.length) {
+        overlay.guideMode();
+        overlay.setStatus("この買い目はすべて追加済みです", "公式のベットリストを指で開き、内容を確認してください。投票は自動で行いません。", "success");
+        overlay.cancel.textContent = "閉じる";
+        overlay.cancel.onclick = function () { overlay.host.remove(); };
+        return;
+      }
+      for (var index = startIndex; index < validation.tickets.length; index += 1) {
         var ticket = validation.tickets[index];
         overlay.setStatus(
           ticket.combination + "  " + ticket.amount_yen.toLocaleString("ja-JP") + "円",
           String(index + 1) + " / " + validation.tickets.length + "点を入力中"
         );
-        await addTicket(ticket, function () { return cancelled; });
+        await prepareTicket(
+          ticket,
+          index,
+          validation.tickets,
+          payload,
+          overlay,
+          function () { return cancelled; }
+        );
       }
 
       removePayloadFragment();
-      overlay.setStatus("全買い目を追加しました", "ベットリストへ移動します。最終の投票はご自身で確認して押してください。", "success");
+      overlay.guideMode();
+      overlay.setStatus("すべての買い目を追加しました", "公式のベットリストを指で開き、内容を確認してください。投票は自動で行いません。", "success");
       overlay.cancel.textContent = "閉じる";
       overlay.cancel.onclick = function () { overlay.host.remove(); };
-      var betListButton = await waitFor(findBetListButton, 5000, "ベットリスト");
-      await sleep(700);
-      guardedClick(betListButton, "betlist");
     } catch (error) {
       if (!overlay) overlay = createOverlay(payload || { venue: "", round: "" });
       overlay.setStatus("自動入力を停止しました", error && error.message || String(error), "error");
