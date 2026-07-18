@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101820">
+  <title>通知・取得 完全監査</title>
+  <style>
+    :root{
+      --ink:#17202a;--muted:#64707c;--line:#d8dee5;--line-strong:#b8c2cc;
+      --paper:#fff;--wash:#f4f6f8;--navy:#101820;--blue:#1769aa;
+      --ok:#16724a;--ok-bg:#eaf6ef;--warn:#9a5a00;--warn-bg:#fff4d9;
+      --bad:#b42338;--bad-bg:#fff0f2;--idle:#69737d;--idle-bg:#eef1f4;
+    }
+    *{box-sizing:border-box}
+    html{background:var(--wash);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI",sans-serif;letter-spacing:0}
+    body{margin:0;min-width:320px}
+    button,input{font:inherit;letter-spacing:0}
+    button:focus-visible,a:focus-visible{outline:3px solid rgba(23,105,170,.25);outline-offset:2px}
+    .app{width:min(1180px,100%);margin:0 auto;padding:16px 14px 40px}
+    .masthead{background:var(--navy);color:#fff;padding:18px 20px;border-radius:6px}
+    .mast-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+    .eyebrow{display:flex;align-items:center;gap:8px;color:#cad4de;font-size:12px;font-weight:800}
+    .dot{width:9px;height:9px;border-radius:50%;background:#aab3bc;flex:0 0 auto}
+    .dot.ok{background:#31c17b}.dot.warning{background:#f6b73c}.dot.failed{background:#ff5a70}
+    h1{font-size:26px;line-height:1.25;margin:7px 0 4px}.mast-meta{margin:0;color:#cad4de;font-size:13px}
+    .actions{display:flex;gap:8px;align-items:center}.nav-link,.refresh{height:38px;border:1px solid #4b5966;border-radius:5px;background:#19242e;color:#fff;padding:0 11px;display:inline-flex;align-items:center;text-decoration:none;font-weight:800;white-space:nowrap}
+    .refresh{width:38px;justify-content:center;cursor:pointer;font-size:20px}
+    .status-strip{margin-top:12px;min-height:74px;border:1px solid var(--line);border-left:5px solid var(--idle);background:#fff;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-radius:6px}
+    .status-strip.ok{border-left-color:var(--ok)}.status-strip.warning{border-left-color:var(--warn)}.status-strip.failed{border-left-color:var(--bad)}
+    .status-main{font-size:17px;font-weight:900}.status-sub{font-size:12px;color:var(--muted);margin-top:3px}
+    .badge{display:inline-flex;align-items:center;min-height:26px;border-radius:4px;padding:3px 8px;background:var(--idle-bg);color:var(--idle);font-size:11px;font-weight:900;white-space:nowrap}
+    .badge.ok{background:var(--ok-bg);color:var(--ok)}.badge.warning{background:var(--warn-bg);color:var(--warn)}.badge.failed{background:var(--bad-bg);color:var(--bad)}.badge.waiting,.badge.not_applicable{background:var(--idle-bg);color:var(--idle)}
+    .kpis{margin-top:12px;background:#fff;border:1px solid var(--line);border-radius:6px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));overflow:hidden}
+    .kpi{min-width:0;min-height:100px;padding:14px;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between}.kpi:last-child{border-right:0}
+    .kpi-label{font-size:11px;color:var(--muted);font-weight:800}.kpi-value{font-size:24px;line-height:1.1}.kpi-note{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+    .band{margin-top:18px;border-top:2px solid var(--ink);padding-top:9px}
+    .band-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:8px}.band h2{font-size:17px;margin:0}.band-meta{font-size:11px;color:var(--muted)}
+    .pipeline{background:#fff;border:1px solid var(--line);border-radius:6px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));overflow:hidden}
+    .pipe{min-width:0;min-height:112px;padding:12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}.pipe:nth-child(5n){border-right:0}.pipe:nth-last-child(-n+5){border-bottom:0}
+    .pipe-top{display:flex;justify-content:space-between;gap:6px;align-items:center}.pipe-label{font-size:12px;font-weight:900}.pipe-value{font-size:21px;font-weight:900;margin:12px 0 5px}.pipe-note{font-size:10px;color:var(--muted);line-height:1.45}
+    .issue-list{border:1px solid var(--line);border-radius:6px;background:#fff;overflow:hidden}
+    .issue{display:grid;grid-template-columns:92px 1fr minmax(140px,260px);gap:12px;align-items:start;padding:11px 13px;border-bottom:1px solid var(--line)}.issue:last-child{border-bottom:0}.issue-message{font-size:13px;font-weight:800}.issue-action{font-size:11px;color:var(--muted);line-height:1.5}.empty{padding:22px;text-align:center;color:var(--ok);font-weight:900}
+    .controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.filters{display:flex;border:1px solid var(--line-strong);border-radius:5px;overflow:hidden;background:#fff}.filter{border:0;border-right:1px solid var(--line-strong);background:#fff;color:var(--muted);min-height:34px;padding:0 12px;font-weight:800;cursor:pointer}.filter:last-child{border-right:0}.filter.active{background:var(--navy);color:#fff}
+    .race-list{display:grid;gap:8px}.race-card{background:#fff;border:1px solid var(--line);border-left:5px solid var(--ok);border-radius:6px;overflow:hidden}.race-card.warning{border-left-color:var(--warn)}.race-card.failed{border-left-color:var(--bad)}.race-card.waiting{border-left-color:var(--idle)}
+    .race-head{display:grid;grid-template-columns:minmax(120px,1fr) auto auto;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--line)}.race-name{font-size:16px;font-weight:950}.race-time{font-size:11px;color:var(--muted)}
+    .race-stages{display:grid;grid-template-columns:repeat(8,minmax(0,1fr))}.race-stage{min-width:0;padding:10px;border-right:1px solid var(--line)}.race-stage:last-child{border-right:0}.race-stage span{display:block;font-size:9px;color:var(--muted);font-weight:800;margin-bottom:5px}.race-stage b{font-size:11px;overflow-wrap:anywhere}.tickets{padding:9px 13px;background:#f7f9fa;font-size:11px;color:#39434c}.race-issues{padding:9px 13px;color:var(--bad);font-size:11px;font-weight:800;border-top:1px solid var(--line)}
+    .source-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);font-size:12px}.source-table th,.source-table td{padding:10px;border-bottom:1px solid var(--line);text-align:left}.source-table th{font-size:10px;color:var(--muted);background:#f7f9fa}.source-table tr:last-child td{border-bottom:0}.source-path{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:var(--muted);overflow-wrap:anywhere}
+    .footer{margin-top:18px;padding-top:10px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);display:flex;justify-content:space-between;gap:12px}
+    .error{margin-top:14px;border:1px solid #efb7c0;background:var(--bad-bg);color:var(--bad);padding:16px;border-radius:6px;font-weight:800}
+    [hidden]{display:none!important}
+    @media(max-width:930px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.kpi:nth-child(3n){border-right:0}.kpi:nth-child(-n+3){border-bottom:1px solid var(--line)}.pipeline{grid-template-columns:repeat(2,minmax(0,1fr))}.pipe:nth-child(5n){border-right:1px solid var(--line)}.pipe:nth-child(2n){border-right:0}.pipe:nth-last-child(-n+5){border-bottom:1px solid var(--line)}.pipe:last-child{border-bottom:0}.race-stages{grid-template-columns:repeat(4,minmax(0,1fr))}.race-stage:nth-child(4n){border-right:0}.race-stage:nth-child(-n+4){border-bottom:1px solid var(--line)}}
+    @media(max-width:620px){.app{padding:8px 8px 28px}.masthead{padding:14px}.mast-top{gap:8px}h1{font-size:22px}.nav-link{padding:0 8px;font-size:11px}.status-strip{align-items:flex-start}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi:nth-child(3n){border-right:1px solid var(--line)}.kpi:nth-child(2n){border-right:0}.kpi:nth-child(-n+4){border-bottom:1px solid var(--line)}.pipeline{grid-template-columns:1fr}.pipe,.pipe:nth-child(5n),.pipe:nth-child(2n){border-right:0;border-bottom:1px solid var(--line)}.issue{grid-template-columns:72px 1fr}.issue-action{grid-column:2}.controls{align-items:stretch;flex-direction:column}.filters{width:100%}.filter{flex:1}.race-head{grid-template-columns:1fr auto}.race-time{grid-column:1}.race-stages{grid-template-columns:repeat(2,minmax(0,1fr))}.race-stage:nth-child(4n){border-right:1px solid var(--line)}.race-stage:nth-child(2n){border-right:0}.race-stage:nth-child(-n+6){border-bottom:1px solid var(--line)}.source-wrap{overflow-x:auto}.source-table{min-width:680px}.footer{display:block}.footer span{display:block;margin-top:4px}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="masthead">
+      <div class="mast-top">
+        <div>
+          <div class="eyebrow"><span class="dot" id="status-dot"></span><span id="eyebrow">監査JSONを読込中</span></div>
+          <h1>通知・取得 完全監査</h1>
+          <p class="mast-meta" id="mast-meta">各工程を照合しています</p>
+        </div>
+        <div class="actions">
+          <a class="nav-link" href="manshu.html">管制盤</a>
+          <a class="nav-link" href="manshu_forward_ledger.html">公開台帳</a>
+          <button class="refresh" id="refresh" type="button" title="最新データを再読み込み" aria-label="最新データを再読み込み">↻</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="status-strip" id="status-strip">
+      <div><div class="status-main" id="status-main">工程を確認しています</div><div class="status-sub" id="status-sub">取得元から公開まで照合中</div></div>
+      <span class="badge" id="status-badge">読込中</span>
+    </section>
+
+    <div id="error" class="error" hidden></div>
+    <div id="content" hidden>
+      <section class="kpis" aria-label="監査概要">
+        <div class="kpi"><span class="kpi-label">監視照合</span><b class="kpi-value" id="kpi-inspection">-</b><span class="kpi-note" id="kpi-inspection-note">-</span></div>
+        <div class="kpi"><span class="kpi-label">締切圏内の取得</span><b class="kpi-value" id="kpi-capture">-</b><span class="kpi-note" id="kpi-capture-note">-</span></div>
+        <div class="kpi"><span class="kpi-label">サイン通知</span><b class="kpi-value" id="kpi-notify">-</b><span class="kpi-note" id="kpi-notify-note">-</span></div>
+        <div class="kpi"><span class="kpi-label">購入準備</span><b class="kpi-value" id="kpi-purchase">-</b><span class="kpi-note" id="kpi-purchase-note">-</span></div>
+        <div class="kpi"><span class="kpi-label">公開照合</span><b class="kpi-value" id="kpi-public">-</b><span class="kpi-note" id="kpi-public-note">-</span></div>
+        <div class="kpi"><span class="kpi-label">検出した問題</span><b class="kpi-value" id="kpi-issues">-</b><span class="kpi-note" id="kpi-issues-note">-</span></div>
+      </section>
+
+      <section class="band">
+        <div class="band-head"><h2>工程照合</h2><span class="band-meta" id="pipeline-meta"></span></div>
+        <div class="pipeline" id="pipeline"></div>
+      </section>
+
+      <section class="band">
+        <div class="band-head"><h2>異常一覧</h2><span class="band-meta" id="issue-meta"></span></div>
+        <div class="issue-list" id="issues"></div>
+      </section>
+
+      <section class="band">
+        <div class="band-head"><h2>レース別照合</h2><span class="band-meta" id="race-meta"></span></div>
+        <div class="controls">
+          <div class="filters" role="group" aria-label="レース絞り込み">
+            <button class="filter active" type="button" data-filter="problem">問題あり</button>
+            <button class="filter" type="button" data-filter="signal">サイン</button>
+            <button class="filter" type="button" data-filter="all">全レース</button>
+          </div>
+        </div>
+        <div class="race-list" id="races"></div>
+      </section>
+
+      <section class="band">
+        <div class="band-head"><h2>取得元の鮮度</h2><span class="band-meta">監視時間内のみ期限判定</span></div>
+        <div class="source-wrap"><table class="source-table"><thead><tr><th>取得元</th><th>状態</th><th>更新</th><th>経過</th><th>ファイル</th></tr></thead><tbody id="sources"></tbody></table></div>
+      </section>
+
+      <footer class="footer"><span id="footer-updated"></span><span>買い条件・買い目ロジックは監査対象であり、この画面では変更しません。</span></footer>
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      "use strict";
+      var STATE={data:null,filter:"problem"};
+      var LABEL={ok:"正常",warning:"要確認",failed:"異常",waiting:"待機",not_applicable:"対象外",missing:"欠損",stale:"期限超過",issued:"発行",no_signal:"見送り",not_decided:"未判定"};
+      function esc(value){return String(value==null?"":value).replace(/[&<>"']/g,function(char){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char];});}
+      function num(value){var n=Number(value);return Number.isFinite(n)?n.toLocaleString("ja-JP"):"-";}
+      function clock(value){if(!value)return "-";var d=new Date(value);return Number.isNaN(d.getTime())?String(value):d.toLocaleString("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"});}
+      function stateClass(value){return["ok","warning","failed","waiting","not_applicable"].indexOf(value)>=0?value:(value==="normal"?"ok":value==="degraded"?"warning":value==="missing"||value==="stale"?"failed":"waiting");}
+      function badge(state,text){var cls=stateClass(state);return '<span class="badge '+cls+'">'+esc(text||LABEL[state]||state||"-")+'</span>';}
+      function ratio(actual,expected){return expected==null?num(actual)+"件":num(actual)+" / "+num(expected);}
+      function stageLabel(value){return LABEL[value]||value||"-";}
+      function setText(id,value){document.getElementById(id).textContent=value;}
+      function renderHeader(){var data=STATE.data,overall=data.overall||{},summary=data.summary||{},state=stateClass(overall.state),dot=document.getElementById("status-dot"),strip=document.getElementById("status-strip"),statusBadge=document.getElementById("status-badge");dot.className="dot "+state;strip.className="status-strip "+state;statusBadge.className="badge "+state;statusBadge.textContent=overall.label||"-";setText("eyebrow",data.active_window?"監視時間内":"監視時間外");setText("mast-meta",data.date+" / 更新 "+clock(data.generated_at));setText("status-main",overall.state==="normal"?"取得から公開まで一致しています":overall.state==="degraded"?"確認が必要な工程があります":"欠損または工程不一致を検知しました");setText("status-sub","重大 "+num(overall.critical_count)+"件 / 注意 "+num(overall.warning_count)+"件 / サイン "+num(summary.signal_races)+"R");}
+      function renderKpis(){var s=STATE.data.summary||{};setText("kpi-inspection",ratio(s.inspected_races,s.expected_races));setText("kpi-inspection-note","対象レースとの一致");setText("kpi-capture",ratio(s.capture_verified_races,s.due_races));setText("kpi-capture-note","判定完了 "+num(s.decision_complete_races)+"R");setText("kpi-notify",ratio(s.notification_delivered_races,s.signal_races));setText("kpi-notify-note","元ログ "+num(s.raw_signal_rows)+"件");setText("kpi-purchase",ratio(s.purchase_unique_races,s.signal_races));setText("kpi-purchase-note","注文 "+num(s.purchase_order_rows)+"件 / 余分 "+num(s.purchase_duplicate_rows)+"件");setText("kpi-public",ratio(s.dashboard_matched_races,s.notification_delivered_races));setText("kpi-public-note","台帳 "+num(s.ledger_matched_races)+" / "+num(s.ledger_required_races));setText("kpi-issues",num((STATE.data.issues||[]).length)+"件");setText("kpi-issues-note","重大 "+num((STATE.data.overall||{}).critical_count)+" / 注意 "+num((STATE.data.overall||{}).warning_count));}
+      function renderPipeline(){var rows=STATE.data.pipeline||[];document.getElementById("pipeline").innerHTML=rows.map(function(row){return '<article class="pipe"><div class="pipe-top"><span class="pipe-label">'+esc(row.label)+'</span>'+badge(row.state)+'</div><div class="pipe-value">'+esc(ratio(row.actual,row.expected))+'</div><div class="pipe-note">'+esc(row.note)+'</div></article>';}).join("");setText("pipeline-meta",rows.filter(function(row){return row.state==="failed";}).length+"工程で不一致");}
+      function renderIssues(){var rows=STATE.data.issues||[],target=document.getElementById("issues");setText("issue-meta",rows.length+"件");if(!rows.length){target.innerHTML='<div class="empty">異常はありません</div>';return;}target.innerHTML=rows.map(function(row){return '<div class="issue">'+badge(row.severity==="critical"?"failed":"warning",row.severity==="critical"?"重大":"注意")+'<div class="issue-message">'+esc(row.message)+'</div><div class="issue-action">'+esc(row.action||"")+'</div></div>';}).join("");}
+      function stageCell(label,state,detail){return '<div class="race-stage"><span>'+esc(label)+'</span><b>'+esc(detail||stageLabel(state))+'</b></div>';}
+      function visibleRace(row){if(STATE.filter==="all")return true;if(STATE.filter==="signal")return row.signal&&row.signal.state==="issued";return row.state==="failed"||row.state==="warning";}
+      function renderRaces(){var all=STATE.data.races||[],rows=all.filter(visibleRace),target=document.getElementById("races");setText("race-meta",rows.length+" / "+all.length+"R");if(!rows.length){target.innerHTML='<div class="issue-list"><div class="empty">該当レースはありません</div></div>';return;}target.innerHTML=rows.map(function(row){var signal=row.signal||{},tickets=signal.tickets||[],notification=row.notification||{},purchase=row.purchase||{},ledger=row.ledger||{},dashboard=row.dashboard||{},result=row.result||{},issues=row.issues||[];return '<article class="race-card '+stateClass(row.state)+'"><div class="race-head"><div class="race-name">'+esc((row.venue||"-")+(row.round||"-")+"R")+'</div><div class="race-time">締切 '+clock(row.deadline_time)+(row.minutes_to_deadline==null?"":" / "+row.minutes_to_deadline+"分前")+'</div>'+badge(row.state)+'</div><div class="race-stages">'+stageCell("展示取得",row.acquisition.state)+stageCell("判定",row.decision.state)+stageCell("サイン",signal.state,signal.state==="issued"?(signal.points||tickets.length)+"点":stageLabel(signal.state))+stageCell("通知",notification.state,notification.status||stageLabel(notification.state))+stageCell("購入準備",purchase.state,purchase.required?(purchase.orders||0)+"件":"対象外")+stageCell("台帳",ledger.state)+stageCell("管制盤",dashboard.state)+stageCell("結果",result.state,result.trifecta||stageLabel(result.state))+'</div>'+(tickets.length?'<div class="tickets">買い目 '+tickets.map(esc).join(" / ")+'</div>':"")+(issues.length?'<div class="race-issues">'+issues.map(function(issue){return esc(issue.message);}).join(" / ")+'</div>':"")+'</article>';}).join("");}
+      function renderSources(){var rows=STATE.data.sources||[];document.getElementById("sources").innerHTML=rows.map(function(row){var age=row.age_minutes==null?"-":row.age_minutes+"分";return '<tr><td><b>'+esc(row.label)+'</b></td><td>'+badge(row.state)+'</td><td>'+esc(clock(row.timestamp))+'</td><td>'+esc(age)+'</td><td class="source-path">'+esc(row.path)+'</td></tr>';}).join("");}
+      function render(){document.getElementById("content").hidden=false;document.getElementById("error").hidden=true;renderHeader();renderKpis();renderPipeline();renderIssues();renderRaces();renderSources();setText("footer-updated","最終監査 "+clock(STATE.data.generated_at));}
+      async function load(){document.getElementById("content").hidden=true;document.getElementById("error").hidden=true;try{var response=await fetch("data/output/manshu_delivery_audit.json?t="+Date.now(),{cache:"no-store"});if(!response.ok)throw new Error("監査JSONが見つかりません");STATE.data=await response.json();render();}catch(error){var box=document.getElementById("error");box.hidden=false;box.textContent="監査データを表示できませんでした: "+String(error&&error.message?error.message:error);}}
+      document.getElementById("refresh").addEventListener("click",load);document.querySelectorAll(".filter").forEach(function(button){button.addEventListener("click",function(){document.querySelectorAll(".filter").forEach(function(item){item.classList.remove("active");});button.classList.add("active");STATE.filter=button.getAttribute("data-filter");renderRaces();});});load();setInterval(load,60000);
+    })();
+  </script>
+</body>
+</html>
