@@ -252,7 +252,7 @@
       <div id="rules-content"></div>
     </section>
 
-    <footer><span>表示データ: 24場サイン監視・フォワード検証</span><span>過去実績は将来の利益を保証しません</span></footer>
+    <footer><span>表示データ: 改・24場サイン監視・フォワード検証</span><span>過去実績は将来の利益を保証しません</span></footer>
   </main>
 
   <script>
@@ -351,7 +351,7 @@
       var delta12=(Number(overlay.top12_hit_pct)-Number(base.top12_hit_pct));var progressPct=Number(progress.minimum_progress_pct)||0;
       document.getElementById("model-content").innerHTML=
         candidateBlock(candidate)+
-        '<section class="model-band"><h3>本番 24場サイン</h3><p>場ごとの条件と固定買い目。通知と購入判断に使う本番系統です。</p><div class="model-metrics">'+metric("検証レース",num(hist.race_count,0)+"R")+metric("的中",num(hist.hits,0)+"件")+metric("回収率",pct(hist.roi_pct,1))+metric("利益（100円/点）",yen(hist.profit_yen))+'</div><div class="warning">回収率は2024年から2026年の過去検証値です。未来の利益を保証する数字ではありません。</div></section>'+
+        '<section class="model-band"><h3>本番 改・24場サイン</h3><p>福岡・蒲郡を含む場ごとの条件と固定買い目。通知と購入判断に使う本番系統です。</p><div class="model-metrics">'+metric("検証レース",num(hist.race_count,0)+"R")+metric("的中",num(hist.hits,0)+"件")+metric("回収率",pct(hist.roi_pct,1))+metric("利益（100円/点）",yen(hist.profit_yen))+'</div><div class="warning">回収率は2024年から2026年の過去検証値です。未来の利益を保証する数字ではありません。</div></section>'+
         '<section class="model-band"><h3>場別確率補正</h3><p>場×艇番、展示、風・波、潮・潮流、平均との差、スリットを2着率・3着率へ反映する影モデルです。</p><div class="model-metrics">'+metric("120通りlog loss",num(base.trifecta_log_loss,6)+" → "+num(overlay.trifecta_log_loss,6))+metric("上位6点内包",pct(overlay.top6_hit_pct,3))+metric("上位12点内包",pct(overlay.top12_hit_pct,3))+metric("上位12点改善",(delta12>=0?"+":"")+num(delta12,3)+"pt")+'</div><div class="pipeline"><div class="pipeline-step"><span>1</span><b>BOATERS基準確率</b><p>AI1着率・AI3連対率を着順別へ分解</p></div><div class="pipeline-step"><span>2</span><b>場別バフ・デバフ</b><p>1着×0 / 2着×'+num(scales["2"]*100,0)+'% / 3着×'+num(scales["3"]*100,0)+'%</p></div><div class="pipeline-step"><span>3</span><b>未来比較</b><p>本番買い目を変えずT-10/T-5期待値を保存</p></div></div></section>'+
         '<section class="model-band"><h3>フォワード検証</h3><p>実運用で出たサインだけを結果確定後に集計します。</p><div class="model-metrics">'+metric("蓄積",num(progress.entry_count,0)+" / 100")+metric("通知成功",num(forward.notification_sent_count,0)+"件")+metric("結果確定",num(forward.settled_count,0)+"件")+metric("現在の収支",forward.profit_yen==null?"集計待ち":yen(forward.profit_yen))+'</div><div class="progress-line"><div class="progress-fill" style="width:'+Math.min(100,progressPct)+'%"></div></div></section>';
     }

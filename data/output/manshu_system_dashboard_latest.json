@@ -1,20 +1,24 @@
 {
   "version": "manshu-system-dashboard-v1",
   "date": "2026-08-01",
-  "exported_at": "2026-08-01T23:57:44+09:00",
+  "exported_at": "2026-08-02T08:17:35+09:00",
   "source_generated_at": "2026-08-01T20:48:19+09:00",
   "source_monitor_file": "data/output/boaters_manshu_alerts_20260801.json",
   "system": {
     "name": "24場サイン管制盤",
     "mode": "all_races_venue_sign_only",
+    "rule_set_id": "revised_boaters_24_v2",
+    "notification_label": "改・24場サイン",
+    "enabled_venues": 24,
+    "excluded_venues": [],
     "live_source": "official",
     "lookahead_minutes": 10.0,
-    "signal_count": 2,
+    "signal_count": 0,
     "monitored_count": 1,
     "checked_count": 0,
     "preview_ready_count": 1,
     "fetch_failed_count": 0,
-    "notifications_sent": 2,
+    "notifications_sent": 0,
     "notifications_failed": 0,
     "notifications_invalid": 0,
     "status_counts": {
@@ -23,8 +27,8 @@
   },
   "runtime_health": {
     "version": "boaters-runtime-health-v1",
-    "generated_at": "2026-08-01T23:53:10+09:00",
-    "date": "2026-08-01",
+    "generated_at": "2026-08-02T08:14:46+09:00",
+    "date": "2026-08-02",
     "active_window": false,
     "startup_warmup": false,
     "active_minutes": null,
@@ -41,8 +45,8 @@
         "role": "live",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/live_cycle.json",
         "state": "off_hours",
-        "attempt_age_minutes": 0.203,
-        "success_age_minutes": 186.92,
+        "attempt_age_minutes": 1.034,
+        "success_age_minutes": 688.518,
         "consecutive_failures": 2,
         "critical": true,
         "healthy": false,
@@ -54,8 +58,8 @@
         "role": "retry",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/retry_cycle.json",
         "state": "off_hours",
-        "attempt_age_minutes": 0.703,
-        "success_age_minutes": 184.787,
+        "attempt_age_minutes": 0.284,
+        "success_age_minutes": 686.384,
         "consecutive_failures": 5,
         "critical": true,
         "healthy": false,
@@ -66,48 +70,45 @@
       {
         "role": "screenshot_post",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_post_cycle.json",
-        "state": "off_hours",
-        "attempt_age_minutes": 0.703,
-        "success_age_minutes": 189.137,
-        "consecutive_failures": 12,
+        "state": "failed",
+        "attempt_age_minutes": 0.668,
+        "success_age_minutes": 690.734,
+        "consecutive_failures": 40,
         "critical": true,
         "healthy": false,
         "issues": [
-          "success_stale"
+          "success_stale",
+          "last_state_failed"
         ]
       },
       {
         "role": "screenshot_import",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_import_cycle.json",
-        "state": "off_hours",
-        "attempt_age_minutes": 0.703,
-        "success_age_minutes": 172.303,
+        "state": "success",
+        "attempt_age_minutes": 0.268,
+        "success_age_minutes": 0.268,
         "consecutive_failures": 0,
         "critical": true,
-        "healthy": false,
-        "issues": [
-          "success_stale"
-        ]
+        "healthy": true,
+        "issues": []
       },
       {
         "role": "screenshot_archive",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_archive_cycle.json",
-        "state": "off_hours",
-        "attempt_age_minutes": 4.653,
-        "success_age_minutes": 174.77,
+        "state": "success",
+        "attempt_age_minutes": 0.534,
+        "success_age_minutes": 0.534,
         "consecutive_failures": 0,
         "critical": false,
-        "healthy": false,
-        "issues": [
-          "success_stale"
-        ]
+        "healthy": true,
+        "issues": []
       },
       {
         "role": "dashboard",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/dashboard_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 168.42,
-        "success_age_minutes": 168.42,
+        "attempt_age_minutes": 670.018,
+        "success_age_minutes": 670.018,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": false,
@@ -120,8 +121,8 @@
         "role": "publisher",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/publisher_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 170.987,
-        "success_age_minutes": 170.987,
+        "attempt_age_minutes": 496.668,
+        "success_age_minutes": 496.668,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": false,
@@ -134,8 +135,8 @@
     "artifacts": [
       {
         "name": "race_schedule",
-        "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/official_live_ranking_20260801.json",
-        "age_minutes": 184.857,
+        "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/official_live_ranking_20260802.json",
+        "age_minutes": null,
         "max_age_minutes": 8.0,
         "healthy": false,
         "issues": [
@@ -145,15 +146,17 @@
       {
         "name": "dashboard_json",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/manshu_system_dashboard_latest.json",
-        "age_minutes": 5.007,
+        "age_minutes": 496.569,
         "max_age_minutes": 15.0,
-        "healthy": true,
-        "issues": []
+        "healthy": false,
+        "issues": [
+          "missing_or_stale"
+        ]
       },
       {
         "name": "monitor_output",
-        "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/boaters_manshu_alerts_20260801.json",
-        "age_minutes": 184.795,
+        "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/boaters_manshu_alerts_20260802.json",
+        "age_minutes": null,
         "max_age_minutes": 15.0,
         "healthy": false,
         "issues": [
@@ -164,36 +167,21 @@
     "semantic_checks": [
       {
         "name": "race_schedule_integrity",
-        "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/official_live_ranking_20260801.json",
-        "healthy": true,
-        "issues": [],
-        "race_count": 1
+        "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/official_live_ranking_20260802.json",
+        "healthy": false,
+        "issues": [
+          "payload_not_object"
+        ],
+        "race_count": null
       },
       {
         "name": "monitor_decision_integrity",
-        "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/boaters_manshu_alerts_20260801.json",
-        "healthy": true,
-        "issues": [],
-        "integrity": {
-          "version": "boaters-monitor-integrity-v2",
-          "expected_race_count": 1,
-          "inspected_race_count": 1,
-          "all_expected_races_inspected": true,
-          "missing_inspection_race_ids": [],
-          "duplicate_inspection_race_ids": [],
-          "global_failures": [],
-          "due_race_count": 0,
-          "due_decision_required_count": 0,
-          "due_complete_count": 0,
-          "due_source_unavailable_count": 0,
-          "due_pending_count": 0,
-          "due_incomplete_count": 0,
-          "due_coverage_pct": 100.0,
-          "all_due_complete": true,
-          "pending_due_races": [],
-          "incomplete_due_races": [],
-          "healthy": true
-        }
+        "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/boaters_manshu_alerts_20260802.json",
+        "healthy": false,
+        "issues": [
+          "data_integrity_missing"
+        ],
+        "integrity": {}
       },
       {
         "name": "external_runtime_integrity",
@@ -207,31 +195,31 @@
         "role": "live",
         "label": "com.mm1601.boaters-live-monitor",
         "loaded": true,
-        "message": "[100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 2253\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+        "message": "[100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 2351\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
       },
       {
         "role": "retry",
         "label": "com.mm1601.boaters-original-retry",
         "loaded": true,
-        "message": " [100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 9553\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+        "message": "[100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 10024\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
       },
       {
         "role": "screenshot_post",
         "label": "com.mm1601.boaters-post-snapshot",
         "loaded": true,
-        "message": " [100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 9021\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+        "message": " [100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 9476\n\tlast exit code = 3\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
       },
       {
         "role": "screenshot_import",
         "label": "com.mm1601.boaters-post-import",
         "loaded": true,
-        "message": " [100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 9370\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+        "message": " [100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 9841\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
       },
       {
         "role": "screenshot_archive",
         "label": "com.mm1601.boaters-exhibition-5m",
         "loaded": true,
-        "message": "[100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 2418\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+        "message": "[100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 2517\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
       },
       {
         "role": "dashboard",
@@ -249,7 +237,7 @@
         "role": "screenshot_archive_import",
         "label": "com.mm1601.boaters-exhibition-5m-import",
         "loaded": true,
-        "message": "[100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 11830\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+        "message": "[100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 12313\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
       },
       {
         "role": "audit",
@@ -382,218 +370,7 @@
       "ready": true
     }
   },
-  "signals": [
-    {
-      "race_id": "2026-08-012210",
-      "date": "2026-08-01",
-      "venue": "福岡",
-      "round": 10,
-      "deadline_time": "2026-08-01T16:55:00+09:00",
-      "detected_at": "2026-08-01T16:47:55+09:00",
-      "first_minutes_to_deadline": 7.1,
-      "status": "miss",
-      "notification_status": "duplicate_sent",
-      "notification_sent_at": "2026-08-01T16:47:55+09:00",
-      "notification_ok": true,
-      "notification_sources": [
-        "original_boaters_24"
-      ],
-      "data_quality_invalid": false,
-      "data_quality_invalidation_reason": null,
-      "rule_status": "A",
-      "rule_id": "original_boaters_24_v1:福岡:pop2_odds25_nige55:late_b1tenji4:non1_h2_no1_has56_top5",
-      "condition": "1号艇がBOATERS人気2位以内・支持率25%以上・逃げ率55%以下 / 9-12Rかつ1号艇展示4位以下",
-      "buy_method": "非1号艇頭2艇・1号艇消し・5/6絡み・予測順位上位5点",
-      "data_mode": "full",
-      "points": 5,
-      "tickets": [
-        "3-2-5",
-        "3-5-2",
-        "2-3-5",
-        "2-5-3",
-        "3-5-4"
-      ],
-      "heads": [
-        2,
-        3
-      ],
-      "axes": [
-        2,
-        3,
-        5
-      ],
-      "keshi": 1,
-      "historical": {
-        "races": 109,
-        "hits": 13,
-        "hit_rate_pct": 11.93,
-        "avg_points": 5.0,
-        "roi_pct": 211.23
-      },
-      "probabilities": [],
-      "conditions": {
-        "wind_speed": 3.0,
-        "wave_height": 3.0,
-        "boat1_popularity_pct": 37.8,
-        "boat1_ai_win_pct": 40.2,
-        "boat1_escape_pct": 41.2,
-        "boat1_exhibition_rank": 5,
-        "boat1_lap_rank": 2,
-        "boat1_average_diff": 0.135,
-        "outer56_average_diff": -0.095
-      },
-      "legacy_ev": {
-        "status": "awaiting_target_odds",
-        "t10": {
-          "available": false,
-          "expected_roi_pct": null,
-          "synthetic_odds": null,
-          "positive_ev_tickets": null,
-          "snapshot_at": null,
-          "complete_odds": false
-        },
-        "t5": {
-          "available": false,
-          "expected_roi_pct": null,
-          "synthetic_odds": null,
-          "positive_ev_tickets": null,
-          "snapshot_at": null,
-          "complete_odds": false
-        }
-      },
-      "probability_overlay_ev": {
-        "status": "unavailable",
-        "t10": {
-          "available": false,
-          "expected_roi_pct": null,
-          "synthetic_odds": null,
-          "positive_ev_tickets": null,
-          "snapshot_at": null,
-          "complete_odds": false
-        },
-        "t5": {
-          "available": false,
-          "expected_roi_pct": null,
-          "synthetic_odds": null,
-          "positive_ev_tickets": null,
-          "snapshot_at": null,
-          "complete_odds": false
-        }
-      },
-      "result": {
-        "trifecta": "3-4-1",
-        "payout_yen": 8100,
-        "manshu": false,
-        "hit": false,
-        "profit_yen": -500
-      }
-    },
-    {
-      "race_id": "2026-08-010102",
-      "date": "2026-08-01",
-      "venue": "桐生",
-      "round": 2,
-      "deadline_time": "2026-08-01T16:03:00+09:00",
-      "detected_at": "2026-08-01T15:57:52+09:00",
-      "first_minutes_to_deadline": 5.1,
-      "status": "miss",
-      "notification_status": "duplicate_sent",
-      "notification_sent_at": "2026-08-01T15:57:52+09:00",
-      "notification_ok": true,
-      "notification_sources": [
-        "original_boaters_24"
-      ],
-      "data_quality_invalid": false,
-      "data_quality_invalidation_reason": null,
-      "rule_status": "A",
-      "rule_id": "original_boaters_24_v1:桐生:pop2_odds25_nige35:b1lap3:head56_h2_no1_top6",
-      "condition": "1号艇がBOATERS人気2位以内・支持率25%以上・逃げ率35%以下 / 1号艇の一周/半周順位3位以下",
-      "buy_method": "5/6号艇の2艇頭・1号艇全消し・予測順位上位6点",
-      "data_mode": "full",
-      "points": 6,
-      "tickets": [
-        "5-4-3",
-        "5-3-4",
-        "5-4-2",
-        "5-3-2",
-        "5-2-4",
-        "5-4-6"
-      ],
-      "heads": [
-        5
-      ],
-      "axes": [
-        2,
-        3,
-        4
-      ],
-      "keshi": 1,
-      "historical": {
-        "races": 149,
-        "hits": 11,
-        "hit_rate_pct": 7.38,
-        "avg_points": 6.0,
-        "roi_pct": 202.54
-      },
-      "probabilities": [],
-      "conditions": {
-        "wind_speed": 5.0,
-        "wave_height": 4.0,
-        "boat1_popularity_pct": 37.1,
-        "boat1_ai_win_pct": 37.1,
-        "boat1_escape_pct": 18.2,
-        "boat1_exhibition_rank": 3,
-        "boat1_lap_rank": 4,
-        "boat1_average_diff": -0.0783,
-        "outer56_average_diff": 0.3317
-      },
-      "legacy_ev": {
-        "status": "awaiting_target_odds",
-        "t10": {
-          "available": false,
-          "expected_roi_pct": null,
-          "synthetic_odds": null,
-          "positive_ev_tickets": null,
-          "snapshot_at": null,
-          "complete_odds": false
-        },
-        "t5": {
-          "available": false,
-          "expected_roi_pct": null,
-          "synthetic_odds": null,
-          "positive_ev_tickets": null,
-          "snapshot_at": null,
-          "complete_odds": false
-        }
-      },
-      "probability_overlay_ev": {
-        "status": "unavailable",
-        "t10": {
-          "available": false,
-          "expected_roi_pct": null,
-          "synthetic_odds": null,
-          "positive_ev_tickets": null,
-          "snapshot_at": null,
-          "complete_odds": false
-        },
-        "t5": {
-          "available": false,
-          "expected_roi_pct": null,
-          "synthetic_odds": null,
-          "positive_ev_tickets": null,
-          "snapshot_at": null,
-          "complete_odds": false
-        }
-      },
-      "result": {
-        "trifecta": "4-1-3",
-        "payout_yen": 3460,
-        "manshu": false,
-        "hit": false,
-        "profit_yen": -600
-      }
-    }
-  ],
+  "signals": [],
   "monitor": [
     {
       "race_id": "2026-08-012012",
@@ -648,7 +425,7 @@
       "payback_yen": 25480,
       "profit_yen": 5380,
       "roi_pct": 126.77,
-      "notification_sent_count": 2,
+      "notification_sent_count": 0,
       "notification_duplicate_sent_count": 35,
       "notification_failed_count": 0,
       "notification_pending_count": 0,
@@ -8421,13 +8198,20 @@
       "notification_invalid_count": 0
     },
     "historical_24_sign": {
-      "stake": 420900,
-      "payback": 931910,
-      "hits": 78,
-      "profit_yen": 511010,
-      "roi_pct": 221.409,
-      "hit_rate_pct": 10.955,
-      "race_count": 712
+      "rule_set_id": "revised_boaters_24_v2",
+      "source_period": {
+        "start": "2024-01-01",
+        "end": "2026-07-08"
+      },
+      "race_count": 1917,
+      "hits": 706,
+      "hit_rate_pct": 36.828,
+      "investment_yen": 2013000,
+      "payback_yen": 3325150,
+      "profit_yen": 1312150,
+      "roi_pct": 165.184,
+      "max_losing_streak": 12,
+      "max_losing_streak_investment_yen": 12000
     },
     "probability_baseline": {
       "race_count": 28681,
@@ -8993,484 +8777,1112 @@
   },
   "rules": [
     {
-      "venue": "尼崎",
-      "status": "A",
-      "condition": "7-9R / 1号艇がBOATERS人気2位以内・支持率25%以上 / 1号艇展示4位以下・1周3位以下 / 5/6号艇の良い方が展示+1周平均との差+0.10以上",
-      "buy_method": "1号艇全消し・2-6号艇の事前1着評価45%+3着内評価55%による上位3艇BOX6点",
-      "base_id": "pop2_odds25",
-      "context_id": "round7_9_b1tenji4_b1lap3_outer56avg010",
-      "template_id": "non1_box3_6",
-      "historical": {
-        "races": 89,
-        "hits": 13,
-        "hit_rate_pct": 14.61,
-        "avg_points": 6.0,
-        "roi_pct": 344.81,
-        "max_losing_streak": 11,
-        "roi_without_largest_pct": 195.26,
-        "yearly_roi_pct": {
-          "2024": 184.33,
-          "2025": 649.17,
-          "2026": 202.11
-        }
-      }
-    },
-    {
-      "venue": "芦屋",
-      "status": "A",
-      "condition": "1号艇がBOATERS人気1位で市場支持がAI1着率より5pt以上高い / 1号艇の展示順位4位以下",
-      "buy_method": "3-6号艇の頭1艇・1号艇全消し・予測順位上位4点",
-      "base_id": "pop1_overbet5",
-      "context_id": "b1tenji4",
-      "template_id": "outer_h1_no1_top4",
-      "historical": {
-        "races": 98,
-        "hits": 13,
-        "hit_rate_pct": 13.27,
-        "avg_points": 4.0,
-        "roi_pct": 202.5,
-        "max_losing_streak": 16,
-        "roi_without_largest_pct": 170.64,
-        "yearly_roi_pct": {
-          "2024": 225.65,
-          "2025": 184.17,
-          "2026": 186.88
-        }
-      }
-    },
-    {
-      "venue": "びわこ",
-      "status": "A",
-      "condition": "4〜6R・波高2cm以上・1号艇がBOATERS人気1位で支持率35%以上・逃げ失敗率20%以上・1周3位以下",
-      "buy_method": "3〜6号艇の場別複合1着評価上位2艇を頭・AI+1位/3位軸・1号艇全消し・上位4〜6点",
-      "base_id": "pop1_odds35",
-      "context_id": "round4_6_wave2_b1loss20_b1lap3",
-      "template_id": "biwako_h2_ai13_no1_top6",
-      "historical": {
-        "races": 81,
-        "hits": 10,
-        "hit_rate_pct": 12.35,
-        "avg_points": 4.94,
-        "roi_pct": 287.73,
-        "max_losing_streak": 12,
-        "roi_without_largest_pct": 200.07,
-        "yearly_roi_pct": {
-          "2024": 276.47,
-          "2025": 315.18,
-          "2026": 278.08
-        }
-      }
-    },
-    {
-      "venue": "江戸川",
-      "status": "B",
-      "condition": "1号艇がBOATERS人気1位で市場支持がAI1着率より0pt以上高い / 5/6号艇のAI1着率最大12%以上",
-      "buy_method": "3-6号艇の複合上位3艇BOX6点",
-      "base_id": "pop1_overbet0",
-      "context_id": "outer56_ai12",
-      "template_id": "outer_box3_6",
-      "historical": {
-        "races": 88,
-        "hits": 8,
-        "hit_rate_pct": 9.09,
-        "avg_points": 6.0,
-        "roi_pct": 204.09
-      }
-    },
-    {
-      "venue": "福岡",
-      "status": "A",
-      "condition": "1号艇がBOATERS人気2位以内・支持率25%以上・逃げ率55%以下 / 9-12Rかつ1号艇展示4位以下",
-      "buy_method": "非1号艇頭2艇・1号艇消し・5/6絡み・予測順位上位5点",
-      "base_id": "pop2_odds25_nige55",
-      "context_id": "late_b1tenji4",
-      "template_id": "non1_h2_no1_has56_top5",
-      "historical": {
-        "races": 109,
-        "hits": 13,
-        "hit_rate_pct": 11.93,
-        "avg_points": 5.0,
-        "roi_pct": 211.23
-      }
-    },
-    {
-      "venue": "蒲郡",
-      "status": "A",
-      "condition": "1〜6R・1号艇がBOATERS人気1位で支持率40%以上・逃げ失敗率25%以上・1周3位以下・5/6号艇の良い方が展示+1周平均との差+0.05以上",
-      "buy_method": "3〜6号艇の複合1着評価上位2艇を頭・1号艇全消し・複合順位上位6点",
-      "base_id": "pop1_odds40",
-      "context_id": "round1_6_b1loss25_b1lap3_outer56avg005",
-      "template_id": "outer_h2_no1_top6",
-      "historical": {
-        "races": 82,
-        "hits": 9,
-        "hit_rate_pct": 10.98,
-        "avg_points": 6.0,
-        "roi_pct": 202.48,
-        "max_losing_streak": 16,
-        "roi_without_largest_pct": 154.0,
-        "yearly_roi_pct": {
-          "2024": 214.84,
-          "2025": 218.71,
-          "2026": 143.02
-        }
-      }
-    },
-    {
-      "venue": "浜名湖",
-      "status": "A",
-      "condition": "1〜3R・波高2cm以上・低AI艇の浜名湖場別展示復活バフあり・1号艇の展示+1周平均との差0.00以下・5/6号艇の良い方が+0.05以上",
-      "buy_method": "3〜6号艇の複合1着評価上位2艇を頭・1号艇全消し・5/6絡み・複合順位上位4点",
-      "base_id": "all",
-      "context_id": "round1_3_wave2_revival_b1avg000_outer56avg005",
-      "template_id": "outer_h2_no1_has56_top4",
-      "historical": {
-        "races": 74,
-        "hits": 14,
-        "hit_rate_pct": 18.92,
-        "avg_points": 4.0,
-        "roi_pct": 418.78,
-        "max_losing_streak": 14,
-        "roi_without_largest_pct": 243.38,
-        "yearly_roi_pct": {
-          "2024": 671.58,
-          "2025": 265.98,
-          "2026": 212.19
-        }
-      }
-    },
-    {
-      "venue": "平和島",
-      "status": "A",
-      "condition": "1号艇がBOATERS人気1位・支持率55%以上・逃げ率65%以下 / 9-12R・3-6号艇に展示または1周2位以内あり・波高3cm以上",
-      "buy_method": "2-6号艇の評価上位2艇を頭・1号艇全消し・予測順位上位6点",
-      "base_id": "pop1_odds55_nige65",
-      "context_id": "round9_12_outertop2_wave3",
-      "template_id": "non1_h2_no1_top6",
-      "historical": {
-        "races": 121,
-        "hits": 8,
-        "hit_rate_pct": 6.61,
-        "avg_points": 6.0,
-        "roi_pct": 332.13,
-        "max_losing_streak": 40,
-        "roi_without_largest_pct": 229.41
-      }
-    },
-    {
-      "venue": "唐津",
-      "status": "A",
-      "condition": "1号艇がBOATERS人気1位・支持率50%以上・逃げ率60%以下 / 外艇上位2艇以上かつ風速5m以上",
-      "buy_method": "3-6号艇の頭1艇・1号艇は2/3着可・予測順位上位5点",
-      "base_id": "pop1_odds50_nige60",
-      "context_id": "outer2_wind5",
-      "template_id": "outer_h1_b1place_top5",
-      "historical": {
-        "races": 114,
-        "hits": 13,
-        "hit_rate_pct": 11.4,
-        "avg_points": 5.0,
-        "roi_pct": 202.96
-      }
-    },
-    {
       "venue": "桐生",
-      "status": "A",
-      "condition": "1号艇がBOATERS人気2位以内・支持率25%以上・逃げ率35%以下 / 1号艇の一周/半周順位3位以下",
-      "buy_method": "5/6号艇の2艇頭・1号艇全消し・予測順位上位6点",
-      "base_id": "pop2_odds25_nige35",
-      "context_id": "b1lap3",
-      "template_id": "head56_h2_no1_top6",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位以内・支持率25%以上・逃げ率55%以下・一周/半周順位4位以下 / 5・6号艇AI1着率最大12%以上",
+      "buy_method": "3〜6号艇の評価上位2艇を頭・1号艇全消し・複合評価上位12点",
+      "condition_id": "pop1_odds25_nige55_lap4:outer56ai_12",
+      "ticket_family": "outer_h2_no1",
+      "points": 12,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
       "historical": {
-        "races": 149,
-        "hits": 11,
-        "hit_rate_pct": 7.38,
-        "avg_points": 6.0,
-        "roi_pct": 202.54
-      }
-    },
-    {
-      "venue": "児島",
-      "status": "A",
-      "condition": "7-12R / 1号艇がBOATERS人気1位・支持率40%以上・逃げ率55%以下 / 1号艇の1周/半周順位3位以下 / 5・6号艇の良い方が1周/半周平均との差+0.05以上",
-      "buy_method": "2-6号艇の複合1着評価上位2艇を頭・1号艇全消し・AI+1位/3位軸・5/6号艇絡み・最大6点",
-      "base_id": "pop1_odds40_nige55",
-      "context_id": "round7_12_b1lap3_o56avg005",
-      "template_id": "kojima_h2_ai13_no1_has56_top6",
-      "historical": {
-        "races": 85,
-        "hits": 9,
-        "hit_rate_pct": 10.59,
-        "avg_points": 3.95,
-        "roi_pct": 255.42
-      }
-    },
-    {
-      "venue": "丸亀",
-      "status": "A",
-      "condition": "7-12R / 1号艇がBOATERS人気2位以内・支持率30%以上・逃げ率45%以下 / 5・6号艇の良い方が1周/半周平均との差+0.05以上",
-      "buy_method": "3-6号艇の複合1着評価上位2艇を頭・1号艇全消し・複合3着内評価軸・5/6号艇絡み・最大8点",
-      "base_id": "pop2_odds30_nige45",
-      "context_id": "round7_12_o56avg005",
-      "template_id": "marugame_h2_top3_no1_has56_top8",
-      "historical": {
-        "races": 126,
-        "hits": 10,
-        "hit_rate_pct": 7.94,
-        "avg_points": 5.0,
-        "roi_pct": 411.54
-      }
-    },
-    {
-      "venue": "三国",
-      "status": "A",
-      "condition": "7-12R・波高2cm以上 / 1号艇がBOATERS人気2位以内・支持率25%以上・市場支持がAI1着率より0pt以上高い / 1号艇の一周/半周順位3位以下",
-      "buy_method": "3-6号艇の頭2艇・1号艇全消し・5/6号艇絡み・複合予測順位上位4点",
-      "base_id": "pop2_odds25_overbet0",
-      "context_id": "round7_12_wave2_b1lap3",
-      "template_id": "outer_h2_no1_has56_top4",
-      "historical": {
-        "races": 101,
-        "hits": 15,
-        "hit_rate_pct": 14.85,
-        "avg_points": 4.0,
-        "roi_pct": 318.37
-      }
-    },
-    {
-      "venue": "宮島",
-      "status": "A",
-      "condition": "1号艇がBOATERS人気1位・支持率30%以上・逃げ率60%以下 / 1号艇の1周/半周順位4位以下 / 3-6号艇の展示または1周2位以内が3艇以上 / 波高3cm以上",
-      "buy_method": "5/6号艇の複合1着評価上位1艇を頭・1号艇は2/3着可・締切前複合評価上位4点",
-      "base_id": "pop1_odds30_nige60",
-      "context_id": "b1lap4_outer3_wave3",
-      "template_id": "head56_h1_b1place_top4",
-      "historical": {
-        "races": 96,
-        "hits": 9,
-        "hit_rate_pct": 9.38,
-        "avg_points": 4.0,
-        "roi_pct": 471.51
-      }
-    },
-    {
-      "venue": "鳴門",
-      "status": "A",
-      "condition": "7-12R / 1号艇がBOATERS人気2位以内・支持率20%以上・逃げ率40%以下 / 3-6号艇の展示または1周2位以内が2艇以上 / 5/6号艇の良い方が展示+1周平均との差+0.10以上",
-      "buy_method": "1号艇全消し・3-6号艇の複合1着評価最上位1艇を頭・AI+1位/3位を軸・複合3着内評価最下位1艇を消し・最大6点",
-      "base_id": "pop2_odds20_nige40",
-      "context_id": "round7_12_outer2_o56avg010",
-      "template_id": "naruto_h1_ai13_no1_top6",
-      "historical": {
-        "races": 161,
-        "hits": 22,
-        "hit_rate_pct": 13.66,
-        "avg_points": 4.16,
-        "roi_pct": 274.36,
-        "max_losing_streak": 24,
-        "roi_without_largest_pct": 182.72,
-        "yearly_roi_pct": {
-          "2024": 332.31,
-          "2025": 199.13,
-          "2026": 235.76
-        }
-      }
-    },
-    {
-      "venue": "大村",
-      "status": "A",
-      "condition": "1号艇がBOATERS人気1位・支持率45%以上・逃げ率55%以下 / 1号艇周回4位以下かつ外艇AI3連対率55%以上",
-      "buy_method": "2-6号艇の頭1艇・1号艇は2/3着可・予測順位上位4点",
-      "base_id": "pop1_odds45_nige55",
-      "context_id": "b1lap4_outertop355",
-      "template_id": "non1_h1_b1place_top4",
-      "historical": {
-        "races": 191,
-        "hits": 37,
-        "hit_rate_pct": 19.37,
-        "avg_points": 4.0,
-        "roi_pct": 230.07
-      }
-    },
-    {
-      "venue": "下関",
-      "status": "A",
-      "condition": "1号艇がBOATERS人気1位・支持率30%以上・逃げ率35%以下 / 風速4m以上かつ外艇上位2艇以上",
-      "buy_method": "5/6号艇の事前複合1着評価上位1艇を頭・1号艇は2/3着可・事前複合評価上位5点",
-      "base_id": "pop1_odds30_nige35",
-      "context_id": "wind4_outer2",
-      "template_id": "head56_h1_b1place_top5",
-      "historical": {
-        "races": 77,
-        "hits": 9,
-        "hit_rate_pct": 11.69,
-        "avg_points": 5.0,
-        "roi_pct": 222.05,
-        "max_losing_streak": 18,
-        "roi_without_largest_pct": 166.21,
-        "yearly_roi_pct": {
-          "2024": 216.75,
-          "2025": 272.17,
-          "2026": 172.86
-        }
-      }
-    },
-    {
-      "venue": "住之江",
-      "status": "A",
-      "condition": "1-5R / 1号艇がBOATERS人気1位・支持率25%以上 / 1号艇展示4位以下・1周平均との差0.00以下",
-      "buy_method": "1号艇全消し・3-6号艇の複合1着評価上位2艇を頭・複合3着内評価上位2艇を軸・5/6号艇絡み・上位2-6点",
-      "base_id": "pop1_odds25",
-      "context_id": "round1_5_b1tenji4_b1avg000",
-      "template_id": "suminoe_h2_top3_no1_has56_top6",
-      "historical": {
-        "races": 99,
-        "hits": 11,
-        "hit_rate_pct": 11.11,
-        "avg_points": 4.4,
-        "roi_pct": 392.55,
-        "max_losing_streak": 15,
-        "roi_without_largest_pct": 290.76,
-        "yearly_roi_pct": {
-          "2024": 392.3,
-          "2025": 454.71,
-          "2026": 278.15
-        }
-      }
-    },
-    {
-      "venue": "多摩川",
-      "status": "A",
-      "condition": "1号艇がBOATERS人気2位以内・支持率30%以上・逃げ率70%以下 / 1号艇の展示+周回平均との差0以下",
-      "buy_method": "2-6号艇の頭2艇・1号艇全消し・基本4点、外艇AI3連対率70%以上なら5点",
-      "base_id": "pop2_odds30_nige70",
-      "context_id": "b1avg000",
-      "template_id": "non1_h2_no1_top4_plus5_outertop3_ge70",
-      "historical": {
-        "races": 386,
-        "hits": 29,
-        "hit_rate_pct": 7.51,
-        "avg_points": 4.34,
-        "roi_pct": 203.04,
-        "observed_2026": {
-          "races": 74,
-          "hits": 2,
-          "roi_pct": 221.93,
-          "max_losing_streak": 42
+        "races": 65,
+        "hits": 20,
+        "hit_rate_pct": 30.769,
+        "roi_pct": 187.821,
+        "points": 12,
+        "investment_yen": 78000,
+        "payback_yen": 146500,
+        "profit_yen": 68500,
+        "max_losing_streak": 6,
+        "roi_without_largest_pct": 164.91,
+        "races_per_week": 0.495,
+        "yearly": {
+          "2024": {
+            "races": 29,
+            "hits": 9,
+            "hit_rate_pct": 31.034,
+            "roi_pct": 145.575
+          },
+          "2025": {
+            "races": 22,
+            "hits": 8,
+            "hit_rate_pct": 36.364,
+            "roi_pct": 259.356
+          },
+          "2026": {
+            "races": 14,
+            "hits": 3,
+            "hit_rate_pct": 21.429,
+            "roi_pct": 162.917
+          }
         }
       }
     },
     {
       "venue": "戸田",
-      "status": "A",
-      "condition": "1号艇がBOATERS人気1位・支持率35%以上・逃げ率65%以下 / 9-12Rかつ1号艇周回4位以下",
-      "buy_method": "外艇頭2艇・1号艇消し・5/6絡み・予測順位上位6点",
-      "base_id": "pop1_odds35_nige65",
-      "context_id": "late_b1lap4",
-      "template_id": "outer_h2_no1_has56_top6",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位以内・支持率30%以上・逃げ率65%以下・一周/半周順位3位以下 / 1〜3R",
+      "buy_method": "2〜6号艇の評価上位2艇を頭・1号艇を2・3着に残す・複合評価上位10点",
+      "condition_id": "pop1_odds30_nige65_lap3:round1_3",
+      "ticket_family": "non1_h2_b1place",
+      "points": 10,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
       "historical": {
-        "races": 100,
-        "hits": 10,
-        "hit_rate_pct": 10.0,
-        "avg_points": 6.0,
-        "roi_pct": 220.68
-      }
-    },
-    {
-      "venue": "常滑",
-      "status": "A",
-      "condition": "風速4m以上 / 1号艇逃げ失敗率30%以上 / 5号艇の展示+1周平均との差+0.15以上",
-      "buy_method": "5/6号艇の複合1着評価上位1艇を頭・1号艇全消し・AI+1位/3位と複合3着内上位から4点固定",
-      "base_id": "all",
-      "context_id": "wind4_b1loss30_b5avg015",
-      "template_id": "tokoname_h1_ai13_no1_top4",
-      "historical": {
-        "races": 121,
-        "hits": 11,
-        "hit_rate_pct": 9.09,
-        "avg_points": 4.0,
-        "roi_pct": 211.96,
-        "max_losing_streak": 23,
-        "roi_without_largest_pct": 163.33,
-        "yearly_roi_pct": {
-          "2024": 191.33,
-          "2025": 247.45,
-          "2026": 179.42
+        "races": 71,
+        "hits": 29,
+        "hit_rate_pct": 40.845,
+        "roi_pct": 157.535,
+        "points": 10,
+        "investment_yen": 71000,
+        "payback_yen": 111850,
+        "profit_yen": 40850,
+        "max_losing_streak": 7,
+        "roi_without_largest_pct": 146.07,
+        "races_per_week": 0.54,
+        "yearly": {
+          "2024": {
+            "races": 30,
+            "hits": 11,
+            "hit_rate_pct": 36.667,
+            "roi_pct": 158.5
+          },
+          "2025": {
+            "races": 26,
+            "hits": 12,
+            "hit_rate_pct": 46.154,
+            "roi_pct": 163.231
+          },
+          "2026": {
+            "races": 15,
+            "hits": 6,
+            "hit_rate_pct": 40.0,
+            "roi_pct": 145.733
+          }
         }
       }
     },
     {
-      "venue": "徳山",
-      "status": "A",
-      "condition": "1号艇がBOATERS人気1位・支持率50%以上・逃げ率65%以下 / 1号艇の展示+周回平均との差-0.10以下 / 1号艇の1周/半周順位4位以下",
-      "buy_method": "3-6号艇の複合1着評価上位1艇を頭・1号艇は2/3着可・締切前複合評価上位6点",
-      "base_id": "pop1_odds50_nige65",
-      "context_id": "b1avg_m010_b1lap4",
-      "template_id": "outer_h1_b1place_top6",
+      "venue": "江戸川",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気2位以内・支持率25%以上・逃げ率55%以下 / 1号艇平均との差-0.10以下",
+      "buy_method": "2〜6号艇の評価上位2艇を頭・1号艇を2・3着に残す・複合評価上位8点",
+      "condition_id": "pop2_odds25_nige55_lap1:b1avg_le_-0.10",
+      "ticket_family": "non1_h2_b1place",
+      "points": 8,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
       "historical": {
-        "races": 85,
-        "hits": 12,
-        "hit_rate_pct": 14.12,
-        "avg_points": 6.0,
-        "roi_pct": 265.55,
-        "max_losing_streak": 14,
-        "roi_without_largest_pct": 202.73,
-        "yearly_roi_pct": {
-          "2024": 289.85,
-          "2025": 270.69,
-          "2026": 203.85
+        "races": 88,
+        "hits": 28,
+        "hit_rate_pct": 31.818,
+        "roi_pct": 156.619,
+        "points": 8,
+        "investment_yen": 70400,
+        "payback_yen": 110260,
+        "profit_yen": 39860,
+        "max_losing_streak": 7,
+        "roi_without_largest_pct": 135.426,
+        "races_per_week": 0.67,
+        "yearly": {
+          "2024": {
+            "races": 28,
+            "hits": 6,
+            "hit_rate_pct": 21.429,
+            "roi_pct": 153.75
+          },
+          "2025": {
+            "races": 39,
+            "hits": 14,
+            "hit_rate_pct": 35.897,
+            "roi_pct": 150.994
+          },
+          "2026": {
+            "races": 21,
+            "hits": 8,
+            "hit_rate_pct": 38.095,
+            "roi_pct": 170.893
+          }
+        }
+      }
+    },
+    {
+      "venue": "平和島",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位以内・支持率45%以上・逃げ率55%以下・一周/半周順位1位以下 / 5・6号艇の良い方が平均との差+0.10以上",
+      "buy_method": "2〜6号艇の評価上位2艇を頭・1号艇を2・3着に残す・複合評価上位10点",
+      "condition_id": "pop1_odds45_nige55_lap1:outer56avg_0.10",
+      "ticket_family": "non1_h2_b1place",
+      "points": 10,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 122,
+        "hits": 34,
+        "hit_rate_pct": 27.869,
+        "roi_pct": 146.5,
+        "points": 10,
+        "investment_yen": 122000,
+        "payback_yen": 178730,
+        "profit_yen": 56730,
+        "max_losing_streak": 10,
+        "roi_without_largest_pct": 128.566,
+        "races_per_week": 0.928,
+        "yearly": {
+          "2024": {
+            "races": 48,
+            "hits": 16,
+            "hit_rate_pct": 33.333,
+            "roi_pct": 160.417
+          },
+          "2025": {
+            "races": 49,
+            "hits": 14,
+            "hit_rate_pct": 28.571,
+            "roi_pct": 135.163
+          },
+          "2026": {
+            "races": 25,
+            "hits": 4,
+            "hit_rate_pct": 16.0,
+            "roi_pct": 142.0
+          }
+        }
+      }
+    },
+    {
+      "venue": "多摩川",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位以内・支持率35%以上・逃げ率45%以下・一周/半周順位3位以下 / 7〜12R",
+      "buy_method": "2〜6号艇の評価上位1艇を頭・1号艇を2・3着に残す・複合評価上位10点",
+      "condition_id": "pop1_odds35_nige45_lap3:late",
+      "ticket_family": "non1_h1_b1place",
+      "points": 10,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 64,
+        "hits": 17,
+        "hit_rate_pct": 26.562,
+        "roi_pct": 166.047,
+        "points": 10,
+        "investment_yen": 64000,
+        "payback_yen": 106270,
+        "profit_yen": 42270,
+        "max_losing_streak": 10,
+        "roi_without_largest_pct": 129.406,
+        "races_per_week": 0.487,
+        "yearly": {
+          "2024": {
+            "races": 25,
+            "hits": 8,
+            "hit_rate_pct": 32.0,
+            "roi_pct": 148.56
+          },
+          "2025": {
+            "races": 27,
+            "hits": 7,
+            "hit_rate_pct": 25.926,
+            "roi_pct": 176.667
+          },
+          "2026": {
+            "races": 12,
+            "hits": 2,
+            "hit_rate_pct": 16.667,
+            "roi_pct": 178.583
+          }
+        }
+      }
+    },
+    {
+      "venue": "浜名湖",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気2位以内・支持率20%以上・逃げ率35%以下・一周/半周順位5位以下 / 1号艇AI1着率50%以下",
+      "buy_method": "3〜6号艇の評価上位2艇を頭・1号艇を2・3着に残す・複合評価上位12点",
+      "condition_id": "pop2_odds20_nige35_lap5:b1ai_le_50",
+      "ticket_family": "outer_h2_b1place",
+      "points": 12,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 64,
+        "hits": 20,
+        "hit_rate_pct": 31.25,
+        "roi_pct": 145.82,
+        "points": 12,
+        "investment_yen": 76800,
+        "payback_yen": 111990,
+        "profit_yen": 35190,
+        "max_losing_streak": 7,
+        "roi_without_largest_pct": 117.982,
+        "races_per_week": 0.487,
+        "yearly": {
+          "2024": {
+            "races": 31,
+            "hits": 9,
+            "hit_rate_pct": 29.032,
+            "roi_pct": 132.043
+          },
+          "2025": {
+            "races": 24,
+            "hits": 7,
+            "hit_rate_pct": 29.167,
+            "roi_pct": 167.951
+          },
+          "2026": {
+            "races": 9,
+            "hits": 4,
+            "hit_rate_pct": 44.444,
+            "roi_pct": 134.259
+          }
+        }
+      }
+    },
+    {
+      "venue": "蒲郡",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位・支持率40%以上・逃げ率35%以下・周回値取得済み・5/6号艇の良い方が平均との差0.00以上",
+      "buy_method": "複合総合評価上位3艇ボックス6点",
+      "condition_id": "pop1_odds40_nige35_lap1:outer56avg_0.00",
+      "ticket_family": "top3_box_all",
+      "points": 6,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 72,
+        "hits": 22,
+        "hit_rate_pct": 30.556,
+        "roi_pct": 145.394,
+        "points": 6,
+        "investment_yen": 43200,
+        "payback_yen": 62810,
+        "profit_yen": 19610,
+        "max_losing_streak": 8,
+        "roi_without_largest_pct": 118.264,
+        "races_per_week": 0.548,
+        "yearly": {
+          "2024": {
+            "races": 20,
+            "hits": 5,
+            "hit_rate_pct": 25.0,
+            "roi_pct": 146.5
+          },
+          "2025": {
+            "races": 30,
+            "hits": 11,
+            "hit_rate_pct": 36.667,
+            "roi_pct": 154.944
+          },
+          "2026": {
+            "races": 22,
+            "hits": 6,
+            "hit_rate_pct": 27.273,
+            "roi_pct": 131.364
+          }
+        }
+      }
+    },
+    {
+      "venue": "常滑",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位以内・支持率35%以上・逃げ率55%以下・一周/半周順位3位以下 / 5・6号艇AI1着率最大10%以上",
+      "buy_method": "5・6号艇頭・1号艇消し上位6点に、1号艇2・3着の上位6点を追加",
+      "condition_id": "pop1_odds35_nige55_lap3:outer56ai_10",
+      "ticket_family": "head56_current_plus_b1place",
+      "points": 12,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 89,
+        "hits": 27,
+        "hit_rate_pct": 30.337,
+        "roi_pct": 169.092,
+        "points": 12,
+        "investment_yen": 106800,
+        "payback_yen": 180590,
+        "profit_yen": 73790,
+        "max_losing_streak": 13,
+        "roi_without_largest_pct": 152.575,
+        "races_per_week": 0.677,
+        "yearly": {
+          "2024": {
+            "races": 36,
+            "hits": 10,
+            "hit_rate_pct": 27.778,
+            "roi_pct": 173.773
+          },
+          "2025": {
+            "races": 35,
+            "hits": 10,
+            "hit_rate_pct": 28.571,
+            "roi_pct": 180.429
+          },
+          "2026": {
+            "races": 18,
+            "hits": 7,
+            "hit_rate_pct": 38.889,
+            "roi_pct": 137.685
+          }
         }
       }
     },
     {
       "venue": "津",
-      "status": "A",
-      "condition": "1〜3R / 1号艇がBOATERS人気1位・支持率30%以上だがAI1着率50%以下 / 1号艇の展示順位4位以下",
-      "buy_method": "3〜6号艇の複合1着評価上位1艇を頭・1号艇全消し・複合評価上位6点",
-      "base_id": "pop1_aiwin50",
-      "context_id": "round1_3_b1tenji4",
-      "template_id": "outer_h1_no1_top6",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位以内・支持率45%以上・逃げ率75%以下 / 1号艇支持率−AI1着率が5pt以上",
+      "buy_method": "2〜6号艇の評価上位1艇を頭・1号艇を2・3着に残す・複合評価上位12点",
+      "condition_id": "pop1_odds45_nige75_lap1:overbet_5",
+      "ticket_family": "non1_h1_b1place",
+      "points": 12,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
       "historical": {
-        "races": 108,
-        "hits": 14,
-        "hit_rate_pct": 12.96,
-        "avg_points": 6.0,
-        "roi_pct": 213.77,
-        "max_losing_streak": 12,
-        "roi_without_largest_pct": 181.47,
-        "yearly_roi_pct": {
-          "2024": 194.62,
-          "2025": 227.86,
-          "2026": 218.04
+        "races": 64,
+        "hits": 23,
+        "hit_rate_pct": 35.938,
+        "roi_pct": 207.435,
+        "points": 12,
+        "investment_yen": 76800,
+        "payback_yen": 159310,
+        "profit_yen": 82510,
+        "max_losing_streak": 6,
+        "roi_without_largest_pct": 155.638,
+        "races_per_week": 0.487,
+        "yearly": {
+          "2024": {
+            "races": 28,
+            "hits": 10,
+            "hit_rate_pct": 35.714,
+            "roi_pct": 148.304
+          },
+          "2025": {
+            "races": 25,
+            "hits": 9,
+            "hit_rate_pct": 36.0,
+            "roi_pct": 188.9
+          },
+          "2026": {
+            "races": 11,
+            "hits": 4,
+            "hit_rate_pct": 36.364,
+            "roi_pct": 400.076
+          }
+        }
+      }
+    },
+    {
+      "venue": "三国",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "全レース母集団 / 1号艇支持率−AI1着率が10pt以上",
+      "buy_method": "2〜6号艇の評価上位2艇を頭・1号艇全消し・複合評価上位10点",
+      "condition_id": "all:overbet_10",
+      "ticket_family": "non1_h2_no1",
+      "points": 10,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 76,
+        "hits": 26,
+        "hit_rate_pct": 34.211,
+        "roi_pct": 181.921,
+        "points": 10,
+        "investment_yen": 76000,
+        "payback_yen": 138260,
+        "profit_yen": 62260,
+        "max_losing_streak": 8,
+        "roi_without_largest_pct": 155.158,
+        "races_per_week": 0.578,
+        "yearly": {
+          "2024": {
+            "races": 34,
+            "hits": 11,
+            "hit_rate_pct": 32.353,
+            "roi_pct": 138.294
+          },
+          "2025": {
+            "races": 27,
+            "hits": 11,
+            "hit_rate_pct": 40.741,
+            "roi_pct": 233.148
+          },
+          "2026": {
+            "races": 15,
+            "hits": 4,
+            "hit_rate_pct": 26.667,
+            "roi_pct": 188.6
+          }
+        }
+      }
+    },
+    {
+      "venue": "びわこ",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気2位以内・支持率20%以上・逃げ率45%以下・一周/半周順位3位以下 / 1号艇AI1着率30%以下",
+      "buy_method": "2〜6号艇の評価上位2艇を頭・1号艇全消し・複合評価上位8点",
+      "condition_id": "pop2_odds20_nige45_lap3:b1ai_le_30",
+      "ticket_family": "non1_h2_no1",
+      "points": 8,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 97,
+        "hits": 34,
+        "hit_rate_pct": 35.052,
+        "roi_pct": 152.281,
+        "points": 8,
+        "investment_yen": 77600,
+        "payback_yen": 118170,
+        "profit_yen": 40570,
+        "max_losing_streak": 6,
+        "roi_without_largest_pct": 141.856,
+        "races_per_week": 0.738,
+        "yearly": {
+          "2024": {
+            "races": 46,
+            "hits": 18,
+            "hit_rate_pct": 39.13,
+            "roi_pct": 162.337
+          },
+          "2025": {
+            "races": 35,
+            "hits": 11,
+            "hit_rate_pct": 31.429,
+            "roi_pct": 143.714
+          },
+          "2026": {
+            "races": 16,
+            "hits": 5,
+            "hit_rate_pct": 31.25,
+            "roi_pct": 142.109
+          }
+        }
+      }
+    },
+    {
+      "venue": "住之江",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位以内・支持率35%以上・逃げ率65%以下・一周/半周順位3位以下 / 風速4m以上",
+      "buy_method": "2〜6号艇の評価上位2艇を頭・1号艇を2・3着に残す・複合評価上位12点",
+      "condition_id": "pop1_odds35_nige65_lap3:wind4",
+      "ticket_family": "non1_h2_b1place",
+      "points": 12,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 67,
+        "hits": 22,
+        "hit_rate_pct": 32.836,
+        "roi_pct": 142.102,
+        "points": 12,
+        "investment_yen": 80400,
+        "payback_yen": 114250,
+        "profit_yen": 33850,
+        "max_losing_streak": 5,
+        "roi_without_largest_pct": 128.184,
+        "races_per_week": 0.51,
+        "yearly": {
+          "2024": {
+            "races": 31,
+            "hits": 10,
+            "hit_rate_pct": 32.258,
+            "roi_pct": 138.871
+          },
+          "2025": {
+            "races": 21,
+            "hits": 6,
+            "hit_rate_pct": 28.571,
+            "roi_pct": 132.103
+          },
+          "2026": {
+            "races": 15,
+            "hits": 6,
+            "hit_rate_pct": 40.0,
+            "roi_pct": 162.778
+          }
+        }
+      }
+    },
+    {
+      "venue": "尼崎",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気2位以内・支持率25%以上・逃げ率55%以下・一周/半周順位4位以下 / 9〜12R",
+      "buy_method": "2〜6号艇の評価上位2艇を頭・1号艇を2・3着に残す・複合評価上位8点",
+      "condition_id": "pop2_odds25_nige55_lap4:late9",
+      "ticket_family": "non1_h2_b1place",
+      "points": 8,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 70,
+        "hits": 23,
+        "hit_rate_pct": 32.857,
+        "roi_pct": 148.75,
+        "points": 8,
+        "investment_yen": 56000,
+        "payback_yen": 83300,
+        "profit_yen": 27300,
+        "max_losing_streak": 7,
+        "roi_without_largest_pct": 130.5,
+        "races_per_week": 0.533,
+        "yearly": {
+          "2024": {
+            "races": 27,
+            "hits": 9,
+            "hit_rate_pct": 33.333,
+            "roi_pct": 157.778
+          },
+          "2025": {
+            "races": 26,
+            "hits": 9,
+            "hit_rate_pct": 34.615,
+            "roi_pct": 149.087
+          },
+          "2026": {
+            "races": 17,
+            "hits": 5,
+            "hit_rate_pct": 29.412,
+            "roi_pct": 133.897
+          }
+        }
+      }
+    },
+    {
+      "venue": "鳴門",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気2位以内・支持率30%以上・逃げ率55%以下・一周/半周順位3位以下 / 1号艇AI1着率40%以下",
+      "buy_method": "2〜6号艇の評価上位2艇を頭・1号艇を2・3着に残す・複合評価上位12点",
+      "condition_id": "pop2_odds30_nige55_lap3:b1ai_le_40",
+      "ticket_family": "non1_h2_b1place",
+      "points": 12,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 67,
+        "hits": 33,
+        "hit_rate_pct": 49.254,
+        "roi_pct": 181.443,
+        "points": 12,
+        "investment_yen": 80400,
+        "payback_yen": 145880,
+        "profit_yen": 65480,
+        "max_losing_streak": 4,
+        "roi_without_largest_pct": 168.93,
+        "races_per_week": 0.51,
+        "yearly": {
+          "2024": {
+            "races": 33,
+            "hits": 15,
+            "hit_rate_pct": 45.455,
+            "roi_pct": 157.348
+          },
+          "2025": {
+            "races": 22,
+            "hits": 12,
+            "hit_rate_pct": 54.545,
+            "roi_pct": 199.394
+          },
+          "2026": {
+            "races": 12,
+            "hits": 6,
+            "hit_rate_pct": 50.0,
+            "roi_pct": 214.792
+          }
+        }
+      }
+    },
+    {
+      "venue": "丸亀",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位以内・支持率20%以上・逃げ率65%以下・一周/半周順位5位以下 / 風速3m以上",
+      "buy_method": "2〜6号艇の評価上位1艇を頭・1号艇を2・3着に残す・複合評価上位8点",
+      "condition_id": "pop1_odds20_nige65_lap5:wind3",
+      "ticket_family": "non1_h1_b1place",
+      "points": 8,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 86,
+        "hits": 25,
+        "hit_rate_pct": 29.07,
+        "roi_pct": 232.442,
+        "points": 8,
+        "investment_yen": 68800,
+        "payback_yen": 159920,
+        "profit_yen": 91120,
+        "max_losing_streak": 7,
+        "roi_without_largest_pct": 188.997,
+        "races_per_week": 0.654,
+        "yearly": {
+          "2024": {
+            "races": 36,
+            "hits": 11,
+            "hit_rate_pct": 30.556,
+            "roi_pct": 221.771
+          },
+          "2025": {
+            "races": 34,
+            "hits": 10,
+            "hit_rate_pct": 29.412,
+            "roi_pct": 280.515
+          },
+          "2026": {
+            "races": 16,
+            "hits": 4,
+            "hit_rate_pct": 25.0,
+            "roi_pct": 154.297
+          }
+        }
+      }
+    },
+    {
+      "venue": "児島",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位以内・支持率50%以上・逃げ率75%以下・一周/半周順位4位以下 / 1〜6R",
+      "buy_method": "2〜6号艇の評価上位2艇を頭・1号艇を2・3着に残す・複合評価上位12点",
+      "condition_id": "pop1_odds50_nige75_lap4:early",
+      "ticket_family": "non1_h2_b1place",
+      "points": 12,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 91,
+        "hits": 27,
+        "hit_rate_pct": 29.67,
+        "roi_pct": 156.795,
+        "points": 12,
+        "investment_yen": 109200,
+        "payback_yen": 171220,
+        "profit_yen": 62020,
+        "max_losing_streak": 11,
+        "roi_without_largest_pct": 139.844,
+        "races_per_week": 0.692,
+        "yearly": {
+          "2024": {
+            "races": 46,
+            "hits": 13,
+            "hit_rate_pct": 28.261,
+            "roi_pct": 133.062
+          },
+          "2025": {
+            "races": 24,
+            "hits": 7,
+            "hit_rate_pct": 29.167,
+            "roi_pct": 160.035
+          },
+          "2026": {
+            "races": 21,
+            "hits": 7,
+            "hit_rate_pct": 33.333,
+            "roi_pct": 205.079
+          }
+        }
+      }
+    },
+    {
+      "venue": "宮島",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位以内・支持率30%以上・逃げ率45%以下・一周/半周順位1位以下 / 1号艇の展示順位5位以下",
+      "buy_method": "2〜6号艇の評価上位2艇を頭・1号艇を2・3着に残す・複合評価上位12点",
+      "condition_id": "pop1_odds30_nige45_lap1:b1tenji5",
+      "ticket_family": "non1_h2_b1place",
+      "points": 12,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 85,
+        "hits": 31,
+        "hit_rate_pct": 36.471,
+        "roi_pct": 155.127,
+        "points": 12,
+        "investment_yen": 102000,
+        "payback_yen": 158230,
+        "profit_yen": 56230,
+        "max_losing_streak": 7,
+        "roi_without_largest_pct": 136.363,
+        "races_per_week": 0.647,
+        "yearly": {
+          "2024": {
+            "races": 30,
+            "hits": 12,
+            "hit_rate_pct": 40.0,
+            "roi_pct": 161.0
+          },
+          "2025": {
+            "races": 28,
+            "hits": 11,
+            "hit_rate_pct": 39.286,
+            "roi_pct": 163.72
+          },
+          "2026": {
+            "races": 27,
+            "hits": 8,
+            "hit_rate_pct": 29.63,
+            "roi_pct": 139.691
+          }
+        }
+      }
+    },
+    {
+      "venue": "徳山",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気2位以内・支持率20%以上・逃げ率65%以下・一周/半周順位5位以下 / 1号艇の展示順位5位以下",
+      "buy_method": "2〜6号艇の評価上位2艇を頭・1号艇を2・3着に残す・複合評価上位12点",
+      "condition_id": "pop2_odds20_nige65_lap5:b1tenji5",
+      "ticket_family": "non1_h2_b1place",
+      "points": 12,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 70,
+        "hits": 36,
+        "hit_rate_pct": 51.429,
+        "roi_pct": 185.821,
+        "points": 12,
+        "investment_yen": 84000,
+        "payback_yen": 156090,
+        "profit_yen": 72090,
+        "max_losing_streak": 3,
+        "roi_without_largest_pct": 147.679,
+        "races_per_week": 0.533,
+        "yearly": {
+          "2024": {
+            "races": 21,
+            "hits": 11,
+            "hit_rate_pct": 52.381,
+            "roi_pct": 210.119
+          },
+          "2025": {
+            "races": 30,
+            "hits": 15,
+            "hit_rate_pct": 50.0,
+            "roi_pct": 189.056
+          },
+          "2026": {
+            "races": 19,
+            "hits": 10,
+            "hit_rate_pct": 52.632,
+            "roi_pct": 153.86
+          }
+        }
+      }
+    },
+    {
+      "venue": "下関",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位以内・支持率25%以上・逃げ率55%以下・一周/半周順位5位以下 / 5・6号艇の良い方が平均との差+0.15以上",
+      "buy_method": "3〜6号艇の評価上位2艇を頭・1号艇を2・3着に残す・複合評価上位12点",
+      "condition_id": "pop1_odds25_nige55_lap5:outer56avg_0.15",
+      "ticket_family": "outer_h2_b1place",
+      "points": 12,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 76,
+        "hits": 25,
+        "hit_rate_pct": 32.895,
+        "roi_pct": 143.75,
+        "points": 12,
+        "investment_yen": 91200,
+        "payback_yen": 131100,
+        "profit_yen": 39900,
+        "max_losing_streak": 5,
+        "roi_without_largest_pct": 125.428,
+        "races_per_week": 0.578,
+        "yearly": {
+          "2024": {
+            "races": 38,
+            "hits": 13,
+            "hit_rate_pct": 34.211,
+            "roi_pct": 145.57
+          },
+          "2025": {
+            "races": 24,
+            "hits": 8,
+            "hit_rate_pct": 33.333,
+            "roi_pct": 131.007
+          },
+          "2026": {
+            "races": 14,
+            "hits": 4,
+            "hit_rate_pct": 28.571,
+            "roi_pct": 160.655
+          }
         }
       }
     },
     {
       "venue": "若松",
-      "status": "A",
-      "condition": "4〜9R / 1号艇がBOATERS人気1位・支持率30%以上・逃げ率50%以下 / 風速5m以上",
-      "buy_method": "3〜6号艇の事前複合1着評価上位2艇を頭・1号艇全消し・事前複合評価上位6点",
-      "base_id": "pop1_odds30_nige50",
-      "context_id": "round4_9_wind5",
-      "template_id": "outer_h2_no1_top6",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位以内・支持率45%以上・逃げ率55%以下・一周/半周順位1位以下 / 1号艇支持率−AI1着率が0pt以上",
+      "buy_method": "2〜6号艇の評価上位1艇を頭・1号艇を2・3着に残す・複合評価上位10点",
+      "condition_id": "pop1_odds45_nige55_lap1:overbet_0",
+      "ticket_family": "non1_h1_b1place",
+      "points": 10,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
       "historical": {
-        "races": 64,
-        "hits": 14,
-        "hit_rate_pct": 21.88,
-        "avg_points": 6.0,
-        "roi_pct": 336.95,
-        "max_losing_streak": 10,
-        "roi_without_largest_pct": 286.17,
-        "yearly_roi_pct": {
-          "2024": 463.72,
-          "2025": 326.89,
-          "2026": 144.79
+        "races": 71,
+        "hits": 21,
+        "hit_rate_pct": 29.577,
+        "roi_pct": 234.521,
+        "points": 10,
+        "investment_yen": 71000,
+        "payback_yen": 166510,
+        "profit_yen": 95510,
+        "max_losing_streak": 7,
+        "roi_without_largest_pct": 186.423,
+        "races_per_week": 0.54,
+        "yearly": {
+          "2024": {
+            "races": 26,
+            "hits": 7,
+            "hit_rate_pct": 26.923,
+            "roi_pct": 266.462
+          },
+          "2025": {
+            "races": 28,
+            "hits": 9,
+            "hit_rate_pct": 32.143,
+            "roi_pct": 258.536
+          },
+          "2026": {
+            "races": 17,
+            "hits": 5,
+            "hit_rate_pct": 29.412,
+            "roi_pct": 146.118
+          }
+        }
+      }
+    },
+    {
+      "venue": "芦屋",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気2位以内・支持率25%以上・逃げ率65%以下・一周/半周順位3位以下 / 1号艇AI1着率30%以下",
+      "buy_method": "3〜6号艇の評価上位1艇を頭・1号艇を2・3着に残す・複合評価上位10点",
+      "condition_id": "pop2_odds25_nige65_lap3:b1ai_le_30",
+      "ticket_family": "outer_h1_b1place",
+      "points": 10,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 62,
+        "hits": 23,
+        "hit_rate_pct": 37.097,
+        "roi_pct": 185.887,
+        "points": 10,
+        "investment_yen": 62000,
+        "payback_yen": 115250,
+        "profit_yen": 53250,
+        "max_losing_streak": 8,
+        "roi_without_largest_pct": 133.387,
+        "races_per_week": 0.472,
+        "yearly": {
+          "2024": {
+            "races": 26,
+            "hits": 10,
+            "hit_rate_pct": 38.462,
+            "roi_pct": 224.115
+          },
+          "2025": {
+            "races": 20,
+            "hits": 7,
+            "hit_rate_pct": 35.0,
+            "roi_pct": 136.1
+          },
+          "2026": {
+            "races": 16,
+            "hits": 6,
+            "hit_rate_pct": 37.5,
+            "roi_pct": 186.0
+          }
+        }
+      }
+    },
+    {
+      "venue": "福岡",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位・支持率35%以上・逃げ率65%以上・周回順位4位以内・9〜12R・1号艇展示順位4位以下",
+      "buy_method": "1号艇頭の複合評価上位6点＋2〜6号艇の1着評価1位頭の複合評価上位6点",
+      "condition_id": "safe_p1_o35_n65_l4_late9_tenji4",
+      "ticket_family": "b1_head6_non1_hedge",
+      "points": 12,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 160,
+        "hits": 101,
+        "hit_rate_pct": 63.125,
+        "roi_pct": 132.786,
+        "points": 12,
+        "investment_yen": 192000,
+        "payback_yen": 254950,
+        "profit_yen": 62950,
+        "max_losing_streak": 4,
+        "roi_without_largest_pct": 116.406,
+        "races_per_week": 1.217,
+        "yearly": {
+          "2024": {
+            "races": 54,
+            "hits": 34,
+            "hit_rate_pct": 62.963,
+            "roi_pct": 130.91
+          },
+          "2025": {
+            "races": 68,
+            "hits": 43,
+            "hit_rate_pct": 63.235,
+            "roi_pct": 130.404
+          },
+          "2026": {
+            "races": 38,
+            "hits": 24,
+            "hit_rate_pct": 63.158,
+            "roi_pct": 139.715
+          }
+        }
+      }
+    },
+    {
+      "venue": "唐津",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位以内・支持率30%以上・逃げ率35%以下・一周/半周順位3位以下 / 7〜9R",
+      "buy_method": "2〜6号艇の評価上位2艇を頭・1号艇を2・3着に残す・複合評価上位10点",
+      "condition_id": "pop1_odds30_nige35_lap3:round7_9",
+      "ticket_family": "non1_h2_b1place",
+      "points": 10,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 73,
+        "hits": 32,
+        "hit_rate_pct": 43.836,
+        "roi_pct": 167.068,
+        "points": 10,
+        "investment_yen": 73000,
+        "payback_yen": 121960,
+        "profit_yen": 48960,
+        "max_losing_streak": 6,
+        "roi_without_largest_pct": 143.0,
+        "races_per_week": 0.555,
+        "yearly": {
+          "2024": {
+            "races": 38,
+            "hits": 15,
+            "hit_rate_pct": 39.474,
+            "roi_pct": 138.921
+          },
+          "2025": {
+            "races": 24,
+            "hits": 10,
+            "hit_rate_pct": 41.667,
+            "roi_pct": 173.417
+          },
+          "2026": {
+            "races": 11,
+            "hits": 7,
+            "hit_rate_pct": 63.636,
+            "roi_pct": 250.455
+          }
+        }
+      }
+    },
+    {
+      "venue": "大村",
+      "status": "active",
+      "notification_enabled": true,
+      "condition": "1号艇人気1位以内・支持率35%以上・逃げ率45%以下・一周/半周順位5位以下 / 1〜6R",
+      "buy_method": "2〜6号艇の評価上位2艇を頭・1号艇を2・3着に残す・複合評価上位12点",
+      "condition_id": "pop1_odds35_nige45_lap5:early",
+      "ticket_family": "non1_h2_b1place",
+      "points": 12,
+      "base_id": null,
+      "context_id": null,
+      "template_id": null,
+      "historical": {
+        "races": 67,
+        "hits": 27,
+        "hit_rate_pct": 40.299,
+        "roi_pct": 151.43,
+        "points": 12,
+        "investment_yen": 80400,
+        "payback_yen": 121750,
+        "profit_yen": 41350,
+        "max_losing_streak": 7,
+        "roi_without_largest_pct": 131.02,
+        "races_per_week": 0.51,
+        "yearly": {
+          "2024": {
+            "races": 26,
+            "hits": 10,
+            "hit_rate_pct": 38.462,
+            "roi_pct": 153.429
+          },
+          "2025": {
+            "races": 25,
+            "hits": 9,
+            "hit_rate_pct": 36.0,
+            "roi_pct": 158.867
+          },
+          "2026": {
+            "races": 16,
+            "hits": 8,
+            "hit_rate_pct": 50.0,
+            "roi_pct": 136.562
+          }
         }
       }
     }
   ],
   "notes": [
-    "24場サインの条件と買い目は現行のままです。",
+    "福岡・蒲郡を含む24場すべてを、改・24場サインの固定条件と買い目で監視します。",
     "1着率・3着内率はBOATERS値ではなく、独自複合モデルの確率です。",
     "同場サイン時の1着・2着・3着率は、2024-2025年だけから縮小補正して作った場×艇番別の参考実績です。",
     "場別確率補正は影運用で、本番買い目と通知を変更しません。",
