@@ -1,49 +1,52 @@
 {
   "version": "manshu-system-dashboard-v1",
   "date": "2026-08-01",
-  "exported_at": "2026-08-01T16:47:21+09:00",
-  "source_generated_at": "2026-08-01T16:47:16+09:00",
+  "exported_at": "2026-08-01T17:11:17+09:00",
+  "source_generated_at": "2026-08-01T17:11:11+09:00",
   "source_monitor_file": "data/output/boaters_manshu_alerts_20260801.json",
   "system": {
     "name": "24場サイン管制盤",
     "mode": "all_races_venue_sign_only",
     "live_source": "official",
     "lookahead_minutes": 10.0,
-    "signal_count": 1,
-    "monitored_count": 7,
+    "signal_count": 2,
+    "monitored_count": 6,
     "checked_count": 3,
     "preview_ready_count": 3,
     "fetch_failed_count": 0,
-    "notifications_sent": 1,
+    "notifications_sent": 2,
     "notifications_failed": 0,
     "notifications_invalid": 0,
     "status_counts": {
       "checked": 3,
-      "outside_window": 4
+      "outside_window": 3
     }
   },
   "runtime_health": {
     "version": "boaters-runtime-health-v1",
-    "generated_at": "2026-08-01T16:44:18+09:00",
+    "generated_at": "2026-08-01T17:09:28+09:00",
     "date": "2026-08-01",
     "active_window": true,
     "startup_warmup": false,
-    "active_minutes": 464.313,
+    "active_minutes": 489.48,
     "window": {
       "start": "09:00",
       "end": "21:00"
     },
-    "state": "healthy",
-    "healthy": true,
-    "critical_issues": [],
+    "state": "failed",
+    "healthy": false,
+    "critical_issues": [
+      "cycle:retry:last_state_failed",
+      "semantic:monitor_decision_integrity:due_races_not_fully_decided,monitor_integrity_unhealthy"
+    ],
     "warnings": [],
     "cycles": [
       {
         "role": "live",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/live_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 2.996,
-        "success_age_minutes": 2.996,
+        "attempt_age_minutes": 3.664,
+        "success_age_minutes": 3.664,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -52,20 +55,22 @@
       {
         "role": "retry",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/retry_cycle.json",
-        "state": "success",
-        "attempt_age_minutes": 0.963,
-        "success_age_minutes": 0.963,
-        "consecutive_failures": 0,
+        "state": "failed",
+        "attempt_age_minutes": 1.53,
+        "success_age_minutes": 5.814,
+        "consecutive_failures": 3,
         "critical": true,
-        "healthy": true,
-        "issues": []
+        "healthy": false,
+        "issues": [
+          "last_state_failed"
+        ]
       },
       {
         "role": "screenshot_post",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_post_cycle.json",
-        "state": "success",
-        "attempt_age_minutes": 0.829,
-        "success_age_minutes": 0.829,
+        "state": "running",
+        "attempt_age_minutes": 0.547,
+        "success_age_minutes": 1.547,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -74,10 +79,10 @@
       {
         "role": "screenshot_import",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_import_cycle.json",
-        "state": "success",
-        "attempt_age_minutes": 0.263,
-        "success_age_minutes": 0.263,
-        "consecutive_failures": 0,
+        "state": "running",
+        "attempt_age_minutes": 1.63,
+        "success_age_minutes": 9.514,
+        "consecutive_failures": 3,
         "critical": true,
         "healthy": true,
         "issues": []
@@ -86,8 +91,8 @@
         "role": "screenshot_archive",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_archive_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 3.496,
-        "success_age_minutes": 3.496,
+        "attempt_age_minutes": 3.364,
+        "success_age_minutes": 3.364,
         "consecutive_failures": 0,
         "critical": false,
         "healthy": true,
@@ -96,9 +101,9 @@
       {
         "role": "dashboard",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/dashboard_cycle.json",
-        "state": "running",
-        "attempt_age_minutes": 4.263,
-        "success_age_minutes": 28.996,
+        "state": "success",
+        "attempt_age_minutes": 24.13,
+        "success_age_minutes": 24.13,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -108,8 +113,8 @@
         "role": "publisher",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/publisher_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 2.129,
-        "success_age_minutes": 2.129,
+        "attempt_age_minutes": 21.564,
+        "success_age_minutes": 21.564,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -120,7 +125,7 @@
       {
         "name": "race_schedule",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/official_live_ranking_20260801.json",
-        "age_minutes": 1.091,
+        "age_minutes": 0.458,
         "max_age_minutes": 8.0,
         "healthy": true,
         "issues": []
@@ -128,7 +133,7 @@
       {
         "name": "dashboard_json",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/manshu_system_dashboard_latest.json",
-        "age_minutes": 0.959,
+        "age_minutes": 3.667,
         "max_age_minutes": 15.0,
         "healthy": true,
         "issues": []
@@ -136,7 +141,7 @@
       {
         "name": "monitor_output",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/boaters_manshu_alerts_20260801.json",
-        "age_minutes": 0.99,
+        "age_minutes": 1.524,
         "max_age_minutes": 15.0,
         "healthy": true,
         "issues": []
@@ -153,8 +158,11 @@
       {
         "name": "monitor_decision_integrity",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/boaters_manshu_alerts_20260801.json",
-        "healthy": true,
-        "issues": [],
+        "healthy": false,
+        "issues": [
+          "due_races_not_fully_decided",
+          "monitor_integrity_unhealthy"
+        ],
         "integrity": {
           "version": "boaters-monitor-integrity-v2",
           "expected_race_count": 7,
@@ -164,16 +172,40 @@
           "duplicate_inspection_race_ids": [],
           "global_failures": [],
           "due_race_count": 3,
-          "due_decision_required_count": 3,
-          "due_complete_count": 3,
+          "due_decision_required_count": 2,
+          "due_complete_count": 1,
           "due_source_unavailable_count": 0,
-          "due_pending_count": 0,
-          "due_incomplete_count": 0,
-          "due_coverage_pct": 100.0,
-          "all_due_complete": true,
-          "pending_due_races": [],
-          "incomplete_due_races": [],
-          "healthy": true
+          "due_pending_count": 1,
+          "due_incomplete_count": 1,
+          "due_coverage_pct": 50.0,
+          "all_due_complete": false,
+          "pending_due_races": [
+            {
+              "race_id": "2026-08-012004",
+              "place_name": "若松",
+              "round": 4,
+              "minutes_to_deadline": 9.3,
+              "reasons": [
+                "original_boaters_data_not_verified",
+                "decision_incomplete:skip_incompatible_ai_source"
+              ],
+              "error": ""
+            }
+          ],
+          "incomplete_due_races": [
+            {
+              "race_id": "2026-08-011504",
+              "place_name": "丸亀",
+              "round": 4,
+              "minutes_to_deadline": 1.3,
+              "reasons": [
+                "original_boaters_data_not_verified",
+                "decision_incomplete:skip_incompatible_ai_source"
+              ],
+              "error": ""
+            }
+          ],
+          "healthy": false
         }
       },
       {
@@ -188,37 +220,37 @@
         "role": "live",
         "label": "com.mm1601.boaters-live-monitor",
         "loaded": true,
-        "message": "[100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 2172\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+        "message": "[100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 2176\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
       },
       {
         "role": "retry",
         "label": "com.mm1601.boaters-original-retry",
         "loaded": true,
-        "message": " [100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 9202\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+        "message": "ized = 1\n\ttrampolined = 1\n\tstarted suspended = 0\n\tproxy started suspended = 0\n\tlast exit code = 2\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
       },
       {
         "role": "screenshot_post",
         "label": "com.mm1601.boaters-post-snapshot",
         "loaded": true,
-        "message": " [100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 8676\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+        "message": "ized = 1\n\ttrampolined = 1\n\tstarted suspended = 0\n\tproxy started suspended = 0\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
       },
       {
         "role": "screenshot_import",
         "label": "com.mm1601.boaters-post-import",
         "loaded": true,
-        "message": " [100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 8999\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+        "message": "ized = 1\n\ttrampolined = 1\n\tstarted suspended = 0\n\tproxy started suspended = 0\n\tlast exit code = 4\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
       },
       {
         "role": "screenshot_archive",
         "label": "com.mm1601.boaters-exhibition-5m",
         "loaded": true,
-        "message": "[100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 2333\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+        "message": "[100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 2338\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
       },
       {
         "role": "dashboard",
         "label": "com.mm1601.boaters-ops-dashboard",
         "loaded": true,
-        "message": "launchd.calendarinterval\" = {\n\t\t\tport = 0x9c677\n\t\t\tactive = 0\n\t\t\tmanaged = 1\n\t\t\treset = 0\n\t\t\thide = 0\n\t\t\twatching = 0\n\t\t}\n\t}\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+        "message": "launchd.calendarinterval\" = {\n\t\t\tport = 0x9c677\n\t\t\tactive = 0\n\t\t\tmanaged = 1\n\t\t\treset = 0\n\t\t\thide = 0\n\t\t\twatching = 1\n\t\t}\n\t}\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
       },
       {
         "role": "publisher",
@@ -230,7 +262,7 @@
         "role": "screenshot_archive_import",
         "label": "com.mm1601.boaters-exhibition-5m-import",
         "loaded": true,
-        "message": "[100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 11402\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
+        "message": "[100018]\n\tasid = 100018\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 11427\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 60 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
       },
       {
         "role": "audit",
@@ -239,7 +271,25 @@
         "message": "zed = 1\n\ttrampolined = 1\n\tstarted suspended = 0\n\tproxy started suspended = 0\n\tlast exit code = 0\n\n\tspawn type = background (5)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 300 seconds\n\tprobabilistic guard malloc policy = {\n\t\tactivation rate = 1/1000\n\t\tsample rate = 1/0\n\t}\n\n\tproperties = runatload | low priority i/o | inferred program\n}"
       }
     ],
-    "repairs": []
+    "repairs": [
+      {
+        "role": "retry",
+        "label": "com.mm1601.boaters-original-retry",
+        "state": "kicked",
+        "message": ""
+      },
+      {
+        "role": "screenshot_post",
+        "label": "com.mm1601.boaters-post-snapshot",
+        "state": "kicked",
+        "message": ""
+      },
+      {
+        "role": "retry",
+        "label": "com.mm1601.boaters-original-retry",
+        "state": "cooldown"
+      }
+    ]
   },
   "models": {
     "independent_probability": {
@@ -365,6 +415,111 @@
   },
   "signals": [
     {
+      "race_id": "2026-08-012210",
+      "date": "2026-08-01",
+      "venue": "福岡",
+      "round": 10,
+      "deadline_time": "2026-08-01T16:55:00+09:00",
+      "detected_at": "2026-08-01T16:47:55+09:00",
+      "first_minutes_to_deadline": 7.1,
+      "status": "miss",
+      "notification_status": "duplicate_sent",
+      "notification_sent_at": "2026-08-01T16:47:55+09:00",
+      "notification_ok": true,
+      "notification_sources": [
+        "original_boaters_24"
+      ],
+      "data_quality_invalid": false,
+      "data_quality_invalidation_reason": null,
+      "rule_status": "A",
+      "rule_id": "original_boaters_24_v1:福岡:pop2_odds25_nige55:late_b1tenji4:non1_h2_no1_has56_top5",
+      "condition": "1号艇がBOATERS人気2位以内・支持率25%以上・逃げ率55%以下 / 9-12Rかつ1号艇展示4位以下",
+      "buy_method": "非1号艇頭2艇・1号艇消し・5/6絡み・予測順位上位5点",
+      "data_mode": "full",
+      "points": 5,
+      "tickets": [
+        "3-2-5",
+        "3-5-2",
+        "2-3-5",
+        "2-5-3",
+        "3-5-4"
+      ],
+      "heads": [
+        2,
+        3
+      ],
+      "axes": [
+        2,
+        3,
+        5
+      ],
+      "keshi": 1,
+      "historical": {
+        "races": 109,
+        "hits": 13,
+        "hit_rate_pct": 11.93,
+        "avg_points": 5.0,
+        "roi_pct": 211.23
+      },
+      "probabilities": [],
+      "conditions": {
+        "wind_speed": 3.0,
+        "wave_height": 3.0,
+        "boat1_popularity_pct": 37.8,
+        "boat1_ai_win_pct": 40.2,
+        "boat1_escape_pct": 41.2,
+        "boat1_exhibition_rank": 5,
+        "boat1_lap_rank": 2,
+        "boat1_average_diff": 0.135,
+        "outer56_average_diff": -0.095
+      },
+      "legacy_ev": {
+        "status": "settled",
+        "t10": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        },
+        "t5": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        }
+      },
+      "probability_overlay_ev": {
+        "status": "unavailable",
+        "t10": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        },
+        "t5": {
+          "available": false,
+          "expected_roi_pct": null,
+          "synthetic_odds": null,
+          "positive_ev_tickets": null,
+          "snapshot_at": null,
+          "complete_odds": false
+        }
+      },
+      "result": {
+        "trifecta": "3-4-1",
+        "payout_yen": 8100,
+        "manshu": false,
+        "hit": false,
+        "profit_yen": -500
+      }
+    },
+    {
       "race_id": "2026-08-010102",
       "date": "2026-08-01",
       "venue": "桐生",
@@ -472,11 +627,11 @@
   ],
   "monitor": [
     {
-      "race_id": "2026-08-010511",
-      "venue": "多摩川",
+      "race_id": "2026-08-011611",
+      "venue": "児島",
       "round": 11,
       "status": "checked",
-      "minutes_to_deadline": -1.3,
+      "minutes_to_deadline": 3.8,
       "preview_ready": true,
       "fetch_reason": "alert_window",
       "near_miss_level": "見送り",
@@ -486,26 +641,25 @@
       ],
       "near_miss_positives": [
         "1号艇人気: 売れすぎ",
-        "1号艇人気あり",
-        "1号艇危険度: 超危険"
+        "1号艇人気あり"
       ],
       "post_exhibition_manshu_rate_pct": 0.0,
       "heads": [
-        4,
-        6
+        3,
+        1
       ],
       "axes": [
         1,
-        3
+        2
       ],
-      "keshi": 5
+      "keshi": 6
     },
     {
-      "race_id": "2026-08-012003",
+      "race_id": "2026-08-012004",
       "venue": "若松",
-      "round": 3,
+      "round": 4,
       "status": "checked",
-      "minutes_to_deadline": 2.7,
+      "minutes_to_deadline": 5.8,
       "preview_ready": true,
       "fetch_reason": "alert_window",
       "near_miss_level": "見送り",
@@ -516,25 +670,27 @@
       "near_miss_positives": [
         "1号艇人気: 普通に人気",
         "1号艇人気あり",
-        "前半1〜3R:OK(3R)"
+        "1号艇危険度: 危険",
+        "前半1〜6R:OK(4R)",
+        "1号艇展示弱化:OK"
       ],
       "post_exhibition_manshu_rate_pct": 0.0,
       "heads": [
-        5,
-        4
+        6,
+        5
       ],
       "axes": [
         1,
-        2
+        6
       ],
       "keshi": 3
     },
     {
-      "race_id": "2026-08-012210",
-      "venue": "福岡",
-      "round": 10,
+      "race_id": "2026-08-010512",
+      "venue": "多摩川",
+      "round": 12,
       "status": "checked",
-      "minutes_to_deadline": 7.7,
+      "minutes_to_deadline": 6.8,
       "preview_ready": true,
       "fetch_reason": "alert_window",
       "near_miss_level": "見送り",
@@ -548,21 +704,21 @@
       ],
       "post_exhibition_manshu_rate_pct": 0.0,
       "heads": [
-        4,
-        3
+        3,
+        1
       ],
       "axes": [
-        4,
-        3
+        1,
+        6
       ],
       "keshi": 2
     },
     {
-      "race_id": "2026-08-010104",
+      "race_id": "2026-08-010105",
       "venue": "桐生",
-      "round": 4,
+      "round": 5,
       "status": "outside_window",
-      "minutes_to_deadline": 12.7,
+      "minutes_to_deadline": 13.8,
       "preview_ready": false,
       "fetch_reason": null,
       "near_miss_level": null,
@@ -575,45 +731,28 @@
       "keshi": null
     },
     {
-      "race_id": "2026-08-010612",
-      "venue": "浜名湖",
-      "round": 12,
-      "status": "outside_window",
-      "minutes_to_deadline": 19.7,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-08-011504",
-      "venue": "丸亀",
-      "round": 4,
-      "status": "outside_window",
-      "minutes_to_deadline": 21.7,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-08-011611",
-      "venue": "児島",
+      "race_id": "2026-08-012211",
+      "venue": "福岡",
       "round": 11,
       "status": "outside_window",
-      "minutes_to_deadline": 27.7,
+      "minutes_to_deadline": 17.8,
+      "preview_ready": false,
+      "fetch_reason": null,
+      "near_miss_level": null,
+      "near_miss_summary": null,
+      "near_miss_reasons": [],
+      "near_miss_positives": [],
+      "post_exhibition_manshu_rate_pct": null,
+      "heads": [],
+      "axes": [],
+      "keshi": null
+    },
+    {
+      "race_id": "2026-08-011505",
+      "venue": "丸亀",
+      "round": 5,
+      "status": "outside_window",
+      "minutes_to_deadline": 22.8,
       "preview_ready": false,
       "fetch_reason": null,
       "near_miss_level": null,
@@ -629,37 +768,37 @@
   "validation": {
     "progress": {
       "status": "collecting",
-      "entry_count": 38,
+      "entry_count": 39,
       "minimum_target": 100,
       "preferred_target": 200,
-      "remaining_to_minimum": 62,
-      "remaining_to_preferred": 162,
-      "minimum_progress_pct": 38.0,
-      "preferred_progress_pct": 19.0
+      "remaining_to_minimum": 61,
+      "remaining_to_preferred": 161,
+      "minimum_progress_pct": 39.0,
+      "preferred_progress_pct": 19.5
     },
     "forward": {
-      "entry_count": 38,
+      "entry_count": 39,
       "pending_count": 0,
-      "settled_count": 38,
+      "settled_count": 39,
       "hit_count": 2,
-      "miss_count": 36,
-      "hit_rate_pct": 5.26,
-      "investment_yen": 19600,
+      "miss_count": 37,
+      "hit_rate_pct": 5.13,
+      "investment_yen": 20100,
       "payback_yen": 25480,
-      "profit_yen": 5880,
-      "roi_pct": 130.0,
-      "notification_sent_count": 1,
-      "notification_duplicate_sent_count": 34,
+      "profit_yen": 5380,
+      "roi_pct": 126.77,
+      "notification_sent_count": 2,
+      "notification_duplicate_sent_count": 35,
       "notification_failed_count": 0,
       "notification_pending_count": 0,
-      "avg_points": 5.16,
-      "planned_stake_yen": 19600,
+      "avg_points": 5.15,
+      "planned_stake_yen": 20100,
       "max_losing_streak": 24,
-      "current_losing_streak": 3,
+      "current_losing_streak": 4,
       "manshu_result_count": 8,
       "manshu_hit_count": 2,
       "first_signal_at": "2026-07-12T11:52:51+09:00",
-      "last_signal_at": "2026-08-01T15:57:52+09:00",
+      "last_signal_at": "2026-08-01T16:47:55+09:00",
       "head_swap_shadow": {
         "version": "original-boaters-24-head-swap-shadow-v1",
         "policy_id": "aiwin_delta4_scoregap5_v1",
@@ -725,7 +864,7 @@
         "policy_id": "three_gate_low_confidence_v1",
         "active": false,
         "notification_enabled": false,
-        "entry_count": 38,
+        "entry_count": 39,
         "candidates": {
           "both_models_ev_below100_t5": {
             "decision_count": 4,
@@ -758,18 +897,18 @@
             "profit_delta_yen": 500
           },
           "head56_unselected_ai_not_lower": {
-            "decision_count": 38,
+            "decision_count": 39,
             "pending_count": 0,
-            "settled_count": 38,
+            "settled_count": 39,
             "triggered_count": 0,
             "avoided_loss_count": 0,
             "skipped_hit_count": 0,
-            "baseline_investment_yen": 19600,
+            "baseline_investment_yen": 20100,
             "baseline_payback_yen": 25480,
-            "shadow_investment_yen": 19600,
+            "shadow_investment_yen": 20100,
             "shadow_payback_yen": 25480,
-            "baseline_roi_pct": 130.0,
-            "shadow_roi_pct": 130.0,
+            "baseline_roi_pct": 126.77,
+            "shadow_roi_pct": 126.77,
             "profit_delta_yen": 0
           },
           "legacy_ev_drop20_t10_to_t5": {
@@ -788,18 +927,18 @@
             "profit_delta_yen": 600
           },
           "multi_source_disagreement": {
-            "decision_count": 38,
+            "decision_count": 39,
             "pending_count": 0,
-            "settled_count": 38,
+            "settled_count": 39,
             "triggered_count": 3,
             "avoided_loss_count": 3,
             "skipped_hit_count": 0,
-            "baseline_investment_yen": 19600,
+            "baseline_investment_yen": 20100,
             "baseline_payback_yen": 25480,
-            "shadow_investment_yen": 18000,
+            "shadow_investment_yen": 18500,
             "shadow_payback_yen": 25480,
-            "baseline_roi_pct": 130.0,
-            "shadow_roi_pct": 141.56,
+            "baseline_roi_pct": 126.77,
+            "shadow_roi_pct": 137.73,
             "profit_delta_yen": 1600
           },
           "structural_and_both_models_ev_below100": {
@@ -818,33 +957,33 @@
             "profit_delta_yen": 0
           },
           "structural_and_multi_source_v1": {
-            "decision_count": 2,
+            "decision_count": 3,
             "pending_count": 0,
-            "settled_count": 2,
+            "settled_count": 3,
             "triggered_count": 0,
             "avoided_loss_count": 0,
             "skipped_hit_count": 0,
-            "baseline_investment_yen": 1200,
+            "baseline_investment_yen": 1700,
             "baseline_payback_yen": 0,
-            "shadow_investment_yen": 1200,
+            "shadow_investment_yen": 1700,
             "shadow_payback_yen": 0,
             "baseline_roi_pct": 0.0,
             "shadow_roi_pct": 0.0,
             "profit_delta_yen": 0
           },
           "structural_support_gap2": {
-            "decision_count": 38,
+            "decision_count": 39,
             "pending_count": 0,
-            "settled_count": 38,
+            "settled_count": 39,
             "triggered_count": 2,
             "avoided_loss_count": 2,
             "skipped_hit_count": 0,
-            "baseline_investment_yen": 19600,
+            "baseline_investment_yen": 20100,
             "baseline_payback_yen": 25480,
-            "shadow_investment_yen": 18400,
+            "shadow_investment_yen": 18900,
             "shadow_payback_yen": 25480,
-            "baseline_roi_pct": 130.0,
-            "shadow_roi_pct": 138.48,
+            "baseline_roi_pct": 126.77,
+            "shadow_roi_pct": 134.81,
             "profit_delta_yen": 1200
           },
           "synthetic_odds_below3_t5": {
@@ -883,28 +1022,28 @@
         "version": "original-boaters-24-low-confidence-production-v1",
         "policy_id": "structural_and_multi_source_v1",
         "active": true,
-        "entry_count": 38,
-        "settled_count": 38,
+        "entry_count": 39,
+        "settled_count": 39,
         "skipped_count": 1,
         "avoided_loss_count": 1,
         "skipped_hit_count": 0,
-        "baseline_investment_yen": 19600,
+        "baseline_investment_yen": 20100,
         "baseline_payback_yen": 25480,
-        "baseline_roi_pct": 130.0,
-        "production_investment_yen": 18800,
+        "baseline_roi_pct": 126.77,
+        "production_investment_yen": 19300,
         "production_payback_yen": 25480,
-        "production_roi_pct": 135.53,
+        "production_roi_pct": 132.02,
         "profit_delta_yen": 800,
         "max_losing_streak": 23,
-        "current_losing_streak": 3
+        "current_losing_streak": 4
       },
       "ticket_ev_shadow": {
         "version": "original-boaters-24-ticket-ev-shadow-v1",
         "policy_id": "aiwin_top3_sequential_v1",
         "active": false,
         "notification_enabled": false,
-        "entry_count": 38,
-        "settled_count": 38,
+        "entry_count": 39,
+        "settled_count": 39,
         "t10_snapshot_count": 7,
         "t10_complete_ticket_odds_count": 7,
         "t10_avg_portfolio_expected_roi_pct": 88.6,
@@ -920,7 +1059,7 @@
         "policy_id": "position123_hgb_calibrated_v1",
         "active": false,
         "notification_enabled": false,
-        "entry_count": 38,
+        "entry_count": 39,
         "settled_count": 7,
         "t10_snapshot_count": 7,
         "t10_complete_ticket_odds_count": 7,
@@ -937,7 +1076,7 @@
         "policy_id": "venue_lane_probability_point_overlay_v1",
         "active": false,
         "notification_enabled": false,
-        "entry_count": 38,
+        "entry_count": 39,
         "settled_count": 7,
         "t10_snapshot_count": 7,
         "t10_complete_ticket_odds_count": 7,
@@ -963,7 +1102,7 @@
         "rescue_max_points": 12,
         "minimum_forward_sample": 100,
         "description": "現行買い目は変えず、現行・期待値不足除外・最大12点救済の3案を同じ締切前確率、T-10/T-5オッズ、実結果で比較する。",
-        "entry_count": 38,
+        "entry_count": 39,
         "ready_count": 0,
         "settled_count": 7,
         "target_t5_count": 4,
@@ -6473,28 +6612,28 @@
           }
         },
         "福岡": {
-          "entry_count": 1,
+          "entry_count": 2,
           "pending_count": 0,
-          "settled_count": 1,
+          "settled_count": 2,
           "hit_count": 0,
-          "miss_count": 1,
+          "miss_count": 2,
           "hit_rate_pct": 0.0,
-          "investment_yen": 500,
+          "investment_yen": 1000,
           "payback_yen": 0,
-          "profit_yen": -500,
+          "profit_yen": -1000,
           "roi_pct": 0.0,
           "notification_sent_count": 0,
-          "notification_duplicate_sent_count": 1,
+          "notification_duplicate_sent_count": 2,
           "notification_failed_count": 0,
           "notification_pending_count": 0,
           "avg_points": 5.0,
-          "planned_stake_yen": 500,
-          "max_losing_streak": 1,
-          "current_losing_streak": 1,
+          "planned_stake_yen": 1000,
+          "max_losing_streak": 2,
+          "current_losing_streak": 2,
           "manshu_result_count": 0,
           "manshu_hit_count": 0,
           "first_signal_at": "2026-07-23T17:19:13+09:00",
-          "last_signal_at": "2026-07-23T17:19:13+09:00",
+          "last_signal_at": "2026-08-01T16:47:55+09:00",
           "head_swap_shadow": {
             "version": "original-boaters-24-head-swap-shadow-v1",
             "policy_id": "aiwin_delta4_scoregap5_v1",
@@ -6560,7 +6699,7 @@
             "policy_id": "three_gate_low_confidence_v1",
             "active": false,
             "notification_enabled": false,
-            "entry_count": 1,
+            "entry_count": 2,
             "candidates": {
               "both_models_ev_below100_t5": {
                 "decision_count": 0,
@@ -6593,15 +6732,15 @@
                 "profit_delta_yen": 0
               },
               "head56_unselected_ai_not_lower": {
-                "decision_count": 1,
+                "decision_count": 2,
                 "pending_count": 0,
-                "settled_count": 1,
+                "settled_count": 2,
                 "triggered_count": 0,
                 "avoided_loss_count": 0,
                 "skipped_hit_count": 0,
-                "baseline_investment_yen": 500,
+                "baseline_investment_yen": 1000,
                 "baseline_payback_yen": 0,
-                "shadow_investment_yen": 500,
+                "shadow_investment_yen": 1000,
                 "shadow_payback_yen": 0,
                 "baseline_roi_pct": 0.0,
                 "shadow_roi_pct": 0.0,
@@ -6623,15 +6762,15 @@
                 "profit_delta_yen": 0
               },
               "multi_source_disagreement": {
-                "decision_count": 1,
+                "decision_count": 2,
                 "pending_count": 0,
-                "settled_count": 1,
+                "settled_count": 2,
                 "triggered_count": 0,
                 "avoided_loss_count": 0,
                 "skipped_hit_count": 0,
-                "baseline_investment_yen": 500,
+                "baseline_investment_yen": 1000,
                 "baseline_payback_yen": 0,
-                "shadow_investment_yen": 500,
+                "shadow_investment_yen": 1000,
                 "shadow_payback_yen": 0,
                 "baseline_roi_pct": 0.0,
                 "shadow_roi_pct": 0.0,
@@ -6652,7 +6791,7 @@
                 "shadow_roi_pct": null,
                 "profit_delta_yen": 0
               },
-              "structural_support_gap2": {
+              "structural_and_multi_source_v1": {
                 "decision_count": 1,
                 "pending_count": 0,
                 "settled_count": 1,
@@ -6662,6 +6801,21 @@
                 "baseline_investment_yen": 500,
                 "baseline_payback_yen": 0,
                 "shadow_investment_yen": 500,
+                "shadow_payback_yen": 0,
+                "baseline_roi_pct": 0.0,
+                "shadow_roi_pct": 0.0,
+                "profit_delta_yen": 0
+              },
+              "structural_support_gap2": {
+                "decision_count": 2,
+                "pending_count": 0,
+                "settled_count": 2,
+                "triggered_count": 0,
+                "avoided_loss_count": 0,
+                "skipped_hit_count": 0,
+                "baseline_investment_yen": 1000,
+                "baseline_payback_yen": 0,
+                "shadow_investment_yen": 1000,
                 "shadow_payback_yen": 0,
                 "baseline_roi_pct": 0.0,
                 "shadow_roi_pct": 0.0,
@@ -6703,28 +6857,28 @@
             "version": "original-boaters-24-low-confidence-production-v1",
             "policy_id": "structural_and_multi_source_v1",
             "active": true,
-            "entry_count": 1,
-            "settled_count": 1,
+            "entry_count": 2,
+            "settled_count": 2,
             "skipped_count": 0,
             "avoided_loss_count": 0,
             "skipped_hit_count": 0,
-            "baseline_investment_yen": 500,
+            "baseline_investment_yen": 1000,
             "baseline_payback_yen": 0,
             "baseline_roi_pct": 0.0,
-            "production_investment_yen": 500,
+            "production_investment_yen": 1000,
             "production_payback_yen": 0,
             "production_roi_pct": 0.0,
             "profit_delta_yen": 0,
-            "max_losing_streak": 1,
-            "current_losing_streak": 1
+            "max_losing_streak": 2,
+            "current_losing_streak": 2
           },
           "ticket_ev_shadow": {
             "version": "original-boaters-24-ticket-ev-shadow-v1",
             "policy_id": "aiwin_top3_sequential_v1",
             "active": false,
             "notification_enabled": false,
-            "entry_count": 1,
-            "settled_count": 1,
+            "entry_count": 2,
+            "settled_count": 2,
             "t10_snapshot_count": 0,
             "t10_complete_ticket_odds_count": 0,
             "t10_avg_portfolio_expected_roi_pct": null,
@@ -6740,7 +6894,7 @@
             "policy_id": "position123_hgb_calibrated_v1",
             "active": false,
             "notification_enabled": false,
-            "entry_count": 1,
+            "entry_count": 2,
             "settled_count": 0,
             "t10_snapshot_count": 0,
             "t10_complete_ticket_odds_count": 0,
@@ -6757,7 +6911,7 @@
             "policy_id": "venue_lane_probability_point_overlay_v1",
             "active": false,
             "notification_enabled": false,
-            "entry_count": 1,
+            "entry_count": 2,
             "settled_count": 0,
             "t10_snapshot_count": 0,
             "t10_complete_ticket_odds_count": 0,
@@ -6783,7 +6937,7 @@
             "rescue_max_points": 12,
             "minimum_forward_sample": 100,
             "description": "現行買い目は変えず、現行・期待値不足除外・最大12点救済の3案を同じ締切前確率、T-10/T-5オッズ、実結果で比較する。",
-            "entry_count": 1,
+            "entry_count": 2,
             "ready_count": 0,
             "settled_count": 0,
             "target_t5_count": 0,
