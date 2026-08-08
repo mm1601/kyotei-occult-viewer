@@ -1,8 +1,8 @@
 {
   "version": "manshu-system-dashboard-v1",
   "date": "2026-08-08",
-  "exported_at": "2026-08-08T20:37:22+09:00",
-  "source_generated_at": "2026-08-08T20:23:14+09:00",
+  "exported_at": "2026-08-08T20:57:34+09:00",
+  "source_generated_at": "2026-08-08T20:46:06+09:00",
   "source_monitor_file": "data/output/boaters_manshu_alerts_20260808.json",
   "system": {
     "name": "24場サイン管制盤",
@@ -14,7 +14,7 @@
     "live_source": "official",
     "lookahead_minutes": 10.0,
     "signal_count": 4,
-    "monitored_count": 5,
+    "monitored_count": 1,
     "checked_count": 1,
     "preview_ready_count": 1,
     "fetch_failed_count": 0,
@@ -22,17 +22,16 @@
     "notifications_failed": 0,
     "notifications_invalid": 0,
     "status_counts": {
-      "checked": 1,
-      "outside_window": 4
+      "checked": 1
     }
   },
   "runtime_health": {
     "version": "boaters-runtime-health-v1",
-    "generated_at": "2026-08-08T20:36:19+09:00",
+    "generated_at": "2026-08-08T20:57:33+09:00",
     "date": "2026-08-08",
     "active_window": true,
     "startup_warmup": false,
-    "active_minutes": 696.324,
+    "active_minutes": 717.557,
     "window": {
       "start": "09:00",
       "end": "21:00"
@@ -40,12 +39,10 @@
     "state": "failed",
     "healthy": false,
     "critical_issues": [
-      "cycle:live:success_stale,last_state_timeout",
-      "cycle:retry:success_stale,last_state_timeout",
-      "cycle:screenshot_post:success_stale,last_state_timeout"
+      "cycle:live:success_stale,last_state_preflight_failed",
+      "artifact:race_schedule:missing_or_stale"
     ],
     "warnings": [
-      "storage:free_space_below_warning_threshold",
       "cycle:dashboard:success_stale"
     ],
     "storage": {
@@ -53,66 +50,60 @@
       "reason": "ok",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime",
       "total_bytes": 245107195904,
-      "used_bytes": 231330066432,
-      "free_bytes": 13777129472,
-      "free_gib": 12.831,
+      "used_bytes": 220331520000,
+      "free_bytes": 24775675904,
+      "free_gib": 23.074,
       "minimum_free_bytes": 5368709120,
       "minimum_free_gib": 5.0,
       "write_probe": "ok",
       "warning_free_bytes": 16106127360,
       "warning_free_gib": 15.0,
-      "warning": true
+      "warning": false
     },
     "cycles": [
       {
         "role": "live",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/live_cycle.json",
-        "state": "timeout",
-        "attempt_age_minutes": 7.674,
-        "success_age_minutes": 50.457,
-        "consecutive_failures": 4,
+        "state": "preflight_failed",
+        "attempt_age_minutes": 3.523,
+        "success_age_minutes": 71.69,
+        "consecutive_failures": 8,
         "critical": true,
         "healthy": false,
         "issues": [
           "success_stale",
-          "last_state_timeout"
+          "last_state_preflight_failed"
         ]
       },
       {
         "role": "retry",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/retry_cycle.json",
-        "state": "timeout",
-        "attempt_age_minutes": 0.69,
-        "success_age_minutes": 12.524,
-        "consecutive_failures": 1,
+        "state": "waiting_for_schedule",
+        "attempt_age_minutes": 0.107,
+        "success_age_minutes": 11.323,
+        "consecutive_failures": 4,
         "critical": true,
-        "healthy": false,
-        "issues": [
-          "success_stale",
-          "last_state_timeout"
-        ]
+        "healthy": true,
+        "issues": []
       },
       {
         "role": "screenshot_post",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_post_cycle.json",
-        "state": "timeout",
-        "attempt_age_minutes": 3.074,
-        "success_age_minutes": 50.774,
-        "consecutive_failures": 11,
+        "state": "running",
+        "attempt_age_minutes": 0.59,
+        "success_age_minutes": 12.723,
+        "consecutive_failures": 5,
         "critical": true,
-        "healthy": false,
-        "issues": [
-          "success_stale",
-          "last_state_timeout"
-        ]
+        "healthy": true,
+        "issues": []
       },
       {
         "role": "screenshot_import",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_import_cycle.json",
-        "state": "running",
-        "attempt_age_minutes": 9.84,
-        "success_age_minutes": 51.29,
-        "consecutive_failures": 8,
+        "state": "success",
+        "attempt_age_minutes": 0.29,
+        "success_age_minutes": 0.29,
+        "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
         "issues": []
@@ -120,9 +111,9 @@
       {
         "role": "screenshot_archive",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_archive_cycle.json",
-        "state": "running",
-        "attempt_age_minutes": 0.324,
-        "success_age_minutes": 9.724,
+        "state": "success",
+        "attempt_age_minutes": 4.99,
+        "success_age_minutes": 4.99,
         "consecutive_failures": 0,
         "critical": false,
         "healthy": true,
@@ -132,8 +123,8 @@
         "role": "dashboard",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/dashboard_cycle.json",
         "state": "off_hours",
-        "attempt_age_minutes": 1411.257,
-        "success_age_minutes": 8640.39,
+        "attempt_age_minutes": 1432.49,
+        "success_age_minutes": 8661.623,
         "consecutive_failures": 2,
         "critical": false,
         "healthy": false,
@@ -145,8 +136,8 @@
         "role": "publisher",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/publisher_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 23.957,
-        "success_age_minutes": 23.957,
+        "attempt_age_minutes": 15.29,
+        "success_age_minutes": 15.29,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -157,15 +148,17 @@
       {
         "name": "race_schedule",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/official_live_ranking_20260808.json",
-        "age_minutes": 6.156,
+        "age_minutes": 11.471,
         "max_age_minutes": 8.0,
-        "healthy": true,
-        "issues": []
+        "healthy": false,
+        "issues": [
+          "missing_or_stale"
+        ]
       },
       {
         "name": "dashboard_json",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/manshu_system_dashboard_latest.json",
-        "age_minutes": 9.736,
+        "age_minutes": 5.008,
         "max_age_minutes": 15.0,
         "healthy": true,
         "issues": []
@@ -173,7 +166,7 @@
       {
         "name": "monitor_output",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/boaters_manshu_alerts_20260808.json",
-        "age_minutes": 12.574,
+        "age_minutes": 11.332,
         "max_age_minutes": 15.0,
         "healthy": true,
         "issues": []
@@ -185,7 +178,7 @@
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/official_live_ranking_20260808.json",
         "healthy": true,
         "issues": [],
-        "race_count": 5
+        "race_count": 1
       },
       {
         "name": "monitor_decision_integrity",
@@ -194,33 +187,21 @@
         "issues": [],
         "integrity": {
           "version": "boaters-monitor-integrity-v2",
-          "expected_race_count": 5,
-          "inspected_race_count": 5,
+          "expected_race_count": 1,
+          "inspected_race_count": 1,
           "all_expected_races_inspected": true,
           "missing_inspection_race_ids": [],
           "duplicate_inspection_race_ids": [],
           "global_failures": [],
-          "due_race_count": 1,
+          "due_race_count": 0,
           "due_decision_required_count": 0,
           "due_complete_count": 0,
           "due_source_unavailable_count": 0,
-          "due_pending_count": 1,
+          "due_pending_count": 0,
           "due_incomplete_count": 0,
           "due_coverage_pct": 100.0,
           "all_due_complete": true,
-          "pending_due_races": [
-            {
-              "race_id": "2026-08-081212",
-              "place_name": "住之江",
-              "round": 12,
-              "minutes_to_deadline": 6.8,
-              "reasons": [
-                "original_boaters_data_not_verified",
-                "decision_incomplete:skip_incompatible_ai_source"
-              ],
-              "error": ""
-            }
-          ],
+          "pending_due_races": [],
           "incomplete_due_races": [],
           "healthy": true
         }
@@ -298,18 +279,6 @@
       {
         "role": "live",
         "label": "com.mm1601.boaters-live-monitor",
-        "state": "kicked",
-        "message": ""
-      },
-      {
-        "role": "retry",
-        "label": "com.mm1601.boaters-original-retry",
-        "state": "kicked",
-        "message": ""
-      },
-      {
-        "role": "screenshot_post",
-        "label": "com.mm1601.boaters-post-snapshot",
         "state": "kicked",
         "message": ""
       }
@@ -876,11 +845,11 @@
   ],
   "monitor": [
     {
-      "race_id": "2026-08-081212",
-      "venue": "住之江",
+      "race_id": "2026-08-081912",
+      "venue": "下関",
       "round": 12,
       "status": "checked",
-      "minutes_to_deadline": 6.8,
+      "minutes_to_deadline": -1.1,
       "preview_ready": true,
       "fetch_reason": "alert_window",
       "near_miss_level": "見送り",
@@ -889,86 +858,19 @@
         "展示後38%未満(0.00%)"
       ],
       "near_miss_positives": [
-        "1号艇人気: 未取得"
+        "1号艇人気: 売れすぎ",
+        "1号艇人気あり"
       ],
       "post_exhibition_manshu_rate_pct": 0.0,
       "heads": [
-        6,
+        3,
         1
       ],
       "axes": [
         1,
-        6
+        3
       ],
-      "keshi": 2
-    },
-    {
-      "race_id": "2026-08-081512",
-      "venue": "丸亀",
-      "round": 12,
-      "status": "outside_window",
-      "minutes_to_deadline": 10.8,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-08-082412",
-      "venue": "大村",
-      "round": 12,
-      "status": "outside_window",
-      "minutes_to_deadline": 14.8,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-08-082012",
-      "venue": "若松",
-      "round": 12,
-      "status": "outside_window",
-      "minutes_to_deadline": 18.8,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
-    },
-    {
-      "race_id": "2026-08-081912",
-      "venue": "下関",
-      "round": 12,
-      "status": "outside_window",
-      "minutes_to_deadline": 21.8,
-      "preview_ready": false,
-      "fetch_reason": null,
-      "near_miss_level": null,
-      "near_miss_summary": null,
-      "near_miss_reasons": [],
-      "near_miss_positives": [],
-      "post_exhibition_manshu_rate_pct": null,
-      "heads": [],
-      "axes": [],
-      "keshi": null
+      "keshi": 4
     }
   ],
   "validation": {
@@ -4533,16 +4435,16 @@
         "forward_start_date": "2026-08-01",
         "condition": "Ippan・桐生/江戸川除外・1号艇オッズ予測単独1位50%以上・平均との差マイナス・展示/1周/ST展示4位以下・外艇AI1着率20%以上",
         "buy_method": "外艇平均との差上位2艇を頭にした8点＋1号艇頭の押さえ4点（計12点）",
-        "updated_at": "2026-08-08T20:23:14+09:00",
+        "updated_at": "2026-08-08T20:46:06+09:00",
         "today": {
           "date": "2026-08-08",
           "source_available": true,
-          "audit_count": 159,
+          "audit_count": 161,
           "entry_count": 0,
           "entries": []
         },
         "coverage": {
-          "evaluated_races": 909,
+          "evaluated_races": 911,
           "source_ready_races": 819,
           "daily_file_count": 7
         },
