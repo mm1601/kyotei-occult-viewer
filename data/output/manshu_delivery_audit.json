@@ -1,21 +1,21 @@
 {
   "version": "manshu-delivery-audit-v1",
   "date": "2026-08-13",
-  "generated_at": "2026-08-13T16:39:36+09:00",
+  "generated_at": "2026-08-13T17:12:04+09:00",
   "active_window": true,
   "overall": {
     "state": "failed",
     "healthy": false,
-    "critical_count": 6,
-    "warning_count": 3,
+    "critical_count": 2,
+    "warning_count": 2,
     "label": "工程不一致あり"
   },
   "summary": {
-    "expected_races": 10,
-    "inspected_races": 10,
-    "due_races": 4,
-    "capture_verified_races": 1,
-    "decision_complete_races": 1,
+    "expected_races": 7,
+    "inspected_races": 7,
+    "due_races": 1,
+    "capture_verified_races": 0,
+    "decision_complete_races": 0,
     "raw_signal_rows": 3,
     "signal_races": 3,
     "notification_delivered_races": 3,
@@ -35,27 +35,27 @@
     {
       "id": "inspection",
       "label": "監視照合",
-      "actual": 10,
-      "expected": 10,
+      "actual": 7,
+      "expected": 7,
       "coverage_pct": 100.0,
       "state": "ok",
-      "note": "予定10Rに対して監視結果10R"
+      "note": "予定7Rに対して監視結果7R"
     },
     {
       "id": "capture",
       "label": "展示取得確認",
-      "actual": 1,
-      "expected": 4,
-      "coverage_pct": 25.0,
+      "actual": 0,
+      "expected": 1,
+      "coverage_pct": 0.0,
       "state": "failed",
-      "note": "締切圏内4Rの取得本人性を照合"
+      "note": "締切圏内1Rの取得本人性を照合"
     },
     {
       "id": "decision",
       "label": "判定完了",
-      "actual": 1,
-      "expected": 4,
-      "coverage_pct": 25.0,
+      "actual": 0,
+      "expected": 1,
+      "coverage_pct": 0.0,
       "state": "failed",
       "note": "取得済みだけでなく判定完了まで確認"
     },
@@ -128,57 +128,17 @@
       "severity": "critical",
       "code": "capture_not_verified",
       "stage": "capture",
-      "race_id": "2026-08-130704",
-      "message": "蒲郡4RのBOATERS取得確認が未完了",
+      "race_id": "2026-08-132405",
+      "message": "大村5RのBOATERS取得確認が未完了",
       "action": "スクリーンショット取得・本人性検証を再確認"
     },
     {
       "severity": "critical",
       "code": "decision_incomplete",
       "stage": "decision",
-      "race_id": "2026-08-130704",
-      "message": "蒲郡4Rの判定が未完了",
+      "race_id": "2026-08-132405",
+      "message": "大村5Rの判定が未完了",
       "action": "alert_window"
-    },
-    {
-      "severity": "critical",
-      "code": "capture_not_verified",
-      "stage": "capture",
-      "race_id": "2026-08-131612",
-      "message": "児島12RのBOATERS取得確認が未完了",
-      "action": "スクリーンショット取得・本人性検証を再確認"
-    },
-    {
-      "severity": "critical",
-      "code": "decision_incomplete",
-      "stage": "decision",
-      "race_id": "2026-08-131612",
-      "message": "児島12Rの判定が未完了",
-      "action": "alert_window"
-    },
-    {
-      "severity": "critical",
-      "code": "capture_not_verified",
-      "stage": "capture",
-      "race_id": "2026-08-132404",
-      "message": "大村4RのBOATERS取得確認が未完了",
-      "action": "スクリーンショット取得・本人性検証を再確認"
-    },
-    {
-      "severity": "critical",
-      "code": "decision_incomplete",
-      "stage": "decision",
-      "race_id": "2026-08-132404",
-      "message": "大村4Rの判定が未完了",
-      "action": "alert_window"
-    },
-    {
-      "severity": "warning",
-      "code": "due_count_mismatch",
-      "stage": "decision",
-      "race_id": null,
-      "message": "監視本体の締切圏内3Rと再照合結果4Rが一致しません",
-      "action": "締切圏内の定義と時刻を確認"
     },
     {
       "severity": "warning",
@@ -199,169 +159,11 @@
   ],
   "races": [
     {
-      "race_id": "2026-08-130704",
-      "venue": "蒲郡",
-      "round": 4,
-      "deadline_time": "2026-08-13T16:44:00+09:00",
-      "minutes_to_deadline": 5.0,
-      "scheduled": true,
-      "inspected": true,
-      "due": true,
-      "state": "failed",
-      "acquisition": {
-        "state": "failed",
-        "data_ready": false,
-        "capture_verified": false,
-        "verified_at": null
-      },
-      "decision": {
-        "state": "failed",
-        "complete": false,
-        "status": "checked",
-        "reason": "alert_window"
-      },
-      "signal": {
-        "state": "not_decided",
-        "source_family": null,
-        "rule_id": null,
-        "points": null,
-        "tickets": [],
-        "detected_at": null
-      },
-      "notification": {
-        "required": false,
-        "state": "not_applicable",
-        "status": null,
-        "sent_at": null
-      },
-      "purchase": {
-        "required": false,
-        "state": "not_applicable",
-        "orders": 0,
-        "unique_orders": 0
-      },
-      "ledger": {
-        "required": false,
-        "state": "not_applicable",
-        "records": 0
-      },
-      "dashboard": {
-        "required": false,
-        "state": "not_applicable",
-        "records": 0
-      },
-      "result": {
-        "required": false,
-        "state": "waiting",
-        "status": null,
-        "trifecta": null,
-        "payout_yen": null,
-        "settled_at": null
-      },
-      "issues": [
-        {
-          "severity": "critical",
-          "code": "capture_not_verified",
-          "stage": "capture",
-          "race_id": "2026-08-130704",
-          "message": "蒲郡4RのBOATERS取得確認が未完了",
-          "action": "スクリーンショット取得・本人性検証を再確認"
-        },
-        {
-          "severity": "critical",
-          "code": "decision_incomplete",
-          "stage": "decision",
-          "race_id": "2026-08-130704",
-          "message": "蒲郡4Rの判定が未完了",
-          "action": "alert_window"
-        }
-      ]
-    },
-    {
-      "race_id": "2026-08-131612",
-      "venue": "児島",
-      "round": 12,
-      "deadline_time": "2026-08-13T16:48:00+09:00",
-      "minutes_to_deadline": 9.0,
-      "scheduled": true,
-      "inspected": true,
-      "due": true,
-      "state": "failed",
-      "acquisition": {
-        "state": "failed",
-        "data_ready": false,
-        "capture_verified": false,
-        "verified_at": null
-      },
-      "decision": {
-        "state": "failed",
-        "complete": false,
-        "status": "checked",
-        "reason": "alert_window"
-      },
-      "signal": {
-        "state": "not_decided",
-        "source_family": null,
-        "rule_id": null,
-        "points": null,
-        "tickets": [],
-        "detected_at": null
-      },
-      "notification": {
-        "required": false,
-        "state": "not_applicable",
-        "status": null,
-        "sent_at": null
-      },
-      "purchase": {
-        "required": false,
-        "state": "not_applicable",
-        "orders": 0,
-        "unique_orders": 0
-      },
-      "ledger": {
-        "required": false,
-        "state": "not_applicable",
-        "records": 0
-      },
-      "dashboard": {
-        "required": false,
-        "state": "not_applicable",
-        "records": 0
-      },
-      "result": {
-        "required": false,
-        "state": "waiting",
-        "status": null,
-        "trifecta": null,
-        "payout_yen": null,
-        "settled_at": null
-      },
-      "issues": [
-        {
-          "severity": "critical",
-          "code": "capture_not_verified",
-          "stage": "capture",
-          "race_id": "2026-08-131612",
-          "message": "児島12RのBOATERS取得確認が未完了",
-          "action": "スクリーンショット取得・本人性検証を再確認"
-        },
-        {
-          "severity": "critical",
-          "code": "decision_incomplete",
-          "stage": "decision",
-          "race_id": "2026-08-131612",
-          "message": "児島12Rの判定が未完了",
-          "action": "alert_window"
-        }
-      ]
-    },
-    {
-      "race_id": "2026-08-132404",
+      "race_id": "2026-08-132405",
       "venue": "大村",
-      "round": 4,
-      "deadline_time": "2026-08-13T16:49:00+09:00",
-      "minutes_to_deadline": 10.0,
+      "round": 5,
+      "deadline_time": "2026-08-13T17:19:00+09:00",
+      "minutes_to_deadline": 7.2,
       "scheduled": true,
       "inspected": true,
       "due": true,
@@ -421,16 +223,16 @@
           "severity": "critical",
           "code": "capture_not_verified",
           "stage": "capture",
-          "race_id": "2026-08-132404",
-          "message": "大村4RのBOATERS取得確認が未完了",
+          "race_id": "2026-08-132405",
+          "message": "大村5RのBOATERS取得確認が未完了",
           "action": "スクリーンショット取得・本人性検証を再確認"
         },
         {
           "severity": "critical",
           "code": "decision_incomplete",
           "stage": "decision",
-          "race_id": "2026-08-132404",
-          "message": "大村4Rの判定が未完了",
+          "race_id": "2026-08-132405",
+          "message": "大村5Rの判定が未完了",
           "action": "alert_window"
         }
       ]
@@ -504,7 +306,7 @@
         "status": "miss",
         "trifecta": "3-6-1",
         "payout_yen": 18920,
-        "settled_at": "2026-08-13T16:39:02+09:00"
+        "settled_at": "2026-08-13T17:11:46+09:00"
       },
       "issues": [
         {
@@ -586,7 +388,7 @@
         "status": "miss",
         "trifecta": "2-6-5",
         "payout_yen": 5260,
-        "settled_at": "2026-08-13T16:39:02+09:00"
+        "settled_at": "2026-08-13T17:11:46+09:00"
       },
       "issues": [
         {
@@ -664,99 +466,37 @@
       },
       "result": {
         "required": false,
-        "state": "waiting",
-        "status": "pending_result",
-        "trifecta": null,
-        "payout_yen": null,
-        "settled_at": null
+        "state": "ok",
+        "status": "miss",
+        "trifecta": "6-1-3",
+        "payout_yen": 5910,
+        "settled_at": "2026-08-13T17:11:46+09:00"
       },
       "issues": []
     },
     {
-      "race_id": "2026-08-131204",
-      "venue": "住之江",
-      "round": 4,
-      "deadline_time": "2026-08-13T16:40:00+09:00",
-      "minutes_to_deadline": 1.0,
+      "race_id": "2026-08-130705",
+      "venue": "蒲郡",
+      "round": 5,
+      "deadline_time": "2026-08-13T17:11:00+09:00",
+      "minutes_to_deadline": -0.8,
       "scheduled": true,
       "inspected": true,
-      "due": true,
+      "due": false,
       "state": "ok",
       "acquisition": {
         "state": "ok",
         "data_ready": true,
         "capture_verified": true,
-        "verified_at": "2026-08-13T16:39:02+09:00"
+        "verified_at": "2026-08-13T17:11:46+09:00"
       },
       "decision": {
-        "state": "ok",
-        "complete": true,
+        "state": "warning",
+        "complete": false,
         "status": "checked",
         "reason": "alert_window"
       },
       "signal": {
-        "state": "no_signal",
-        "source_family": null,
-        "rule_id": null,
-        "points": null,
-        "tickets": [],
-        "detected_at": null
-      },
-      "notification": {
-        "required": false,
-        "state": "not_applicable",
-        "status": null,
-        "sent_at": null
-      },
-      "purchase": {
-        "required": false,
-        "state": "not_applicable",
-        "orders": 0,
-        "unique_orders": 0
-      },
-      "ledger": {
-        "required": false,
-        "state": "not_applicable",
-        "records": 0
-      },
-      "dashboard": {
-        "required": false,
-        "state": "not_applicable",
-        "records": 0
-      },
-      "result": {
-        "required": false,
-        "state": "waiting",
-        "status": null,
-        "trifecta": null,
-        "payout_yen": null,
-        "settled_at": null
-      },
-      "issues": []
-    },
-    {
-      "race_id": "2026-08-130212",
-      "venue": "戸田",
-      "round": 12,
-      "deadline_time": "2026-08-13T16:55:00+09:00",
-      "minutes_to_deadline": 16.0,
-      "scheduled": true,
-      "inspected": true,
-      "due": false,
-      "state": "waiting",
-      "acquisition": {
-        "state": "waiting",
-        "data_ready": false,
-        "capture_verified": false,
-        "verified_at": null
-      },
-      "decision": {
-        "state": "waiting",
-        "complete": false,
-        "status": "outside_window",
-        "reason": null
-      },
-      "signal": {
         "state": "not_decided",
         "source_family": null,
         "rule_id": null,
@@ -797,73 +537,11 @@
       "issues": []
     },
     {
-      "race_id": "2026-08-132210",
-      "venue": "福岡",
-      "round": 10,
-      "deadline_time": "2026-08-13T16:56:00+09:00",
-      "minutes_to_deadline": 17.0,
-      "scheduled": true,
-      "inspected": true,
-      "due": false,
-      "state": "waiting",
-      "acquisition": {
-        "state": "waiting",
-        "data_ready": false,
-        "capture_verified": false,
-        "verified_at": null
-      },
-      "decision": {
-        "state": "waiting",
-        "complete": false,
-        "status": "outside_window",
-        "reason": null
-      },
-      "signal": {
-        "state": "not_decided",
-        "source_family": null,
-        "rule_id": null,
-        "points": null,
-        "tickets": [],
-        "detected_at": null
-      },
-      "notification": {
-        "required": false,
-        "state": "not_applicable",
-        "status": null,
-        "sent_at": null
-      },
-      "purchase": {
-        "required": false,
-        "state": "not_applicable",
-        "orders": 0,
-        "unique_orders": 0
-      },
-      "ledger": {
-        "required": false,
-        "state": "not_applicable",
-        "records": 0
-      },
-      "dashboard": {
-        "required": false,
-        "state": "not_applicable",
-        "records": 0
-      },
-      "result": {
-        "required": false,
-        "state": "waiting",
-        "status": null,
-        "trifecta": null,
-        "payout_yen": null,
-        "settled_at": null
-      },
-      "issues": []
-    },
-    {
-      "race_id": "2026-08-130105",
+      "race_id": "2026-08-130106",
       "venue": "桐生",
-      "round": 5,
-      "deadline_time": "2026-08-13T17:01:00+09:00",
-      "minutes_to_deadline": 22.0,
+      "round": 6,
+      "deadline_time": "2026-08-13T17:25:00+09:00",
+      "minutes_to_deadline": 13.2,
       "scheduled": true,
       "inspected": true,
       "due": false,
@@ -921,73 +599,73 @@
       "issues": []
     },
     {
-      "race_id": "2026-08-130612",
-      "venue": "浜名湖",
-      "round": 12,
-      "deadline_time": "2026-08-13T17:04:00+09:00",
-      "minutes_to_deadline": 25.0,
-      "scheduled": true,
-      "inspected": true,
-      "due": false,
-      "state": "waiting",
-      "acquisition": {
-        "state": "waiting",
-        "data_ready": false,
-        "capture_verified": false,
-        "verified_at": null
-      },
-      "decision": {
-        "state": "waiting",
-        "complete": false,
-        "status": "outside_window",
-        "reason": null
-      },
-      "signal": {
-        "state": "not_decided",
-        "source_family": null,
-        "rule_id": null,
-        "points": null,
-        "tickets": [],
-        "detected_at": null
-      },
-      "notification": {
-        "required": false,
-        "state": "not_applicable",
-        "status": null,
-        "sent_at": null
-      },
-      "purchase": {
-        "required": false,
-        "state": "not_applicable",
-        "orders": 0,
-        "unique_orders": 0
-      },
-      "ledger": {
-        "required": false,
-        "state": "not_applicable",
-        "records": 0
-      },
-      "dashboard": {
-        "required": false,
-        "state": "not_applicable",
-        "records": 0
-      },
-      "result": {
-        "required": false,
-        "state": "waiting",
-        "status": null,
-        "trifecta": null,
-        "payout_yen": null,
-        "settled_at": null
-      },
-      "issues": []
-    },
-    {
-      "race_id": "2026-08-130411",
-      "venue": "平和島",
+      "race_id": "2026-08-132211",
+      "venue": "福岡",
       "round": 11,
-      "deadline_time": "2026-08-13T17:08:00+09:00",
-      "minutes_to_deadline": 29.0,
+      "deadline_time": "2026-08-13T17:28:00+09:00",
+      "minutes_to_deadline": 16.2,
+      "scheduled": true,
+      "inspected": true,
+      "due": false,
+      "state": "waiting",
+      "acquisition": {
+        "state": "waiting",
+        "data_ready": false,
+        "capture_verified": false,
+        "verified_at": null
+      },
+      "decision": {
+        "state": "waiting",
+        "complete": false,
+        "status": "outside_window",
+        "reason": null
+      },
+      "signal": {
+        "state": "not_decided",
+        "source_family": null,
+        "rule_id": null,
+        "points": null,
+        "tickets": [],
+        "detected_at": null
+      },
+      "notification": {
+        "required": false,
+        "state": "not_applicable",
+        "status": null,
+        "sent_at": null
+      },
+      "purchase": {
+        "required": false,
+        "state": "not_applicable",
+        "orders": 0,
+        "unique_orders": 0
+      },
+      "ledger": {
+        "required": false,
+        "state": "not_applicable",
+        "records": 0
+      },
+      "dashboard": {
+        "required": false,
+        "state": "not_applicable",
+        "records": 0
+      },
+      "result": {
+        "required": false,
+        "state": "waiting",
+        "status": null,
+        "trifecta": null,
+        "payout_yen": null,
+        "settled_at": null
+      },
+      "issues": []
+    },
+    {
+      "race_id": "2026-08-131206",
+      "venue": "住之江",
+      "round": 6,
+      "deadline_time": "2026-08-13T17:32:00+09:00",
+      "minutes_to_deadline": 20.2,
       "scheduled": true,
       "inspected": true,
       "due": false,
@@ -1049,7 +727,69 @@
       "venue": "下関",
       "round": 1,
       "deadline_time": "2026-08-13T17:41:00+09:00",
-      "minutes_to_deadline": 62.0,
+      "minutes_to_deadline": 29.2,
+      "scheduled": true,
+      "inspected": true,
+      "due": false,
+      "state": "waiting",
+      "acquisition": {
+        "state": "waiting",
+        "data_ready": false,
+        "capture_verified": false,
+        "verified_at": null
+      },
+      "decision": {
+        "state": "waiting",
+        "complete": false,
+        "status": "outside_window",
+        "reason": null
+      },
+      "signal": {
+        "state": "not_decided",
+        "source_family": null,
+        "rule_id": null,
+        "points": null,
+        "tickets": [],
+        "detected_at": null
+      },
+      "notification": {
+        "required": false,
+        "state": "not_applicable",
+        "status": null,
+        "sent_at": null
+      },
+      "purchase": {
+        "required": false,
+        "state": "not_applicable",
+        "orders": 0,
+        "unique_orders": 0
+      },
+      "ledger": {
+        "required": false,
+        "state": "not_applicable",
+        "records": 0
+      },
+      "dashboard": {
+        "required": false,
+        "state": "not_applicable",
+        "records": 0
+      },
+      "result": {
+        "required": false,
+        "state": "waiting",
+        "status": null,
+        "trifecta": null,
+        "payout_yen": null,
+        "settled_at": null
+      },
+      "issues": []
+    },
+    {
+      "race_id": "2026-08-130412",
+      "venue": "平和島",
+      "round": 12,
+      "deadline_time": "2026-08-13T17:42:00+09:00",
+      "minutes_to_deadline": 30.2,
       "scheduled": true,
       "inspected": true,
       "due": false,
@@ -1114,8 +854,8 @@
       "path": "data/output/official_live_ranking_20260813.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-08-13T16:38:09+09:00",
-      "age_minutes": 1.5,
+      "timestamp": "2026-08-13T17:11:51+09:00",
+      "age_minutes": 0.2,
       "max_age_minutes": 8.0,
       "state": "ok"
     },
@@ -1125,8 +865,8 @@
       "path": "data/output/boaters_manshu_alerts_20260813.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-08-13T16:39:02+09:00",
-      "age_minutes": 0.6,
+      "timestamp": "2026-08-13T17:11:46+09:00",
+      "age_minutes": 0.3,
       "max_age_minutes": 15.0,
       "state": "ok"
     },
@@ -1136,8 +876,8 @@
       "path": "data/output/manshu_monitor_health.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-08-13T16:39:35+09:00",
-      "age_minutes": 0.0,
+      "timestamp": "2026-08-13T17:09:47+09:00",
+      "age_minutes": 2.3,
       "max_age_minutes": 8.0,
       "state": "ok"
     },
@@ -1147,8 +887,8 @@
       "path": "data/output/forward_validation/revised_boaters_24_v2_forward_20260813.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-08-13T16:39:02+09:00",
-      "age_minutes": 0.6,
+      "timestamp": "2026-08-13T17:11:46+09:00",
+      "age_minutes": 0.3,
       "max_age_minutes": null,
       "state": "ok"
     },
@@ -1158,8 +898,8 @@
       "path": "data/output/forward_validation/core_focus_forward_20260813.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-08-13T16:39:02+09:00",
-      "age_minutes": 0.6,
+      "timestamp": "2026-08-13T17:11:46+09:00",
+      "age_minutes": 0.3,
       "max_age_minutes": null,
       "state": "ok"
     },
@@ -1169,8 +909,8 @@
       "path": "data/output/manshu_purchase_queue_latest.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-08-13T16:39:02+09:00",
-      "age_minutes": 0.6,
+      "timestamp": "2026-08-13T17:11:46+09:00",
+      "age_minutes": 0.3,
       "max_age_minutes": null,
       "state": "ok"
     },
@@ -1180,7 +920,7 @@
       "path": "data/output/manshu_forward_ledger.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-08-13T16:39:36+09:00",
+      "timestamp": "2026-08-13T17:12:04+09:00",
       "age_minutes": 0.0,
       "max_age_minutes": null,
       "state": "ok"
@@ -1191,7 +931,7 @@
       "path": "data/output/manshu_system_dashboard_latest.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-08-13T16:39:36+09:00",
+      "timestamp": "2026-08-13T17:12:03+09:00",
       "age_minutes": 0.0,
       "max_age_minutes": 15.0,
       "state": "ok"
@@ -1206,8 +946,8 @@
         "role": "live",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/live_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 2.381,
-        "success_age_minutes": 2.381,
+        "attempt_age_minutes": 5.12,
+        "success_age_minutes": 5.12,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -1217,8 +957,8 @@
         "role": "retry",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/retry_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 0.148,
-        "success_age_minutes": 0.148,
+        "attempt_age_minutes": 1.187,
+        "success_age_minutes": 1.187,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -1228,8 +968,8 @@
         "role": "screenshot_post",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_post_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 0.564,
-        "success_age_minutes": 0.564,
+        "attempt_age_minutes": 0.803,
+        "success_age_minutes": 0.803,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -1239,8 +979,8 @@
         "role": "screenshot_import",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_import_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 0.264,
-        "success_age_minutes": 0.264,
+        "attempt_age_minutes": 0.337,
+        "success_age_minutes": 0.337,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -1250,8 +990,8 @@
         "role": "screenshot_archive",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_archive_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 0.848,
-        "success_age_minutes": 0.848,
+        "attempt_age_minutes": 0.887,
+        "success_age_minutes": 0.887,
         "consecutive_failures": 0,
         "critical": false,
         "healthy": true,
@@ -1261,8 +1001,8 @@
         "role": "dashboard",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/dashboard_cycle.json",
         "state": "off_hours",
-        "attempt_age_minutes": 1174.531,
-        "success_age_minutes": 15603.664,
+        "attempt_age_minutes": 1204.72,
+        "success_age_minutes": 15633.853,
         "consecutive_failures": 2,
         "critical": false,
         "healthy": false,
@@ -1274,8 +1014,8 @@
         "role": "publisher",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/publisher_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 4.631,
-        "success_age_minutes": 4.631,
+        "attempt_age_minutes": 27.52,
+        "success_age_minutes": 27.52,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -1286,8 +1026,8 @@
       "role": "publisher",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/publisher_cycle.json",
       "state": "success",
-      "attempt_age_minutes": 4.631,
-      "success_age_minutes": 4.631,
+      "attempt_age_minutes": 27.52,
+      "success_age_minutes": 27.52,
       "consecutive_failures": 0,
       "critical": true,
       "healthy": true,
