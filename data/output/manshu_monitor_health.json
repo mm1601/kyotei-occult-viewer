@@ -1,18 +1,33 @@
 {
   "version": "boaters-runtime-health-v1",
-  "generated_at": "2026-08-25T17:41:31+09:00",
+  "generated_at": "2026-08-25T18:11:46+09:00",
   "date": "2026-08-25",
   "active_window": true,
   "startup_warmup": false,
-  "active_minutes": 521.526,
+  "active_minutes": 551.768,
   "window": {
     "start": "09:00",
     "end": "21:00"
   },
-  "state": "degraded",
+  "state": "failed",
   "healthy": false,
-  "critical_issues": [],
+  "critical_issues": [
+    "cycle:live:attempt_stale,success_stale",
+    "cycle:retry:attempt_stale,success_stale,last_state_lock_skipped",
+    "cycle:screenshot_post:attempt_stale,success_stale",
+    "cycle:screenshot_import:attempt_stale",
+    "artifact:race_schedule:missing_or_stale",
+    "artifact:monitor_output:missing_or_stale",
+    "launchd:live:not_loaded",
+    "launchd:retry:not_loaded",
+    "launchd:screenshot_post:not_loaded",
+    "launchd:screenshot_import:not_loaded",
+    "launchd:screenshot_archive:not_loaded",
+    "launchd:screenshot_archive_import:not_loaded"
+  ],
   "warnings": [
+    "storage:free_space_below_warning_threshold",
+    "cycle:screenshot_archive:attempt_stale",
     "cycle:dashboard:success_stale"
   ],
   "storage": {
@@ -20,78 +35,92 @@
     "reason": "ok",
     "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime",
     "total_bytes": 245107195904,
-    "used_bytes": 228545200128,
-    "free_bytes": 16561995776,
-    "free_gib": 15.425,
+    "used_bytes": 229395222528,
+    "free_bytes": 15711973376,
+    "free_gib": 14.633,
     "minimum_free_bytes": 5368709120,
     "minimum_free_gib": 5.0,
     "write_probe": "ok",
     "warning_free_bytes": 16106127360,
     "warning_free_gib": 15.0,
-    "warning": false
+    "warning": true
   },
   "cycles": [
     {
       "role": "live",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/live_cycle.json",
       "state": "success",
-      "attempt_age_minutes": 3.81,
-      "success_age_minutes": 3.81,
+      "attempt_age_minutes": 27.952,
+      "success_age_minutes": 27.952,
       "consecutive_failures": 0,
       "critical": true,
-      "healthy": true,
-      "issues": []
+      "healthy": false,
+      "issues": [
+        "attempt_stale",
+        "success_stale"
+      ]
     },
     {
       "role": "retry",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/retry_cycle.json",
-      "state": "success",
-      "attempt_age_minutes": 0.743,
-      "success_age_minutes": 0.743,
+      "state": "lock_skipped",
+      "attempt_age_minutes": 27.968,
+      "success_age_minutes": 28.968,
       "consecutive_failures": 0,
       "critical": true,
-      "healthy": true,
-      "issues": []
+      "healthy": false,
+      "issues": [
+        "attempt_stale",
+        "success_stale",
+        "last_state_lock_skipped"
+      ]
     },
     {
       "role": "screenshot_post",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_post_cycle.json",
-      "state": "success",
-      "attempt_age_minutes": 0.66,
-      "success_age_minutes": 0.66,
+      "state": "running",
+      "attempt_age_minutes": 28.152,
+      "success_age_minutes": 29.152,
       "consecutive_failures": 0,
       "critical": true,
-      "healthy": true,
-      "issues": []
+      "healthy": false,
+      "issues": [
+        "attempt_stale",
+        "success_stale"
+      ]
     },
     {
       "role": "screenshot_import",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_import_cycle.json",
-      "state": "success",
-      "attempt_age_minutes": 0.243,
-      "success_age_minutes": 0.243,
+      "state": "running",
+      "attempt_age_minutes": 28.468,
+      "success_age_minutes": 29.485,
       "consecutive_failures": 0,
       "critical": true,
-      "healthy": true,
-      "issues": []
+      "healthy": false,
+      "issues": [
+        "attempt_stale"
+      ]
     },
     {
       "role": "screenshot_archive",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_archive_cycle.json",
       "state": "success",
-      "attempt_age_minutes": 0.343,
-      "success_age_minutes": 0.343,
+      "attempt_age_minutes": 30.585,
+      "success_age_minutes": 30.585,
       "consecutive_failures": 0,
       "critical": false,
-      "healthy": true,
-      "issues": []
+      "healthy": false,
+      "issues": [
+        "attempt_stale"
+      ]
     },
     {
       "role": "dashboard",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/dashboard_cycle.json",
       "state": "off_hours",
-      "attempt_age_minutes": 1236.426,
-      "success_age_minutes": 32945.593,
+      "attempt_age_minutes": 1266.668,
+      "success_age_minutes": 32975.835,
       "consecutive_failures": 2,
       "critical": false,
       "healthy": false,
@@ -103,8 +132,8 @@
       "role": "publisher",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/publisher_cycle.json",
       "state": "success",
-      "attempt_age_minutes": 29.426,
-      "success_age_minutes": 29.426,
+      "attempt_age_minutes": 29.585,
+      "success_age_minutes": 29.585,
       "consecutive_failures": 0,
       "critical": true,
       "healthy": true,
@@ -115,15 +144,17 @@
     {
       "name": "race_schedule",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/official_live_ranking_20260825.json",
-      "age_minutes": 0.778,
+      "age_minutes": 27.951,
       "max_age_minutes": 8.0,
-      "healthy": true,
-      "issues": []
+      "healthy": false,
+      "issues": [
+        "missing_or_stale"
+      ]
     },
     {
       "name": "dashboard_json",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/manshu_system_dashboard_latest.json",
-      "age_minutes": 0.736,
+      "age_minutes": 5.011,
       "max_age_minutes": 15.0,
       "healthy": true,
       "issues": []
@@ -131,10 +162,12 @@
     {
       "name": "monitor_output",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/boaters_manshu_alerts_20260825.json",
-      "age_minutes": 0.743,
+      "age_minutes": 27.956,
       "max_age_minutes": 15.0,
-      "healthy": true,
-      "issues": []
+      "healthy": false,
+      "issues": [
+        "missing_or_stale"
+      ]
     }
   ],
   "semantic_checks": [
@@ -158,15 +191,27 @@
         "missing_inspection_race_ids": [],
         "duplicate_inspection_race_ids": [],
         "global_failures": [],
-        "due_race_count": 0,
+        "due_race_count": 1,
         "due_decision_required_count": 0,
         "due_complete_count": 0,
         "due_source_unavailable_count": 0,
-        "due_pending_count": 0,
+        "due_pending_count": 1,
         "due_incomplete_count": 0,
         "due_coverage_pct": 100.0,
         "all_due_complete": true,
-        "pending_due_races": [],
+        "pending_due_races": [
+          {
+            "race_id": "2026-08-251507",
+            "place_name": "丸亀",
+            "round": 7,
+            "minutes_to_deadline": 7.3,
+            "reasons": [
+              "original_boaters_data_not_verified",
+              "decision_incomplete:skip_incompatible_ai_source"
+            ],
+            "error": ""
+          }
+        ],
         "incomplete_due_races": [],
         "healthy": true
       }
@@ -182,32 +227,32 @@
     {
       "role": "live",
       "label": "com.mm1601.boaters-live-monitor",
-      "loaded": true,
-      "message": ""
+      "loaded": false,
+      "message": "Bad request.\nCould not find service \"com.mm1601.boaters-live-monitor\" in domain for user gui: 501"
     },
     {
       "role": "retry",
       "label": "com.mm1601.boaters-original-retry",
-      "loaded": true,
-      "message": ""
+      "loaded": false,
+      "message": "Bad request.\nCould not find service \"com.mm1601.boaters-original-retry\" in domain for user gui: 501"
     },
     {
       "role": "screenshot_post",
       "label": "com.mm1601.boaters-post-snapshot",
-      "loaded": true,
-      "message": ""
+      "loaded": false,
+      "message": "Bad request.\nCould not find service \"com.mm1601.boaters-post-snapshot\" in domain for user gui: 501"
     },
     {
       "role": "screenshot_import",
       "label": "com.mm1601.boaters-post-import",
-      "loaded": true,
-      "message": ""
+      "loaded": false,
+      "message": "Bad request.\nCould not find service \"com.mm1601.boaters-post-import\" in domain for user gui: 501"
     },
     {
       "role": "screenshot_archive",
       "label": "com.mm1601.boaters-exhibition-5m",
-      "loaded": true,
-      "message": ""
+      "loaded": false,
+      "message": "Bad request.\nCould not find service \"com.mm1601.boaters-exhibition-5m\" in domain for user gui: 501"
     },
     {
       "role": "dashboard",
@@ -224,8 +269,8 @@
     {
       "role": "screenshot_archive_import",
       "label": "com.mm1601.boaters-exhibition-5m-import",
-      "loaded": true,
-      "message": ""
+      "loaded": false,
+      "message": "Bad request.\nCould not find service \"com.mm1601.boaters-exhibition-5m-import\" in domain for user gui: 501"
     },
     {
       "role": "audit",
@@ -240,5 +285,30 @@
       "message": ""
     }
   ],
-  "repairs": []
+  "repairs": [
+    {
+      "role": "live",
+      "label": "com.mm1601.boaters-live-monitor",
+      "state": "failed",
+      "message": "Could not find service \"com.mm1601.boaters-live-monitor\" in domain for user gui: 501"
+    },
+    {
+      "role": "retry",
+      "label": "com.mm1601.boaters-original-retry",
+      "state": "failed",
+      "message": "Could not find service \"com.mm1601.boaters-original-retry\" in domain for user gui: 501"
+    },
+    {
+      "role": "screenshot_post",
+      "label": "com.mm1601.boaters-post-snapshot",
+      "state": "failed",
+      "message": "Could not find service \"com.mm1601.boaters-post-snapshot\" in domain for user gui: 501"
+    },
+    {
+      "role": "screenshot_import",
+      "label": "com.mm1601.boaters-post-import",
+      "state": "failed",
+      "message": "Could not find service \"com.mm1601.boaters-post-import\" in domain for user gui: 501"
+    }
+  ]
 }
