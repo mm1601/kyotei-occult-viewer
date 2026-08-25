@@ -1,8 +1,8 @@
 {
   "version": "manshu-system-dashboard-v1",
   "date": "2026-08-25",
-  "exported_at": "2026-08-25T19:11:10+09:00",
-  "source_generated_at": "2026-08-25T19:09:32+09:00",
+  "exported_at": "2026-08-25T19:41:44+09:00",
+  "source_generated_at": "2026-08-25T19:41:33+09:00",
   "source_monitor_file": "data/output/boaters_manshu_alerts_20260825.json",
   "system": {
     "name": "24場サイン管制盤",
@@ -15,32 +15,35 @@
     "lookahead_minutes": 10.0,
     "signal_count": 2,
     "monitored_count": 3,
-    "checked_count": 1,
-    "preview_ready_count": 1,
+    "checked_count": 0,
+    "preview_ready_count": 0,
     "fetch_failed_count": 0,
     "notifications_sent": 2,
     "notifications_failed": 0,
     "notifications_invalid": 0,
     "status_counts": {
-      "checked": 1,
+      "after_close_backfilled": 1,
       "outside_window": 2
     }
   },
   "runtime_health": {
     "version": "boaters-runtime-health-v1",
-    "generated_at": "2026-08-25T19:07:10+09:00",
+    "generated_at": "2026-08-25T19:37:31+09:00",
     "date": "2026-08-25",
     "active_window": true,
     "startup_warmup": false,
-    "active_minutes": 607.178,
+    "active_minutes": 637.527,
     "window": {
       "start": "09:00",
       "end": "21:00"
     },
-    "state": "degraded",
+    "state": "failed",
     "healthy": false,
-    "critical_issues": [],
+    "critical_issues": [
+      "cycle:screenshot_import:last_state_failed"
+    ],
     "warnings": [
+      "storage:free_space_below_warning_threshold",
       "cycle:dashboard:success_stale"
     ],
     "storage": {
@@ -48,23 +51,23 @@
       "reason": "ok",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime",
       "total_bytes": 245107195904,
-      "used_bytes": 227685855232,
-      "free_bytes": 17421340672,
-      "free_gib": 16.225,
+      "used_bytes": 229907410944,
+      "free_bytes": 15199784960,
+      "free_gib": 14.156,
       "minimum_free_bytes": 5368709120,
       "minimum_free_gib": 5.0,
       "write_probe": "ok",
       "warning_free_bytes": 16106127360,
       "warning_free_gib": 15.0,
-      "warning": false
+      "warning": true
     },
     "cycles": [
       {
         "role": "live",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/live_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 2.061,
-        "success_age_minutes": 2.061,
+        "attempt_age_minutes": 5.844,
+        "success_age_minutes": 5.844,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -74,8 +77,8 @@
         "role": "retry",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/retry_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 1.011,
-        "success_age_minutes": 1.011,
+        "attempt_age_minutes": 0.527,
+        "success_age_minutes": 0.527,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -84,9 +87,9 @@
       {
         "role": "screenshot_post",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_post_cycle.json",
-        "state": "success",
-        "attempt_age_minutes": 0.461,
-        "success_age_minutes": 0.461,
+        "state": "running",
+        "attempt_age_minutes": 2.244,
+        "success_age_minutes": 3.244,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -95,20 +98,22 @@
       {
         "role": "screenshot_import",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_import_cycle.json",
-        "state": "success",
-        "attempt_age_minutes": 0.244,
-        "success_age_minutes": 0.244,
-        "consecutive_failures": 0,
+        "state": "failed",
+        "attempt_age_minutes": 0.494,
+        "success_age_minutes": 6.36,
+        "consecutive_failures": 5,
         "critical": true,
-        "healthy": true,
-        "issues": []
+        "healthy": false,
+        "issues": [
+          "last_state_failed"
+        ]
       },
       {
         "role": "screenshot_archive",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_archive_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 3.278,
-        "success_age_minutes": 3.278,
+        "attempt_age_minutes": 3.294,
+        "success_age_minutes": 3.294,
         "consecutive_failures": 0,
         "critical": false,
         "healthy": true,
@@ -118,8 +123,8 @@
         "role": "dashboard",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/dashboard_cycle.json",
         "state": "off_hours",
-        "attempt_age_minutes": 1322.078,
-        "success_age_minutes": 33031.244,
+        "attempt_age_minutes": 1352.427,
+        "success_age_minutes": 33061.594,
         "consecutive_failures": 2,
         "critical": false,
         "healthy": false,
@@ -131,8 +136,8 @@
         "role": "publisher",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/publisher_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 8.028,
-        "success_age_minutes": 8.028,
+        "attempt_age_minutes": 25.327,
+        "success_age_minutes": 25.327,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -143,7 +148,7 @@
       {
         "name": "race_schedule",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/official_live_ranking_20260825.json",
-        "age_minutes": 1.057,
+        "age_minutes": 0.814,
         "max_age_minutes": 8.0,
         "healthy": true,
         "issues": []
@@ -151,7 +156,7 @@
       {
         "name": "dashboard_json",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/manshu_system_dashboard_latest.json",
-        "age_minutes": 1.014,
+        "age_minutes": 0.526,
         "max_age_minutes": 15.0,
         "healthy": true,
         "issues": []
@@ -159,7 +164,7 @@
       {
         "name": "monitor_output",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/boaters_manshu_alerts_20260825.json",
-        "age_minutes": 1.023,
+        "age_minutes": 0.56,
         "max_age_minutes": 15.0,
         "healthy": true,
         "issues": []
@@ -187,14 +192,26 @@
           "duplicate_inspection_race_ids": [],
           "global_failures": [],
           "due_race_count": 1,
-          "due_decision_required_count": 1,
-          "due_complete_count": 1,
+          "due_decision_required_count": 0,
+          "due_complete_count": 0,
           "due_source_unavailable_count": 0,
-          "due_pending_count": 0,
+          "due_pending_count": 1,
           "due_incomplete_count": 0,
           "due_coverage_pct": 100.0,
           "all_due_complete": true,
-          "pending_due_races": [],
+          "pending_due_races": [
+            {
+              "race_id": "2026-08-252010",
+              "place_name": "若松",
+              "round": 10,
+              "minutes_to_deadline": 2.3,
+              "reasons": [
+                "original_boaters_data_not_verified",
+                "decision_incomplete:skip_incompatible_ai_source"
+              ],
+              "error": ""
+            }
+          ],
           "incomplete_due_races": [],
           "healthy": true
         }
@@ -268,7 +285,13 @@
         "message": ""
       }
     ],
-    "repairs": []
+    "repairs": [
+      {
+        "role": "screenshot_import",
+        "label": "com.mm1601.boaters-post-import",
+        "state": "cooldown"
+      }
+    ]
   },
   "models": {
     "independent_probability": {
@@ -401,7 +424,7 @@
       "deadline_time": "2026-08-25T19:07:00+09:00",
       "detected_at": "2026-08-25T18:59:09+09:00",
       "first_minutes_to_deadline": 7.8,
-      "status": "pending_result",
+      "status": "miss",
       "notification_status": "duplicate_sent",
       "notification_sent_at": "2026-08-25T18:59:09+09:00",
       "notification_ok": true,
@@ -485,7 +508,7 @@
         "outer56_average_diff": -0.1817
       },
       "legacy_ev": {
-        "status": "awaiting_target_odds",
+        "status": "settled",
         "t10": {
           "available": false,
           "expected_roi_pct": null,
@@ -523,11 +546,11 @@
         }
       },
       "result": {
-        "trifecta": null,
-        "payout_yen": null,
-        "manshu": false,
-        "hit": null,
-        "profit_yen": null
+        "trifecta": "4-2-6",
+        "payout_yen": 37160,
+        "manshu": true,
+        "hit": false,
+        "profit_yen": -1000
       }
     },
     {
@@ -633,39 +656,37 @@
   ],
   "monitor": [
     {
-      "race_id": "2026-08-251510",
-      "venue": "丸亀",
+      "race_id": "2026-08-252010",
+      "venue": "若松",
       "round": 10,
-      "status": "checked",
-      "minutes_to_deadline": 8.5,
-      "preview_ready": true,
-      "fetch_reason": "alert_window",
-      "near_miss_level": "見送り",
-      "near_miss_summary": "展示後38%未満(0.00%)",
+      "status": "after_close_backfilled",
+      "minutes_to_deadline": -2.6,
+      "preview_ready": false,
+      "fetch_reason": "after_close_backfill",
+      "near_miss_level": "取得待ち",
+      "near_miss_summary": "展示5/6・1周/半周5/6のため本命判定前",
       "near_miss_reasons": [
-        "展示後38%未満(0.00%)"
+        "展示5/6・1周/半周5/6",
+        "展示・1周が揃ってから本命/見送りを確定"
       ],
-      "near_miss_positives": [
-        "1号艇人気: 未取得",
-        "1号艇展示弱化:OK"
-      ],
+      "near_miss_positives": [],
       "post_exhibition_manshu_rate_pct": 0.0,
       "heads": [
-        4,
-        5
+        3,
+        2
       ],
       "axes": [
-        4,
-        1
+        2,
+        3
       ],
-      "keshi": 3
+      "keshi": 4
     },
     {
-      "race_id": "2026-08-250110",
-      "venue": "桐生",
-      "round": 10,
+      "race_id": "2026-08-251511",
+      "venue": "丸亀",
+      "round": 11,
       "status": "outside_window",
-      "minutes_to_deadline": 19.5,
+      "minutes_to_deadline": 10.4,
       "preview_ready": false,
       "fetch_reason": null,
       "near_miss_level": null,
@@ -678,11 +699,11 @@
       "keshi": null
     },
     {
-      "race_id": "2026-08-252010",
-      "venue": "若松",
-      "round": 10,
+      "race_id": "2026-08-250111",
+      "venue": "桐生",
+      "round": 11,
       "status": "outside_window",
-      "minutes_to_deadline": 29.5,
+      "minutes_to_deadline": 21.4,
       "preview_ready": false,
       "fetch_reason": null,
       "near_miss_level": null,
@@ -708,15 +729,15 @@
     },
     "forward": {
       "entry_count": 39,
-      "pending_count": 1,
-      "settled_count": 38,
+      "pending_count": 0,
+      "settled_count": 39,
       "hit_count": 10,
-      "miss_count": 28,
-      "hit_rate_pct": 26.32,
-      "investment_yen": 41200,
+      "miss_count": 29,
+      "hit_rate_pct": 25.64,
+      "investment_yen": 42200,
       "payback_yen": 34080,
-      "profit_yen": -7120,
-      "roi_pct": 82.72,
+      "profit_yen": -8120,
+      "roi_pct": 80.76,
       "notification_sent_count": 2,
       "notification_duplicate_sent_count": 37,
       "notification_failed_count": 0,
@@ -724,8 +745,8 @@
       "avg_points": 10.82,
       "planned_stake_yen": 42200,
       "max_losing_streak": 10,
-      "current_losing_streak": 0,
-      "manshu_result_count": 8,
+      "current_losing_streak": 1,
+      "manshu_result_count": 9,
       "manshu_hit_count": 0,
       "first_signal_at": "2026-08-03T16:47:44+09:00",
       "last_signal_at": "2026-08-25T18:59:09+09:00",
@@ -828,17 +849,17 @@
           },
           "head56_unselected_ai_not_lower": {
             "decision_count": 33,
-            "pending_count": 1,
-            "settled_count": 32,
+            "pending_count": 0,
+            "settled_count": 33,
             "triggered_count": 0,
             "avoided_loss_count": 0,
             "skipped_hit_count": 0,
-            "baseline_investment_yen": 34000,
+            "baseline_investment_yen": 35000,
             "baseline_payback_yen": 29620,
-            "shadow_investment_yen": 34000,
+            "shadow_investment_yen": 35000,
             "shadow_payback_yen": 29620,
-            "baseline_roi_pct": 87.12,
-            "shadow_roi_pct": 87.12,
+            "baseline_roi_pct": 84.63,
+            "shadow_roi_pct": 84.63,
             "profit_delta_yen": 0
           },
           "legacy_ev_drop20_t10_to_t5": {
@@ -858,17 +879,17 @@
           },
           "multi_source_disagreement": {
             "decision_count": 33,
-            "pending_count": 1,
-            "settled_count": 32,
+            "pending_count": 0,
+            "settled_count": 33,
             "triggered_count": 3,
             "avoided_loss_count": 2,
             "skipped_hit_count": 1,
-            "baseline_investment_yen": 34000,
+            "baseline_investment_yen": 35000,
             "baseline_payback_yen": 29620,
-            "shadow_investment_yen": 30800,
+            "shadow_investment_yen": 31800,
             "shadow_payback_yen": 23790,
-            "baseline_roi_pct": 87.12,
-            "shadow_roi_pct": 77.24,
+            "baseline_roi_pct": 84.63,
+            "shadow_roi_pct": 74.81,
             "profit_delta_yen": -2630
           },
           "structural_and_both_models_ev_below100": {
@@ -888,32 +909,32 @@
           },
           "structural_and_multi_source_v1": {
             "decision_count": 33,
-            "pending_count": 1,
-            "settled_count": 32,
+            "pending_count": 0,
+            "settled_count": 33,
             "triggered_count": 0,
             "avoided_loss_count": 0,
             "skipped_hit_count": 0,
-            "baseline_investment_yen": 34000,
+            "baseline_investment_yen": 35000,
             "baseline_payback_yen": 29620,
-            "shadow_investment_yen": 34000,
+            "shadow_investment_yen": 35000,
             "shadow_payback_yen": 29620,
-            "baseline_roi_pct": 87.12,
-            "shadow_roi_pct": 87.12,
+            "baseline_roi_pct": 84.63,
+            "shadow_roi_pct": 84.63,
             "profit_delta_yen": 0
           },
           "structural_support_gap2": {
             "decision_count": 33,
-            "pending_count": 1,
-            "settled_count": 32,
+            "pending_count": 0,
+            "settled_count": 33,
             "triggered_count": 1,
             "avoided_loss_count": 1,
             "skipped_hit_count": 0,
-            "baseline_investment_yen": 34000,
+            "baseline_investment_yen": 35000,
             "baseline_payback_yen": 29620,
-            "shadow_investment_yen": 32800,
+            "shadow_investment_yen": 33800,
             "shadow_payback_yen": 29620,
-            "baseline_roi_pct": 87.12,
-            "shadow_roi_pct": 90.3,
+            "baseline_roi_pct": 84.63,
+            "shadow_roi_pct": 87.63,
             "profit_delta_yen": 1200
           },
           "synthetic_odds_below3_t5": {
@@ -953,19 +974,19 @@
         "policy_id": "structural_and_multi_source_v1",
         "active": true,
         "entry_count": 39,
-        "settled_count": 38,
+        "settled_count": 39,
         "skipped_count": 0,
         "avoided_loss_count": 0,
         "skipped_hit_count": 0,
-        "baseline_investment_yen": 41200,
+        "baseline_investment_yen": 42200,
         "baseline_payback_yen": 34080,
-        "baseline_roi_pct": 82.72,
-        "production_investment_yen": 41200,
+        "baseline_roi_pct": 80.76,
+        "production_investment_yen": 42200,
         "production_payback_yen": 34080,
-        "production_roi_pct": 82.72,
+        "production_roi_pct": 80.76,
         "profit_delta_yen": 0,
         "max_losing_streak": 10,
-        "current_losing_streak": 0
+        "current_losing_streak": 1
       },
       "ticket_ev_shadow": {
         "version": "original-boaters-24-ticket-ev-shadow-v1",
@@ -973,7 +994,7 @@
         "active": false,
         "notification_enabled": false,
         "entry_count": 39,
-        "settled_count": 38,
+        "settled_count": 39,
         "t10_snapshot_count": 0,
         "t10_complete_ticket_odds_count": 0,
         "t10_avg_portfolio_expected_roi_pct": null,
@@ -5770,14 +5791,14 @@
         },
         "若松": {
           "entry_count": 3,
-          "pending_count": 1,
-          "settled_count": 2,
+          "pending_count": 0,
+          "settled_count": 3,
           "hit_count": 0,
-          "miss_count": 2,
+          "miss_count": 3,
           "hit_rate_pct": 0.0,
-          "investment_yen": 2000,
+          "investment_yen": 3000,
           "payback_yen": 0,
-          "profit_yen": -2000,
+          "profit_yen": -3000,
           "roi_pct": 0.0,
           "notification_sent_count": 0,
           "notification_duplicate_sent_count": 3,
@@ -5785,9 +5806,9 @@
           "notification_pending_count": 0,
           "avg_points": 10.0,
           "planned_stake_yen": 3000,
-          "max_losing_streak": 2,
-          "current_losing_streak": 2,
-          "manshu_result_count": 0,
+          "max_losing_streak": 3,
+          "current_losing_streak": 3,
+          "manshu_result_count": 1,
           "manshu_hit_count": 0,
           "first_signal_at": "2026-08-11T19:43:55+09:00",
           "last_signal_at": "2026-08-25T18:59:09+09:00",
@@ -5890,14 +5911,14 @@
               },
               "head56_unselected_ai_not_lower": {
                 "decision_count": 3,
-                "pending_count": 1,
-                "settled_count": 2,
+                "pending_count": 0,
+                "settled_count": 3,
                 "triggered_count": 0,
                 "avoided_loss_count": 0,
                 "skipped_hit_count": 0,
-                "baseline_investment_yen": 2000,
+                "baseline_investment_yen": 3000,
                 "baseline_payback_yen": 0,
-                "shadow_investment_yen": 2000,
+                "shadow_investment_yen": 3000,
                 "shadow_payback_yen": 0,
                 "baseline_roi_pct": 0.0,
                 "shadow_roi_pct": 0.0,
@@ -5920,14 +5941,14 @@
               },
               "multi_source_disagreement": {
                 "decision_count": 3,
-                "pending_count": 1,
-                "settled_count": 2,
+                "pending_count": 0,
+                "settled_count": 3,
                 "triggered_count": 1,
                 "avoided_loss_count": 1,
                 "skipped_hit_count": 0,
-                "baseline_investment_yen": 2000,
+                "baseline_investment_yen": 3000,
                 "baseline_payback_yen": 0,
-                "shadow_investment_yen": 1000,
+                "shadow_investment_yen": 2000,
                 "shadow_payback_yen": 0,
                 "baseline_roi_pct": 0.0,
                 "shadow_roi_pct": 0.0,
@@ -5950,14 +5971,14 @@
               },
               "structural_and_multi_source_v1": {
                 "decision_count": 3,
-                "pending_count": 1,
-                "settled_count": 2,
+                "pending_count": 0,
+                "settled_count": 3,
                 "triggered_count": 0,
                 "avoided_loss_count": 0,
                 "skipped_hit_count": 0,
-                "baseline_investment_yen": 2000,
+                "baseline_investment_yen": 3000,
                 "baseline_payback_yen": 0,
-                "shadow_investment_yen": 2000,
+                "shadow_investment_yen": 3000,
                 "shadow_payback_yen": 0,
                 "baseline_roi_pct": 0.0,
                 "shadow_roi_pct": 0.0,
@@ -5965,14 +5986,14 @@
               },
               "structural_support_gap2": {
                 "decision_count": 3,
-                "pending_count": 1,
-                "settled_count": 2,
+                "pending_count": 0,
+                "settled_count": 3,
                 "triggered_count": 0,
                 "avoided_loss_count": 0,
                 "skipped_hit_count": 0,
-                "baseline_investment_yen": 2000,
+                "baseline_investment_yen": 3000,
                 "baseline_payback_yen": 0,
-                "shadow_investment_yen": 2000,
+                "shadow_investment_yen": 3000,
                 "shadow_payback_yen": 0,
                 "baseline_roi_pct": 0.0,
                 "shadow_roi_pct": 0.0,
@@ -6015,19 +6036,19 @@
             "policy_id": "structural_and_multi_source_v1",
             "active": true,
             "entry_count": 3,
-            "settled_count": 2,
+            "settled_count": 3,
             "skipped_count": 0,
             "avoided_loss_count": 0,
             "skipped_hit_count": 0,
-            "baseline_investment_yen": 2000,
+            "baseline_investment_yen": 3000,
             "baseline_payback_yen": 0,
             "baseline_roi_pct": 0.0,
-            "production_investment_yen": 2000,
+            "production_investment_yen": 3000,
             "production_payback_yen": 0,
             "production_roi_pct": 0.0,
             "profit_delta_yen": 0,
-            "max_losing_streak": 2,
-            "current_losing_streak": 2
+            "max_losing_streak": 3,
+            "current_losing_streak": 3
           },
           "ticket_ev_shadow": {
             "version": "original-boaters-24-ticket-ev-shadow-v1",
@@ -6035,7 +6056,7 @@
             "active": false,
             "notification_enabled": false,
             "entry_count": 3,
-            "settled_count": 2,
+            "settled_count": 3,
             "t10_snapshot_count": 0,
             "t10_complete_ticket_odds_count": 0,
             "t10_avg_portfolio_expected_roi_pct": null,
@@ -7064,17 +7085,17 @@
         "forward_start_date": "2026-08-01",
         "condition": "Ippan・桐生/江戸川除外・1号艇オッズ予測単独1位50%以上・平均との差マイナス・展示/1周/ST展示4位以下・外艇AI1着率20%以上",
         "buy_method": "外艇平均との差上位2艇を頭にした8点＋1号艇頭の押さえ4点（計12点）",
-        "updated_at": "2026-08-25T19:09:32+09:00",
+        "updated_at": "2026-08-25T19:41:33+09:00",
         "today": {
           "date": "2026-08-25",
           "source_available": true,
-          "audit_count": 111,
+          "audit_count": 113,
           "entry_count": 0,
           "entries": []
         },
         "coverage": {
-          "evaluated_races": 3558,
-          "source_ready_races": 3003,
+          "evaluated_races": 3560,
+          "source_ready_races": 3004,
           "daily_file_count": 24
         },
         "performance": {
