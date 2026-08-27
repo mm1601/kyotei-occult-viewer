@@ -1,14 +1,21 @@
 {
-  "version": "manshu-system-dashboard-v1",
+  "version": "manshu-system-dashboard-v2",
   "date": "2026-08-27",
-  "exported_at": "2026-08-27T20:57:23+09:00",
+  "exported_at": "2026-08-27T23:58:11+09:00",
   "source_generated_at": "2026-08-27T20:40:55+09:00",
   "source_monitor_file": "data/output/boaters_manshu_alerts_20260827.json",
   "system": {
     "name": "24場サイン管制盤",
     "mode": "all_races_venue_sign_only",
     "rule_set_id": "revised_boaters_24_v2",
+    "rule_version": "revised-boaters-24-rules-v4.7-kiryu-toda-edogawa-heiwajima-tamagawa-gamagori-mikuni-biwako-suminoe-naruto-marugame-kojima-tokuyama-shimonoseki-wakamatsu-ashiya-karatsu-omura-roi300",
     "notification_label": "改・24場サイン",
+    "rules_frozen_at": "2026-08-27T18:50:55+09:00",
+    "rules_source_period": {
+      "start": "2024-01-01",
+      "end": "2026-06-29"
+    },
+    "rules_calculated_at": "2026-08-27T19:30:00+09:00",
     "enabled_venues": 24,
     "excluded_venues": [],
     "live_source": "official",
@@ -27,37 +34,27 @@
   },
   "runtime_health": {
     "version": "boaters-runtime-health-v1",
-    "generated_at": "2026-08-27T20:57:21+09:00",
+    "generated_at": "2026-08-27T23:58:10+09:00",
     "date": "2026-08-27",
-    "active_window": true,
+    "active_window": false,
     "startup_warmup": false,
-    "active_minutes": 717.363,
+    "active_minutes": null,
     "window": {
       "start": "09:00",
       "end": "21:00"
     },
-    "state": "failed",
-    "healthy": false,
-    "critical_issues": [
-      "cycle:live:last_state_preflight_failed",
-      "cycle:screenshot_post:attempt_stale,success_stale",
-      "artifact:race_schedule:missing_or_stale",
-      "artifact:monitor_output:missing_or_stale",
-      "launchd:screenshot_post:not_loaded",
-      "launchd:screenshot_archive:not_loaded"
-    ],
-    "warnings": [
-      "cycle:screenshot_archive:attempt_stale",
-      "cycle:dashboard:success_stale"
-    ],
+    "state": "healthy",
+    "healthy": true,
+    "critical_issues": [],
+    "warnings": [],
     "storage": {
       "healthy": true,
       "reason": "ok",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime",
       "total_bytes": 245107195904,
-      "used_bytes": 206949097472,
-      "free_bytes": 38158098432,
-      "free_gib": 35.537,
+      "used_bytes": 210819256320,
+      "free_bytes": 34287939584,
+      "free_gib": 31.933,
       "minimum_free_bytes": 5368709120,
       "minimum_free_gib": 5.0,
       "write_probe": "ok",
@@ -69,71 +66,74 @@
       {
         "role": "live",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/live_cycle.json",
-        "state": "preflight_failed",
-        "attempt_age_minutes": 3.597,
-        "success_age_minutes": 19.697,
-        "consecutive_failures": 3,
+        "state": "off_hours",
+        "attempt_age_minutes": 4.163,
+        "success_age_minutes": 200.513,
+        "consecutive_failures": 4,
         "critical": true,
         "healthy": false,
         "issues": [
-          "last_state_preflight_failed"
+          "success_stale"
         ]
       },
       {
         "role": "retry",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/retry_cycle.json",
-        "state": "waiting_for_schedule",
-        "attempt_age_minutes": 0.313,
-        "success_age_minutes": 16.397,
-        "consecutive_failures": 6,
+        "state": "off_hours",
+        "attempt_age_minutes": 0.33,
+        "success_age_minutes": 197.213,
+        "consecutive_failures": 8,
         "critical": true,
-        "healthy": true,
-        "issues": []
+        "healthy": false,
+        "issues": [
+          "success_stale"
+        ]
       },
       {
         "role": "screenshot_post",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_post_cycle.json",
-        "state": "success",
-        "attempt_age_minutes": 20.813,
-        "success_age_minutes": 20.813,
+        "state": "off_hours",
+        "attempt_age_minutes": 0.546,
+        "success_age_minutes": 201.63,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": false,
         "issues": [
-          "attempt_stale",
           "success_stale"
         ]
       },
       {
         "role": "screenshot_import",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_import_cycle.json",
-        "state": "success",
-        "attempt_age_minutes": 1.013,
-        "success_age_minutes": 1.013,
+        "state": "off_hours",
+        "attempt_age_minutes": 0.913,
+        "success_age_minutes": 177.813,
         "consecutive_failures": 0,
         "critical": true,
-        "healthy": true,
-        "issues": []
+        "healthy": false,
+        "issues": [
+          "success_stale"
+        ]
       },
       {
         "role": "screenshot_archive",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_archive_cycle.json",
-        "state": "success",
-        "attempt_age_minutes": 24.18,
-        "success_age_minutes": 24.18,
+        "state": "off_hours",
+        "attempt_age_minutes": 1.596,
+        "success_age_minutes": 204.996,
         "consecutive_failures": 0,
         "critical": false,
         "healthy": false,
         "issues": [
-          "attempt_stale"
+          "success_stale"
         ]
       },
       {
         "role": "dashboard",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/dashboard_cycle.json",
         "state": "off_hours",
-        "attempt_age_minutes": 1432.28,
-        "success_age_minutes": 36021.43,
+        "attempt_age_minutes": 173.163,
+        "success_age_minutes": 36202.246,
         "consecutive_failures": 2,
         "critical": false,
         "healthy": false,
@@ -145,19 +145,22 @@
         "role": "publisher",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/publisher_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 15.18,
-        "success_age_minutes": 15.18,
+        "attempt_age_minutes": 176.013,
+        "success_age_minutes": 176.013,
         "consecutive_failures": 0,
         "critical": true,
-        "healthy": true,
-        "issues": []
+        "healthy": false,
+        "issues": [
+          "attempt_stale",
+          "success_stale"
+        ]
       }
     ],
     "artifacts": [
       {
         "name": "race_schedule",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/official_live_ranking_20260827.json",
-        "age_minutes": 16.481,
+        "age_minutes": 197.297,
         "max_age_minutes": 8.0,
         "healthy": false,
         "issues": [
@@ -167,7 +170,7 @@
       {
         "name": "dashboard_json",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/manshu_system_dashboard_latest.json",
-        "age_minutes": 5.023,
+        "age_minutes": 5.006,
         "max_age_minutes": 15.0,
         "healthy": true,
         "issues": []
@@ -175,7 +178,7 @@
       {
         "name": "monitor_output",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/boaters_manshu_alerts_20260827.json",
-        "age_minutes": 16.397,
+        "age_minutes": 197.213,
         "max_age_minutes": 15.0,
         "healthy": false,
         "issues": [
@@ -240,8 +243,8 @@
       {
         "role": "screenshot_post",
         "label": "com.mm1601.boaters-post-snapshot",
-        "loaded": false,
-        "message": "Bad request.\nCould not find service \"com.mm1601.boaters-post-snapshot\" in domain for user gui: 501"
+        "loaded": true,
+        "message": ""
       },
       {
         "role": "screenshot_import",
@@ -252,8 +255,8 @@
       {
         "role": "screenshot_archive",
         "label": "com.mm1601.boaters-exhibition-5m",
-        "loaded": false,
-        "message": "Bad request.\nCould not find service \"com.mm1601.boaters-exhibition-5m\" in domain for user gui: 501"
+        "loaded": true,
+        "message": ""
       },
       {
         "role": "dashboard",
@@ -286,20 +289,7 @@
         "message": ""
       }
     ],
-    "repairs": [
-      {
-        "role": "live",
-        "label": "com.mm1601.boaters-live-monitor",
-        "state": "kicked",
-        "message": ""
-      },
-      {
-        "role": "screenshot_post",
-        "label": "com.mm1601.boaters-post-snapshot",
-        "state": "failed",
-        "message": "Could not find service \"com.mm1601.boaters-post-snapshot\" in domain for user gui: 501"
-      }
-    ]
+    "repairs": []
   },
   "models": {
     "independent_probability": {
@@ -442,6 +432,10 @@
       "data_quality_invalid": false,
       "data_quality_invalidation_reason": null,
       "rule_status": "active",
+      "rule_set_id": "revised_boaters_24_v2",
+      "rule_version": "revised-boaters-24-rules-v4.7-kiryu-toda-edogawa-heiwajima-tamagawa-gamagori-mikuni-biwako-suminoe-naruto-marugame-kojima-tokuyama-shimonoseki-wakamatsu-ashiya-karatsu-omura-roi300",
+      "notification_label": "改・24場サイン",
+      "current_rule": true,
       "rule_id": "revised_boaters_24_v2:蒲郡:outer56lap015_wave3_tempgap2_outeraigap0:head56_h2_no1:8",
       "condition": "波高3cm以上・5/6号艇の一周平均との差最大+0.15以上・水温と気温の差2度以下・3〜6号艇のAI3連対率と一般戦3連対率の最大差0以上",
       "buy_method": "5・6号艇をともに頭候補・1号艇全消し・複合評価上位8点",
@@ -578,6 +572,10 @@
       "data_quality_invalid": false,
       "data_quality_invalidation_reason": null,
       "rule_status": "active",
+      "rule_set_id": "revised_boaters_24_v2",
+      "rule_version": "revised-boaters-24-rules-v4.7-kiryu-toda-edogawa-heiwajima-tamagawa-gamagori-mikuni-biwako-suminoe-naruto-marugame-kojima-tokuyama-shimonoseki-wakamatsu-ashiya-karatsu-omura-roi300",
+      "notification_label": "改・24場サイン",
+      "current_rule": true,
       "rule_id": "revised_boaters_24_v2:平和島:b1tenji5_outerlap1_b2odds15_wind5_wave3_b2ai3_55_outer56avg005:head56_h2_no1:8",
       "condition": "1号艇展示順位5位以下・3〜6号艇に一周タイム1位・2号艇オッズ予測率15%以上・風速5m以下・波高3cm以下・2号艇AI3連対率55%以上・5/6号艇の一周平均との差最大+0.05以上",
       "buy_method": "5・6号艇を頭候補・1号艇全消し・複合評価上位8点",
@@ -713,6 +711,10 @@
       "data_quality_invalid": false,
       "data_quality_invalidation_reason": null,
       "rule_status": "active",
+      "rule_set_id": "revised_boaters_24_v2",
+      "rule_version": "revised-boaters-24-rules-v4.7-kiryu-toda-edogawa-heiwajima-tamagawa-gamagori-mikuni-biwako-suminoe-naruto-marugame-kojima-tokuyama-shimonoseki-wakamatsu-ashiya-karatsu-omura-roi300",
+      "notification_label": "改・24場サイン",
+      "current_rule": true,
       "rule_id": "revised_boaters_24_v2:尼崎:b1nige25_b1ai25_overbet0_head56score10:head56_h1_no1:3",
       "condition": "1号艇逃げ率25%以下・1号艇AI1着率25%以下・1号艇支持率−AI1着率0ポイント以上・5/6号艇の複合勝ちスコア最大10以上",
       "buy_method": "5・6号艇の複合評価上位を頭・1号艇全消し・複合評価上位3点",
@@ -6983,10 +6985,15 @@
     },
     "historical_24_sign": {
       "rule_set_id": "revised_boaters_24_v2",
+      "rule_version": "revised-boaters-24-rules-v4.7-kiryu-toda-edogawa-heiwajima-tamagawa-gamagori-mikuni-biwako-suminoe-naruto-marugame-kojima-tokuyama-shimonoseki-wakamatsu-ashiya-karatsu-omura-roi300",
+      "notification_label": "改・24場サイン",
+      "frozen_at": "2026-08-27T18:50:55+09:00",
       "source_period": {
         "start": "2024-01-01",
         "end": "2026-06-29"
       },
+      "calculated_at": "2026-08-27T19:30:00+09:00",
+      "unit_stake_per_ticket_yen": 100,
       "race_count": 3009,
       "hits": 324,
       "hit_rate_pct": 10.768,
@@ -6995,7 +7002,43 @@
       "profit_yen": 4588070,
       "roi_pct": 407.614,
       "max_losing_streak": 78,
-      "max_losing_streak_investment_yen": 36400
+      "max_losing_streak_investment_yen": 36400,
+      "yearly": {
+        "2024": {
+          "races": 1114,
+          "hits": 112,
+          "hit_rate_pct": 10.054,
+          "investment_yen": 554000,
+          "payback_yen": 2054470,
+          "profit_yen": 1500470,
+          "roi_pct": 370.843,
+          "max_losing_streak": 38,
+          "max_losing_streak_investment_yen": 19100
+        },
+        "2025": {
+          "races": 1253,
+          "hits": 129,
+          "hit_rate_pct": 10.295,
+          "investment_yen": 614700,
+          "payback_yen": 2662410,
+          "profit_yen": 2047710,
+          "roi_pct": 433.123,
+          "max_losing_streak": 78,
+          "max_losing_streak_investment_yen": 36400
+        },
+        "2026": {
+          "partial_year": true,
+          "races": 642,
+          "hits": 83,
+          "hit_rate_pct": 12.928,
+          "investment_yen": 322800,
+          "payback_yen": 1362690,
+          "profit_yen": 1039890,
+          "roi_pct": 422.147,
+          "max_losing_streak": 33,
+          "max_losing_streak_investment_yen": 17000
+        }
+      }
     },
     "probability_baseline": {
       "race_count": 28681,
