@@ -399,10 +399,10 @@
       if(historical){
         var day=d.history_day||{},missing=day.status==="unavailable",rebuilt=day.status==="historical_backfill",summary=activeDaySummary(),statusName=day.status==="historical_complete"?"過去検証":(rebuilt?"欠損日再構成":(day.status==="forward_complete"?"実運用ログ":"未収集"));
         document.getElementById("live-dot").className="live-dot"+(missing?" stale":"");document.getElementById("system-status").textContent=missing?"元データなし":"過去データ";
-        document.getElementById("mast-meta").textContent=d.date+" / "+statusName+" / 24場サイン履歴";
-        document.querySelector("#status-strip .status-main").textContent=missing?"この日は元データがありません":(rebuilt?"保存済みデータから再構成した結果です":(summary.signals?"過去の24場サインを表示中":"検証済み・該当0件"));
+        document.getElementById("mast-meta").textContent=d.date+" / "+statusName+" / "+signLabel()+"履歴";
+        document.querySelector("#status-strip .status-main").textContent=missing?"この日は元データがありません":(rebuilt?"保存済みデータから再構成した結果です":(summary.signals?"過去の"+signLabel()+"を表示中":"検証済み・該当0件"));
         document.querySelector("#status-strip .status-sub").textContent=statusName+" / サイン "+num(summary.signals,0)+"R / 結果確定 "+num(summary.settled,0)+"R"+(rebuilt?" / 実通知ではありません":"");badge.textContent=missing?"未収集":(rebuilt?"再構成":"記録済み");badge.className="status-badge"+(missing||rebuilt?" warn":"");
-        document.getElementById("kpi-signals-label").textContent="この日の24場サイン";document.getElementById("kpi-signals").textContent=num(summary.signals,0)+"R";document.getElementById("kpi-signals-note").textContent=missing?"未収集日":(rebuilt?"事後再構成":"条件成立レース");
+        document.getElementById("kpi-signals-label").textContent="この日の"+signLabel();document.getElementById("kpi-signals").textContent=num(summary.signals,0)+"R";document.getElementById("kpi-signals-note").textContent=missing?"未収集日":(rebuilt?"事後再構成":"条件成立レース");
         document.getElementById("kpi-monitored-label").textContent="買い目合計";document.getElementById("kpi-monitored").textContent=num(summary.points,0)+"点";document.getElementById("kpi-monitored-note").textContent="100円/点なら "+yen(summary.points*100);
         document.getElementById("kpi-notified-label").textContent="的中";document.getElementById("kpi-notified").textContent=num(summary.hits,0)+"件";document.getElementById("kpi-notified-note").textContent="結果確定 "+num(summary.settled,0)+"R";
         document.getElementById("kpi-forward-label").textContent="日別収支";document.getElementById("kpi-forward").textContent=summary.profit_yen==null?"-":(summary.profit_yen>=0?"+":"")+yen(summary.profit_yen);document.getElementById("kpi-forward-note").textContent=summary.roi_pct==null?"集計対象なし":"回収率 "+pct(summary.roi_pct,1);
