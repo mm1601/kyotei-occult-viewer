@@ -1,19 +1,19 @@
 {
   "version": "manshu-delivery-audit-v1",
   "date": "2026-09-04",
-  "generated_at": "2026-09-04T20:40:20+09:00",
+  "generated_at": "2026-09-04T21:00:53+09:00",
   "active_window": true,
   "overall": {
-    "state": "failed",
-    "healthy": false,
-    "critical_count": 5,
+    "state": "normal",
+    "healthy": true,
+    "critical_count": 0,
     "warning_count": 0,
-    "label": "工程不一致あり"
+    "label": "全工程一致"
   },
   "summary": {
-    "expected_races": 3,
-    "inspected_races": 3,
-    "due_races": 2,
+    "expected_races": 1,
+    "inspected_races": 1,
+    "due_races": 0,
     "capture_verified_races": 0,
     "decision_complete_races": 0,
     "raw_signal_rows": 0,
@@ -35,28 +35,28 @@
     {
       "id": "inspection",
       "label": "監視照合",
-      "actual": 3,
-      "expected": 3,
+      "actual": 1,
+      "expected": 1,
       "coverage_pct": 100.0,
       "state": "ok",
-      "note": "予定3Rに対して監視結果3R"
+      "note": "予定1Rに対して監視結果1R"
     },
     {
       "id": "capture",
       "label": "展示取得確認",
       "actual": 0,
-      "expected": 2,
-      "coverage_pct": 0.0,
-      "state": "failed",
-      "note": "締切圏内2Rの取得本人性を照合"
+      "expected": 0,
+      "coverage_pct": null,
+      "state": "not_applicable",
+      "note": "締切圏内0Rの取得本人性を照合"
     },
     {
       "id": "decision",
       "label": "判定完了",
       "actual": 0,
-      "expected": 2,
-      "coverage_pct": 0.0,
-      "state": "failed",
+      "expected": 0,
+      "coverage_pct": null,
+      "state": "not_applicable",
       "note": "取得済みだけでなく判定完了まで確認"
     },
     {
@@ -123,213 +123,14 @@
       "note": "publisher success"
     }
   ],
-  "issues": [
-    {
-      "severity": "critical",
-      "code": "runtime_health_failed",
-      "stage": "runtime",
-      "race_id": null,
-      "message": "自動監査が3件の基盤異常を検知",
-      "action": "自動監査の異常一覧を確認"
-    },
-    {
-      "severity": "critical",
-      "code": "capture_not_verified",
-      "stage": "capture",
-      "race_id": "2026-09-040712",
-      "message": "蒲郡12RのBOATERS取得確認が未完了",
-      "action": "スクリーンショット取得・本人性検証を再確認"
-    },
-    {
-      "severity": "critical",
-      "code": "decision_incomplete",
-      "stage": "decision",
-      "race_id": "2026-09-040712",
-      "message": "蒲郡12Rの判定が未完了",
-      "action": "alert_window"
-    },
-    {
-      "severity": "critical",
-      "code": "capture_not_verified",
-      "stage": "capture",
-      "race_id": "2026-09-042012",
-      "message": "若松12RのBOATERS取得確認が未完了",
-      "action": "スクリーンショット取得・本人性検証を再確認"
-    },
-    {
-      "severity": "critical",
-      "code": "decision_incomplete",
-      "stage": "decision",
-      "race_id": "2026-09-042012",
-      "message": "若松12Rの判定が未完了",
-      "action": "alert_window"
-    }
-  ],
+  "issues": [],
   "races": [
     {
-      "race_id": "2026-09-040712",
-      "venue": "蒲郡",
-      "round": 12,
-      "deadline_time": "2026-09-04T20:38:00+09:00",
-      "minutes_to_deadline": 1.1,
-      "scheduled": true,
-      "inspected": true,
-      "due": true,
-      "state": "failed",
-      "acquisition": {
-        "state": "failed",
-        "data_ready": false,
-        "capture_verified": false,
-        "verified_at": null
-      },
-      "decision": {
-        "state": "failed",
-        "complete": false,
-        "status": "checked",
-        "reason": "alert_window"
-      },
-      "signal": {
-        "state": "not_decided",
-        "source_family": null,
-        "rule_id": null,
-        "points": null,
-        "tickets": [],
-        "detected_at": null
-      },
-      "notification": {
-        "required": false,
-        "state": "not_applicable",
-        "status": null,
-        "sent_at": null
-      },
-      "purchase": {
-        "required": false,
-        "state": "not_applicable",
-        "orders": 0,
-        "unique_orders": 0
-      },
-      "ledger": {
-        "required": false,
-        "state": "not_applicable",
-        "records": 0
-      },
-      "dashboard": {
-        "required": false,
-        "state": "not_applicable",
-        "records": 0
-      },
-      "result": {
-        "required": false,
-        "state": "waiting",
-        "status": null,
-        "trifecta": null,
-        "payout_yen": null,
-        "settled_at": null
-      },
-      "issues": [
-        {
-          "severity": "critical",
-          "code": "capture_not_verified",
-          "stage": "capture",
-          "race_id": "2026-09-040712",
-          "message": "蒲郡12RのBOATERS取得確認が未完了",
-          "action": "スクリーンショット取得・本人性検証を再確認"
-        },
-        {
-          "severity": "critical",
-          "code": "decision_incomplete",
-          "stage": "decision",
-          "race_id": "2026-09-040712",
-          "message": "蒲郡12Rの判定が未完了",
-          "action": "alert_window"
-        }
-      ]
-    },
-    {
-      "race_id": "2026-09-042012",
-      "venue": "若松",
-      "round": 12,
-      "deadline_time": "2026-09-04T20:45:00+09:00",
-      "minutes_to_deadline": 8.1,
-      "scheduled": true,
-      "inspected": true,
-      "due": true,
-      "state": "failed",
-      "acquisition": {
-        "state": "failed",
-        "data_ready": false,
-        "capture_verified": false,
-        "verified_at": null
-      },
-      "decision": {
-        "state": "failed",
-        "complete": false,
-        "status": "checked",
-        "reason": "alert_window"
-      },
-      "signal": {
-        "state": "not_decided",
-        "source_family": null,
-        "rule_id": null,
-        "points": null,
-        "tickets": [],
-        "detected_at": null
-      },
-      "notification": {
-        "required": false,
-        "state": "not_applicable",
-        "status": null,
-        "sent_at": null
-      },
-      "purchase": {
-        "required": false,
-        "state": "not_applicable",
-        "orders": 0,
-        "unique_orders": 0
-      },
-      "ledger": {
-        "required": false,
-        "state": "not_applicable",
-        "records": 0
-      },
-      "dashboard": {
-        "required": false,
-        "state": "not_applicable",
-        "records": 0
-      },
-      "result": {
-        "required": false,
-        "state": "waiting",
-        "status": null,
-        "trifecta": null,
-        "payout_yen": null,
-        "settled_at": null
-      },
-      "issues": [
-        {
-          "severity": "critical",
-          "code": "capture_not_verified",
-          "stage": "capture",
-          "race_id": "2026-09-042012",
-          "message": "若松12RのBOATERS取得確認が未完了",
-          "action": "スクリーンショット取得・本人性検証を再確認"
-        },
-        {
-          "severity": "critical",
-          "code": "decision_incomplete",
-          "stage": "decision",
-          "race_id": "2026-09-042012",
-          "message": "若松12Rの判定が未完了",
-          "action": "alert_window"
-        }
-      ]
-    },
-    {
-      "race_id": "2026-09-042408",
+      "race_id": "2026-09-042409",
       "venue": "大村",
-      "round": 8,
-      "deadline_time": "2026-09-04T20:59:00+09:00",
-      "minutes_to_deadline": 22.1,
+      "round": 9,
+      "deadline_time": "2026-09-04T21:25:00+09:00",
+      "minutes_to_deadline": 24.2,
       "scheduled": true,
       "inspected": true,
       "due": false,
@@ -394,8 +195,8 @@
       "path": "data/output/official_live_ranking_20260904.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-09-04T20:40:17+09:00",
-      "age_minutes": 0.1,
+      "timestamp": "2026-09-04T21:00:39+09:00",
+      "age_minutes": 0.2,
       "max_age_minutes": 8.0,
       "state": "ok"
     },
@@ -405,8 +206,8 @@
       "path": "data/output/boaters_manshu_alerts_20260904.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-09-04T20:36:55+09:00",
-      "age_minutes": 3.4,
+      "timestamp": "2026-09-04T21:00:50+09:00",
+      "age_minutes": 0.1,
       "max_age_minutes": 15.0,
       "state": "ok"
     },
@@ -416,8 +217,8 @@
       "path": "data/output/manshu_monitor_health.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-09-04T20:40:16+09:00",
-      "age_minutes": 0.1,
+      "timestamp": "2026-09-04T21:00:27+09:00",
+      "age_minutes": 0.4,
       "max_age_minutes": 8.0,
       "state": "ok"
     },
@@ -427,8 +228,8 @@
       "path": "data/output/forward_validation/revised_boaters_24_v2_forward_20260904.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-09-04T20:36:55+09:00",
-      "age_minutes": 3.4,
+      "timestamp": "2026-09-04T21:00:50+09:00",
+      "age_minutes": 0.1,
       "max_age_minutes": null,
       "state": "ok"
     },
@@ -438,8 +239,8 @@
       "path": "data/output/forward_validation/core_focus_forward_20260904.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-09-04T20:36:55+09:00",
-      "age_minutes": 3.4,
+      "timestamp": "2026-09-04T21:00:50+09:00",
+      "age_minutes": 0.1,
       "max_age_minutes": null,
       "state": "ok"
     },
@@ -449,8 +250,8 @@
       "path": "data/output/manshu_purchase_queue_latest.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-09-04T20:36:55+09:00",
-      "age_minutes": 3.4,
+      "timestamp": "2026-09-04T21:00:50+09:00",
+      "age_minutes": 0.1,
       "max_age_minutes": null,
       "state": "ok"
     },
@@ -460,7 +261,7 @@
       "path": "data/output/manshu_forward_ledger.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-09-04T20:40:18+09:00",
+      "timestamp": "2026-09-04T21:00:53+09:00",
       "age_minutes": 0.0,
       "max_age_minutes": null,
       "state": "ok"
@@ -471,27 +272,23 @@
       "path": "data/output/manshu_system_dashboard_latest.json",
       "exists": true,
       "required": true,
-      "timestamp": "2026-09-04T20:40:18+09:00",
+      "timestamp": "2026-09-04T21:00:53+09:00",
       "age_minutes": 0.0,
       "max_age_minutes": 15.0,
       "state": "ok"
     }
   ],
   "runtime": {
-    "state": "failed",
+    "state": "degraded",
     "healthy": false,
-    "critical_issues": [
-      "cycle:retry:last_state_failed",
-      "cycle:screenshot_post:last_state_timeout",
-      "semantic:monitor_decision_integrity:due_races_not_fully_decided,monitor_integrity_unhealthy"
-    ],
+    "critical_issues": [],
     "cycles": [
       {
         "role": "live",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/live_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 4.581,
-        "success_age_minutes": 4.581,
+        "attempt_age_minutes": 1.411,
+        "success_age_minutes": 1.411,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -500,35 +297,31 @@
       {
         "role": "retry",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/retry_cycle.json",
-        "state": "failed",
-        "attempt_age_minutes": 1.331,
-        "success_age_minutes": 6.381,
-        "consecutive_failures": 1,
+        "state": "success",
+        "attempt_age_minutes": 0.811,
+        "success_age_minutes": 0.811,
+        "consecutive_failures": 0,
         "critical": true,
-        "healthy": false,
-        "issues": [
-          "last_state_failed"
-        ]
+        "healthy": true,
+        "issues": []
       },
       {
         "role": "screenshot_post",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_post_cycle.json",
-        "state": "timeout",
-        "attempt_age_minutes": 0.631,
-        "success_age_minutes": 12.764,
-        "consecutive_failures": 3,
+        "state": "success",
+        "attempt_age_minutes": 0.461,
+        "success_age_minutes": 0.461,
+        "consecutive_failures": 0,
         "critical": true,
-        "healthy": false,
-        "issues": [
-          "last_state_timeout"
-        ]
+        "healthy": true,
+        "issues": []
       },
       {
         "role": "screenshot_import",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_import_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 0.797,
-        "success_age_minutes": 0.797,
+        "attempt_age_minutes": 0.861,
+        "success_age_minutes": 0.861,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -538,8 +331,8 @@
         "role": "screenshot_archive",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_archive_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 4.564,
-        "success_age_minutes": 4.564,
+        "attempt_age_minutes": 4.544,
+        "success_age_minutes": 4.544,
         "consecutive_failures": 0,
         "critical": false,
         "healthy": true,
@@ -549,8 +342,8 @@
         "role": "dashboard",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/dashboard_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 443.664,
-        "success_age_minutes": 443.664,
+        "attempt_age_minutes": 463.844,
+        "success_age_minutes": 463.844,
         "consecutive_failures": 0,
         "critical": false,
         "healthy": true,
@@ -560,8 +353,8 @@
         "role": "publisher",
         "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/publisher_cycle.json",
         "state": "success",
-        "attempt_age_minutes": 28.014,
-        "success_age_minutes": 28.014,
+        "attempt_age_minutes": 18.177,
+        "success_age_minutes": 18.177,
         "consecutive_failures": 0,
         "critical": true,
         "healthy": true,
@@ -572,8 +365,8 @@
       "role": "publisher",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/publisher_cycle.json",
       "state": "success",
-      "attempt_age_minutes": 28.014,
-      "success_age_minutes": 28.014,
+      "attempt_age_minutes": 18.177,
+      "success_age_minutes": 18.177,
       "consecutive_failures": 0,
       "critical": true,
       "healthy": true,
