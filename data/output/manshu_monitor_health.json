@@ -1,10 +1,10 @@
 {
   "version": "boaters-runtime-health-v1",
-  "generated_at": "2026-09-13T14:41:41+09:00",
+  "generated_at": "2026-09-13T15:07:11+09:00",
   "date": "2026-09-13",
   "active_window": true,
   "startup_warmup": false,
-  "active_minutes": 341.697,
+  "active_minutes": 367.196,
   "window": {
     "start": "09:00",
     "end": "21:00"
@@ -14,7 +14,6 @@
   "critical_issues": [
     "cycle:live:success_stale,last_state_preflight_failed",
     "cycle:retry:success_stale,last_state_preflight_failed",
-    "cycle:screenshot_post:success_stale,last_state_timeout",
     "artifact:race_schedule:missing_or_stale",
     "artifact:dashboard_json:missing_or_stale",
     "artifact:monitor_output:missing_or_stale",
@@ -29,9 +28,9 @@
     "reason": "ok",
     "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime",
     "total_bytes": 245107195904,
-    "used_bytes": 221632335872,
-    "free_bytes": 23474860032,
-    "free_gib": 21.863,
+    "used_bytes": 222581452800,
+    "free_bytes": 22525743104,
+    "free_gib": 20.979,
     "minimum_free_bytes": 5368709120,
     "minimum_free_gib": 5.0,
     "write_probe": "ok",
@@ -44,9 +43,9 @@
       "role": "live",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/live_cycle.json",
       "state": "preflight_failed",
-      "attempt_age_minutes": 3.53,
-      "success_age_minutes": 2538.813,
-      "consecutive_failures": 82,
+      "attempt_age_minutes": 5.03,
+      "success_age_minutes": 2564.313,
+      "consecutive_failures": 87,
       "critical": true,
       "healthy": false,
       "issues": [
@@ -58,9 +57,9 @@
       "role": "retry",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/retry_cycle.json",
       "state": "preflight_failed",
-      "attempt_age_minutes": 2.513,
-      "success_age_minutes": 2533.547,
-      "consecutive_failures": 165,
+      "attempt_age_minutes": 2.463,
+      "success_age_minutes": 2559.046,
+      "consecutive_failures": 175,
       "critical": true,
       "healthy": false,
       "issues": [
@@ -71,23 +70,20 @@
     {
       "role": "screenshot_post",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_post_cycle.json",
-      "state": "timeout",
-      "attempt_age_minutes": 0.947,
-      "success_age_minutes": 2542.413,
-      "consecutive_failures": 86,
+      "state": "running",
+      "attempt_age_minutes": 0.98,
+      "success_age_minutes": 2567.913,
+      "consecutive_failures": 91,
       "critical": true,
-      "healthy": false,
-      "issues": [
-        "success_stale",
-        "last_state_timeout"
-      ]
+      "healthy": true,
+      "issues": []
     },
     {
       "role": "screenshot_import",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_import_cycle.json",
       "state": "success",
-      "attempt_age_minutes": 0.463,
-      "success_age_minutes": 0.463,
+      "attempt_age_minutes": 0.68,
+      "success_age_minutes": 0.68,
       "consecutive_failures": 0,
       "critical": true,
       "healthy": true,
@@ -97,8 +93,8 @@
       "role": "screenshot_archive",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/screenshot_archive_cycle.json",
       "state": "success",
-      "attempt_age_minutes": 0.23,
-      "success_age_minutes": 0.23,
+      "attempt_age_minutes": 0.596,
+      "success_age_minutes": 0.596,
       "consecutive_failures": 0,
       "critical": false,
       "healthy": true,
@@ -108,8 +104,8 @@
       "role": "dashboard",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/dashboard_cycle.json",
       "state": "failed",
-      "attempt_age_minutes": 1050.53,
-      "success_age_minutes": 1050.547,
+      "attempt_age_minutes": 1076.03,
+      "success_age_minutes": 1076.046,
       "consecutive_failures": 1,
       "critical": false,
       "healthy": false,
@@ -121,8 +117,8 @@
       "role": "publisher",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/runtime/publisher_cycle.json",
       "state": "success",
-      "attempt_age_minutes": 29.547,
-      "success_age_minutes": 29.547,
+      "attempt_age_minutes": 24.98,
+      "success_age_minutes": 24.98,
       "consecutive_failures": 0,
       "critical": true,
       "healthy": true,
@@ -143,7 +139,7 @@
     {
       "name": "dashboard_json",
       "path": "/Users/ohyabumasaya/kyotei-mm1601-monitor/data/output/manshu_system_dashboard_latest.json",
-      "age_minutes": 2422.263,
+      "age_minutes": 2447.762,
       "max_age_minutes": 15.0,
       "healthy": false,
       "issues": [
@@ -261,6 +257,11 @@
       "state": "already_loaded"
     },
     {
+      "role": "audit",
+      "label": "com.mm1601.boaters-runtime-audit",
+      "state": "already_loaded"
+    },
+    {
       "role": "publisher",
       "label": "com.mm1601.boaters-dashboard-publisher",
       "state": "already_loaded"
@@ -268,23 +269,19 @@
     {
       "role": "live",
       "label": "com.mm1601.boaters-live-monitor",
-      "state": "kicked",
-      "message": ""
+      "state": "cooldown"
     },
     {
       "role": "retry",
       "label": "com.mm1601.boaters-original-retry",
-      "state": "cooldown"
+      "state": "kicked",
+      "message": ""
     },
     {
       "role": "screenshot_post",
       "label": "com.mm1601.boaters-post-snapshot",
-      "state": "cooldown"
-    },
-    {
-      "role": "screenshot_post",
-      "label": "com.mm1601.boaters-post-snapshot",
-      "state": "cooldown"
+      "state": "kicked",
+      "message": ""
     },
     {
       "role": "screenshot_post",
